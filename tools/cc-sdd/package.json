@@ -12,8 +12,8 @@
     "qwen-code",
     "opencode",
     "sdd",
+    "open-sdd",
     "spec-driven-development",
-    "kiro",
     "steering",
     "ai-development",
     "tdd",
@@ -26,7 +26,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/gotalab/cc-sdd.git",
+    "url": "https://github.com/Brujo2020/open-sdd.git",
     "directory": "tools/cc-sdd"
   },
   "type": "module",
