@@ -45,7 +45,7 @@
 \begin{abstract}
 As generative artificial intelligence transitions from assistive auto-completion to multi-agent autonomous swarms, enterprise software engineering confronts an acute governance crisis: stochastic model capacity outpaces deterministic verification. Uncontrolled agentic pipelines routinely amplify write throughput while severely degrading system cohesion, multiplying code duplication and accumulating latent architectural debt. 
 
-This paper introduces \textbf{Open-SDD}, an open, model-agnostic, zero-trust specification-driven reference harness and methodological toolkit. Grounded in the fifth generation of software abstraction where architectural intent becomes an executable control plane (\textit{SpecOps}), Open-SDD formalizes a four-phase closed-loop cycle: \textit{propose $\rightarrow$ act $\rightarrow$ verify $\rightarrow$ learn}. By deprecating fragmented, vendor-tied heuristics and eradicating legacy branded wrappers in favor of unified \texttt{sdd-*} protocols and \texttt{.sdd/} living trees, Open-SDD introduces four structural innovations: (i) a \textbf{Documentary Triad} operating under EARS syntax and persistent Git-native provenance; (ii) an \textbf{Adaptive Contextual Decision Engine} (PASS/WARN/ASK/BLOCK) mitigating the empirical \textit{Bypass Conjecture} ($E_{\text{ef}} = E_{\text{nom}}(1 - d(\phi))$) to prevent compliance disabling under false-positive fatigue; (iii) a \textbf{Brownfield Reverse-Engineering and Drift Discovery} methodology (\textit{Graph before Grep}) for existing enterprise monoliths; and (iv) native alignment with emergent regulatory frameworks including the EU AI Act (Articles 11--15), NIST AI RMF, and ISO/IEC 42001. We demonstrate how Open-SDD relocates human authority to intent, ethics, and boundary-setting while transforming code into an ephemeral, regenerable commodity.
+This paper introduces \textbf{Open-SDD}, an open, model-agnostic, zero-trust specification-driven reference harness and methodological toolkit. Grounded in the fifth generation of software abstraction where architectural intent becomes an executable control plane (\textit{SpecOps}), Open-SDD formalizes a four-phase closed-loop cycle: \textit{propose $\rightarrow$ act $\rightarrow$ verify $\rightarrow$ learn}. By deprecating fragmented, vendor-tied heuristics and eradicating legacy branded wrappers in favor of unified \texttt{sdd-*} protocols and \texttt{.sdd/} living trees, Open-SDD introduces four structural innovations: (i) a \textbf{Documentary Triad} operating under EARS syntax and persistent Git-native provenance; (ii) an \textbf{Adaptive Contextual Decision Engine} (PASS/WARN/ASK/BLOCK) mitigating the empirical \textit{Bypass Conjecture} ($E_{\text{ef}} = E_{\text{nom}}(1 - d(\phi))$) to prevent compliance disabling under false-positive fatigue; (iii) an \textbf{Enterprise Agentic Quality Engineering (Agentic QE)} validation substrate operating under the PACTS methodology (Proactive, Autonomous, Collaborative, Targeted, Structured) via Model Context Protocol (MCP) fleets; (iv) a \textbf{Brownfield Reverse-Engineering and Drift Discovery} methodology (\textit{Graph before Grep}) for existing enterprise monoliths; and (v) native alignment with emergent regulatory frameworks including the EU AI Act (Articles 11--15), NIST AI RMF, and ISO/IEC 42001. We demonstrate how Open-SDD relocates human authority to intent, ethics, and boundary-setting while transforming code into an ephemeral, regenerable commodity.
 \end{abstract}
 
 \noindent\textbf{Keywords:} Spec-Driven Development, Agentic Software Engineering, Zero-Trust Architecture, Living Specifications, Brownfield Modernization, Human-in-the-Loop, AI Governance.
@@ -107,7 +107,7 @@ The underlying philosophical principle states: \textit{the model proposes, the h
 
     \node [block] (propose) {\textbf{Propose}\\ (Documentary Triad in EARS)};
     \node [block, right=1.5cm of propose] (act) {\textbf{Act}\\ (Subagent Waves in Worktrees)};
-    \node [block, right=1.5cm of act] (verify) {\textbf{Verify}\\ (Contextual Decision Engine)};
+    \node [block, right=1.5cm of act] (verify) {\textbf{Verify}\\ (Decision Engine \& Agentic QE)};
     \node [block, right=1.5cm of verify] (learn) {\textbf{Learn}\\ (Memory Mesh \& Living Specs)};
     \node [judge, above=1cm of act] (judge) {\textbf{HITL / Meta-Judge}};
 
@@ -118,7 +118,7 @@ The underlying philosophical principle states: \textit{the model proposes, the h
     \path [line, dashed] (judge) -- (act);
     \path [line, dashed] (judge) -- (verify);
 \end{tikzpicture}
-\caption{The Open-SDD cybernetic control envelope with Meta-Judge and HITL oversight.}
+\caption{The Open-SDD cybernetic control envelope with Meta-Judge, HITL oversight, and Agentic QE validation.}
 \label{fig:loop}
 \end{figure}
 
@@ -147,6 +147,20 @@ Open-SDD resolves this through a 6-dimensional **Contextual Decision Engine** (e
     \item \textbf{ASK}: Ambiguous boundary detection requiring Human-in-the-Loop (HITL) approval via single-use, hash-bound digital receipts.
     \item \textbf{BLOCK}: Unconditional halt reserved for confirmed critical execution risks (e.g., unverified destructive shell commands, live credential exfiltration).
 \end{itemize}
+
+\subsection{Enterprise Validation: Autonomous Quality Engineering (Agentic QE) and PACTS}
+While classical software quality assurance relies on static test suites and manual post-facto assertions, enterprise SDD requires continuous, autonomous validation capable of keeping pace with high-throughput multi-agent code generation. To address this, Open-SDD integrates the \textbf{Agentic QE Framework} \cite{spiridonov2026agentic}, transitioning quality assurance from an isolated, downstream activity into an autonomous, orchestrating substrate.
+
+Under this paradigm, quality validation is governed by the \textbf{PACTS} methodology \cite{spiridonov2026agentic,cohen2025pact}:
+\begin{itemize}
+    \item \textbf{Proactive}: Defect anticipation and regression risk modeling prior to commit, preventing invariant violations before state transitions occur.
+    \item \textbf{Autonomous}: Decentralized QE agents automatically generate metamorphic test cases, property-based invariants, and characterization suites for legacy brownfield monoliths without requiring manual test scripting.
+    \item \textbf{Collaborative}: Peer co-orchestration where autonomous QE agents challenge developer subagents through adversarial verification (\texttt{sdd-review}) under human architectural governance.
+    \item \textbf{Targeted}: Dynamic scoping where test generation and execution are strictly bounded to the topological blast radius ($\text{Boundary}(T_i)$) specified in \texttt{tasks.md} and \texttt{design.md}.
+    \item \textbf{Structured}: Deterministic observability and structured quality telemetry that output machine-verifiable evidence matrices into \texttt{sdd-audit}, prioritizing verifiable empirical confidence over model trust.
+\end{itemize}
+
+By deploying Agentic QE via the Model Context Protocol (MCP), Open-SDD provides an enterprise-grade validation layer that directly drives the bypass rate $d(\phi) \to 0$, providing concrete, mathematical assurance for EU AI Act Article 14 human oversight and NIST AI RMF MAP/MEASURE functions.
 
 \subsection{4. Learn: Memory Mesh and Anti-Poisoning Quarantine}
 Knowledge gained during development is partitioned into a dual-memory system:
@@ -241,6 +255,16 @@ A.~Mavin, P.~Wilkinson, A.~Harwood, and M.~Novak.
 L.~Sampaio.
 \newblock {\em AI-Assisted SDD: Spec-Driven Development with Gemini, Claude, and ai-sdd}.
 \newblock Self-Published, 2025.
+
+\bibitem{spiridonov2026agentic}
+D.~Spiridonov.
+\newblock Agentic {QE} Framework: Bridging classical testing to autonomous quality engineering.
+\newblock {\em Quantum QE \& Agentic-QE.dev}, 2025--2026. \url{https://agentic-qe.dev}.
+
+\bibitem{cohen2025pact}
+R.~Cohen.
+\newblock The {PACT} principles for autonomous agent governance.
+\newblock {\em Agentics Foundation Whitepapers}, 2024--2025.
 
 \end{thebibliography}
 

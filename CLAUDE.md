@@ -38,7 +38,7 @@ Living specifications, Zero-Trust validation, and auditable architecture.
 - Phase 2 (Implementation): `/sdd-impl {feature} [tasks] [--review required|inline|off]`
   - Without task numbers: autonomous mode (subagent per task + independent review + verify gate)
   - With task numbers: manual mode (selected tasks only in main context)
-  - `/sdd-validate-impl {feature}` (standalone feature-level verification)
+  - `/sdd-validate-impl {feature}` (standalone feature-level verification; supports Agentic QE autonomous validation fleets)
 - Governance & Compliance: `/sdd-audit {feature}` — generates auditable compliance report (EU AI Act, NIST RMF, ADR genealogy)
 - Progress check: `/sdd-spec-status {feature}` (use anytime)
 
@@ -56,6 +56,7 @@ Skills are located under `.claude/skills/sdd-*/SKILL.md`:
 - 3-phase approval workflow: Requirements → Design → Tasks → Implementation
 - Human review required each phase; use `-y` only for intentional fast-track
 - Karpathy Guidelines (Think before coding, Simplicity first, Surgical changes, Goal-driven execution) are mandatory.
+- Autonomous Quality Engineering: Agentic QE (`agentic-qe.dev`, PACTS framework) enabled for boundary-scoped metamorphic invariant testing.
 - Keep steering current and verify alignment with `/sdd-status`.
 
 ## Steering Configuration

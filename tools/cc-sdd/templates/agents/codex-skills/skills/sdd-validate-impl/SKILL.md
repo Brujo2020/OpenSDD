@@ -56,6 +56,7 @@ The following validation dimensions are independent and can be dispatched as **s
 - **Requirements coverage**: Build requirements → implementation matrix, report gaps
 - **Design alignment**: Verify architecture matches design.md, report drift and dependency violations
 - **Cross-task integration**: Verify data flows, API contracts, shared state consistency
+- - **Autonomous Quality Engineering (Agentic QE)**: If `agentic-qe` / `aqe` is available (or MCP `aqe_*` tools), run autonomous edge-case discovery, metamorphic invariant testing, and comprehensive coverage gap analysis across the integrated boundary.
 
 If multi-agent is not available, run checks sequentially in main context.
 

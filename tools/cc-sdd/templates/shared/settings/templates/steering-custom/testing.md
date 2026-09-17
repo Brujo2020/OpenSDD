@@ -44,4 +44,16 @@ it('does X when Y', () => {
 - Enforce thresholds in CI; exceptions require review rationale
 
 ---
+
+## Enterprise Autonomous Quality Engineering (Agentic QE)
+For enterprise systems requiring continuous, autonomous validation beyond static scripts:
+- **Framework**: Agentic QE (`https://agentic-qe.dev`) based on the PACTS methodology:
+  - **Proactive**: Predict regression risks and invariant violations before commit.
+  - **Autonomous**: Auto-generate property-based, metamorphic, and characterization test suites for legacy/brownfield boundaries.
+  - **Collaborative**: Autonomous QE agents work alongside developer subagents (`sdd-review`) under human oversight.
+  - **Targeted**: Constrain test execution and fuzzing strictly to task boundaries (`_Boundary:_`).
+  - **Structured**: Deterministic quality telemetry, coverage gap analysis, and auditable proof matrices for `/sdd-audit`.
+- **Integration**: Agentic QE Fleet (`npm i -g agentic-qe` or MCP server `aqe init --auto`).
+
+---
 _Focus on patterns and decisions. Tool-specific config lives elsewhere._

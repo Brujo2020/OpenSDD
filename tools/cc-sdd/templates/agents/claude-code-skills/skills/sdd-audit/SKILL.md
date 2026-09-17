@@ -44,6 +44,7 @@ Modes:
 - Check tasks in `tasks.md`: Verify each completed task has fresh verification evidence (`sdd-verify-completion`).
 - Ensure bypass rate $d(\phi) = 0$: No task should transition to done without satisfying the defined review gates (`sdd-review`).
 - Verify that characterization tests in brownfield projects remain intact with zero regressions.
+- **Agentic QE Verification**: When Agentic QE (`https://agentic-qe.dev`) is configured, verify PACTS quality scores (Proactive, Autonomous, Collaborative, Targeted, Structured) and ensure zero unhandled boundary mutations.
 
 ## Step 5: Regulatory Compliance Check (EU AI Act & NIST AI RMF)
 When `--regulatory` is requested:
