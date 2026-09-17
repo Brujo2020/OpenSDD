@@ -1,0 +1,20 @@
+{
+  "name": "open-sdd-workspace",
+  "version": "3.0.2",
+  "private": true,
+  "description": "Open-SDD: Model-agnostic Spec-Driven Development on an enterprise agentic SDLC",
+  "type": "module",
+  "scripts": {
+    "build": "npm --prefix tools/cc-sdd run build",
+    "test": "npm --prefix tools/cc-sdd test",
+    "install:global": "npm --prefix tools/cc-sdd run build && npm install -g ./tools/cc-sdd",
+    "install:antigravity": "node tools/cc-sdd/dist/cli.js --antigravity -y",
+    "install:claude": "node tools/cc-sdd/dist/cli.js -y",
+    "install:cursor": "node tools/cc-sdd/dist/cli.js --cursor-skills -y",
+    "install:copilot": "node tools/cc-sdd/dist/cli.js --copilot-skills -y",
+    "install:windsurf": "node tools/cc-sdd/dist/cli.js --windsurf-skills -y",
+    "install:opencode": "node tools/cc-sdd/dist/cli.js --opencode-skills -y",
+    "install:gemini": "node tools/cc-sdd/dist/cli.js --gemini-cli-skills -y",
+    "install:codex": "node tools/cc-sdd/dist/cli.js --codex-skills -y"
+  }
+}
