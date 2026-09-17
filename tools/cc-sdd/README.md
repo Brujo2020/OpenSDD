@@ -11,10 +11,10 @@ Package README: <a href="./tools/cc-sdd/README.md">English</a> | <a href="./tool
 
 ## Turn approved specs into long-running autonomous implementation
 
-One command installs an agentic SDLC workflow as Agent Skills: discovery, requirements, design, tasks, brownfield gap analysis, regulatory audit, and autonomous implementation with per-task independent review. Works across 8 AI coding agents, with the same 18-skill set on each.
+One command installs an agentic SDLC workflow as Agent Skills: brownfield bootstrap, discovery, requirements, design, tasks, gap analysis, regulatory audit, and autonomous implementation with per-task independent review. Works across 8 AI coding agents, with the same 19-skill set on each.
 
 - **5th Generation Software Abstraction (InfoQ 2026)**: Architecture becomes executable. Machine Code → Assembly → High-level compiled → Scripting/Dynamic → **SpecOps (SDD)**.
-- **Enterprise Brownfield Ready**: Reverse-engineer existing codebases via *Graph before Grep*, blast radius estimation, and characterization test locking before modification.
+- **Enterprise Brownfield Reverse-Engineering (`/sdd-getspecs`)**: Deduce living specifications from existing repositories through code-first reverse engineering, mapping AST dependencies and generating spec seeds that require human editing and validation before approval.
 - **Living Documentation in Git (*Spec-as-Code*)**: Specifications live in Git alongside the code (`.sdd/specs/`), versioned together in PRs to eradicate architectural drift.
 - **Karpathy Principles**: Think before coding, surgical changes, simplicity first, minimal blast radius, and goal-driven test verification.
 - **Zero-Trust Multi-Agent Governance & Compliance**: Enforces verification gates, tamper-evident audit trails, and compliance with EU AI Act (Art. 11/12/14), NIST AI RMF, and ISO/IEC 42001 via `/sdd-audit`.
@@ -24,13 +24,14 @@ One command installs an agentic SDLC workflow as Agent Skills: discovery, requir
 
 Open-SDD represents a major evolution into an agent-agnostic, enterprise-grade SDLC standard:
 
-- **`/sdd-discovery` as the unified entry point**: Discovery routes new work into one of: extend an existing spec, implement directly with no spec, create one new spec, decompose into multiple specs, or mixed decomposition. It writes `brief.md` and, when needed, `roadmap.md`.
+- **Brownfield Code-First Bootstrap (`/sdd-getspecs`)**: Dissects existing codebases, extracts architectural invariants into steering, and generates spec seeds (`brief.md`, `spec.json`, requirements stubs) that must be reviewed, edited, and validated before approval.
+- **`/sdd-discovery` as the unified entry point for new work**: Routes new work into extending an existing spec, implementing directly with no spec, creating one new spec, or decomposing into multiple specs.
 - **`/sdd-impl` for long-running autonomous implementation**: Each task gets a fresh implementer running TDD (RED → GREEN) behind a feature flag, an independent reviewer (`sdd-review`), and an auto-debug pass (`sdd-debug`). Learnings propagate forward via `## Implementation Notes` in `tasks.md`.
 - **`/sdd-audit` for architectural drift & regulatory compliance**: Evaluates spec-to-code alignment, detects ambient code divergence, generates Requirements Traceability Matrices (RTM), and produces EU AI Act / NIST AI RMF audit reports.
 - **Agentic QE Autonomous Verification (`/sdd-validate-impl`)**: Native integration with Agentic QE fleets (`agentic-qe.dev`) using the PACTS framework for metamorphic invariants, property testing, and boundary-scoped verification.
 - **Brownfield Gap Validation (`/sdd-validate-gap`)**: Reverse-engineers call graphs and invariant boundaries in existing repositories before proposing architectural changes.
 - **Boundary-first spec discipline**: `design.md` includes a File Structure Plan that drives task boundaries. Tasks carry `_Boundary:_` and `_Depends:_` annotations.
-- **Agent Skills across 8 coding agents**: 18 skills per install, loaded on demand via progressive disclosure: Claude Code, Codex, Cursor, GitHub Copilot, Windsurf, OpenCode, Gemini CLI, and Antigravity.
+- **Agent Skills across 8 coding agents**: 19 skills per install, loaded on demand via progressive disclosure: Claude Code, Codex, Cursor, GitHub Copilot, Windsurf, OpenCode, Gemini CLI, and Antigravity.
 
 Read our research preprint: [Open-SDD: Spec-Driven Development Orchestration](docs/papers/open-sdd-preprint.pdf).
 
@@ -54,15 +55,18 @@ npx cc-sdd@latest --antigravity --lang es       # Antigravity, Spanish
 Then, in your agent:
 
 ```bash
+# For existing projects without specs:
+/sdd-getspecs
+
+# For new features or greenfield ideas:
 /sdd-discovery <idea>
 ```
-
-Not sure where to start? Start with `/sdd-discovery`. It routes your request and tells you what command to run next.
 
 ### Common workflows
 
 | You want to... | Skills mode |
 |---|---|
+| **Reverse-engineer existing code (Brownfield)** | `/sdd-getspecs` → review/edit seeds → `/sdd-spec-requirements` → `/sdd-validate-gap` → `/sdd-spec-design` → `/sdd-impl` |
 | **Start a new feature or product** | `/sdd-discovery` → `/sdd-spec-init` → `/sdd-spec-requirements` → `/sdd-spec-design` → `/sdd-spec-tasks` → `/sdd-impl` |
 | **Extend an existing brownfield system** | `/sdd-steering` → `/sdd-discovery` or `/sdd-spec-init` → `/sdd-validate-gap` → `/sdd-spec-design` → `/sdd-spec-tasks` → `/sdd-impl` |
 | **Audit architectural drift & compliance** | `/sdd-audit [feature-name] [--regulatory]` |
@@ -95,7 +99,7 @@ Typical spec outputs (stored in `.sdd/specs/` under Git control):
 
 ## Supported Agents
 
-All 8 skills variants ship the complete 18-skill set:
+All 8 skills variants ship the complete 19-skill set:
 
 | Agent | Skills mode | Stability |
 |---|---|---|

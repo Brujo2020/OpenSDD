@@ -110,3 +110,6 @@ Provide output in the language specified in spec.json with:
 - Or `$sdd-spec-design $1 -y` to auto-approve requirements and proceed directly
 
 **Note**: Gap analysis is optional but recommended for brownfield projects to inform design decisions.
+
+
+**Prior bootstrap**: If `.sdd/specs/` was created by `/sdd-getspecs`, generate requirements first via `/sdd-spec-requirements` before running gap analysis.

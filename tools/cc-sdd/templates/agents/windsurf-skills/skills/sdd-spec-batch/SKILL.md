@@ -65,7 +65,7 @@ Create a complete specification for feature "{feature-name}".
 1. Read the brief at {{SDD_DIR}}/specs/{feature-name}/brief.md for feature context
 2. Read the roadmap at {{SDD_DIR}}/steering/roadmap.md for project context
 3. Execute the full spec pipeline. For each phase, read the corresponding skill's SKILL.md for complete instructions (templates, rules, review gates):
-   a. Initialize: Read .windsurf/skills@sdd-spec-init/SKILL.md, then create spec.json and requirements.md
+   a. Initialize: Read .windsurf/skills@sdd-spec-init/SKILL.md, If `spec.json` and `brief.md` already exist (from `/sdd-getspecs` or `/sdd-discovery`), run brownfield init (requirements stub only). Otherwise create `spec.json` and `requirements.md` stub
    b. Generate requirements: Read .windsurf/skills@sdd-spec-requirements/SKILL.md, then follow its steps
    c. Generate design: Read .windsurf/skills@sdd-spec-design/SKILL.md, then follow its steps
    d. Generate tasks: Read .windsurf/skills@sdd-spec-tasks/SKILL.md, then follow its steps

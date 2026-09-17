@@ -189,15 +189,15 @@ Goal-Driven Execution & Verify Gate (\texttt{sdd-verify}) & Rejects task complet
 \end{tabular}
 \end{table}
 
-\section{Brownfield Enterprise Modernization: The 4-Step Strategy}
+\section{Brownfield Enterprise Modernization: Code-First Spec Reverse-Engineering}
 
-Deploying agentic SDD across legacy codebases within hyperscalers (AWS, GCP, Azure) requires avoiding brittle full-rewrite traps. Open-SDD codifies a repeatable four-phase onboarding protocol:
+Deploying agentic SDD across legacy codebases within enterprise environments and hyperscalers (AWS, GCP, Azure) requires avoiding brittle full-rewrite traps. Open-SDD operationalizes brownfield adoption through a code-first bootstrap protocol (\texttt{/sdd-getspecs}) and a repeatable four-phase onboarding pipeline:
 
 \begin{enumerate}
-    \item \textbf{Structural Baseline via Graph Extraction}: The harness scans ASTs and module boundaries to generate a dependency and call graph in \texttt{.sdd/memory/graph/}. This bounds the blast radius of any future task before a single grep is executed.
-    \item \textbf{Golden Characterization Locking}: Legacy endpoints are bounded by automated characterization tests capturing existing runtime behaviors and edge-case quirks.
-    \item \textbf{EARS Invariant Extraction}: The core enterprise requirements are codified retroactively into \texttt{.sdd/steering/} (\texttt{product.md}, \texttt{tech.md}, \texttt{structure.md}) and feature specs.
-    \item \textbf{Transactional Wave Refactoring}: Incremental additions or refactorings execute in isolated subagent waves. If tests break the golden baseline, the worktree is rolled back cleanly.
+    \item \textbf{Code-First Reverse Engineering (\texttt{sdd-getspecs})}: The harness inspects existing source code, configuration files, and git commit history to bootstrap project steering (\texttt{product.md}, \texttt{tech.md}, \texttt{structure.md}) and generate an acyclic roadmap of candidate specifications.
+    \item \textbf{Unapproved Spec Seeds with Mandatory Human Validation Gate}: For each identified boundary, \texttt{sdd-getspecs} materializes a \textit{spec seed} containing a brownfield brief, an initialized descriptor (\texttt{phase: "initialized"} with all approvals set to \texttt{false}), and a requirements stub. Crucially, Open-SDD prohibits jumping directly from code extraction to generative implementation; human engineers must edit, calibrate, and validate the deduced requirements via \texttt{/sdd-spec-requirements} and verify boundary blast radiuses with \texttt{/sdd-validate-gap} before design approval.
+    \item \textbf{Golden Characterization Locking}: Legacy endpoints are bounded by automated characterization suites and Agentic QE metamorphic property tests, capturing existing runtime behaviors and edge-case invariants before modification.
+    \item \textbf{Transactional Wave Refactoring (\texttt{sdd-impl})}: Implementation tasks execute in isolated subagent waves behind feature flags. If tests violate the golden characterization baseline or spec contracts, the task is rejected and the worktree is rolled back cleanly.
 \end{enumerate}
 
 \section{Auditability, Traceability, and Regulatory Compliance}

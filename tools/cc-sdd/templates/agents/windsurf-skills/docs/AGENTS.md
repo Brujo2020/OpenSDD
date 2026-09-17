@@ -30,6 +30,7 @@ Project memory keeps persistent guidance (steering, specs notes, component docs)
 
 ## Minimal Workflow
 - Phase 0 (optional): `@sdd-steering`, `@sdd-steering-custom`
+- **Brownfield bootstrap** (existing codebase, no `.sdd/` specs): `/sdd-getspecs` — reverse-engineers steering + roadmap + spec seeds from code; then `/sdd-spec-requirements` or `/sdd-spec-batch`
 - Discovery: `@sdd-discovery "idea"` — determines action path, writes brief.md + roadmap.md for multi-spec projects
 - Phase 1 (Specification):
   - Single spec: `@sdd-spec-quick {feature} [--auto]` or step by step:

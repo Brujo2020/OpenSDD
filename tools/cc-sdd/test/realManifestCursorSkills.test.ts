@@ -160,6 +160,7 @@ describe('real cursor-skills manifest', () => {
     expect(await exists(join(cwd, '.cursor/skills/sdd-validate-gap/rules/gap-analysis.md'))).toBe(true);
     expect(await exists(join(cwd, '.cursor/skills/sdd-steering/rules/steering-principles.md'))).toBe(true);
     expect(await exists(join(cwd, '.cursor/skills/sdd-steering-custom/rules/steering-principles.md'))).toBe(true);
+    expect(await exists(join(cwd, '.cursor/skills/sdd-getspecs/rules/getspecs-principles.md'))).toBe(true);
     expect(await exists(join(cwd, '.cursor/skills/sdd-spec-tasks/rules/tasks-generation.md'))).toBe(true);
     expect(await exists(join(cwd, '.cursor/skills/sdd-spec-tasks/rules/tasks-parallel-analysis.md'))).toBe(true);
     const skillSpecTasks = join(cwd, '.cursor/skills/sdd-spec-tasks/SKILL.md');
@@ -191,7 +192,7 @@ describe('real cursor-skills manifest', () => {
     expect(ctx.logs.join('\n')).toMatch(/\d+\/\d+ files written/);
   });
 
-  it('generates exactly 18 skill directories', async () => {
+  it('generates exactly 19 skill directories', async () => {
     const cwd = await mkTmp();
     const ctx = makeIO();
     await runCli(
@@ -204,6 +205,7 @@ describe('real cursor-skills manifest', () => {
 
     const expectedSkills = [
       'sdd-discovery',
+      'sdd-getspecs',
       'sdd-spec-batch',
       'sdd-spec-init',
       'sdd-spec-quick',

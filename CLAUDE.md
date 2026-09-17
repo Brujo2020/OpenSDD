@@ -25,7 +25,8 @@ Living specifications, Zero-Trust validation, and auditable architecture.
 
 ## Minimal Workflow
 - Phase 0 (Steering): `/sdd-steering`, `/sdd-steering-custom`
-- Discovery: `/sdd-discovery "idea"` — identifies action path (Greenfield or Brownfield), writes `brief.md` and `roadmap.md`
+- **Brownfield Bootstrap** (existing codebase, no `.sdd/` specs): `/sdd-getspecs [focus]` — reverse-engineers steering + roadmap + unapproved spec seeds from code; seeds must be reviewed, edited, and validated before approval.
+- Discovery (new work/ideas): `/sdd-discovery "idea"` — identifies action path (Greenfield or Brownfield extension), writes `brief.md` and `roadmap.md`
 - Phase 1 (Specification):
   - Single spec: `/sdd-spec-quick {feature} [--auto]` or step-by-step:
     - `/sdd-spec-init "description"`

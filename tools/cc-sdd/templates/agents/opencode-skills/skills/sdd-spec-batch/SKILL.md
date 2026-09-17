@@ -31,7 +31,7 @@ description: Create complete specs (requirements, design, tasks) for all feature
    - `## Direct Implementation Candidates`
    Do not include these in dependency-wave execution; they are awareness-only inputs for sequencing and consistency review.
 4. For each pending feature in `## Specs (dependency order)`, verify `{{SDD_DIR}}/specs/<feature>/brief.md` exists
-5. If any brief.md is missing, stop and report: "Missing brief.md for: [list]. Run `/sdd-discovery` to generate briefs first."
+5. If any brief.md is missing, stop and report: "Missing brief.md for: [list]. Run `/sdd-getspecs` (brownfield bootstrap) or `/sdd-discovery` to generate briefs first."
 
 ## Step 2: Build Dependency Waves
 
@@ -65,7 +65,7 @@ Create a complete specification for feature "{feature-name}".
 1. Read the brief at {{SDD_DIR}}/specs/{feature-name}/brief.md for feature context
 2. Read the roadmap at {{SDD_DIR}}/steering/roadmap.md for project context
 3. Execute the full spec pipeline. For each phase, read the corresponding skill's SKILL.md for complete instructions (templates, rules, review gates):
-   a. Initialize: Read .opencode/skills/sdd-spec-init/SKILL.md, then create spec.json and requirements.md
+   a. Initialize: Read .opencode/skills/sdd-spec-init/SKILL.md, If `spec.json` and `brief.md` already exist (from `/sdd-getspecs` or `/sdd-discovery`), run brownfield init (requirements stub only). Otherwise create `spec.json` and `requirements.md` stub
    b. Generate requirements: Read .opencode/skills/sdd-spec-requirements/SKILL.md, then follow its steps
    c. Generate design: Read .opencode/skills/sdd-spec-design/SKILL.md, then follow its steps
    d. Generate tasks: Read .opencode/skills/sdd-spec-tasks/SKILL.md, then follow its steps

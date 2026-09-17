@@ -164,6 +164,7 @@ describe('real codex-skills manifest', () => {
     expect(await exists(join(cwd, '.agents/skills/sdd-validate-gap/rules/gap-analysis.md'))).toBe(true);
     expect(await exists(join(cwd, '.agents/skills/sdd-steering/rules/steering-principles.md'))).toBe(true);
     expect(await exists(join(cwd, '.agents/skills/sdd-steering-custom/rules/steering-principles.md'))).toBe(true);
+    expect(await exists(join(cwd, '.agents/skills/sdd-getspecs/rules/getspecs-principles.md'))).toBe(true);
     expect(await exists(join(cwd, '.agents/skills/sdd-spec-tasks/rules/tasks-generation.md'))).toBe(true);
     expect(await exists(join(cwd, '.agents/skills/sdd-spec-tasks/rules/tasks-parallel-analysis.md'))).toBe(true);
     const skillSpecTasks = join(cwd, '.agents/skills/sdd-spec-tasks/SKILL.md');
@@ -207,7 +208,7 @@ describe('real codex-skills manifest', () => {
     expect(ctx.logs.join('\n')).toMatch(/\d+\/\d+ files written/);
   });
 
-  it('generates exactly 18 skill directories', async () => {
+  it('generates exactly 19 skill directories', async () => {
     const cwd = await mkTmp();
     const ctx = makeIO();
     await runCli(
@@ -219,6 +220,7 @@ describe('real codex-skills manifest', () => {
     );
 
     const expectedSkills = [
+      'sdd-getspecs',
       'sdd-debug',
       'sdd-discovery',
       'sdd-review',
