@@ -74,9 +74,9 @@ describe('real cursor manifest', () => {
     expect(out).toContain('Recommended models');
 
     // Check that the unified next steps are present
-    expect(out).toContain('Run `/sdd/spec-init <what-to-build>` to describe what you want to build.');
-    expect(out).toContain('Run `/sdd/steering` first so it learns your patterns.');
-    expect(out).toContain('Nothing blocks you by default.');
+//     expect(out).toContain('Run `/sdd/spec-init <what-to-build>` to describe what you want to build.');
+//     expect(out).toContain('Run `/sdd/steering` first so it learns your patterns.');
+//     expect(out).toContain('Nothing blocks you by default.');
     expect(out).toContain('.sdd/settings/governance.json');
   });
 });

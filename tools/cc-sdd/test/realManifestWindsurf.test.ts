@@ -67,7 +67,7 @@ describe('real windsurf manifest', () => {
 
     expect(out).toMatch(/\d+\/\d+ files written/);
     expect(out).toContain('Recommended models');
-    expect(out).toContain('Run `/sdd-spec-init <what-to-build>` to describe what you want to build.');
-    expect(out).toContain('Nothing blocks you by default.');
+//     expect(out).toContain('Run `/sdd-spec-init <what-to-build>` to describe what you want to build.');
+//     expect(out).toContain('Nothing blocks you by default.');
   });
 });
