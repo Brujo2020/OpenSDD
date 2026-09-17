@@ -36,6 +36,21 @@ export interface TaskItem {
   raw: string;
 }
 
+export interface TaskWave {
+  waveIndex: number;
+  tasks: TaskItem[];
+  isParallel: boolean;
+  boundaries: string[];
+}
+
+export interface SchedulePlan {
+  feature: string;
+  totalTasks: number;
+  pendingTasks: number;
+  waves: TaskWave[];
+  maxConcurrency: number;
+}
+
 export interface RequirementItem {
   id: string;
   title: string;

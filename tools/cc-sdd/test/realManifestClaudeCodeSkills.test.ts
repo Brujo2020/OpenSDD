@@ -126,8 +126,8 @@ describe('real claude-code-skills manifest', () => {
     expect(skillImplText).toContain('Strict Handoff Parsing');
     expect(skillImplText).toContain('No Destructive Reset');
     expect(skillImplText).toContain('stop the feature run');
-    expect(skillImplText).not.toContain('discard the failed implementation (`git checkout .`)');
-    expect(skillImplText).toContain('argument-hint: <feature-name> [task-numbers] [--review required|inline|off]');
+    expect(skillImplText).toContain('argument-hint: <feature-name> [task-numbers]');
+    expect(skillImplText).toContain('--parallel');
     expect(skillImplText).toContain('Default review mode is `required`');
     expect(skillImplText).toContain('skip review');
     expect(skillImplText).toContain('If review mode is `off`');

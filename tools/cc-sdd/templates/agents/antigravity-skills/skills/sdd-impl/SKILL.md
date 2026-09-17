@@ -106,13 +106,23 @@ After all parallel research completes, synthesize implementation brief before st
 
 ## Step 3: Execute Implementation
 
-### Autonomous Mode (sub-agent dispatch)
+### Autonomous Mode (Parallel Waves & Sub-Agent Dispatch)
 
-**Iteration discipline**: Process exactly ONE sub-task (e.g., 1.1) per iteration. Do NOT batch multiple sub-tasks into a single sub-agent dispatch. Each iteration follows the full cycle: dispatch implementer → review → commit → re-read tasks.md → next.
+**Parallel Wave Execution (`--parallel`)**:
+- Compute execution plan: run `open-sdd impl {feature} --json` to retrieve topologically ordered waves with guaranteed disjoint file boundaries ($\text{Boundary}(T_i) \cap \text{Boundary}(T_j) = \emptyset$).
+- For each wave:
+  - If wave has multiple tasks: launch all implementers concurrently in a single call via `invoke_subagent` (specifying each subagent in the `Subagents` array with disjoint boundary scope).
+  - When subagents complete with `READY_FOR_REVIEW`, conduct review and `sdd-verify-completion`.
+  - Mark completed tasks `[x]` in tasks.md and execute selective commits (`git add <files>`).
+  - Advance to next wave.
 
-**Context management**: At the start of each iteration, re-read `tasks.md` to determine the next actionable sub-task. Do NOT rely on accumulated memory of previous iterations. After completing each iteration, retain only a one-line summary (e.g., "1.1: READY_FOR_REVIEW, 3 files changed") and discard the full status report and reviewer details.
+**Sequential Iteration (Standard Mode)**:
+- Process one sub-task (e.g., 1.1) per iteration if `--parallel` is omitted.
+- Each iteration follows: dispatch implementer → review → commit → re-read tasks.md → next.
 
-If multi-agent capability is available, for each task (one at a time):
+**Context management**: At the start of each iteration or wave, re-read `tasks.md` to determine the next actionable sub-tasks. Do NOT rely on accumulated memory of previous iterations. After completing each iteration, retain only a one-line summary (e.g., "1.1: READY_FOR_REVIEW, 3 files changed") and discard the full status report and reviewer details.
+
+If multi-agent capability is available, for each task:
 
 **a) Dispatch implementer**:
 - Read `templates/implementer-prompt.md` from this skill's directory

@@ -36,9 +36,10 @@ Living specifications, Zero-Trust validation, and auditable architecture.
     - `/sdd-validate-design {feature}` (design review gate)
     - `/sdd-spec-tasks {feature} [-y]`
   - Multi-spec: `/sdd-spec-batch` — initializes all specs from roadmap.md in parallel dependency waves
-- Phase 2 (Implementation): `/sdd-impl {feature} [tasks] [--review required|inline|off]`
-  - Without task numbers: autonomous mode (subagent per task + independent review + verify gate)
+- Phase 2 (Implementation): `/sdd-impl {feature} [tasks] [--parallel] [--review required|inline|off]`
+  - Without task numbers: autonomous mode (parallel dependency waves with disjoint boundary locks + independent review + verify gate)
   - With task numbers: manual mode (selected tasks only in main context)
+  - CLI command: `open-sdd impl {feature} [--parallel] [--json]` (computes and displays DAG dependency waves)
   - `/sdd-validate-impl {feature}` (standalone feature-level verification; supports Agentic QE autonomous validation fleets)
 - Governance & Compliance: `/sdd-audit {feature}` — generates auditable compliance report (EU AI Act, NIST RMF, ADR genealogy)
 - Progress check: `/sdd-spec-status {feature}` (use anytime)

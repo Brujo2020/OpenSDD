@@ -25,6 +25,7 @@ import { handleGapCommand } from './cli/commands/gap.js';
 import { handleGetspecsCommand } from './cli/commands/getspecs.js';
 import { handleVerifyCommand } from './cli/commands/verify.js';
 import { handleHelpCommand } from './cli/commands/help.js';
+import { handleImplCommand } from './cli/commands/impl.js';
 
 export * from './core/index.js';
 
@@ -267,6 +268,9 @@ export const runCli = async (
     }
     if (cmd === 'verify' || cmd === 'validate-impl') {
       return handleVerifyCommand(subArgv, io, targetCwd);
+    }
+    if (cmd === 'impl') {
+      return handleImplCommand(subArgv, io, targetCwd);
     }
     if (cmd === 'help') {
       return handleHelpCommand(subArgv, io);

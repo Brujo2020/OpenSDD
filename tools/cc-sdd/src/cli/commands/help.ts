@@ -84,11 +84,27 @@ export const handleHelpCommand = async (argv: string[], io: CliIO): Promise<numb
     return 0;
   }
 
+  if (topic === 'impl') {
+    io.log('');
+    io.log(formatHeading('Command: open-sdd impl <feature-slug> [--parallel] [--json]'));
+    io.log('  Computes DAG dependency waves and schedules parallel subagents with');
+    io.log('  disjoint file boundaries to execute implementation tasks with zero write collisions.');
+    io.log('');
+    io.log(colors.bold('Examples:'));
+    io.log('  open-sdd impl stripe-billing');
+    io.log('  open-sdd impl stripe-billing --parallel');
+    io.log('  open-sdd impl stripe-billing --parallel --max-parallel=6');
+    io.log('  open-sdd impl stripe-billing --json');
+    io.log('');
+    return 0;
+  }
+
   // General help index
   io.log('');
   io.log(formatHeading('Open-SDD Engine CLI & Skills Reference'));
   io.log(`  ${colors.bold('open-sdd init <slug>')}        Initialize new feature spec & Git branch`);
   io.log(`  ${colors.bold('open-sdd status [slug]')}      View spec progress, tasks bar, and approvals`);
+  io.log(`  ${colors.bold('open-sdd impl <slug>')}        Compute parallel DAG waves & disjoint execution plan`);
   io.log(`  ${colors.bold('open-sdd audit [slug]')}       Run RTM drift & EU AI Act regulatory audit`);
   io.log(`  ${colors.bold('open-sdd gap <slug>')}         Analyze blast radius and boundary modifications`);
   io.log(`  ${colors.bold('open-sdd getspecs [focus]')}   Brownfield reverse-engineering & spec seeds`);

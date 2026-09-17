@@ -3,14 +3,14 @@ name: sdd-impl
 description: Implement approved tasks using TDD with native subagent dispatch. Runs all pending tasks autonomously or selected tasks manually.
 disable-model-invocation: true
 allowed-tools: Read, Write, Edit, MultiEdit, Bash, Glob, Grep, Agent, WebSearch, WebFetch
-argument-hint: <feature-name> [task-numbers] [--review required|inline|off]
+argument-hint: <feature-name> [task-numbers] [--parallel] [--review required|inline|off]
 ---
 
 # sdd-impl Skill
 
 ## Role
 You operate in two modes:
-- **Autonomous mode** (no task numbers): Dispatch a fresh subagent per task, with independent review after each
+- **Autonomous mode** (no task numbers): Dispatch fresh subagents per task (or in parallel waves when `--parallel` is set), with independent review after each
 - **Manual mode** (task numbers provided): Execute selected tasks directly in the main context
 
 ## Core Mission
@@ -87,6 +87,7 @@ After all parallel research completes, synthesize implementation brief before st
 - Extract feature name from first argument
 - If task numbers provided (e.g., "1.1" or "1,2,3"): **manual mode**
 - If no task numbers: **autonomous mode** (all pending tasks)
+- Check for `--parallel` flag: enables parallel wave scheduling
 - Determine review mode from the invocation:
   - `--review required` or omitted → `required`
   - `--review inline` → `inline`
@@ -102,9 +103,19 @@ After all parallel research completes, synthesize implementation brief before st
 
 ### Step 3: Execute Implementation
 
-#### Autonomous Mode (subagent dispatch)
+#### Autonomous Mode (Parallel Waves & Subagent Dispatch)
 
-**Iteration discipline**: Process exactly ONE sub-task (e.g., 1.1) per iteration. Do NOT batch multiple sub-tasks into a single subagent dispatch. Each iteration follows the full cycle: dispatch implementer → review → commit → re-read tasks.md → next.
+**Parallel Wave Execution (`--parallel`)**:
+- Compute execution plan: run `open-sdd impl {feature} --json` to retrieve topologically ordered waves with guaranteed disjoint file boundaries ($\text{Boundary}(T_i) \cap \text{Boundary}(T_j) = \emptyset$).
+- For each wave:
+  - Concurrently dispatch a fresh implementer subagent for every task in the wave.
+  - When all subagents complete with `READY_FOR_REVIEW`, conduct review and `sdd-verify-completion`.
+  - Mark completed tasks `[x]` in tasks.md and execute selective commits (`git add <files>`).
+  - Advance to the next wave once the current wave finishes.
+
+**Sequential Iteration (Standard Mode)**:
+- Process one sub-task (e.g., 1.1) per iteration if `--parallel` is omitted.
+- Each iteration follows: dispatch implementer → review → commit → re-read tasks.md → next.
 
 **Context management**: At the start of each iteration, re-read `tasks.md` to determine the next actionable sub-task. Do NOT rely on accumulated memory of previous iterations. After completing each iteration, retain only a one-line summary (e.g., "1.1: READY_FOR_REVIEW, 3 files changed") and discard the full status report and reviewer details.
 

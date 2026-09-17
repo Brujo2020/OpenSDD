@@ -5,3 +5,4 @@ export * from './gapAnalyzer.js';
 export * from './auditEngine.js';
 export * from './reverseEngineering.js';
 export * from './governance.js';
+export * from './scheduler.js';
