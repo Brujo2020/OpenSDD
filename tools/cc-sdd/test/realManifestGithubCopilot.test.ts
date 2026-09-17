@@ -52,7 +52,7 @@ describe('real github-copilot manifest', () => {
     expect(out).toMatch(/Plan \(dry-run\)/);
     expect(out).toContain('[templateDir] commands: templates/agents/github-copilot/commands -> .github/prompts');
     expect(out).toContain('[templateFile] doc_main: templates/agents/github-copilot/docs/AGENTS.md -> ./AGENTS.md');
-    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .kiro/settings');
+    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .sdd/settings');
   });
 
   it('apply writes AGENTS.md, prompts, and shared settings', async () => {
@@ -72,10 +72,10 @@ describe('real github-copilot manifest', () => {
     const text = await readFile(doc, 'utf8');
     expect(text).toMatch(/# Agentic SDLC and Spec-Driven Development/);
 
-    const prompt = join(cwd, '.github/prompts/kiro-spec-init.prompt.md');
+    const prompt = join(cwd, '.github/prompts/sdd-spec-init.prompt.md');
     expect(await exists(prompt)).toBe(true);
 
-    const settingsTemplate = join(cwd, '.kiro/settings/templates/specs/tasks.md');
+    const settingsTemplate = join(cwd, '.sdd/settings/templates/specs/tasks.md');
     expect(await exists(settingsTemplate)).toBe(true);
 
     expect(ctx.logs.join('\n')).toMatch(/\d+\/\d+ files written/);

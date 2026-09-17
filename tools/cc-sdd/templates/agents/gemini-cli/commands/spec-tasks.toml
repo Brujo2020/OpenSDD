@@ -26,9 +26,9 @@ Generate implementation tasks for feature **$1** based on approved requirements 
 ### Step 1: Load Context
 
 **Read all necessary context**:
-- `{{KIRO_DIR}}/specs/$1/spec.json`, `requirements.md`, `design.md`
-- `{{KIRO_DIR}}/specs/$1/tasks.md` (if exists, for merge mode)
-- **Entire `{{KIRO_DIR}}/steering/` directory** for complete project memory
+- `{{SDD_DIR}}/specs/$1/spec.json`, `requirements.md`, `design.md`
+- `{{SDD_DIR}}/specs/$1/tasks.md` (if exists, for merge mode)
+- **Entire `{{SDD_DIR}}/steering/` directory** for complete project memory
 
 **Validate approvals**:
 - If `-y` flag provided ($2 == "-y"): Auto-approve requirements and design in spec.json
@@ -38,9 +38,9 @@ Generate implementation tasks for feature **$1** based on approved requirements 
 ### Step 2: Generate Implementation Tasks
 
 **Load generation rules and template**:
-- Read `{{KIRO_DIR}}/settings/rules/tasks-generation.md` for principles
-- If `sequential == false`: Read `{{KIRO_DIR}}/settings/rules/tasks-parallel-analysis.md` for parallel judgement criteria
-- Read `{{KIRO_DIR}}/settings/templates/specs/tasks.md` for format (supports `(P)` markers)
+- Read `{{SDD_DIR}}/settings/rules/tasks-generation.md` for principles
+- If `sequential == false`: Read `{{SDD_DIR}}/settings/rules/tasks-parallel-analysis.md` for parallel judgement criteria
+- Read `{{SDD_DIR}}/settings/templates/specs/tasks.md` for format (supports `(P)` markers)
 
 **Generate task list following all rules**:
 - Use language specified in spec.json
@@ -55,7 +55,7 @@ Generate implementation tasks for feature **$1** based on approved requirements 
 ### Step 3: Finalize
 
 **Write and update**:
-- Create/update `{{KIRO_DIR}}/specs/$1/tasks.md`
+- Create/update `{{SDD_DIR}}/specs/$1/tasks.md`
 - Update spec.json metadata:
   - Set `phase: "tasks-generated"`
   - Set `approvals.tasks.generated: true, approved: false`
@@ -80,7 +80,7 @@ Generate implementation tasks for feature **$1** based on approved requirements 
 
 Provide brief summary in the language specified in spec.json:
 
-1. **Status**: Confirm tasks generated at `{{KIRO_DIR}}/specs/$1/tasks.md`
+1. **Status**: Confirm tasks generated at `{{SDD_DIR}}/specs/$1/tasks.md`
 2. **Task Summary**: 
    - Total: X major tasks, Y sub-tasks
    - All Z requirements covered
@@ -100,11 +100,11 @@ Provide brief summary in the language specified in spec.json:
 **Requirements or Design Not Approved**:
 - **Stop Execution**: Cannot proceed without approved requirements and design
 - **User Message**: "Requirements and design must be approved before task generation"
-- **Suggested Action**: "Run `/kiro:spec-tasks $1 -y` to auto-approve both and proceed"
+- **Suggested Action**: "Run `/sdd:spec-tasks $1 -y` to auto-approve both and proceed"
 
 **Missing Requirements or Design**:
 - **Stop Execution**: Both documents must exist
-- **User Message**: "Missing requirements.md or design.md at `{{KIRO_DIR}}/specs/$1/`"
+- **User Message**: "Missing requirements.md or design.md at `{{SDD_DIR}}/specs/$1/`"
 - **Suggested Action**: "Complete requirements and design phases first"
 
 **Incomplete Requirements Coverage**:
@@ -112,7 +112,7 @@ Provide brief summary in the language specified in spec.json:
 - **User Action Required**: Confirm intentional gaps or regenerate tasks
 
 **Template/Rules Missing**:
-- **User Message**: "Template or rules files missing in `{{KIRO_DIR}}/settings/`"
+- **User Message**: "Template or rules files missing in `{{SDD_DIR}}/settings/`"
 - **Fallback**: Use inline basic structure with warning
 - **Suggested Action**: "Check repository setup or restore template files"
 - **Missing Numeric Requirement IDs**:
@@ -121,17 +121,17 @@ Provide brief summary in the language specified in spec.json:
 ### Next Phase: Implementation
 
 **Before Starting Implementation**:
-- **IMPORTANT**: Clear conversation history and free up context before running `/kiro:spec-impl`
+- **IMPORTANT**: Clear conversation history and free up context before running `/sdd:spec-impl`
 - This applies when starting first task OR switching between tasks
 - Fresh context ensures clean state and proper task focus
 
 **If Tasks Approved**:
-- Execute specific task: `/kiro:spec-impl $1 1.1` (recommended: clear context between each task)
-- Execute multiple tasks: `/kiro:spec-impl $1 1.1,1.2` (use cautiously, clear context between tasks)
-- Without arguments: `/kiro:spec-impl $1` (executes all pending tasks - NOT recommended due to context bloat)
+- Execute specific task: `/sdd:spec-impl $1 1.1` (recommended: clear context between each task)
+- Execute multiple tasks: `/sdd:spec-impl $1 1.1,1.2` (use cautiously, clear context between tasks)
+- Without arguments: `/sdd:spec-impl $1` (executes all pending tasks - NOT recommended due to context bloat)
 
 **If Modifications Needed**:
-- Provide feedback and re-run `/kiro:spec-tasks $1`
+- Provide feedback and re-run `/sdd:spec-tasks $1`
 - Existing tasks used as reference (merge mode)
 
 **Note**: The implementation phase will guide you through executing tasks with appropriate context and validation.

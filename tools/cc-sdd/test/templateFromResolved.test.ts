@@ -12,7 +12,7 @@ describe('contextFromResolved', () => {
     const ctx = contextFromResolved(resolved);
 
     expect(ctx.LANG_CODE).toBe('en');
-    expect(ctx.KIRO_DIR).toBe('.kiro');
+    expect(ctx.KIRO_DIR).toBe('.sdd');
     expect(ctx.AGENT_DIR).toBe('.claude');
     expect(ctx.AGENT_DOC).toBe('CLAUDE.md');
     expect(ctx.AGENT_COMMANDS_DIR).toBe('.claude/skills');
@@ -47,10 +47,10 @@ describe('contextFromResolved', () => {
     const ctx = contextFromResolved(resolved);
 
     expect(ctx.LANG_CODE).toBe('zh-TW');
-    expect(ctx.KIRO_DIR).toBe('.kiro');
+    expect(ctx.KIRO_DIR).toBe('.sdd');
     expect(ctx.AGENT_DIR).toBe('.qwen');
     expect(ctx.AGENT_DOC).toBe('QWEN.md');
-    expect(ctx.AGENT_COMMANDS_DIR).toBe('.qwen/commands/kiro');
+    expect(ctx.AGENT_COMMANDS_DIR).toBe('.qwen/commands/sdd');
     expect(ctx.DEV_GUIDELINES).toBe(
       '- Think in English, generate responses in Traditional Chinese. All Markdown content written to project files (e.g., requirements.md, design.md, tasks.md, research.md, validation reports) MUST be written in the target language configured for this specification (see spec.json.language).',
     );

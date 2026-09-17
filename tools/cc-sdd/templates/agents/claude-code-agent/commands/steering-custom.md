@@ -27,8 +27,8 @@ Task(
 Interactive Mode: Ask user for domain/topic
 
 File patterns to read:
-- {{KIRO_DIR}}/settings/templates/steering-custom/*.md
-- {{KIRO_DIR}}/settings/rules/steering-principles.md
+- {{SDD_DIR}}/settings/templates/steering-custom/*.md
+- {{SDD_DIR}}/settings/rules/steering-principles.md
 
 JIT Strategy: Analyze codebase for relevant patterns as needed
 """
@@ -45,7 +45,7 @@ Show Subagent summary to user:
 
 ## Available Templates
 
-Available templates in `{{KIRO_DIR}}/settings/templates/steering-custom/`:
+Available templates in `{{SDD_DIR}}/settings/templates/steering-custom/`:
 - api-standards.md, testing.md, security.md, database.md
 - error-handling.md, authentication.md, deployment.md
 
@@ -55,5 +55,5 @@ Available templates in `{{KIRO_DIR}}/settings/templates/steering-custom/`:
 - Templates are starting points, customized for project
 - All steering files loaded as project memory
 - Avoid documenting agent-specific tooling directories (e.g. `.cursor/`, `.gemini/`, `.claude/`)
-- `{{KIRO_DIR}}/settings/` content should NOT be documented (it's metadata, not project knowledge)
-- Light references to `{{KIRO_DIR}}/specs/` and `{{KIRO_DIR}}/steering/` are acceptable; avoid other `.kiro/` directories
+- `{{SDD_DIR}}/settings/` content should NOT be documented (it's metadata, not project knowledge)
+- Light references to `{{SDD_DIR}}/specs/` and `{{SDD_DIR}}/steering/` are acceptable; avoid other `.sdd/` directories

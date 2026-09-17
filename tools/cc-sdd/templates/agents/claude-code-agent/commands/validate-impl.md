@@ -15,12 +15,12 @@ argument-hint: [feature-name] [task-numbers]
 **Perform detection before invoking Subagent**:
 
 **If no arguments** (`$1` empty):
-- Parse conversation history for `/kiro:spec-impl <feature> [tasks]` patterns
-- OR scan `{{KIRO_DIR}}/specs/*/tasks.md` for `[x]` checkboxes
+- Parse conversation history for `/sdd:spec-impl <feature> [tasks]` patterns
+- OR scan `{{SDD_DIR}}/specs/*/tasks.md` for `[x]` checkboxes
 - Pass detected features and tasks to Subagent
 
 **If feature only** (`$1` present, `$2` empty):
-- Read `{{KIRO_DIR}}/specs/$1/tasks.md` and find all `[x]` checkboxes
+- Read `{{SDD_DIR}}/specs/$1/tasks.md` and find all `[x]` checkboxes
 - Pass feature and detected tasks to Subagent
 
 **If both provided** (`$1` and `$2` present):
@@ -42,8 +42,8 @@ Target tasks: {$2 or auto-detected}
 Mode: {auto-detect, feature-all, or explicit}
 
 File patterns to read:
-- {{KIRO_DIR}}/specs/{feature}/*.{json,md}
-- {{KIRO_DIR}}/steering/*.md
+- {{SDD_DIR}}/specs/{feature}/*.{json,md}
+- {{SDD_DIR}}/steering/*.md
 
 Validation scope: {based on detection results}
 """
@@ -62,7 +62,7 @@ Show Subagent summary to user, then provide next step guidance:
 
 **If NO-GO Decision**:
 - Address critical issues listed
-- Re-run `/kiro:spec-impl <feature> [tasks]` for fixes
-- Re-validate with `/kiro:validate-impl [feature] [tasks]`
+- Re-run `/sdd:spec-impl <feature> [tasks]` for fixes
+- Re-validate with `/sdd:validate-impl [feature] [tasks]`
 
 **Note**: Validation is recommended after implementation to ensure spec alignment and quality.

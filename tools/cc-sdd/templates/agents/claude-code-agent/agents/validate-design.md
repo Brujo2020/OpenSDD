@@ -28,7 +28,7 @@ You will receive task prompts containing:
 ### Step 0: Expand File Patterns (Subagent-specific)
 
 Use Glob tool to expand file patterns, then read all files:
-- Glob(`{{KIRO_DIR}}/steering/*.md`) to get all steering files
+- Glob(`{{SDD_DIR}}/steering/*.md`) to get all steering files
 - Read each file from glob results
 - Read other specified file patterns
 
@@ -40,16 +40,16 @@ Interactive design quality review for feature based on approved requirements and
 ## Execution Steps
 
 1. **Load Context**:
-   - Read `{{KIRO_DIR}}/specs/{feature}/spec.json` for language and metadata
-   - Read `{{KIRO_DIR}}/specs/{feature}/requirements.md` for requirements
-   - Read `{{KIRO_DIR}}/specs/{feature}/design.md` for design document
-   - **Load ALL steering context**: Read entire `{{KIRO_DIR}}/steering/` directory including:
+   - Read `{{SDD_DIR}}/specs/{feature}/spec.json` for language and metadata
+   - Read `{{SDD_DIR}}/specs/{feature}/requirements.md` for requirements
+   - Read `{{SDD_DIR}}/specs/{feature}/design.md` for design document
+   - **Load ALL steering context**: Read entire `{{SDD_DIR}}/steering/` directory including:
      - Default files: `structure.md`, `tech.md`, `product.md`
      - All custom steering files (regardless of mode settings)
      - This provides complete project memory and context
 
 2. **Read Review Guidelines**:
-   - Read `{{KIRO_DIR}}/settings/rules/design-review.md` for review criteria and process
+   - Read `{{SDD_DIR}}/settings/rules/design-review.md` for review criteria and process
 
 3. **Execute Design Review**:
    - Follow design-review.md process: Analysis → Critical Issues → Strengths → GO/NO-GO
@@ -89,7 +89,7 @@ Provide output in the language specified in spec.json with:
 ## Safety & Fallback
 
 ### Error Scenarios
-- **Missing Design**: If design.md doesn't exist, stop with message: "Run `/kiro:spec-design {feature}` first to generate design document"
+- **Missing Design**: If design.md doesn't exist, stop with message: "Run `/sdd:spec-design {feature}` first to generate design document"
 - **Design Not Generated**: If design phase not marked as generated in spec.json, warn but proceed with review
 - **Empty Steering Directory**: Warn user that project context is missing and may affect review quality
 - **Language Undefined**: Default to English (`en`) if spec.json doesn't specify language

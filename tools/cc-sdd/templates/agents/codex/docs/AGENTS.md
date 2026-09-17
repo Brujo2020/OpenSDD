@@ -1,27 +1,27 @@
 # Agentic SDLC and Spec-Driven Development
 
-Kiro-style Spec-Driven Development on an agentic SDLC
+SDD-style Spec-Driven Development on an agentic SDLC
 
 ## Project Memory
 Project memory keeps persistent guidance (steering, specs notes, component docs) so Codex honors your standards each run. Treat it as the long-lived source of truth for patterns, conventions, and decisions.
 
-- Use `{{KIRO_DIR}}/steering/` for project-wide policies: architecture principles, naming schemes, security constraints, tech stack decisions, api standards, etc.
+- Use `{{SDD_DIR}}/steering/` for project-wide policies: architecture principles, naming schemes, security constraints, tech stack decisions, api standards, etc.
 - Use local `AGENTS.md` files for feature or library context (e.g. `src/lib/payments/AGENTS.md`): describe domain assumptions, API contracts, or testing conventions specific to that folder. Codex auto-loads these when working in the matching path.
-- Specs notes stay with each spec (under `{{KIRO_DIR}}/specs/`) to guide specification-level workflows.
+- Specs notes stay with each spec (under `{{SDD_DIR}}/specs/`) to guide specification-level workflows.
 
 ## Project Context
 
 ### Paths
-- Steering: `{{KIRO_DIR}}/steering/`
-- Specs: `{{KIRO_DIR}}/specs/`
+- Steering: `{{SDD_DIR}}/steering/`
+- Specs: `{{SDD_DIR}}/specs/`
 
 ### Steering vs Specification
 
-**Steering** (`{{KIRO_DIR}}/steering/`) - Guide AI with project-wide rules and context
-**Specs** (`{{KIRO_DIR}}/specs/`) - Formalize development process for individual features
+**Steering** (`{{SDD_DIR}}/steering/`) - Guide AI with project-wide rules and context
+**Specs** (`{{SDD_DIR}}/specs/`) - Formalize development process for individual features
 
 ### Active Specifications
-- Check `{{KIRO_DIR}}/specs/` for active specifications
+- Check `{{SDD_DIR}}/specs/` for active specifications
 - Use `/prompts:kiro-spec-status [feature-name]` to check progress
 
 ## Development Guidelines
@@ -29,7 +29,7 @@ Project memory keeps persistent guidance (steering, specs notes, component docs)
 {{DEV_GUIDELINES}}
 
 ## Minimal Workflow
-- Phase 0 (optional): `/prompts:kiro-steering`, `/prompts:kiro-steering-custom`
+- Phase 0 (optional): `/prompts:sdd-steering`, `/prompts:sdd-steering-custom`
 - Phase 1 (Specification):
   - `/prompts:kiro-spec-init "description"`
   - `/prompts:kiro-spec-requirements {feature}`
@@ -48,6 +48,6 @@ Project memory keeps persistent guidance (steering, specs notes, component docs)
 - Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
 
 ## Steering Configuration
-- Load entire `{{KIRO_DIR}}/steering/` as project memory
+- Load entire `{{SDD_DIR}}/steering/` as project memory
 - Default files: `product.md`, `tech.md`, `structure.md`
-- Custom files are supported (managed via `/prompts:kiro-steering-custom`)
+- Custom files are supported (managed via `/prompts:sdd-steering-custom`)

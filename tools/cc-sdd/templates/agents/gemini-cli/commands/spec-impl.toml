@@ -26,8 +26,8 @@ Execute implementation tasks for feature **$1** using Test-Driven Development.
 ### Step 1: Load Context
 
 **Read all necessary context**:
-- `{{KIRO_DIR}}/specs/$1/spec.json`, `requirements.md`, `design.md`, `tasks.md`
-- **Entire `{{KIRO_DIR}}/steering/` directory** for complete project memory
+- `{{SDD_DIR}}/specs/$1/spec.json`, `requirements.md`, `design.md`, `tasks.md`
+- **Entire `{{SDD_DIR}}/steering/` directory** for complete project memory
 
 **Validate approvals**:
 - Verify tasks are approved in spec.json (stop if not, see Safety & Fallback)
@@ -94,7 +94,7 @@ Provide brief summary in the language specified in spec.json:
 
 **Tasks Not Approved or Missing Spec Files**:
 - **Stop Execution**: All spec files must exist and tasks must be approved
-- **Suggested Action**: "Complete previous phases: `/kiro:spec-requirements`, `/kiro:spec-design`, `/kiro:spec-tasks`"
+- **Suggested Action**: "Complete previous phases: `/sdd:spec-requirements`, `/sdd:spec-design`, `/sdd:spec-tasks`"
 
 **Test Failures**:
 - **Stop Implementation**: Fix failing tests before continuing
@@ -103,11 +103,11 @@ Provide brief summary in the language specified in spec.json:
 ### Task Execution
 
 **Execute specific task(s)**:
-- `/kiro:spec-impl $1 1.1` - Single task
-- `/kiro:spec-impl $1 1,2,3` - Multiple tasks
+- `/sdd:spec-impl $1 1.1` - Single task
+- `/sdd:spec-impl $1 1,2,3` - Multiple tasks
 
 **Execute all pending**:
-- `/kiro:spec-impl $1` - All unchecked tasks
+- `/sdd:spec-impl $1` - All unchecked tasks
 
 arguments: {{args}}
 """

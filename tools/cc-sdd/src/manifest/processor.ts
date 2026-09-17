@@ -58,6 +58,7 @@ const applyPlaceholders = (input: string, agent: AgentType, ctx: TemplateContext
     LANG_CODE: ctx.LANG_CODE,
     DEV_GUIDELINES: ctx.DEV_GUIDELINES,
     KIRO_DIR: ctx.KIRO_DIR,
+    SDD_DIR: ctx.SDD_DIR ?? ctx.KIRO_DIR,
     AGENT_DIR: ctx.AGENT_DIR,
     AGENT_DOC: ctx.AGENT_DOC,
     AGENT_COMMANDS_DIR: ctx.AGENT_COMMANDS_DIR,

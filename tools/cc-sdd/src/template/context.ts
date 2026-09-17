@@ -13,6 +13,7 @@ export type TemplateContext = {
   LANG_CODE: string;
   DEV_GUIDELINES: string;
   KIRO_DIR: string;
+  SDD_DIR: string;
   AGENT_DIR: string;
   AGENT_DOC: string;
   AGENT_COMMANDS_DIR: string;
@@ -45,6 +46,7 @@ export const createTemplateContext = (
   LANG_CODE: lang,
   DEV_GUIDELINES: getDevGuidelines(lang),
   KIRO_DIR: kiroDir,
+  SDD_DIR: kiroDir,
   AGENT_DIR: layout.agentDir,
   AGENT_DOC: layout.docFile,
   AGENT_COMMANDS_DIR: layout.commandsDir,

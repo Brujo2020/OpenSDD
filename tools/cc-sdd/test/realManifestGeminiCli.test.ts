@@ -34,9 +34,9 @@ describe('real gemini-cli manifest (mac)', () => {
     expect(code).toBe(0);
     const out = ctx.logs.join('\n');
     expect(out).toMatch(/Plan \(dry-run\)/);
-    expect(out).toContain('[templateDir] commands: templates/agents/gemini-cli/commands -> .gemini/commands/kiro');
+    expect(out).toContain('[templateDir] commands: templates/agents/gemini-cli/commands -> .gemini/commands/sdd');
     expect(out).toContain('[templateFile] doc_main: templates/agents/gemini-cli/docs/GEMINI.md -> ./GEMINI.md');
-    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .kiro/settings');
+    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .sdd/settings');
   });
 
   it('apply writes GEMINI.md and command files to cwd', async () => {
@@ -50,10 +50,10 @@ describe('real gemini-cli manifest (mac)', () => {
     const text = await readFile(doc, 'utf8');
     expect(text).toMatch(/# Agentic SDLC and Spec-Driven Development/);
 
-    const cmd = join(cwd, '.gemini/commands/kiro/spec-init.toml');
+    const cmd = join(cwd, '.gemini/commands/sdd/spec-init.toml');
     expect(await exists(cmd)).toBe(true);
 
-    const settingsRule = join(cwd, '.kiro/settings/rules/design-principles.md');
+    const settingsRule = join(cwd, '.sdd/settings/rules/design-principles.md');
     expect(await exists(settingsRule)).toBe(true);
 
     expect(ctx.logs.join('\n')).toMatch(/\d+\/\d+ files written/);
@@ -69,9 +69,9 @@ describe('real gemini-cli manifest (linux)', () => {
     expect(code).toBe(0);
     const out = ctx.logs.join('\n');
     expect(out).toMatch(/Plan \(dry-run\)/);
-    expect(out).toContain('[templateDir] commands: templates/agents/gemini-cli/commands -> .gemini/commands/kiro');
+    expect(out).toContain('[templateDir] commands: templates/agents/gemini-cli/commands -> .gemini/commands/sdd');
     expect(out).toContain('[templateFile] doc_main: templates/agents/gemini-cli/docs/GEMINI.md -> ./GEMINI.md');
-    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .kiro/settings');
+    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .sdd/settings');
   });
 
   it('apply writes GEMINI.md and command files to cwd on linux', async () => {
@@ -85,10 +85,10 @@ describe('real gemini-cli manifest (linux)', () => {
     const text = await readFile(doc, 'utf8');
     expect(text).toMatch(/# Agentic SDLC and Spec-Driven Development/);
 
-    const cmd = join(cwd, '.gemini/commands/kiro/spec-init.toml');
+    const cmd = join(cwd, '.gemini/commands/sdd/spec-init.toml');
     expect(await exists(cmd)).toBe(true);
 
-    const settingsTemplate = join(cwd, '.kiro/settings/templates/specs/init.json');
+    const settingsTemplate = join(cwd, '.sdd/settings/templates/specs/init.json');
     expect(await exists(settingsTemplate)).toBe(true);
 
     expect(ctx.logs.join('\n')).toMatch(/\d+\/\d+ files written/);

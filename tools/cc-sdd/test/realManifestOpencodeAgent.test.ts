@@ -39,9 +39,9 @@ describe('real opencode-agent manifest', () => {
     const out = ctx.logs.join('\n');
     expect(out).toMatch(/Plan \(dry-run\)/);
     expect(out).toContain('[templateDir] commands: templates/agents/opencode-agent/commands -> .opencode/commands');
-    expect(out).toContain('[templateDir] agents_library: templates/agents/opencode-agent/agents -> .opencode/agents/kiro');
+    expect(out).toContain('[templateDir] agents_library: templates/agents/opencode-agent/agents -> .opencode/agents/sdd');
     expect(out).toContain('[templateFile] doc_main: templates/agents/opencode-agent/docs/AGENTS.md -> ./AGENTS.md');
-    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .kiro/settings');
+    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .sdd/settings');
   });
 
   it('apply writes AGENTS.md, command files, and agent library docs to cwd', async () => {
@@ -55,15 +55,15 @@ describe('real opencode-agent manifest', () => {
     const text = await readFile(doc, 'utf8');
     expect(text).toMatch(/# Agentic SDLC and Spec-Driven Development/);
 
-    const cmd = join(cwd, '.opencode/commands/kiro-spec-init.md');
+    const cmd = join(cwd, '.opencode/commands/sdd-spec-init.md');
     expect(await exists(cmd)).toBe(true);
 
-    const agentSpecImpl = join(cwd, '.opencode/agents/kiro/spec-impl.md');
+    const agentSpecImpl = join(cwd, '.opencode/agents/sdd/spec-impl.md');
     expect(await exists(agentSpecImpl)).toBe(true);
     const agentSpecImplText = await readFile(agentSpecImpl, 'utf8');
     expect(agentSpecImplText).toMatch(/Subagent/);
 
-    const settingsRule = join(cwd, '.kiro/settings/rules/design-principles.md');
+    const settingsRule = join(cwd, '.sdd/settings/rules/design-principles.md');
     expect(await exists(settingsRule)).toBe(true);
 
     expect(ctx.logs.join('\n')).toMatch(/\d+\/\d+ files written/);

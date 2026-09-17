@@ -52,7 +52,7 @@ describe('real codex-skills manifest', () => {
     expect(out).toMatch(/Plan \(dry-run\)/);
     expect(out).toContain('[templateDir] skills: templates/agents/codex-skills/skills -> .agents/skills');
     expect(out).toContain('[templateFile] doc_main: templates/agents/codex-skills/docs/AGENTS.md -> ./AGENTS.md');
-    expect(out).toContain('[templateDir] settings_templates: templates/shared/settings/templates -> .kiro/settings/templates');
+    expect(out).toContain('[templateDir] settings_templates: templates/shared/settings/templates -> .sdd/settings/templates');
   });
 
   it('apply writes AGENTS.md, skill files, and settings to cwd', async () => {
@@ -71,28 +71,28 @@ describe('real codex-skills manifest', () => {
     expect(await exists(doc)).toBe(true);
     const docText = await readFile(doc, 'utf8');
     expect(docText).toMatch(/# Agentic SDLC and Spec-Driven Development/);
-    expect(docText).toContain('$kiro-spec-status');
-    expect(docText).not.toContain('/prompts:kiro-spec-status');
+    expect(docText).toContain('$sdd-spec-status');
+    expect(docText).not.toContain('/prompts:sdd-spec-status');
     expect(docText).toContain('autonomous mode');
     expect(docText).toContain('[--review required|inline|off]');
     expect(docText).toContain('`--review off` skips task-local review');
 
-    const skillSpecInit = join(cwd, '.agents/skills/kiro-spec-init/SKILL.md');
+    const skillSpecInit = join(cwd, '.agents/skills/sdd-spec-init/SKILL.md');
     expect(await exists(skillSpecInit)).toBe(true);
     const skillSpecInitText = await readFile(skillSpecInit, 'utf8');
-    expect(skillSpecInitText).toMatch(/name: kiro-spec-init/);
-    expect(skillSpecInitText).toContain('$kiro-spec-requirements');
+    expect(skillSpecInitText).toMatch(/name: sdd-spec-init/);
+    expect(skillSpecInitText).toContain('$sdd-spec-requirements');
 
-    const skillSpecQuick = join(cwd, '.agents/skills/kiro-spec-quick/SKILL.md');
+    const skillSpecQuick = join(cwd, '.agents/skills/sdd-spec-quick/SKILL.md');
     expect(await exists(skillSpecQuick)).toBe(true);
     const skillSpecQuickText = await readFile(skillSpecQuick, 'utf8');
-    expect(skillSpecQuickText).toMatch(/name: kiro-spec-quick/);
-    expect(skillSpecQuickText).toContain('$kiro-impl');
+    expect(skillSpecQuickText).toMatch(/name: sdd-spec-quick/);
+    expect(skillSpecQuickText).toContain('$sdd-impl');
 
-    const settingsTemplate = join(cwd, '.kiro/settings/templates/specs/init.json');
+    const settingsTemplate = join(cwd, '.sdd/settings/templates/specs/init.json');
     expect(await exists(settingsTemplate)).toBe(true);
 
-    const skillSpecDesign = join(cwd, '.agents/skills/kiro-spec-design/SKILL.md');
+    const skillSpecDesign = join(cwd, '.agents/skills/sdd-spec-design/SKILL.md');
     expect(await exists(skillSpecDesign)).toBe(true);
     const skillSpecDesignText = await readFile(skillSpecDesign, 'utf8');
     expect(skillSpecDesignText).toContain('Parallel Research');
@@ -102,7 +102,7 @@ describe('real codex-skills manifest', () => {
     expect(skillSpecDesignText).toContain('Keep the review bounded to at most 2 repair passes');
     expect(skillSpecDesignText).toContain('Spec Gap Found During Design Review');
 
-    const skillValidateImpl = join(cwd, '.agents/skills/kiro-validate-impl/SKILL.md');
+    const skillValidateImpl = join(cwd, '.agents/skills/sdd-validate-impl/SKILL.md');
     expect(await exists(skillValidateImpl)).toBe(true);
     const skillValidateImplText = await readFile(skillValidateImpl, 'utf8');
     expect(skillValidateImplText).toContain('feature-level integration');
@@ -112,11 +112,11 @@ describe('real codex-skills manifest', () => {
     expect(skillValidateImplText).toContain('Core steering context: `product.md`, `tech.md`, `structure.md`');
     expect(skillValidateImplText).toContain('MANUAL_VERIFY_REQUIRED');
     expect(skillValidateImplText).toContain('Does NOT Do');
-    expect(skillValidateImplText).toContain('kiro-verify-completion');
+    expect(skillValidateImplText).toContain('sdd-verify-completion');
     expect(skillValidateImplText).toContain('usually reviewed during implementation');
     expect(skillValidateImplText).toContain('`--review off`');
 
-    const skillImpl = join(cwd, '.agents/skills/kiro-impl/SKILL.md');
+    const skillImpl = join(cwd, '.agents/skills/sdd-impl/SKILL.md');
     expect(await exists(skillImpl)).toBe(true);
     const skillImplText = await readFile(skillImpl, 'utf8');
     expect(skillImplText).toContain('No Destructive Reset');
@@ -127,19 +127,19 @@ describe('real codex-skills manifest', () => {
     expect(skillImplText).toContain('skip review');
     expect(skillImplText).toContain('If review mode is `off`');
 
-    const skillValidateDesign = join(cwd, '.agents/skills/kiro-validate-design/SKILL.md');
+    const skillValidateDesign = join(cwd, '.agents/skills/sdd-validate-design/SKILL.md');
     expect(await exists(skillValidateDesign)).toBe(true);
     const skillValidateDesignText = await readFile(skillValidateDesign, 'utf8');
     expect(skillValidateDesignText).toContain('Core steering context: `product.md`, `tech.md`, `structure.md`');
     expect(skillValidateDesignText).toContain('review-relevant steering or use-case-aligned local agent skills/playbooks');
 
-    const skillValidateGap = join(cwd, '.agents/skills/kiro-validate-gap/SKILL.md');
+    const skillValidateGap = join(cwd, '.agents/skills/sdd-validate-gap/SKILL.md');
     expect(await exists(skillValidateGap)).toBe(true);
     const skillValidateGapText = await readFile(skillValidateGap, 'utf8');
     expect(skillValidateGapText).toContain('Core steering context: `product.md`, `tech.md`, `structure.md`');
     expect(skillValidateGapText).toContain('analysis-relevant steering or use-case-aligned local agent skills/playbooks');
 
-    const skillSpecRequirements = join(cwd, '.agents/skills/kiro-spec-requirements/SKILL.md');
+    const skillSpecRequirements = join(cwd, '.agents/skills/sdd-spec-requirements/SKILL.md');
     expect(await exists(skillSpecRequirements)).toBe(true);
     const skillSpecRequirementsText = await readFile(skillSpecRequirements, 'utf8');
     expect(skillSpecRequirementsText).toContain('Core steering context: `product.md`, `tech.md`, `structure.md`');
@@ -156,48 +156,49 @@ describe('real codex-skills manifest', () => {
       'design-review-gate.md',
     ];
     for (const rule of designRules) {
-      expect(await exists(join(cwd, `.agents/skills/kiro-spec-design/rules/${rule}`))).toBe(true);
+      expect(await exists(join(cwd, `.agents/skills/sdd-spec-design/rules/${rule}`))).toBe(true);
     }
-    expect(await exists(join(cwd, '.agents/skills/kiro-validate-design/rules/design-review.md'))).toBe(true);
-    expect(await exists(join(cwd, '.agents/skills/kiro-spec-requirements/rules/ears-format.md'))).toBe(true);
-    expect(await exists(join(cwd, '.agents/skills/kiro-spec-requirements/rules/requirements-review-gate.md'))).toBe(true);
-    expect(await exists(join(cwd, '.agents/skills/kiro-validate-gap/rules/gap-analysis.md'))).toBe(true);
-    expect(await exists(join(cwd, '.agents/skills/kiro-steering/rules/steering-principles.md'))).toBe(true);
-    expect(await exists(join(cwd, '.agents/skills/kiro-steering-custom/rules/steering-principles.md'))).toBe(true);
-    expect(await exists(join(cwd, '.agents/skills/kiro-spec-tasks/rules/tasks-generation.md'))).toBe(true);
-    expect(await exists(join(cwd, '.agents/skills/kiro-spec-tasks/rules/tasks-parallel-analysis.md'))).toBe(true);
-    const skillSpecTasks = join(cwd, '.agents/skills/kiro-spec-tasks/SKILL.md');
+    expect(await exists(join(cwd, '.agents/skills/sdd-validate-design/rules/design-review.md'))).toBe(true);
+    expect(await exists(join(cwd, '.agents/skills/sdd-spec-requirements/rules/ears-format.md'))).toBe(true);
+    expect(await exists(join(cwd, '.agents/skills/sdd-spec-requirements/rules/requirements-review-gate.md'))).toBe(true);
+    expect(await exists(join(cwd, '.agents/skills/sdd-validate-gap/rules/gap-analysis.md'))).toBe(true);
+    expect(await exists(join(cwd, '.agents/skills/sdd-steering/rules/steering-principles.md'))).toBe(true);
+    expect(await exists(join(cwd, '.agents/skills/sdd-steering-custom/rules/steering-principles.md'))).toBe(true);
+    expect(await exists(join(cwd, '.agents/skills/sdd-spec-tasks/rules/tasks-generation.md'))).toBe(true);
+    expect(await exists(join(cwd, '.agents/skills/sdd-spec-tasks/rules/tasks-parallel-analysis.md'))).toBe(true);
+    const skillSpecTasks = join(cwd, '.agents/skills/sdd-spec-tasks/SKILL.md');
     const skillSpecTasksText = await readFile(skillSpecTasks, 'utf8');
     expect(skillSpecTasksText).toContain('Core steering context: `product.md`, `tech.md`, `structure.md`');
     expect(skillSpecTasksText).toContain('Step 3: Review Task Plan');
     expect(skillSpecTasksText).toContain('Keep the review bounded to at most 2 repair passes');
     expect(skillSpecTasksText).toContain('Spec Gap Found During Task Review');
-    const tasksGenerationRules = await readFile(join(cwd, '.agents/skills/kiro-spec-tasks/rules/tasks-generation.md'), 'utf8');
+    const tasksGenerationRules = await readFile(join(cwd, '.agents/skills/sdd-spec-tasks/rules/tasks-generation.md'), 'utf8');
     expect(tasksGenerationRules).toContain('## Task Plan Review Gate');
     expect(tasksGenerationRules).toContain('### Coverage Review');
     expect(tasksGenerationRules).toContain('### Executability Review');
     expect(tasksGenerationRules).toContain('no more than 2 review-and-repair passes');
-    const designReviewGate = await readFile(join(cwd, '.agents/skills/kiro-spec-design/rules/design-review-gate.md'), 'utf8');
+    const designReviewGate = await readFile(join(cwd, '.agents/skills/sdd-spec-design/rules/design-review-gate.md'), 'utf8');
     expect(designReviewGate).toContain('## Requirements Coverage Review');
     expect(designReviewGate).toContain('## Architecture Readiness Review');
     expect(designReviewGate).toContain('## Executability Review');
-    const requirementsReviewGate = await readFile(join(cwd, '.agents/skills/kiro-spec-requirements/rules/requirements-review-gate.md'), 'utf8');
+    const requirementsReviewGate = await readFile(join(cwd, '.agents/skills/sdd-spec-requirements/rules/requirements-review-gate.md'), 'utf8');
     expect(requirementsReviewGate).toContain('## Scope and Coverage Review');
     expect(requirementsReviewGate).toContain('## EARS and Testability Review');
     expect(requirementsReviewGate).toContain('## Structure and Quality Review');
 
     // Skills without shared-rules should NOT have rules/ directories
     const noRulesSkills = [
-      'kiro-spec-init',
-      'kiro-spec-status',
-      'kiro-spec-quick',
-      'kiro-spec-batch',
-      'kiro-impl',
-      'kiro-validate-impl',
-      'kiro-discovery',
-      'kiro-review',
-      'kiro-debug',
-      'kiro-verify-completion',
+      'sdd-spec-init',
+      'sdd-spec-status',
+      'sdd-spec-quick',
+      'sdd-spec-batch',
+      'sdd-impl',
+      'sdd-validate-impl',
+      'sdd-discovery',
+      'sdd-review',
+      'sdd-debug',
+      'sdd-verify-completion',
+      'sdd-audit',
     ];
     for (const skill of noRulesSkills) {
       expect(await exists(join(cwd, `.agents/skills/${skill}/rules`))).toBe(false);
@@ -206,7 +207,7 @@ describe('real codex-skills manifest', () => {
     expect(ctx.logs.join('\n')).toMatch(/\d+\/\d+ files written/);
   });
 
-  it('generates exactly 17 skill directories', async () => {
+  it('generates exactly 18 skill directories', async () => {
     const cwd = await mkTmp();
     const ctx = makeIO();
     await runCli(
@@ -218,23 +219,23 @@ describe('real codex-skills manifest', () => {
     );
 
     const expectedSkills = [
-      'kiro-debug',
-      'kiro-discovery',
-      'kiro-review',
-      'kiro-spec-batch',
-      'kiro-spec-init',
-      'kiro-spec-quick',
-      'kiro-spec-requirements',
-      'kiro-spec-design',
-      'kiro-spec-tasks',
-      'kiro-impl',
-      'kiro-spec-status',
-      'kiro-steering',
-      'kiro-steering-custom',
-      'kiro-validate-gap',
-      'kiro-validate-design',
-      'kiro-validate-impl',
-      'kiro-verify-completion',
+      'sdd-debug',
+      'sdd-discovery',
+      'sdd-review',
+      'sdd-spec-batch',
+      'sdd-spec-init',
+      'sdd-spec-quick',
+      'sdd-spec-requirements',
+      'sdd-spec-design',
+      'sdd-spec-tasks',
+      'sdd-impl',
+      'sdd-spec-status',
+      'sdd-steering',
+      'sdd-steering-custom',
+      'sdd-validate-gap',
+      'sdd-validate-design',
+      'sdd-validate-impl',
+      'sdd-verify-completion',
     ];
 
     for (const skill of expectedSkills) {
@@ -242,8 +243,8 @@ describe('real codex-skills manifest', () => {
       expect(await exists(skillPath)).toBe(true);
     }
 
-    // kiro-impl has prompt templates
-    const implPrompt = join(cwd, '.agents/skills/kiro-impl/templates/implementer-prompt.md');
+    // sdd-impl has prompt templates
+    const implPrompt = join(cwd, '.agents/skills/sdd-impl/templates/implementer-prompt.md');
     expect(await exists(implPrompt)).toBe(true);
     const implPromptText = await readFile(implPrompt, 'utf8');
     expect(implPromptText).toContain('TDD');
@@ -251,30 +252,30 @@ describe('real codex-skills manifest', () => {
     expect(implPromptText).toContain('Do NOT update `tasks.md`');
     expect(implPromptText).toContain('The parent controller parses the exact `- STATUS:` line');
 
-    const reviewPrompt = join(cwd, '.agents/skills/kiro-impl/templates/reviewer-prompt.md');
+    const reviewPrompt = join(cwd, '.agents/skills/sdd-impl/templates/reviewer-prompt.md');
     expect(await exists(reviewPrompt)).toBe(true);
     const reviewPromptText = await readFile(reviewPrompt, 'utf8');
-    expect(reviewPromptText).toContain('Apply the `kiro-review` protocol');
+    expect(reviewPromptText).toContain('Apply the `sdd-review` protocol');
     expect(reviewPromptText).toContain('Reality Check');
     expect(reviewPromptText).toContain('Do Not Trust the Report');
     expect(reviewPromptText).toContain('mechanical checks');
     expect(reviewPromptText).toContain('The parent controller parses the exact `- VERDICT:` line');
 
-    const debugPrompt = join(cwd, '.agents/skills/kiro-impl/templates/debugger-prompt.md');
+    const debugPrompt = join(cwd, '.agents/skills/sdd-impl/templates/debugger-prompt.md');
     expect(await exists(debugPrompt)).toBe(true);
     const debugPromptText = await readFile(debugPrompt, 'utf8');
-    expect(debugPromptText).toContain('Apply the `kiro-debug` protocol');
+    expect(debugPromptText).toContain('Apply the `sdd-debug` protocol');
     expect(debugPromptText).toContain('web or official docs research');
     expect(debugPromptText).toContain('repo-fixability judgment');
 
-    const skillReview = join(cwd, '.agents/skills/kiro-review/SKILL.md');
+    const skillReview = join(cwd, '.agents/skills/sdd-review/SKILL.md');
     expect(await exists(skillReview)).toBe(true);
     const skillReviewText = await readFile(skillReview, 'utf8');
     expect(skillReviewText).toContain('task-local adversarial review');
     expect(skillReviewText).toContain('RED phase');
     expect(skillReviewText).toContain('MECHANICAL_RESULTS');
 
-    const skillDebug = join(cwd, '.agents/skills/kiro-debug/SKILL.md');
+    const skillDebug = join(cwd, '.agents/skills/sdd-debug/SKILL.md');
     expect(await exists(skillDebug)).toBe(true);
     const skillDebugText = await readFile(skillDebug, 'utf8');
     expect(skillDebugText).toContain('root cause investigation');
@@ -282,7 +283,7 @@ describe('real codex-skills manifest', () => {
     expect(skillDebugText).toContain('NEXT_ACTION: RETRY_TASK | BLOCK_TASK | STOP_FOR_HUMAN');
     expect(skillDebugText).toContain('TASK_ORDERING_PROBLEM');
 
-    const skillVerifyCompletion = join(cwd, '.agents/skills/kiro-verify-completion/SKILL.md');
+    const skillVerifyCompletion = join(cwd, '.agents/skills/sdd-verify-completion/SKILL.md');
     expect(await exists(skillVerifyCompletion)).toBe(true);
     const skillVerifyCompletionText = await readFile(skillVerifyCompletion, 'utf8');
     expect(skillVerifyCompletionText).toContain('fresh evidence');

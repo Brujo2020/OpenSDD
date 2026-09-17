@@ -28,7 +28,7 @@ You will receive task prompts containing:
 ### Step 0: Expand File Patterns (Subagent-specific)
 
 Use Glob tool to expand file patterns, then read all files:
-- Glob(`{{KIRO_DIR}}/steering/*.md`) to get all steering files
+- Glob(`{{SDD_DIR}}/steering/*.md`) to get all steering files
 - Read each file from glob results
 - Read other specified file patterns
 
@@ -40,15 +40,15 @@ Analyze implementation gap for feature based on approved requirements and existi
 ## Execution Steps
 
 1. **Load Context**:
-   - Read `{{KIRO_DIR}}/specs/{feature}/spec.json` for language and metadata
-   - Read `{{KIRO_DIR}}/specs/{feature}/requirements.md` for requirements
-   - **Load ALL steering context**: Read entire `{{KIRO_DIR}}/steering/` directory including:
+   - Read `{{SDD_DIR}}/specs/{feature}/spec.json` for language and metadata
+   - Read `{{SDD_DIR}}/specs/{feature}/requirements.md` for requirements
+   - **Load ALL steering context**: Read entire `{{SDD_DIR}}/steering/` directory including:
      - Default files: `structure.md`, `tech.md`, `product.md`
      - All custom steering files (regardless of mode settings)
      - This provides complete project memory and context
 
 2. **Read Analysis Guidelines**:
-   - Read `{{KIRO_DIR}}/settings/rules/gap-analysis.md` for comprehensive analysis framework
+   - Read `{{SDD_DIR}}/settings/rules/gap-analysis.md` for comprehensive analysis framework
 
 3. **Execute Gap Analysis**:
    - Follow gap-analysis.md framework for thorough investigation
@@ -89,7 +89,7 @@ Provide output in the language specified in spec.json with:
 ## Safety & Fallback
 
 ### Error Scenarios
-- **Missing Requirements**: If requirements.md doesn't exist, stop with message: "Run `/kiro:spec-requirements {feature}` first to generate requirements"
+- **Missing Requirements**: If requirements.md doesn't exist, stop with message: "Run `/sdd:spec-requirements {feature}` first to generate requirements"
 - **Requirements Not Approved**: If requirements not approved, warn user but proceed (gap analysis can inform requirement revisions)
 - **Empty Steering Directory**: Warn user that project context is missing and may affect analysis quality
 - **Complex Integration Unclear**: Flag for comprehensive research in design phase rather than blocking

@@ -25,7 +25,7 @@
       "source": {
         "type": "templateDir",
         "fromDir": "templates/shared/settings/templates",
-        "toDir": "{{KIRO_DIR}}/settings/templates"
+        "toDir": "{{SDD_DIR}}/settings/templates"
       },
       "when": { "agent": "windsurf-skills" }
     }

@@ -27,7 +27,7 @@ You will receive task prompts containing:
 ### Step 0: Expand File Patterns (Subagent-specific)
 
 Use Glob tool to expand file patterns, then read all files:
-- Glob(`{{KIRO_DIR}}/steering/*.md`) to get all steering files
+- Glob(`{{SDD_DIR}}/steering/*.md`) to get all steering files
 - Read each file from glob results
 - Read other specified file patterns
 
@@ -41,15 +41,15 @@ Validate implementation for feature(s) and task(s) based on approved specificati
 ### 1. Detect Validation Target
 
 **If no arguments provided** (auto-detection mode):
-- Parse conversation history for `/kiro-spec-impl <feature> [tasks]` commands
+- Parse conversation history for `/sdd-spec-impl <feature> [tasks]` commands
 - Extract feature names and task numbers from each execution
 - Aggregate all implemented tasks by feature
 - Report detected implementations (e.g., "user-auth: 1.1, 1.2, 1.3")
-- If no history found, scan `{{KIRO_DIR}}/specs/` for features with completed tasks `[x]`
+- If no history found, scan `{{SDD_DIR}}/specs/` for features with completed tasks `[x]`
 
 **If feature provided** (feature specified, tasks empty):
 - Use specified feature
-- Detect all completed tasks `[x]` in `{{KIRO_DIR}}/specs/{feature}/tasks.md`
+- Detect all completed tasks `[x]` in `{{SDD_DIR}}/specs/{feature}/tasks.md`
 
 **If both feature and tasks provided** (explicit mode):
 - Validate specified feature and tasks only (e.g., `user-auth 1.1,1.2`)
@@ -57,11 +57,11 @@ Validate implementation for feature(s) and task(s) based on approved specificati
 ### 2. Load Context
 
 For each detected feature:
-- Read `{{KIRO_DIR}}/specs/<feature>/spec.json` for metadata
-- Read `{{KIRO_DIR}}/specs/<feature>/requirements.md` for requirements
-- Read `{{KIRO_DIR}}/specs/<feature>/design.md` for design structure
-- Read `{{KIRO_DIR}}/specs/<feature>/tasks.md` for task list
-- **Load ALL steering context**: Read entire `{{KIRO_DIR}}/steering/` directory including:
+- Read `{{SDD_DIR}}/specs/<feature>/spec.json` for metadata
+- Read `{{SDD_DIR}}/specs/<feature>/requirements.md` for requirements
+- Read `{{SDD_DIR}}/specs/<feature>/design.md` for design structure
+- Read `{{SDD_DIR}}/specs/<feature>/tasks.md` for task list
+- **Load ALL steering context**: Read entire `{{SDD_DIR}}/steering/` directory including:
   - Default files: `structure.md`, `tech.md`, `product.md`
   - All custom steering files (regardless of mode settings)
 
@@ -110,7 +110,7 @@ Provide summary in the language specified in spec.json:
 - **Traceability required**: All requirements must be traceable to implementation
 
 ## Tool Guidance
-- **Conversation parsing**: Extract `/kiro-spec-impl` patterns from history
+- **Conversation parsing**: Extract `/sdd-spec-impl` patterns from history
 - **Read context**: Load all specs and steering before validation
 - **Bash for tests**: Execute test commands to verify pass status
 - **Grep for traceability**: Search codebase for requirement evidence
@@ -134,7 +134,7 @@ Provide output in the language specified in spec.json with:
 ## Safety & Fallback
 
 ### Error Scenarios
-- **No Implementation Found**: If no `/kiro-spec-impl` in history and no `[x]` tasks, report "No implementations detected"
+- **No Implementation Found**: If no `/sdd-spec-impl` in history and no `[x]` tasks, report "No implementations detected"
 - **Test Command Unknown**: If test framework unclear, warn and skip test validation (manual verification required)
 - **Missing Spec Files**: If spec.json/requirements.md/design.md missing, stop with error
 - **Language Undefined**: Default to English (`en`) if spec.json doesn't specify language

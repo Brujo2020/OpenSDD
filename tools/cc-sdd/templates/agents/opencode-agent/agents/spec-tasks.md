@@ -28,7 +28,7 @@ You will receive task prompts containing:
 ### Step 0: Expand File Patterns (Subagent-specific)
 
 Use Glob tool to expand file patterns, then read all files:
-- Glob(`{{KIRO_DIR}}/steering/*.md`) to get all steering files
+- Glob(`{{SDD_DIR}}/steering/*.md`) to get all steering files
 - Read each file from glob results
 - Read other specified file patterns
 
@@ -42,9 +42,9 @@ Generate implementation tasks for the feature based on approved requirements and
 ### Step 1: Load Context
 
 **Read all necessary context**:
-- `{{KIRO_DIR}}/specs/{feature}/spec.json`, `requirements.md`, `design.md`
-- `{{KIRO_DIR}}/specs/{feature}/tasks.md` (if exists, for merge mode)
-- **Entire `{{KIRO_DIR}}/steering/` directory** for complete project memory
+- `{{SDD_DIR}}/specs/{feature}/spec.json`, `requirements.md`, `design.md`
+- `{{SDD_DIR}}/specs/{feature}/tasks.md` (if exists, for merge mode)
+- **Entire `{{SDD_DIR}}/steering/` directory** for complete project memory
 
 - Determine execution mode:
   - `sequential = (sequential flag is true)`
@@ -55,9 +55,9 @@ Generate implementation tasks for the feature based on approved requirements and
 
 ### Step 2: Generate Implementation Tasks
 
-- Read `{{KIRO_DIR}}/settings/rules/tasks-generation.md` for principles
-- Read `{{KIRO_DIR}}/settings/rules/tasks-parallel-analysis.md` for parallel judgement criteria
-- Read `{{KIRO_DIR}}/settings/templates/specs/tasks.md` for format (supports `(P)` markers)
+- Read `{{SDD_DIR}}/settings/rules/tasks-generation.md` for principles
+- Read `{{SDD_DIR}}/settings/rules/tasks-parallel-analysis.md` for parallel judgement criteria
+- Read `{{SDD_DIR}}/settings/templates/specs/tasks.md` for format (supports `(P)` markers)
 
 **Generate task list following all rules**:
 - Use language specified in spec.json
@@ -72,7 +72,7 @@ Generate implementation tasks for the feature based on approved requirements and
 ### Step 3: Finalize
 
 **Write and update**:
-- Create/update `{{KIRO_DIR}}/specs/{feature}/tasks.md`
+- Create/update `{{SDD_DIR}}/specs/{feature}/tasks.md`
 - Update spec.json metadata:
   - Set `phase: "tasks-generated"`
   - Set `approvals.tasks.generated: true, approved: false`
@@ -96,7 +96,7 @@ Generate implementation tasks for the feature based on approved requirements and
 
 Provide brief summary in the language specified in spec.json:
 
-1. **Status**: Confirm tasks generated at `{{KIRO_DIR}}/specs/{feature}/tasks.md`
+1. **Status**: Confirm tasks generated at `{{SDD_DIR}}/specs/{feature}/tasks.md`
 2. **Task Summary**:
    - Total: X major tasks, Y sub-tasks
    - All Z requirements covered
@@ -116,11 +116,11 @@ Provide brief summary in the language specified in spec.json:
 **Requirements or Design Not Approved**:
 - **Stop Execution**: Cannot proceed without approved requirements and design
 - **User Message**: "Requirements and design must be approved before task generation"
-- **Suggested Action**: "Run `/kiro-spec-tasks {feature} -y` to auto-approve both and proceed"
+- **Suggested Action**: "Run `/sdd-spec-tasks {feature} -y` to auto-approve both and proceed"
 
 **Missing Requirements or Design**:
 - **Stop Execution**: Both documents must exist
-- **User Message**: "Missing requirements.md or design.md at `{{KIRO_DIR}}/specs/{feature}/`"
+- **User Message**: "Missing requirements.md or design.md at `{{SDD_DIR}}/specs/{feature}/`"
 - **Suggested Action**: "Complete requirements and design phases first"
 
 **Incomplete Requirements Coverage**:
@@ -128,7 +128,7 @@ Provide brief summary in the language specified in spec.json:
 - **User Action Required**: Confirm intentional gaps or regenerate tasks
 
 **Template/Rules Missing**:
-- **User Message**: "Template or rules files missing in `{{KIRO_DIR}}/settings/`"
+- **User Message**: "Template or rules files missing in `{{SDD_DIR}}/settings/`"
 - **Fallback**: Use inline basic structure with warning
 - **Suggested Action**: "Check repository setup or restore template files"
 - **Missing Numeric Requirement IDs**:

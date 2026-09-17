@@ -82,18 +82,18 @@ Execute these 4 phases in order:
    - Keep name concise (2-4 words ideally)
 
 2. **Check Uniqueness**:
-   - Use Glob to check `{{KIRO_DIR}}/specs/*/`
+   - Use Glob to check `{{SDD_DIR}}/specs/*/`
    - If feature name exists, append `-2`, `-3`, etc.
 
 3. **Create Directory**:
-   - Use Bash: `mkdir -p {{KIRO_DIR}}/specs/{feature-name}`
+   - Use Bash: `mkdir -p {{SDD_DIR}}/specs/{feature-name}`
 
 4. **Initialize Files from Templates**:
 
    a. Read templates:
    ```
-   - {{KIRO_DIR}}/settings/templates/specs/init.json
-   - {{KIRO_DIR}}/settings/templates/specs/requirements-init.md
+   - {{SDD_DIR}}/settings/templates/specs/init.json
+   - {{SDD_DIR}}/settings/templates/specs/requirements-init.md
    ```
 
    b. Replace placeholders:
@@ -105,15 +105,15 @@ Execute these 4 phases in order:
 
    c. Write files using Write tool:
    ```
-   - {{KIRO_DIR}}/specs/{feature-name}/spec.json
-   - {{KIRO_DIR}}/specs/{feature-name}/requirements.md
+   - {{SDD_DIR}}/specs/{feature-name}/spec.json
+   - {{SDD_DIR}}/specs/{feature-name}/requirements.md
    ```
 
 5. **Update TodoWrite**: Mark task 1 as `completed`, task 2 as `in_progress`.
 
 6. **Output Progress**:
    ```
-   ✅ Spec initialized at {{KIRO_DIR}}/specs/{feature-name}/
+   ✅ Spec initialized at {{SDD_DIR}}/specs/{feature-name}/
    ```
 
 **Automatic Mode**: IMMEDIATELY continue to Phase 2.
@@ -130,7 +130,7 @@ Execute these 4 phases in order:
 
 **Execute SlashCommand**:
 ```
-/kiro:spec-requirements {feature-name}
+/sdd:spec-requirements {feature-name}
 ```
 
 Wait for completion. Subagent will return with "次のステップ" message.
@@ -158,7 +158,7 @@ Wait for completion. Subagent will return with "次のステップ" message.
 
 **Execute SlashCommand**:
 ```
-/kiro:spec-design {feature-name} -y
+/sdd:spec-design {feature-name} -y
 ```
 
 Note: `-y` flag auto-approves requirements.
@@ -188,7 +188,7 @@ Wait for completion. Subagent will return with "次のステップ" message.
 
 **Execute SlashCommand**:
 ```
-/kiro:spec-tasks {feature-name} -y
+/sdd:spec-tasks {feature-name} -y
 ```
 
 Note: `-y` flag auto-approves design.
@@ -234,13 +234,13 @@ Output final completion summary (see Output Description section) and exit.
 ## Tool Guidance
 
 ### Phase 1 Tools
-- **Glob**: Check `{{KIRO_DIR}}/specs/*/` for existing feature names
+- **Glob**: Check `{{SDD_DIR}}/specs/*/` for existing feature names
 - **Bash**: Create directory with `mkdir -p`, generate timestamp with `date -u`
-- **Read**: Fetch templates from `{{KIRO_DIR}}/settings/templates/specs/`
+- **Read**: Fetch templates from `{{SDD_DIR}}/settings/templates/specs/`
 - **Write**: Create `spec.json` and `requirements.md` in spec directory
 
 ### Phase 2-4 Tools
-- **SlashCommand**: Execute `/kiro:spec-requirements`, `/kiro:spec-design`, `/kiro:spec-tasks`
+- **SlashCommand**: Execute `/sdd:spec-requirements`, `/sdd:spec-design`, `/sdd:spec-tasks`
 
 ### TodoWrite Usage
 - Initialize with 4 pending tasks
@@ -271,7 +271,7 @@ All phases execute automatically without prompts.
 
 After each phase, show brief progress:
 ```
-✅ Spec initialized at {{KIRO_DIR}}/specs/{feature}/
+✅ Spec initialized at {{SDD_DIR}}/specs/{feature}/
 ✅ Requirements generated → Continuing to design...
 ✅ Design generated → Continuing to tasks...
 ```
@@ -284,26 +284,26 @@ Provide output in the language specified in `spec.json`:
 ✅ Quick Spec Generation Complete!
 
 ## Generated Files:
-- {{KIRO_DIR}}/specs/{feature}/spec.json
-- {{KIRO_DIR}}/specs/{feature}/requirements.md ({X} requirements)
-- {{KIRO_DIR}}/specs/{feature}/design.md ({Y} components, {Z} endpoints)
-- {{KIRO_DIR}}/specs/{feature}/tasks.md ({N} tasks)
+- {{SDD_DIR}}/specs/{feature}/spec.json
+- {{SDD_DIR}}/specs/{feature}/requirements.md ({X} requirements)
+- {{SDD_DIR}}/specs/{feature}/design.md ({Y} components, {Z} endpoints)
+- {{SDD_DIR}}/specs/{feature}/tasks.md ({N} tasks)
 
 ⚠️ Quick generation skipped:
-- `/kiro:validate-gap` - Gap analysis (integration check)
-- `/kiro:validate-design` - Design review (architecture validation)
+- `/sdd:validate-gap` - Gap analysis (integration check)
+- `/sdd:validate-design` - Design review (architecture validation)
 
 ## Next Steps:
 1. Review generated specs (especially design.md)
 2. Optional validation:
-   - `/kiro:validate-gap {feature}` - Check integration with existing codebase
-   - `/kiro:validate-design {feature}` - Verify architecture quality
-3. Start implementation: `/kiro:spec-impl {feature}`
+   - `/sdd:validate-gap {feature}` - Check integration with existing codebase
+   - `/sdd:validate-design {feature}` - Verify architecture quality
+3. Start implementation: `/sdd:spec-impl {feature}`
 
 ## Note:
 For complex features (integrations, security, APIs), use standard workflow:
-/kiro:spec-init → /kiro:spec-requirements → /kiro:validate-gap
-→ /kiro:spec-design → /kiro:validate-design → /kiro:spec-tasks
+/sdd:spec-init → /sdd:spec-requirements → /sdd:validate-gap
+→ /sdd:spec-design → /sdd:validate-design → /sdd:spec-tasks
 ```
 
 ## Safety & Fallback
@@ -322,7 +322,7 @@ For complex features (integrations, security, APIs), use standard workflow:
 ### Error Scenarios
 
 **Template Missing**:
-- Check `{{KIRO_DIR}}/settings/templates/specs/` exists
+- Check `{{SDD_DIR}}/settings/templates/specs/` exists
 - Report specific missing file
 - Exit with error
 
@@ -334,7 +334,7 @@ For complex features (integrations, security, APIs), use standard workflow:
 **Phase Execution Failed** (Phase 2-4):
 - Stop workflow
 - Show current state and completed phases
-- Suggest: "Continue manually from `/kiro:spec-{next-phase} {feature}`"
+- Suggest: "Continue manually from `/sdd:spec-{next-phase} {feature}`"
 
 **User Cancellation** (Interactive Mode):
 - Stop gracefully

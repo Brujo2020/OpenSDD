@@ -31,6 +31,8 @@
   },
   "type": "module",
   "bin": {
+    "open-sdd": "./dist/cli.js",
+    "sdd": "./dist/cli.js",
     "cc-sdd": "./dist/cli.js"
   },
   "scripts": {

@@ -11,8 +11,8 @@ argument-hint: <feature-name>
 
 ## Validate
 Check that requirements have been completed:
-- Verify `{{KIRO_DIR}}/specs/$1/` exists
-- Verify `{{KIRO_DIR}}/specs/$1/requirements.md` exists
+- Verify `{{SDD_DIR}}/specs/$1/` exists
+- Verify `{{SDD_DIR}}/specs/$1/requirements.md` exists
 
 If validation fails, inform user to complete requirements phase first.
 
@@ -28,13 +28,13 @@ Task(
   description="Analyze implementation gap",
   prompt="""
 Feature: $1
-Spec directory: {{KIRO_DIR}}/specs/$1/
+Spec directory: {{SDD_DIR}}/specs/$1/
 
 File patterns to read:
-- {{KIRO_DIR}}/specs/$1/spec.json
-- {{KIRO_DIR}}/specs/$1/requirements.md
-- {{KIRO_DIR}}/steering/*.md
-- {{KIRO_DIR}}/settings/rules/gap-analysis.md
+- {{SDD_DIR}}/specs/$1/spec.json
+- {{SDD_DIR}}/specs/$1/requirements.md
+- {{SDD_DIR}}/steering/*.md
+- {{SDD_DIR}}/settings/rules/gap-analysis.md
 """
 )
 ```
@@ -47,7 +47,7 @@ Show Subagent summary to user, then provide next step guidance:
 
 **If Gap Analysis Complete**:
 - Review gap analysis insights
-- Run `/kiro:spec-design $1` to create technical design document
-- Or `/kiro:spec-design $1 -y` to auto-approve requirements and proceed directly
+- Run `/sdd:spec-design $1` to create technical design document
+- Or `/sdd:spec-design $1 -y` to auto-approve requirements and proceed directly
 
 **Note**: Gap analysis is optional but recommended for brownfield projects to inform design decisions.

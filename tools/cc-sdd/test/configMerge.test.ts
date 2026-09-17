@@ -14,7 +14,7 @@ describe('mergeConfigAndArgs', () => {
       os: 'auto',
       resolvedOs: 'mac',
       lang: 'en',
-      kiroDir: '.kiro',
+      kiroDir: '.sdd',
       overwrite: 'prompt',
       effectiveOverwrite: 'prompt',
       backupEnabled: false,

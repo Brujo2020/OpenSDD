@@ -38,10 +38,10 @@ describe('real claude-code-agent manifest', () => {
     expect(code).toBe(0);
     const out = ctx.logs.join('\n');
     expect(out).toMatch(/Plan \(dry-run\)/);
-    expect(out).toContain('[templateDir] commands: templates/agents/claude-code-agent/commands -> .claude/commands/kiro');
-    expect(out).toContain('[templateDir] agents_library: templates/agents/claude-code-agent/agents -> .claude/agents/kiro');
+    expect(out).toContain('[templateDir] commands: templates/agents/claude-code-agent/commands -> .claude/commands/sdd');
+    expect(out).toContain('[templateDir] agents_library: templates/agents/claude-code-agent/agents -> .claude/agents/sdd');
     expect(out).toContain('[templateFile] doc_main: templates/agents/claude-code-agent/docs/CLAUDE.md -> ./CLAUDE.md');
-    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .kiro/settings');
+    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .sdd/settings');
   });
 
   it('apply writes CLAUDE.md, command files, and agent library docs to cwd', async () => {
@@ -55,15 +55,15 @@ describe('real claude-code-agent manifest', () => {
     const text = await readFile(doc, 'utf8');
     expect(text).toMatch(/# Agentic SDLC and Spec-Driven Development/);
 
-    const cmd = join(cwd, '.claude/commands/kiro/spec-init.md');
+    const cmd = join(cwd, '.claude/commands/sdd/spec-init.md');
     expect(await exists(cmd)).toBe(true);
 
-    const agentSpecImpl = join(cwd, '.claude/agents/kiro/spec-impl.md');
+    const agentSpecImpl = join(cwd, '.claude/agents/sdd/spec-impl.md');
     expect(await exists(agentSpecImpl)).toBe(true);
     const agentSpecImplText = await readFile(agentSpecImpl, 'utf8');
     expect(agentSpecImplText).toMatch(/Subagent/);
 
-    const settingsRule = join(cwd, '.kiro/settings/rules/design-principles.md');
+    const settingsRule = join(cwd, '.sdd/settings/rules/design-principles.md');
     expect(await exists(settingsRule)).toBe(true);
 
     expect(ctx.logs.join('\n')).toMatch(/\d+\/\d+ files written/);

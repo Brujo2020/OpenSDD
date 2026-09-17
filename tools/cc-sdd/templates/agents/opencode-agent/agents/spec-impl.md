@@ -27,7 +27,7 @@ You will receive task prompts containing:
 ### Step 0: Expand File Patterns (Subagent-specific)
 
 Use Glob tool to expand file patterns, then read all files:
-- Glob(`{{KIRO_DIR}}/steering/*.md`) to get all steering files
+- Glob(`{{SDD_DIR}}/steering/*.md`) to get all steering files
 - Read each file from glob results
 - Read other specified file patterns
 
@@ -41,8 +41,8 @@ Execute implementation tasks for feature using Test-Driven Development.
 ### Step 1: Load Context
 
 **Read all necessary context**:
-- `{{KIRO_DIR}}/specs/{feature}/spec.json`, `requirements.md`, `design.md`, `tasks.md`
-- **Entire `{{KIRO_DIR}}/steering/` directory** for complete project memory
+- `{{SDD_DIR}}/specs/{feature}/spec.json`, `requirements.md`, `design.md`, `tasks.md`
+- **Entire `{{SDD_DIR}}/steering/` directory** for complete project memory
 
 **Validate approvals**:
 - Verify tasks are approved in spec.json (stop if not, see Safety & Fallback)
@@ -108,7 +108,7 @@ Provide brief summary in the language specified in spec.json:
 
 **Tasks Not Approved or Missing Spec Files**:
 - **Stop Execution**: All spec files must exist and tasks must be approved
-- **Suggested Action**: "Complete previous phases: `/kiro-spec-requirements`, `/kiro-spec-design`, `/kiro-spec-tasks`"
+- **Suggested Action**: "Complete previous phases: `/sdd-spec-requirements`, `/sdd-spec-design`, `/sdd-spec-tasks`"
 
 **Test Failures**:
 - **Stop Implementation**: Fix failing tests before continuing

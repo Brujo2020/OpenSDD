@@ -5,7 +5,7 @@ describe('resolveAgentLayout', () => {
   it('returns claude-code defaults', () => {
     const res = resolveAgentLayout('claude-code');
     expect(res).toEqual({
-      commandsDir: '.claude/commands/kiro',
+      commandsDir: '.claude/commands/sdd',
       agentDir: '.claude',
       docFile: 'CLAUDE.md',
     });
@@ -27,7 +27,7 @@ describe('resolveAgentLayout', () => {
   it('returns provisional defaults for gemini-cli', () => {
     const res = resolveAgentLayout('gemini-cli');
     expect(res).toEqual({
-      commandsDir: '.gemini/commands/kiro',
+      commandsDir: '.gemini/commands/sdd',
       agentDir: '.gemini',
       docFile: 'GEMINI.md',
     });
@@ -35,7 +35,7 @@ describe('resolveAgentLayout', () => {
   it('returns defaults for cursor', () => {
     const res = resolveAgentLayout('cursor');
     expect(res).toEqual({
-      commandsDir: '.cursor/commands/kiro',
+      commandsDir: '.cursor/commands/sdd',
       agentDir: '.cursor',
       docFile: 'AGENTS.md',
     });
@@ -44,7 +44,7 @@ describe('resolveAgentLayout', () => {
   it('returns claude-code-agent defaults', () => {
     const res = resolveAgentLayout('claude-code-agent');
     expect(res).toEqual({
-      commandsDir: '.claude/commands/kiro',
+      commandsDir: '.claude/commands/sdd',
       agentDir: '.claude',
       docFile: 'CLAUDE.md',
     });

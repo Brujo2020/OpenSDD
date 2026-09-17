@@ -24,13 +24,14 @@ const aliasFlags = Array.from(new Set(agentKeys.flatMap((key) => getAgentDefinit
 
 const agentAliasLine = aliasFlags.length > 0 ? `  ${aliasFlags.join(' | ')}  Agent alias flags\n` : '';
 
-const helpText = `Usage: cc-sdd [options]
+const helpText = `Usage: cc-sdd [options] (alias: open-sdd)
 
 Options:
   --agent <${agentKeys.join('|')}>  Select agent
 ${agentAliasLine}  --lang <ja|en|zh-TW|zh|es|pt|de|fr|ru|it|ko|ar|el>  Language
   --os <auto|mac|windows|linux>               Target OS (auto uses runtime)
-  --kiro-dir <path>                           Kiro root dir (default .kiro)
+  --sdd-dir <path>                            SDD root dir (default .sdd or .kiro)
+  --kiro-dir <path>                           Alias for --sdd-dir
   --overwrite <prompt|skip|force>             Overwrite policy (default: prompt)
                                               prompt: ask for each file
                                               skip: never overwrite

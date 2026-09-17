@@ -35,7 +35,7 @@ describe('real windsurf manifest', () => {
     expect(out).toMatch(/Plan \(dry-run\)/);
     expect(out).toContain('[templateDir] commands: templates/agents/windsurf/commands -> .windsurf/workflows');
     expect(out).toContain('[templateFile] doc_main: templates/agents/windsurf/docs/AGENTS.md -> ./AGENTS.md');
-    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .kiro/settings');
+    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .sdd/settings');
   });
 
   it('dry-run prints plan including commands for linux via mac template', async () => {
@@ -49,7 +49,7 @@ describe('real windsurf manifest', () => {
     expect(out).toMatch(/Plan \(dry-run\)/);
     expect(out).toContain('[templateDir] commands: templates/agents/windsurf/commands -> .windsurf/workflows');
     expect(out).toContain('[templateFile] doc_main: templates/agents/windsurf/docs/AGENTS.md -> ./AGENTS.md');
-    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .kiro/settings');
+    expect(out).toContain('[templateDir] settings_common: templates/shared/settings -> .sdd/settings');
   });
 
   it('shows windsurf recommendation message after applying plan', async () => {
@@ -67,7 +67,7 @@ describe('real windsurf manifest', () => {
 
     expect(out).toMatch(/\d+\/\d+ files written/);
     expect(out).toContain('Recommended models');
-    expect(out).toContain('Launch Windsurf IDE and run `/kiro-spec-init <what-to-build>` to create a new specification.');
+    expect(out).toContain('Launch Windsurf IDE and run `/sdd-spec-init <what-to-build>` to create a new specification.');
     expect(out).toContain('Tip: Steering holds persistent project knowledge');
   });
 });

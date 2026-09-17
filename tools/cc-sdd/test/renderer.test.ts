@@ -12,7 +12,7 @@ describe('template renderer', () => {
     const out = renderTemplateString(input, agent, ctx);
     expect(out).toContain('Hello claude-code in .claude');
     expect(out).toContain('doc: CLAUDE.md');
-    expect(out).toContain('cmds: .claude/commands/kiro');
+    expect(out).toContain('cmds: .claude/commands/sdd');
   });
 
   it('renders placeholders in JSON and parses to object', () => {

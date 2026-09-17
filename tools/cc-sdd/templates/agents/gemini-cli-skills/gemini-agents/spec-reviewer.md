@@ -22,9 +22,9 @@ compatible as a system.
 ### Step 1: Load all specifications
 
 Use `glob` to find all spec files:
-- `{{KIRO_DIR}}/specs/*/requirements.md`
-- `{{KIRO_DIR}}/specs/*/design.md`
-- `{{KIRO_DIR}}/specs/*/tasks.md`
+- `{{SDD_DIR}}/specs/*/requirements.md`
+- `{{SDD_DIR}}/specs/*/design.md`
+- `{{SDD_DIR}}/specs/*/tasks.md`
 
 Use `read_file` to read each file found.
 

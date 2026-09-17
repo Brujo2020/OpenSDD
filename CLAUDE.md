@@ -1,61 +1,64 @@
-# Agentic SDLC and Spec-Driven Development
+# Open-SDD: Agentic SDLC and Spec-Driven Development
 
-Kiro-style Spec-Driven Development on an agentic SDLC
+Open-SDD: Model-agnostic Spec-Driven Development on an enterprise agentic SDLC.
+Living specifications, Zero-Trust validation, and auditable architecture.
 
 ## Project Context
 
 ### Paths
-- Steering: `.kiro/steering/`
-- Specs: `.kiro/specs/`
+- Steering: `.sdd/steering/` (persistent project memory & architecture standards)
+- Specs: `.sdd/specs/` (executable feature specifications)
+- Memory: `.sdd/memory/` (temporal session ledgers and AST knowledge graph)
 
 ### Steering vs Specification
 
-**Steering** (`.kiro/steering/`) - Guide AI with project-wide rules and context
-**Specs** (`.kiro/specs/`) - Formalize development process for individual features
+**Steering** (`.sdd/steering/`) - Guides AI with project-wide rules, architecture, and technology standards.
+**Specs** (`.sdd/specs/`) - Formalizes the development lifecycle for individual features into an auditable Documentary Triad (`requirements.md`, `design.md`, `tasks.md`).
 
 ### Active Specifications
-- Check `.kiro/specs/` for active specifications
-- Use `/kiro-spec-status [feature-name]` to check progress
+- Check `.sdd/specs/` for active specifications
+- Use `/sdd-status [feature-name]` to check progress
 
 ## Development Guidelines
 - Think in English, generate responses in English. All Markdown content written to project files (e.g., requirements.md, design.md, tasks.md, research.md, validation reports) MUST be written in the target language configured for this specification (see spec.json.language).
+- **Specs are Living Documentation**: Stored and versioned natively in Git alongside source code. Specs never drift from code.
 
 ## Minimal Workflow
-- Phase 0 (optional): `/kiro-steering`, `/kiro-steering-custom`
-- Discovery: `/kiro-discovery "idea"` — determines action path, writes brief.md + roadmap.md for multi-spec projects
+- Phase 0 (Steering): `/sdd-steering`, `/sdd-steering-custom`
+- Discovery: `/sdd-discovery "idea"` — identifies action path (Greenfield or Brownfield), writes `brief.md` and `roadmap.md`
 - Phase 1 (Specification):
-  - Single spec: `/kiro-spec-quick {feature} [--auto]` or step by step:
-    - `/kiro-spec-init "description"`
-    - `/kiro-spec-requirements {feature}`
-    - `/kiro-validate-gap {feature}` (optional: for existing codebase)
-    - `/kiro-spec-design {feature} [-y]`
-    - `/kiro-validate-design {feature}` (optional: design review)
-    - `/kiro-spec-tasks {feature} [-y]`
-  - Multi-spec: `/kiro-spec-batch` — creates all specs from roadmap.md in parallel by dependency wave
-- Phase 2 (Implementation): `/kiro-impl {feature} [tasks]`
-  - Without task numbers: autonomous mode (subagent per task + independent review + final validation)
+  - Single spec: `/sdd-spec-quick {feature} [--auto]` or step-by-step:
+    - `/sdd-spec-init "description"`
+    - `/sdd-spec-requirements {feature}`
+    - `/sdd-validate-gap {feature}` (gap & blast-radius analysis on existing codebase)
+    - `/sdd-spec-design {feature} [-y]`
+    - `/sdd-validate-design {feature}` (design review gate)
+    - `/sdd-spec-tasks {feature} [-y]`
+  - Multi-spec: `/sdd-spec-batch` — initializes all specs from roadmap.md in parallel dependency waves
+- Phase 2 (Implementation): `/sdd-impl {feature} [tasks] [--review required|inline|off]`
+  - Without task numbers: autonomous mode (subagent per task + independent review + verify gate)
   - With task numbers: manual mode (selected tasks only in main context)
-  - `/kiro-validate-impl {feature}` (standalone re-validation)
-- Progress check: `/kiro-spec-status {feature}` (use anytime)
+  - `/sdd-validate-impl {feature}` (standalone feature-level verification)
+- Governance & Compliance: `/sdd-audit {feature}` — generates auditable compliance report (EU AI Act, NIST RMF, ADR genealogy)
+- Progress check: `/sdd-spec-status {feature}` (use anytime)
 
 ## Skills Structure
-Skills are located in `.claude/skills/kiro-*/SKILL.md`
+Skills are located under `.claude/skills/sdd-*/SKILL.md`:
 - Each skill is a directory with a `SKILL.md` file
 - Skills run inline with access to conversation context
-- Skills may delegate parallel research to subagents for efficiency
-- Additional files (templates, examples) can be added to skill directories
-- `kiro-review` — task-local adversarial review protocol used by reviewer subagents
-- `kiro-debug` — root-cause-first debug protocol used by debugger subagents
-- `kiro-verify-completion` — fresh-evidence gate before success or completion claims
-- **If there is even a 1% chance a skill applies to the current task, invoke it.** Do not skip skills because the task seems simple.
+- Skills delegate parallel research to subagents for context efficiency
+- `sdd-review` — task-local adversarial review protocol
+- `sdd-debug` — root-cause-first debug protocol
+- `sdd-verify-completion` — fresh-evidence gate before success or completion claims
+- **If there is even a 1% chance a skill applies to the current task, invoke it.**
 
 ## Development Rules
 - 3-phase approval workflow: Requirements → Design → Tasks → Implementation
 - Human review required each phase; use `-y` only for intentional fast-track
-- Keep steering current and verify alignment with `/kiro-spec-status`
-- Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
+- Karpathy Guidelines (Think before coding, Simplicity first, Surgical changes, Goal-driven execution) are mandatory.
+- Keep steering current and verify alignment with `/sdd-status`.
 
 ## Steering Configuration
-- Load entire `.kiro/steering/` as project memory
+- Load entire `.sdd/steering/` as project memory
 - Default files: `product.md`, `tech.md`, `structure.md`
-- Custom files are supported (managed via `/kiro-steering-custom`)
+- Custom files are supported (managed via `/sdd-steering-custom`)

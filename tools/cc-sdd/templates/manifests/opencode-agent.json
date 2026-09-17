@@ -25,7 +25,7 @@
       "source": {
         "type": "templateDir",
         "fromDir": "templates/agents/{{AGENT}}/agents",
-        "toDir": "{{AGENT_DIR}}/agents/kiro"
+        "toDir": "{{AGENT_DIR}}/agents/sdd"
       },
       "when": { "agent": "opencode-agent" }
     },
@@ -34,7 +34,7 @@
       "source": {
         "type": "templateDir",
         "fromDir": "templates/shared/settings",
-        "toDir": "{{KIRO_DIR}}/settings"
+        "toDir": "{{SDD_DIR}}/settings"
       },
       "when": { "agent": "opencode-agent" }
     }

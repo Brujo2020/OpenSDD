@@ -29,7 +29,7 @@ You will receive task prompts containing:
 ### Step 0: Expand File Patterns (Subagent-specific)
 
 Use Glob tool to expand file patterns, then read all files:
-- Glob(`{{KIRO_DIR}}/steering/*.md`) to get all steering files
+- Glob(`{{SDD_DIR}}/steering/*.md`) to get all steering files
 - Read each file from glob results
 - Read other specified file patterns
 
@@ -41,16 +41,16 @@ Generate complete requirements for the feature based on the project description 
 ## Execution Steps
 
 1. **Load Context**:
-   - Read `{{KIRO_DIR}}/specs/{feature}/spec.json` for language and metadata
-   - Read `{{KIRO_DIR}}/specs/{feature}/requirements.md` for project description
-   - **Load ALL steering context**: Read entire `{{KIRO_DIR}}/steering/` directory including:
+   - Read `{{SDD_DIR}}/specs/{feature}/spec.json` for language and metadata
+   - Read `{{SDD_DIR}}/specs/{feature}/requirements.md` for project description
+   - **Load ALL steering context**: Read entire `{{SDD_DIR}}/steering/` directory including:
      - Default files: `structure.md`, `tech.md`, `product.md`
      - All custom steering files (regardless of mode settings)
      - This provides complete project memory and context
 
 2. **Read Guidelines**:
-   - Read `{{KIRO_DIR}}/settings/rules/ears-format.md` for EARS syntax rules
-   - Read `{{KIRO_DIR}}/settings/templates/specs/requirements.md` for document structure
+   - Read `{{SDD_DIR}}/settings/rules/ears-format.md` for EARS syntax rules
+   - Read `{{SDD_DIR}}/settings/templates/specs/requirements.md` for document structure
 
 3. **Generate Requirements**:
    - Create initial requirements based on project description

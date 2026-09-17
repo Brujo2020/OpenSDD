@@ -1,20 +1,20 @@
 # Agentic SDLC and Spec-Driven Development
 
-Kiro-style Spec-Driven Development on an agentic SDLC
+SDD-style Spec-Driven Development on an agentic SDLC
 
 ## Project Context
 
 ### Paths
-- Steering: `{{KIRO_DIR}}/steering/`
-- Specs: `{{KIRO_DIR}}/specs/`
+- Steering: `{{SDD_DIR}}/steering/`
+- Specs: `{{SDD_DIR}}/specs/`
 
 ### Steering vs Specification
 
-**Steering** (`{{KIRO_DIR}}/steering/`) - Guide AI with project-wide rules and context
-**Specs** (`{{KIRO_DIR}}/specs/`) - Formalize development process for individual features
+**Steering** (`{{SDD_DIR}}/steering/`) - Guide AI with project-wide rules and context
+**Specs** (`{{SDD_DIR}}/specs/`) - Formalize development process for individual features
 
 ### Active Specifications
-- Check `{{KIRO_DIR}}/specs/` for active specifications
+- Check `{{SDD_DIR}}/specs/` for active specifications
 - Use `/kiro/spec-status [feature-name]` to check progress
 
 ## Development Guidelines
@@ -40,6 +40,6 @@ Kiro-style Spec-Driven Development on an agentic SDLC
 - Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
 
 ## Steering Configuration
-- Load entire `{{KIRO_DIR}}/steering/` as project memory
+- Load entire `{{SDD_DIR}}/steering/` as project memory
 - Default files: `product.md`, `tech.md`, `structure.md`
 - Custom files are supported (managed via `/kiro/steering-custom`)

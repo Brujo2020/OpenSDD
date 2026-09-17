@@ -28,7 +28,7 @@ describe('processManifest', () => {
     const art = result[0] as any;
     expect(art.id).toBe('commands_static_all');
     expect(art.source.from).toBe('templates/agents/claude-code/commands');
-    expect(art.source.toDir).toBe('.claude/commands/kiro');
+    expect(art.source.toDir).toBe('.claude/commands/sdd');
   });
 
   it('supports templateDir planning with placeholders', () => {
@@ -116,7 +116,7 @@ describe('processManifest', () => {
     const result = processManifest(m, agent, ctx, 'mac' as OSType);
     expect(result).toHaveLength(2);
     const json = result.find((a: any) => a.id === 'json_tpl') as any;
-    expect(json.source.toDir).toBe('.kiro');
+    expect(json.source.toDir).toBe('.sdd');
     expect(json.source.outFile).toBe('config.json');
     const md = result.find((a: any) => a.id === 'md_tpl') as any;
     expect(md.source.toDir).toBe('.claude');

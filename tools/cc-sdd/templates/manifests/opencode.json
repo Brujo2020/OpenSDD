@@ -25,7 +25,7 @@
       "source": {
         "type": "templateDir",
         "fromDir": "templates/shared/settings",
-        "toDir": "{{KIRO_DIR}}/settings"
+        "toDir": "{{SDD_DIR}}/settings"
       },
       "when": { "agent": "opencode" }
     }
