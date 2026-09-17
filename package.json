@@ -18,6 +18,7 @@
     "tools/cc-sdd/templates"
   ],
   "scripts": {
+    "postinstall": "cd tools/cc-sdd && npm install --omit=peer --legacy-peer-deps 2>/dev/null || npm install --legacy-peer-deps",
     "build": "npm --prefix tools/cc-sdd run build",
     "test": "npm --prefix tools/cc-sdd test",
     "install:global": "npm --prefix tools/cc-sdd run build && npm install -g ./tools/cc-sdd",
