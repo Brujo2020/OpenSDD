@@ -134,7 +134,14 @@ echo "  [1] Both: Install CLI globally + configure current project (Recommended)
 echo "  [2] Global CLI only ('open-sdd' command everywhere)"
 echo "  [3] Current Project only (Install 20 skills in this directory)"
 echo ""
-read -p "Enter choice [1-3] (default: 1): " choice
+
+if [ -t 0 ]; then
+  read -p "Enter choice [1-3] (default: 1): " choice
+elif [ -e /dev/tty ]; then
+  read -p "Enter choice [1-3] (default: 1): " choice < /dev/tty || choice=1
+else
+  choice=1
+fi
 choice=${choice:-1}
 
 case "$choice" in

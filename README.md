@@ -47,16 +47,21 @@ Excessive validation gates and rigid harnesses often paralyze engineering veloci
 
 ## Quick Installation (Global & Per-Project)
 
-### 🚀 Option 1: Universal Installer (`install.sh`)
-Run the installer directly from the root:
+### 🚀 Option 1: Universal One-Line Installer (Public curl & bash)
+Install Open-SDD on any machine with zero prior setup:
 ```bash
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/Brujo2020/open-sdd/main/install.sh | bash
 ```
-Or with automated flags:
+Or pass automated flags:
 ```bash
-./install.sh --global       # Installs 'open-sdd' and 'sdd' globally in PATH
-./install.sh --project      # Installs all 20 skills in current project directory
-./install.sh --both         # Both (CLI globally + skills in current project)
+# Global CLI + current project skills (Recommended):
+curl -fsSL https://raw.githubusercontent.com/Brujo2020/open-sdd/main/install.sh | bash -s -- --both
+
+# Global CLI only ('open-sdd' command available everywhere in PATH):
+curl -fsSL https://raw.githubusercontent.com/Brujo2020/open-sdd/main/install.sh | bash -s -- --global
+
+# Or run locally from a cloned repo:
+./install.sh
 ```
 
 ### 🌐 Option 2: Global NPM Install (Terminal Everywhere)

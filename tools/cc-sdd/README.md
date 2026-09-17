@@ -61,21 +61,51 @@ Open-SDD represents a major evolution into an agent-agnostic, multi-tier SDLC st
 
 Read our research preprint: [Open-SDD: Spec-Driven Development Orchestration](docs/papers/open-sdd-preprint.pdf).
 
-## Quick Start
+## Quick Installation & Setup
 
+### 🚀 1. Universal One-Line Installer (Public curl)
+Install Open-SDD on any machine with zero prior setup:
 ```bash
-cd your-project
-npx cc-sdd@latest
-# or alias:
-npx open-sdd@latest
+curl -fsSL https://raw.githubusercontent.com/Brujo2020/open-sdd/main/install.sh | bash
+```
+Or pass automated flags:
+```bash
+# Global CLI + current project skills (Recommended):
+curl -fsSL https://raw.githubusercontent.com/Brujo2020/open-sdd/main/install.sh | bash -s -- --both
+
+# Global CLI only:
+curl -fsSL https://raw.githubusercontent.com/Brujo2020/open-sdd/main/install.sh | bash -s -- --global
 ```
 
-The default installs **Claude Code Skills** with English docs and `.sdd/` storage. To pick another agent or language:
-
+### 🌐 2. Global Terminal CLI (NPM)
 ```bash
-npx cc-sdd@latest --codex-skills --lang ja      # Codex, Japanese
-npx cc-sdd@latest --cursor-skills --lang zh-TW  # Cursor IDE, Traditional Chinese
-npx cc-sdd@latest --antigravity --lang es       # Antigravity, Spanish
+npm install -g cc-sdd@latest
+
+# Available commands in any terminal session:
+open-sdd status
+open-sdd impl <feature> --parallel
+open-sdd audit <feature> --regulatory
+open-sdd help
+```
+
+### 📦 3. Per-Project Skills Install (Zero Global Installs)
+Inside any repository, inject the 20 skills directly into your coding agent:
+```bash
+# Claude Code (Default)
+npx cc-sdd@latest -y
+
+# Google Antigravity
+npx cc-sdd@latest --antigravity -y
+
+# Cursor IDE
+npx cc-sdd@latest --cursor-skills -y
+
+# Other supported agents:
+npx cc-sdd@latest --copilot-skills -y
+npx cc-sdd@latest --windsurf-skills -y
+npx cc-sdd@latest --opencode-skills -y
+npx cc-sdd@latest --gemini-cli-skills -y
+npx cc-sdd@latest --codex-skills -y
 ```
 
 Then, in your agent:

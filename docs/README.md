@@ -11,13 +11,14 @@ Quick pointers to the most relevant guides, workflows, and historical notes for 
 
 ## Deep Dives
 
-- [Spec-Driven Development Workflow](guides/spec-driven.md) — how cc-sdd implements SDD end to end
-- [Skill Reference](guides/skill-reference.md) — skills-mode workflow, including `/kiro-impl` subagent flow
-- [Command Reference](guides/command-reference.md) — legacy `/kiro:*` command detail
+- [Spec-Driven Development Workflow](guides/spec-driven.md) — how Open-SDD implements SDD end to end
+- [Skill Reference](guides/skill-reference.md) — 20-skill workflow, including parallel wave scheduling
+- [Strict Git Mode & SpecOps Flow](guides/git-workflow.md) — Git feature branch lifecycle and zero-drift verification
+- [Universal Brownfield Reverse-Engineering](guides/brownfield-getspecs.md) — bootstrapping steering & spec seeds from existing codebases
+- [Command Reference](guides/command-reference.md) — CLI engine and skill command reference
 - [Customization Guide](guides/customization-guide.md) — templates and rules customization
-- [Why cc-sdd?](guides/why-cc-sdd.md) — design rationale, trade-offs, and when to use (or not use) the tool
+- [Why Open-SDD?](guides/why-cc-sdd.md) — design rationale, trade-offs, and when to use (or not use) the tool
 - [Migration Guide](guides/migration-guide.md) — v1.x → v2 → v3 upgrade paths
-- [Claude Code Subagents Workflow](guides/claude-subagents.md) — legacy `--claude-agent` spec-quick Subagent install target
 
 ## Legacy Reference (Archived)
 
