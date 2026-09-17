@@ -1,8 +1,6 @@
-# cc-sdd Migration Guide
+# Open-SDD Migration Guide
 
-> 📖 **日本語ガイドはこちら:** [マイグレーションガイド (日本語)](ja/migration-guide.md)
-
-cc-sdd 1.x (especially 1.1.5) and 2.0.0 share the same agentic SDLC philosophy and command list, but the **design artifacts, templates, and steering structure were rebuilt from the ground up**. Use this guide to pick one of two clear paths—either keep running 1.1.5 as-is, or accept the discontinuity and move to 2.0.0 where templates/rules make customization instant.
+This guide covers migration paths across Open-SDD releases, detailing architectural enhancements, template updates, and steering structure improvements.
 
 ---
 

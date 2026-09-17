@@ -5,44 +5,38 @@
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
 [![Status: Production](https://img.shields.io/badge/status-active-brightgreen.svg)](https://github.com/Brujo2020/open-sdd)
 
-<div align="center" style="font-size: 1.1rem; margin-bottom: 1rem;"><sub>
-Package README: <a href="./README.md">English</a> | <a href="./README_ja.md">日本語</a> | <a href="./README_zh-TW.md">繁體中文</a>
-</sub></div>
-
 ## Turn approved specs into long-running autonomous implementation
 
 One command installs an agentic SDLC workflow as Agent Skills: brownfield bootstrap, discovery, requirements, design, tasks, gap analysis, regulatory audit, and autonomous implementation with per-task independent review. Works across 8 AI coding agents, with the same 20-skill set on each.
 
 - **5th Generation Software Abstraction (InfoQ 2026)**: Architecture becomes executable. Machine Code → Assembly → High-level compiled → Scripting/Dynamic → **SpecOps (SDD)**.
-- **"It Just Works" (Apple-Grade Simplicity)**: Eliminates the "Steel Harness" antipattern (excessive bureaucratic gates that paralyze velocity). Focuses on **3 Critical Invariant Gates** with **Dual Governance (`fluid` vs `strict`)**.
+- **Dual Governance Architecture (`fluid` vs `strict`)**: Balances rapid developer flow with rigorous enterprise verification, providing **Fluid Mode** for high velocity and **Strict Mode** for mission-critical and EU AI Act regulatory compliance.
 - **Universal Brownfield Reverse-Engineering (`/sdd-getspecs`)**: Over 90% of real-world software is brownfield. Deduce living specifications from any existing repository—from solo indie projects and startup MVPs to hyperscaler platforms—through code-first reverse engineering, generating spec seeds that require human editing and validation before approval.
 - **Living Documentation in Git (*Spec-as-Code*)**: Specifications live in Git alongside the code (`.sdd/specs/`), versioned together in PRs to eradicate architectural drift.
 - **Strict Git Mode & SpecOps Flow**: Automates feature branch lifecycle (`feat/<slug>`), commits/pushes living specs upon Documentary Triad approval, strictly forbids unapproved implementation, and automates PR creation upon test validation.
 - **Karpathy Principles**: Think before coding, surgical changes, simplicity first, minimal blast radius, and goal-driven test verification.
-- **Dual-Mode Governance (`fluid` vs `strict`)**: By default, **Modo Libre (`fluid`)** guarantees high development speed with non-blocking warnings, while **Modo Estricto (`strict`)** activates full regulatory compliance (EU AI Act, NIST AI RMF).
 - **Autonomous Quality Engineering (Agentic QE & PACTS)**: Integrates autonomous testing via [Agentic QE](https://agentic-qe.dev/) (Proactive, Autonomous, Collaborative, Targeted, Structured) for metamorphic invariant generation and boundary-scoped verification.
 
-## The Apple Philosophy: "It Just Works" & No "Steel Harness" Paralysis
+## Dual Governance: Fast Flow & Sovereign Compliance (`.sdd/settings/governance.json`)
 
-Excessive validation gates and rigid harnesses often paralyze engineering velocity, turning AI assistants into bureaucratic blockers. 
+Open-SDD operationalizes Spec-Driven Development through a dual-governance model anchored on the **3 Vital Critical Invariant Gates**:
 
-**Open-SDD rejects the "Steel Harness" antipattern.** Instead of 20+ blocking gates, Open-SDD focuses exclusively on the **3 Vital Critical Invariant Gates**:
-1. **Boundary & Blast-Radius Gate**: Protects codebase topology and stops unintended file mutations.
-2. **Spec Contract Gate**: Ensures implementation maps to clear user intent, preventing hallucinated scope.
-3. **Verification Gate**: Guarantees tests pass with fresh evidence before release.
+1. **Boundary & Blast-Radius Gate ($\mathcal{G}_1$)**: Protects codebase topology and confines mutations strictly to declared task boundaries.
+2. **Spec Contract Gate ($\mathcal{G}_2$)**: Ensures implementation code remains strictly grounded in user intent and EARS requirements.
+3. **Verification Gate ($\mathcal{G}_3$)**: Guarantees fresh empirical test evidence before any release or milestone completion.
 
-### Dual Governance: Speed vs. Compliance (`.sdd/settings/governance.json`)
+### Governance Profiles
 
-| Mode | Designed For | Developer Experience |
+| Mode | Designed For | Operational Experience |
 |---|---|---|
-| **`fluid` (Default / Modo Libre)** | Solo devs, startups, rapid prototyping, scale-ups | **Maximum speed.** Non-blocking warnings, zero bureaucratic pauses, fast-track by default (`-y`, `--auto`). |
+| **`fluid` (Default / Modo Libre)** | Solo devs, startups, rapid prototyping, scale-ups | **Maximum flow state.** Non-blocking telemetry warnings, zero bureaucratic pauses, fast-track by default (`-y`, `--auto`). |
 | **`strict` (Enterprise / Sovereign)** | Regulated industries, hyperscalers, EU AI Act audits | **Full regulatory lock.** Mandatory Gate 0 approval, tamper-evident commit trails, hard drift blocks. |
 
 | What You Type | What You Experience | What Open-SDD Orchestrates Under the Hood |
 |---|---|---|
 | `/sdd-getspecs` | Instant understanding of your legacy code | AST traversal, dependency graphing, boundary extraction, reverse-engineered spec seeds |
 | `/sdd-spec-quick auth --auto` | Specs generated and locked in seconds | EARS requirements synthesis, ADR generation, blast-radius gap analysis, Git branch lock |
-| `/sdd-impl auth` | Features implemented autonomously | Subagent isolation, TDD RED→GREEN execution, adversarial review, auto-debugging |
+| `/sdd-impl auth --parallel` | Features implemented autonomously | Parallel DAG waves, disjoint boundary locks, TDD RED→GREEN execution, adversarial review |
 | `/sdd-audit auth` | Instant compliance certificate | Regulatory traceability matrix, EU AI Act Art. 11/12/14 audit, drift report |
 
 ## What's new in Open-SDD

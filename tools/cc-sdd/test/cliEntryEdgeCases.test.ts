@@ -37,7 +37,7 @@ describe('CLI entry edge cases', () => {
     const ctx = makeIO();
     const code = await runCli(['--version', '-v'], runtime, ctx.io, {});
     expect(code).toBe(0);
-    expect(ctx.logs.join('\n')).toMatch(/cc-sdd v/);
+    expect(ctx.logs.join('\n')).toMatch(/(open-sdd|cc-sdd) v/);
   });
 
   it('prioritizes help over version', async () => {

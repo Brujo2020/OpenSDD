@@ -2,9 +2,6 @@
 
 > ⚠️ **Legacy documentation (archived).** This page reflects an early cc-sdd workflow and is kept for reference only. For the latest instructions, see the [current README](../../README.md).
 
-> 🌐 **Language**  
-> 📖 **English Version** (This page) | 📖 **[日本語版 README](README.md)** | 📖 **[繁體中文說明](README_zh-TW.md)**
-
 > 🚀 **Supported Platforms**  
 > 🤖 **Claude Code** | 🔮 **Cursor** | ⚡ **Gemini CLI** | 🧠 **Codex CLI**
 

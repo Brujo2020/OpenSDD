@@ -38,6 +38,7 @@ venv/
 
 # Build outputs
 dist/
+!tools/cc-sdd/dist/
 build/
 *.egg-info/
 

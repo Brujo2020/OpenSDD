@@ -1,7 +1,5 @@
 # Skill Reference
 
-> 📖 **日本語ガイドはこちら:** [スキルリファレンス (日本語)](ja/skill-reference.md)
-
 Comprehensive reference for the modern **Open-SDD** skills workflow across all 8 supported AI coding agents (Claude Code, Cursor, Codex, Copilot, Windsurf, OpenCode, Gemini CLI, and Antigravity).
 
 ---

@@ -13,9 +13,12 @@
     "type": "git",
     "url": "https://github.com/Brujo2020/open-sdd.git"
   },
+  "files": [
+    "tools/cc-sdd/dist",
+    "tools/cc-sdd/templates"
+  ],
   "scripts": {
     "build": "npm --prefix tools/cc-sdd run build",
-    "prepare": "npm --prefix tools/cc-sdd run build",
     "test": "npm --prefix tools/cc-sdd test",
     "install:global": "npm --prefix tools/cc-sdd run build && npm install -g ./tools/cc-sdd",
     "install:antigravity": "node tools/cc-sdd/dist/cli.js --antigravity -y",

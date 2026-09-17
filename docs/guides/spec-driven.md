@@ -1,8 +1,6 @@
 # Spec-Driven Development Workflow
 
-> 📖 **日本語ガイドはこちら:** [仕様駆動開発ガイド (日本語)](ja/spec-driven.md)
-
-This document explains how cc-sdd implements Spec-Driven Development (SDD) inside an agentic SDLC workflow. Use it as a reference when deciding which slash command to run, what artifact to review, and how to adapt the workflow to your team.
+This document explains how Open-SDD implements Spec-Driven Development (SDD) inside an agentic SDLC workflow. Use it as a reference when deciding which command to run, what artifact to review, and how to adapt the workflow to your team.
 
 ## Core Ideas
 

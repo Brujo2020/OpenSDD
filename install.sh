@@ -38,6 +38,14 @@ build_package() {
 install_global() {
   build_package
   echo -e "${YELLOW}→ Installing 'open-sdd' and 'sdd-open' globally...${NC}"
+
+  # Clean up any stale symlink or conflicting binary from previous npm link
+  local global_node_modules="$(npm root -g 2>/dev/null || true)"
+  if [ -n "$global_node_modules" ] && [ -e "$global_node_modules/open-sdd" ]; then
+    echo -e "${YELLOW}→ Removing previous global open-sdd link/installation...${NC}"
+    rm -rf "$global_node_modules/open-sdd" 2>/dev/null || true
+  fi
+
   if [ -d "$PACKAGE_DIR" ]; then
     npm install -g "$PACKAGE_DIR"
   elif npm view open-sdd >/dev/null 2>&1; then

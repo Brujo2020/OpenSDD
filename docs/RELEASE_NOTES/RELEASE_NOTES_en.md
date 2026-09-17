@@ -24,7 +24,7 @@ Patch release that keeps the Codex `spec-reviewer` role valid for cross-spec rev
 ### Resources
 - **Pull Requests**: [#157](https://github.com/gotalab/cc-sdd/pull/157), [#160](https://github.com/gotalab/cc-sdd/pull/160)
 - **Full Changelog**: [CHANGELOG.md](../../CHANGELOG.md#302---2026-04-14)
-- **Release Notes**: [English](./RELEASE_NOTES_en.md) | [日本語](./RELEASE_NOTES_ja.md)
+- **Release Notes**: [English](./RELEASE_NOTES_en.md)
 
 ### Installation
 ```bash
@@ -51,7 +51,7 @@ Patch release focused on safer filesystem handling in `cc-sdd`, plus a small fol
 ### Resources
 - **Pull Requests**: [#154](https://github.com/gotalab/cc-sdd/pull/154), [#155](https://github.com/gotalab/cc-sdd/pull/155)
 - **Full Changelog**: [CHANGELOG.md](../../CHANGELOG.md#301---2026-04-11)
-- **Release Notes**: [English](./RELEASE_NOTES_en.md) | [日本語](./RELEASE_NOTES_ja.md)
+- **Release Notes**: [English](./RELEASE_NOTES_en.md)
 
 ### Installation
 ```bash
@@ -92,7 +92,7 @@ npx cc-sdd@latest
 ### 🔗 Resources
 - **Pull Requests**: [#141](https://github.com/gotalab/cc-sdd/pull/141), [#138](https://github.com/gotalab/cc-sdd/pull/138)
 - **Full Changelog**: [CHANGELOG.md](../../CHANGELOG.md#300---2026-04-10)
-- **Release Notes**: [English](./RELEASE_NOTES_en.md) | [日本語](./RELEASE_NOTES_ja.md)
+- **Release Notes**: [English](./RELEASE_NOTES_en.md)
 
 ### 📦 Installation
 ```bash

@@ -4,10 +4,8 @@ Quick pointers to the most relevant guides, workflows, and historical notes for 
 
 ## Current Guides
 
-- [Project README (English)](../README.md)
-- [Project README (日本語)](../tools/cc-sdd/README_ja.md)
-- [Project README (繁體中文)](../tools/cc-sdd/README_zh-TW.md)
-- [Release Notes](RELEASE_NOTES)
+- [Project README](../README.md)
+- [Release Notes](RELEASE_NOTES/RELEASE_NOTES_en.md)
 
 ## Deep Dives
 
@@ -22,6 +20,4 @@ Quick pointers to the most relevant guides, workflows, and historical notes for 
 
 ## Legacy Reference (Archived)
 
-- [Multi-Platform Spec-Driven Development (English)](README/README_en.md)
-- [多平台規格駆動開発 (日本語)](README/README_ja.md)
-- [多平台規格驅動開發 (繁體中文)](README/README_zh-TW.md)
+- [Multi-Platform Spec-Driven Development (Archived)](README/README_en.md)

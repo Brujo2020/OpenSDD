@@ -39,7 +39,7 @@ describe('CLI entry', () => {
     const ctx = makeIO();
     const code = await runCli(['--version'], runtime, ctx.io, {});
     expect(code).toBe(0);
-    expect(ctx.logs.join('\n')).toMatch(/cc-sdd v/);
+    expect(ctx.logs.join('\n')).toMatch(/(open-sdd|cc-sdd) v/);
   });
 
   it('prints plan on --dry-run', async () => {

@@ -1,8 +1,6 @@
-# Why cc-sdd? A philosophy note
+# Why Open-SDD? A philosophy note
 
-> English | [日本語](ja/why-cc-sdd.md)
-
-This is the long version of "why does cc-sdd exist and what trade-off is it making". If you just want to install and try it, the project [README](../../README.md) is the faster path. Come here when you want to understand the design rationale.
+This is the long version of "why does Open-SDD exist and what trade-off is it making". If you just want to install and try it, the project [README](../../README.md) is the faster path. Come here when you want to understand the design rationale.
 
 ## The short version
 
