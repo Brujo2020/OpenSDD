@@ -1,34 +1,20 @@
 {
   "name": "open-sdd",
-  "version": "3.0.2",
-  "description": "Open-SDD: Model-agnostic Spec-Driven Development on an enterprise agentic SDLC",
+  "version": "2.0.0",
+  "description": "Spec-Driven Development Toolkit",
   "type": "module",
   "bin": {
-    "open-sdd": "./tools/cc-sdd/dist/cli.js",
-    "sdd-open": "./tools/cc-sdd/dist/cli.js",
-    "sdd": "./tools/cc-sdd/dist/cli.js",
-    "cc-sdd": "./tools/cc-sdd/dist/cli.js"
+    "open-sdd": "./dist/cli.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Brujo2020/open-sdd.git"
-  },
-  "files": [
-    "tools/cc-sdd/dist",
-    "tools/cc-sdd/templates"
-  ],
   "scripts": {
-    "postinstall": "cd tools/cc-sdd && npm install --omit=peer --legacy-peer-deps 2>/dev/null || npm install --legacy-peer-deps",
-    "build": "npm --prefix tools/cc-sdd run build",
-    "test": "npm --prefix tools/cc-sdd test",
-    "install:global": "npm --prefix tools/cc-sdd run build && npm install -g ./tools/cc-sdd",
-    "install:antigravity": "node tools/cc-sdd/dist/cli.js --antigravity -y",
-    "install:claude": "node tools/cc-sdd/dist/cli.js -y",
-    "install:cursor": "node tools/cc-sdd/dist/cli.js --cursor-skills -y",
-    "install:copilot": "node tools/cc-sdd/dist/cli.js --copilot-skills -y",
-    "install:windsurf": "node tools/cc-sdd/dist/cli.js --windsurf-skills -y",
-    "install:opencode": "node tools/cc-sdd/dist/cli.js --opencode-skills -y",
-    "install:gemini": "node tools/cc-sdd/dist/cli.js --gemini-cli-skills -y",
-    "install:codex": "node tools/cc-sdd/dist/cli.js --codex-skills -y"
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "chalk": "^5.6.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@types/node": "^20.19.43"
   }
 }
