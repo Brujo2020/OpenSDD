@@ -1,183 +1,69 @@
-#!/usr/bin/env bash
-# ==============================================================================
-# Open-SDD Universal Installer
-# Spec-Driven Development Orchestration Engine & Agent Skills
-# ==============================================================================
+#!/bin/bash
+# Open-SDD | One-Command Install
+# Usage: bash install.sh /path/to/your/open-sdd-repo
+
 set -e
 
-CYAN='\033[0;36m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BOLD='\033[1m'
-NC='\033[0m' # No Color
+REPO="${1:-.}"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PACKAGE_DIR="$SCRIPT_DIR/tools/cc-sdd"
+if [ ! -d "$REPO/src/cli" ]; then
+  echo "❌ Usage: bash install.sh /path/to/open-sdd-repo"
+  echo ""
+  echo "Example:"
+  echo "  bash install.sh ~/projects/open-sdd"
+  exit 1
+fi
 
-echo -e "${CYAN}${BOLD}"
-echo "  ___                      ____  ____  ____  "
-echo " / _ \ _ __   ___ _ __    / ___||  _ \|  _ \ "
-echo "| | | | '_ \ / _ \ '_ \   \___ \| | | | | | |"
-echo "| |_| | |_) |  __/ | | |   ___) | |_| | |_| |"
-echo " \___/| .__/ \___|_| |_|  |____/|____/|____/ "
-echo "      |_|                                    "
-echo -e "${NC}"
-echo -e "${BOLD}Open-SDD Universal Installer (September 2026)${NC}"
-echo -e "Model-agnostic Spec-Driven Development on an enterprise agentic SDLC.\n"
-
-# Function: Build package if source exists
-build_package() {
-  if [ -d "$PACKAGE_DIR" ]; then
-    echo -e "${YELLOW}→ Compiling Open-SDD Engine...${NC}"
-    npm --prefix "$PACKAGE_DIR" run build --silent
-    echo -e "${GREEN}✓ Engine compiled successfully.${NC}\n"
-  fi
-}
-
-# Function: Install globally
-install_global() {
-  build_package
-  echo -e "${YELLOW}→ Installing 'open-sdd' and 'sdd-open' globally...${NC}"
-
-  # Clean up any stale symlink or conflicting binary from previous npm link
-  local global_node_modules="$(npm root -g 2>/dev/null || true)"
-  if [ -n "$global_node_modules" ] && [ -e "$global_node_modules/open-sdd" ]; then
-    echo -e "${YELLOW}→ Removing previous global open-sdd link/installation...${NC}"
-    rm -rf "$global_node_modules/open-sdd" 2>/dev/null || true
-  fi
-
-  if [ -d "$PACKAGE_DIR" ]; then
-    npm install -g "$PACKAGE_DIR"
-  elif npm view open-sdd >/dev/null 2>&1; then
-    npm install -g open-sdd@latest
-  else
-    echo -e "${YELLOW}→ Installing directly from public GitHub repo: Brujo2020/open-sdd...${NC}"
-    npm install -g github:Brujo2020/open-sdd
-  fi
-  echo -e "${GREEN}✓ Global installation complete!${NC}"
-  echo -e "  Binaries available in PATH:"
-  echo -e "    • ${BOLD}open-sdd${NC}  (e.g., 'open-sdd status', 'open-sdd impl <feature> --parallel')"
-  echo -e "    • ${BOLD}sdd-open${NC}  (e.g., 'sdd-open status')"
-  echo -e "    • ${BOLD}sdd${NC}       (short alias, e.g., 'sdd status')\n"
-}
-
-# Function: Install in current project
-install_project() {
-  local target_dir="${1:-$(pwd)}"
-  local agent="$2"
-
-  echo -e "${YELLOW}→ Setting up Open-SDD in project: ${BOLD}$target_dir${NC}"
-
-  # Auto-detect agent if not provided
-  if [ -z "$agent" ]; then
-    if [ -d "$target_dir/.gemini" ] || [ -d "$target_dir/.agent" ]; then
-      agent="antigravity"
-    elif [ -d "$target_dir/.cursor" ]; then
-      agent="cursor"
-    elif [ -d "$target_dir/.claude" ]; then
-      agent="claude"
-    elif [ -d "$target_dir/.codeium" ] || [ -d "$target_dir/.windsurf" ]; then
-      agent="windsurf"
-    elif [ -d "$target_dir/.github" ]; then
-      agent="copilot"
-    else
-      agent="antigravity"
-    fi
-  fi
-
-  local flag=""
-  case "$agent" in
-    antigravity) flag="--antigravity" ;;
-    cursor)      flag="--cursor-skills" ;;
-    claude)      flag="" ;;
-    copilot)     flag="--copilot-skills" ;;
-    windsurf)    flag="--windsurf-skills" ;;
-    opencode)    flag="--opencode-skills" ;;
-    gemini)      flag="--gemini-cli-skills" ;;
-    codex)       flag="--codex-skills" ;;
-    *)           flag="--antigravity" ;;
-  esac
-
-  if command -v open-sdd >/dev/null 2>&1; then
-    (cd "$target_dir" && open-sdd $flag -y --overwrite force)
-  elif command -v sdd-open >/dev/null 2>&1; then
-    (cd "$target_dir" && sdd-open $flag -y --overwrite force)
-  elif [ -f "$PACKAGE_DIR/dist/cli.js" ]; then
-    (cd "$target_dir" && node "$PACKAGE_DIR/dist/cli.js" $flag -y --overwrite force)
-  elif npm view open-sdd >/dev/null 2>&1; then
-    (cd "$target_dir" && npx open-sdd@latest $flag -y --overwrite force)
-  else
-    (cd "$target_dir" && npx -y github:Brujo2020/open-sdd $flag -y --overwrite force)
-  fi
-
-  echo -e "\n${GREEN}✓ Project skills and steering initialized for: ${BOLD}$agent${NC}"
-  echo -e "  20 Open-SDD skills installed in your agent's directory."
-  echo -e "  Project memory (.sdd/steering/) ready.\n"
-}
-
-# Parse command line flags
-case "$1" in
-  --global|-g)
-    install_global
-    exit 0
-    ;;
-  --project|-p)
-    install_project "${2:-$(pwd)}" "$3"
-    exit 0
-    ;;
-  --both|-b)
-    install_global
-    install_project "${2:-$(pwd)}" "$3"
-    exit 0
-    ;;
-  --help|-h)
-    echo "Usage:"
-    echo "  ./install.sh                Interactive menu (Global, Project, or Both)"
-    echo "  ./install.sh --global       Install 'open-sdd' and 'sdd' globally"
-    echo "  ./install.sh --project      Install Open-SDD skills in current project"
-    echo "  ./install.sh --both         Install both globally and in current project"
-    echo ""
-    echo "Examples:"
-    echo "  ./install.sh --project /path/to/my-repo cursor"
-    echo "  ./install.sh --project /path/to/my-repo antigravity"
-    exit 0
-    ;;
-esac
-
-# Interactive prompt if no arguments passed
-echo "Select installation mode:"
-echo "  [1] Both: Install CLI globally + configure current project (Recommended)"
-echo "  [2] Global CLI only ('open-sdd' command everywhere)"
-echo "  [3] Current Project only (Install 20 skills in this directory)"
+echo "🚀 Open-SDD Installing..."
 echo ""
 
-if [ -t 0 ]; then
-  read -p "Enter choice [1-3] (default: 1): " choice
-elif [ -e /dev/tty ]; then
-  read -p "Enter choice [1-3] (default: 1): " choice < /dev/tty || choice=1
-else
-  choice=1
-fi
-choice=${choice:-1}
+# Copy core files
+echo "📂 Installing 9 features..."
+mkdir -p "$REPO/src/cli/ui" "$REPO/src/cli/core" "$REPO/src/cli/commands"
 
-case "$choice" in
-  1)
-    install_global
-    install_project "$(pwd)"
-    ;;
-  2)
-    install_global
-    ;;
-  3)
-    install_project "$(pwd)"
-    ;;
-  *)
-    echo "Invalid choice. Exiting."
-    exit 1
-    ;;
-esac
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo -e "${CYAN}${BOLD}Open-SDD is ready to use!${NC}"
-echo -e "Try running in your terminal:"
-echo -e "  ${BOLD}open-sdd status${NC}"
-echo -e "  ${BOLD}open-sdd help${NC}"
+# Core modules (Features 1-9)
+for file in "$SCRIPT_DIR"/src/cli/core/*.ts; do
+  [ -f "$file" ] && cp "$file" "$REPO/src/cli/core/" && echo "  ✓ $(basename $file)"
+done
+
+# UI modules
+for file in "$SCRIPT_DIR"/src/cli/ui/*.ts; do
+  [ -f "$file" ] && cp "$file" "$REPO/src/cli/ui/" && echo "  ✓ $(basename $file)"
+done
+
+# Handlers
+for file in "$SCRIPT_DIR"/src/cli/commands/*.ts; do
+  [ -f "$file" ] && cp "$file" "$REPO/src/cli/commands/" && echo "  ✓ $(basename $file)"
+done
+
+# Install dependencies
+cd "$REPO"
+echo ""
+echo "📦 Installing dependencies..."
+npm install chalk --silent 2>/dev/null || npm install chalk
+
+# Build
+echo "🔨 Building..."
+npm run build --silent 2>/dev/null || npm run build
+
+echo ""
+echo "✅ Installation complete!"
+echo ""
+echo "📝 Next step: Wire 3 imports in src/cli/index.ts"
+echo ""
+echo "Add imports:"
+echo '  import { handleSpecEARSStrict } from "./commands/spec-ears-strict.js";'
+echo '  import { handleRollbackRetry } from "./commands/rollback-retry.js";'
+echo ""
+echo "Add cases to router:"
+echo '  case "/sdd-spec-ears-strict":'
+echo '    await handleSpecEARSStrict(args);'
+echo '    break;'
+echo ""
+echo "🧪 Then test:"
+echo "  /sdd-impl auth --preview"
+echo "  /sdd-spec-ears-strict auth"
+echo "  /sdd-impl auth --checkpoint --git --profile"
+echo ""
