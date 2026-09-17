@@ -1,66 +1,70 @@
-# Open-SDD: Agentic SDLC and Spec-Driven Development
+# Agentic SDLC and Spec-Driven Development
 
-Open-SDD: Model-agnostic Spec-Driven Development on an enterprise agentic SDLC.
-Living specifications, Zero-Trust validation, and auditable architecture.
+SDD-style Spec-Driven Development on an agentic SDLC
+
+## Project Memory
+Project memory keeps persistent guidance (steering, specs notes, component docs) so Antigravity honors your standards each run. Treat it as the long-lived source of truth for patterns, conventions, and decisions.
+
+- Use `.sdd/steering/` for project-wide policies: architecture principles, naming schemes, security constraints, tech stack decisions, api standards, etc.
+- Use local `AGENTS.md` files for feature or library context (e.g. `src/lib/payments/AGENTS.md`): describe domain assumptions, API contracts, or testing conventions specific to that folder.
+- Specs notes stay with each spec (under `.sdd/specs/`) to guide specification-level workflows.
 
 ## Project Context
 
 ### Paths
-- Steering: `.sdd/steering/` (persistent project memory & architecture standards)
-- Specs: `.sdd/specs/` (executable feature specifications)
-- Memory: `.sdd/memory/` (temporal session ledgers and AST knowledge graph)
+- Steering: `.sdd/steering/`
+- Specs: `.sdd/specs/`
 
 ### Steering vs Specification
 
-**Steering** (`.sdd/steering/`) - Guides AI with project-wide rules, architecture, and technology standards.
-**Specs** (`.sdd/specs/`) - Formalizes the development lifecycle for individual features into an auditable Documentary Triad (`requirements.md`, `design.md`, `tasks.md`).
+**Steering** (`.sdd/steering/`) - Guide AI with project-wide rules and context
+**Specs** (`.sdd/specs/`) - Formalize development process for individual features
 
 ### Active Specifications
 - Check `.sdd/specs/` for active specifications
-- Use `/sdd-status [feature-name]` to check progress
+- Use `/sdd-spec-status [feature-name]` to check progress
 
 ## Development Guidelines
+<!-- DEV_GUIDELINES: injected at install time with language-specific guidelines (npx cc-sdd@latest --lang <code>) -->
 - Think in English, generate responses in English. All Markdown content written to project files (e.g., requirements.md, design.md, tasks.md, research.md, validation reports) MUST be written in the target language configured for this specification (see spec.json.language).
-- **Specs are Living Documentation**: Stored and versioned natively in Git alongside source code. Specs never drift from code.
 
 ## Minimal Workflow
-- Phase 0 (Steering): `/sdd-steering`, `/sdd-steering-custom`
-- **Brownfield Bootstrap** (existing codebase, no `.sdd/` specs): `/sdd-getspecs [focus]` — reverse-engineers steering + roadmap + unapproved spec seeds from code; seeds must be reviewed, edited, and validated before approval.
-- Discovery (new work/ideas): `/sdd-discovery "idea"` — identifies action path (Greenfield or Brownfield extension), writes `brief.md` and `roadmap.md`
+- Phase 0 (optional): `/sdd-steering`, `/sdd-steering-custom`
+- **Brownfield bootstrap** (existing codebase, no `.sdd/` specs): `/sdd-getspecs` — reverse-engineers steering + roadmap + spec seeds from code; then `/sdd-spec-requirements` or `/sdd-spec-batch`
+- Discovery: `/sdd-discovery "idea"` — determines action path, writes brief.md + roadmap.md for multi-spec projects
 - Phase 1 (Specification):
-  - Single spec: `/sdd-spec-quick {feature} [--auto]` or step-by-step:
+  - Single spec: `/sdd-spec-quick {feature} [--auto]` or step by step:
     - `/sdd-spec-init "description"`
     - `/sdd-spec-requirements {feature}`
-    - `/sdd-validate-gap {feature}` (gap & blast-radius analysis on existing codebase)
+    - `/sdd-validate-gap {feature}` (optional: for existing codebase)
     - `/sdd-spec-design {feature} [-y]`
-    - `/sdd-validate-design {feature}` (design review gate)
+    - `/sdd-validate-design {feature}` (optional: design review)
     - `/sdd-spec-tasks {feature} [-y]`
-  - Multi-spec: `/sdd-spec-batch` — initializes all specs from roadmap.md in parallel dependency waves
-- Phase 2 (Implementation): `/sdd-impl {feature} [tasks] [--parallel] [--review required|inline|off]`
-  - Without task numbers: autonomous mode (parallel dependency waves with disjoint boundary locks + independent review + verify gate)
-  - With task numbers: manual mode (selected tasks only in main context)
-  - CLI command: `open-sdd impl {feature} [--parallel] [--json]` (computes and displays DAG dependency waves)
-  - `/sdd-validate-impl {feature}` (standalone feature-level verification; supports Agentic QE autonomous validation fleets)
-- Governance & Compliance: `/sdd-audit {feature}` — generates auditable compliance report (EU AI Act, NIST RMF, ADR genealogy)
+  - Multi-spec: `/sdd-spec-batch` — creates all specs from roadmap.md in parallel by dependency wave
+- Phase 2 (Implementation): `/sdd-impl {feature} [tasks] [--review required|inline|off]`
+  - Without task numbers: autonomous mode (subagent per task + independent review + final validation)
+  - With task numbers: manual mode (selected tasks in main context, still reviewer-gated before completion)
+  - `--review off` skips task-local review; use it intentionally and keep `/sdd-validate-impl {feature}` as the final quality gate
+  - `/sdd-validate-impl {feature}` (standalone re-validation)
 - Progress check: `/sdd-spec-status {feature}` (use anytime)
 
 ## Skills Structure
-Skills are located under the agent-specific skills directory (e.g., `.claude/skills/sdd-*/SKILL.md`, `.agents/skills/sdd-*/SKILL.md`, etc.):
+Skills are located in `.agent/skills/kiro-*/SKILL.md`
 - Each skill is a directory with a `SKILL.md` file
-- Skills run inline with access to conversation context
-- Skills delegate parallel research to subagents for context efficiency
-- `sdd-review` — task-local adversarial review protocol
-- `sdd-debug` — root-cause-first debug protocol
+- Use `/skills` to inspect currently available skills
+- Invoke a skill directly with `/kiro-<skill-name>`
+- **If there is even a 1% chance a skill applies to the current task, invoke it.** Do not skip skills because the task seems simple.
+- `sdd-review` — task-local adversarial review protocol used by reviewer subagents
+- `sdd-debug` — root-cause-first debug protocol used by debugger subagents
 - `sdd-verify-completion` — fresh-evidence gate before success or completion claims
-- **If there is even a 1% chance a skill applies to the current task, invoke it.**
+
+> Antigravity does not support programmatic sub-agent dispatch. Skills that reference parallel sub-agents will execute sequentially in the main context.
 
 ## Development Rules
 - 3-phase approval workflow: Requirements → Design → Tasks → Implementation
 - Human review required each phase; use `-y` only for intentional fast-track
-- Karpathy Guidelines (Think before coding, Simplicity first, Surgical changes, Goal-driven execution) are mandatory.
-- Autonomous Quality Engineering: Agentic QE (`agentic-qe.dev`, PACTS framework) enabled for boundary-scoped metamorphic invariant testing.
-- Strict Git Mode: Specs are mandatory. Implementation without an approved specification is strictly blocked. Every phase gate corresponds to an immutable Git milestone (init seed → spec lock → verified implementation push).
-- Keep steering current and verify alignment with `/sdd-status`.
+- Keep steering current and verify alignment with `/sdd-spec-status`
+- Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
 
 ## Steering Configuration
 - Load entire `.sdd/steering/` as project memory
