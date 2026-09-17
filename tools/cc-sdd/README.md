@@ -16,6 +16,7 @@ One command installs an agentic SDLC workflow as Agent Skills: brownfield bootst
 - **5th Generation Software Abstraction (InfoQ 2026)**: Architecture becomes executable. Machine Code → Assembly → High-level compiled → Scripting/Dynamic → **SpecOps (SDD)**.
 - **Enterprise Brownfield Reverse-Engineering (`/sdd-getspecs`)**: Deduce living specifications from existing repositories through code-first reverse engineering, mapping AST dependencies and generating spec seeds that require human editing and validation before approval.
 - **Living Documentation in Git (*Spec-as-Code*)**: Specifications live in Git alongside the code (`.sdd/specs/`), versioned together in PRs to eradicate architectural drift.
+- **Strict Git Mode & SpecOps Flow**: Automates feature branch lifecycle (`feat/<slug>`), commits/pushes living specs upon Documentary Triad approval, strictly forbids unapproved implementation, and automates PR creation upon test validation.
 - **Karpathy Principles**: Think before coding, surgical changes, simplicity first, minimal blast radius, and goal-driven test verification.
 - **Zero-Trust Multi-Agent Governance & Compliance**: Enforces verification gates, tamper-evident audit trails, and compliance with EU AI Act (Art. 11/12/14), NIST AI RMF, and ISO/IEC 42001 via `/sdd-audit`.
 - **Autonomous Quality Engineering (Agentic QE & PACTS)**: Integrates autonomous testing via [Agentic QE](https://agentic-qe.dev/) (Proactive, Autonomous, Collaborative, Targeted, Structured) for metamorphic invariant generation and boundary-scoped verification.
@@ -120,6 +121,28 @@ Steering (`.sdd/steering/`) establishes persistent, project-wide memory that AI 
 - `tech.md`: Tech stack, runtime prerequisites, coding conventions, and testing commands.
 - `structure.md`: Architectural topology, folder layout, and component boundaries.
 - Custom steering documents (`/sdd-steering-custom`) for API standards, security, databases, or cloud infrastructure.
+
+## Strict Git Mode (`.sdd/settings/git.json`)
+
+Configure automated Git branch and commit orchestration:
+
+```json
+{
+  "mode": "strict",
+  "branch_prefix": "feat/",
+  "auto_branch": true,
+  "auto_commit": true,
+  "auto_push": true,
+  "require_approved_spec": true
+}
+```
+
+- **Branch on Init**: Automatically creates and switches to `feat/<slug>` on `/sdd-spec-init`.
+- **Spec Approval Lock**: Automatically commits and pushes `.sdd/specs/<slug>/` when the Documentary Triad (`requirements.md` + `design.md` + `tasks.md`) is approved.
+- **Spec Mandatory Block**: `/sdd-impl` strictly refuses to generate code if `spec.json` is not in approved state.
+- **Implementation Validation Push**: Commits and pushes verified code upon `/sdd-validate-impl` passing, outputting a complete PR summary.
+
+Read the complete guide: [Strict Git Mode & SpecOps Flow](docs/guides/git-workflow.md).
 
 ## License
 

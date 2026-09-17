@@ -185,6 +185,19 @@ If NO-GO, REMEDIATION is mandatory — identify the exact issue and what needs t
 - **Strict Final Gate**: Return `GO` only when all integration checks passed; return `NO-GO` for concrete failures and `MANUAL_VERIFY_REQUIRED` when mandatory validation could not be completed
 - **Boundary integrity over convenience**: Do not return `GO` if the feature only works by smearing responsibilities across boundaries, even when tests pass
 
+
+### Strict Git Mode (Implementation Complete Gate & PR Automation)
+When all verification gates pass (deterministic test suites + Agentic QE invariants green):
+If `{{SDD_DIR}}/settings/git.json` has `auto_commit: true` or `mode: "strict"`:
+1. Stage implementation and test assets: `git add .`
+2. Commit: `git commit -m "feat({feature}): complete implementation verified against spec"`
+3. If `auto_push: true`: push to feature branch (`git push origin feat/{feature}`).
+4. Emit formatted Pull Request summary containing:
+   - Feature Scope & Goal (from brief.md)
+   - Requirements Addressed (REQ-* list)
+   - Verification Proof Matrix (tests passed, invariant checks, coverage)
+   - Command to review or merge PR.
+
 ## Safety & Fallback
 
 ### Error Scenarios

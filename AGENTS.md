@@ -58,6 +58,7 @@ Skills are located under the agent-specific skills directory (e.g., `.claude/ski
 - Human review required each phase; use `-y` only for intentional fast-track
 - Karpathy Guidelines (Think before coding, Simplicity first, Surgical changes, Goal-driven execution) are mandatory.
 - Autonomous Quality Engineering: Agentic QE (`agentic-qe.dev`, PACTS framework) enabled for boundary-scoped metamorphic invariant testing.
+- Strict Git Mode: Specs are mandatory. Implementation without an approved specification is strictly blocked. Every phase gate corresponds to an immutable Git milestone (init seed → spec lock → verified implementation push).
 - Keep steering current and verify alignment with `/sdd-status`.
 
 ## Steering Configuration

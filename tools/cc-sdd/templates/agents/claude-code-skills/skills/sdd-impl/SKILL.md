@@ -27,6 +27,26 @@ You operate in two modes:
 - Also accept clear natural-language opt-outs such as `skip review` or `without review` as `off`
 - If the request is ambiguous, keep `required`
 
+
+### Gate 0: Strict Spec Enforcement Gate (Specs Mandatory)
+Before analyzing tasks or generating any code:
+1. Read `{{SDD_DIR}}/specs/{feature}/spec.json`.
+2. Check `{{SDD_DIR}}/settings/git.json`. If `mode: "strict"` or `require_approved_spec: true`:
+   - Verify that `phase === "approved"`.
+   - Verify that `approvals.requirements.approved === true`.
+   - Verify that `approvals.design.approved === true`.
+   - Verify that `approvals.tasks.approved === true`.
+3. **If ANY approval is missing or false**:
+   **HARD BLOCK**: Abort execution immediately and report:
+   ```
+   [BLOCKED - STRICT SPEC ENFORCEMENT]
+   Cannot generate implementation code for feature '{feature}'.
+   Specifications are the single source of truth.
+   Missing approved documentation triad in {{SDD_DIR}}/specs/{feature}/spec.json.
+   Please approve requirements, design, and tasks (/sdd-spec-tasks {feature} -y) before implementing.
+   ```
+   Do NOT touch or generate any implementation code until specs are approved.
+
 ## Execution Steps
 
 ### Step 1: Gather Context

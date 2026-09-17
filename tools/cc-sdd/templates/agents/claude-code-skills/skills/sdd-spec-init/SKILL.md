@@ -20,6 +20,14 @@ Generate a unique feature name from the project description ($ARGUMENTS) and ini
    - If the directory exists with all three files and requirements.md is a getSpecs stub (empty `## Requirements` section, no EARS acceptance criteria): treat as reusable seed. Skip initialization — brief, spec.json, and stub already exist. Report that seed is ready for requirements generation.
    - If the directory exists with all three files (non-stub): report conflict and ask whether to refresh the stub only.
 4. **Create Directory**: `{{SDD_DIR}}/specs/[feature-name]/` (skip if already exists from discovery or getSpecs)
+
+### Strict Git Mode (Feature Branch Initialization)
+If git is available and `{{SDD_DIR}}/settings/git.json` has `auto_branch: true` or `mode: "strict"`:
+1. Check current branch: if not on `feat/<feature-name>`, create and switch:
+   `git checkout -b feat/<feature-name>`
+2. Stage initialized spec: `git add {{SDD_DIR}}/specs/<feature-name>/`
+3. Commit seed: `git commit -m "spec(<feature-name>): initialize feature specification seed"`
+
 5. **Initialize Files Using Templates**:
    - Read `{{SDD_DIR}}/settings/templates/specs/init.json`
    - Read `{{SDD_DIR}}/settings/templates/specs/requirements-init.md`

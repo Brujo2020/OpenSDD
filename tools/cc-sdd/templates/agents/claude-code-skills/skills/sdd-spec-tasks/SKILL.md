@@ -61,7 +61,16 @@ After all parallel research completes, synthesize findings before generating tas
 - If sequential mode is true, omit `(P)` entirely
 - If existing tasks.md found, merge with new content
 
-### Step 3: Review Task Plan
+### 
+### Strict Git Mode (Documentary Triad Approval Lock)
+When the task plan is approved and `spec.json` is set to `phase: "approved"` with all three approvals true (`requirements`, `design`, `tasks`):
+If `{{SDD_DIR}}/settings/git.json` has `auto_commit: true` or `mode: "strict"`:
+1. Stage all spec files: `git add {{SDD_DIR}}/specs/{feature}/`
+2. Commit approval: `git commit -m "spec({feature}): approve requirements, design, and tasks breakdown"`
+3. If `auto_push: true`: push to origin: `git push -u origin feat/{feature}`
+4. Notify user: `[STRICT GIT MODE] Specification triad approved and locked on feat/{feature}. Implementation authorized.`
+
+Step 3: Review Task Plan
 
 - Keep the draft task plan in working memory; do NOT write `tasks.md` yet
 - Run the `Task Plan Review Gate` from `rules/tasks-generation.md`

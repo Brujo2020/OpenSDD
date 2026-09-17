@@ -138,6 +138,13 @@ Review and approve as Source of Truth.
 **Input**: Existing steering, new `/api` directory  
 **Output**: Updated structure.md, flagged non-compliant files, suggested api-standards.md
 
+
+### Strict Git Mode (Steering Governance)
+If git is available and `{{SDD_DIR}}/settings/git.json` has `mode: "strict"` or `auto_commit: true`:
+1. Stage steering files: `git add {{SDD_DIR}}/steering/`
+2. Commit: `git commit -m "docs(steering): establish architecture and technical standards"`
+3. If `auto_push: true`: push to origin on the configured steering branch (`git push origin main`).
+
 ## Safety & Fallback
 
 - **Security**: Never include keys, passwords, secrets (see principles)
