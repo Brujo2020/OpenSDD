@@ -72,6 +72,26 @@ Full details: **[Governance Profiles](docs/guides/governance-profiles.md)**.
 | `/sdd-impl auth --parallel` | The feature built task by task, reviewed as it goes |
 | `/sdd-audit auth` | What drifted from the spec (add `--regulatory` for a compliance report) |
 
+
+## Why Open-SDD Over Copilot/Codeium/Cursor?
+
+**Copilot/Codeium/Cursor** generate code directly from your prompt — fast, but no audit trail.
+
+**Open-SDD** writes specs first, then auto-implements. Specs live in Git, stay versioned, pass team review. Code always matches the approved spec.
+
+| Feature | Copilot | Cursor | Open-SDD |
+|---------|---------|--------|----------|
+| Code audit trail | ✗ | ✗ | ✓ |
+| Specs in Git | ✗ | ✗ | ✓ |
+| Team approval before code | ✗ | ✗ | ✓ |
+| Brownfield discovery | ✗ | ✗ | ✓ |
+| Works in any IDE | ✗ | ✗ (Cursor only) | ✓ (8 agents) |
+| Compliance ready | ✗ | ✗ | ✓ |
+| Free & open source | ✗ | ✗ | ✓ |
+
+****Quick 5-min example:** [QUICK-EXAMPLE.md](docs/QUICK-EXAMPLE.md).
+
+See [COMPARE.md](docs/COMPARE.md) for real examples and when to use each.
 ## Quick Installation (Global & Per-Project)
 
 ### 🚀 Option 1: Universal One-Line Installer (Public curl & bash)
