@@ -7,7 +7,7 @@ cd "$INSTALL_DIR"
 echo "📥 Downloading..."
 curl -fsSL https://github.com/Brujo2020/OpenSDD/releases/download/v1.0.0/open-sdd-final.tar.gz -o open-sdd.tar.gz
 tar -xzf open-sdd.tar.gz
-cd open-sdd
+cd open-sdd 2>/dev/null || cd open-sdd-final 2>/dev/null || true
 npm install chalk --silent 2>/dev/null || npm install chalk
 npm run build --silent 2>/dev/null || npm run build
 cd ..
