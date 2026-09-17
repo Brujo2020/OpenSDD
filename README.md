@@ -45,6 +45,48 @@ Excessive validation gates and rigid harnesses often paralyze engineering veloci
 | `/sdd-impl auth` | Features implemented autonomously | Subagent isolation, TDD RED→GREEN execution, adversarial review, auto-debugging |
 | `/sdd-audit auth` | Instant compliance certificate | Regulatory traceability matrix, EU AI Act Art. 11/12/14 audit, drift report |
 
+## Quick Installation (Global & Per-Project)
+
+### 🚀 Option 1: Universal Installer (`install.sh`)
+Run the installer directly from the root:
+```bash
+./install.sh
+```
+Or with automated flags:
+```bash
+./install.sh --global       # Installs 'open-sdd' and 'sdd' globally in PATH
+./install.sh --project      # Installs all 20 skills in current project directory
+./install.sh --both         # Both (CLI globally + skills in current project)
+```
+
+### 🌐 Option 2: Global NPM Install (Terminal Everywhere)
+```bash
+npm install -g cc-sdd@latest
+
+# Verify installation
+open-sdd status
+open-sdd help
+```
+
+### 📦 Option 3: Per-Project Install (Zero Global Installs)
+Run `npx` inside any project folder to immediately inject the 20 skills for your active agent:
+```bash
+# Google Antigravity
+npx open-sdd@latest --antigravity -y
+
+# Claude Code
+npx open-sdd@latest -y
+
+# Cursor IDE
+npx open-sdd@latest --cursor-skills -y
+
+# GitHub Copilot / Windsurf / OpenCode / Gemini CLI
+npx open-sdd@latest --copilot-skills -y
+npx open-sdd@latest --windsurf-skills -y
+npx open-sdd@latest --opencode-skills -y
+npx open-sdd@latest --gemini-cli-skills -y
+```
+
 ## What's new in Open-SDD
 
 Open-SDD represents a major evolution into an agent-agnostic, multi-tier SDLC standard:
