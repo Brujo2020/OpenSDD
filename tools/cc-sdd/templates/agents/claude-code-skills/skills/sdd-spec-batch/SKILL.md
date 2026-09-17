@@ -4,7 +4,7 @@ description: Create complete specs (requirements, design, tasks) for all feature
 allowed-tools: Read, Glob, Grep, Agent
 ---
 
-# kiro-spec-batch Skill
+# sdd-spec-batch Skill
 
 ## Core Mission
 - **Success Criteria**:

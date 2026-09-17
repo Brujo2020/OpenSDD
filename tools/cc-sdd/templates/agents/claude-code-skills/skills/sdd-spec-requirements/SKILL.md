@@ -6,7 +6,7 @@ metadata:
   shared-rules: "ears-format.md, requirements-review-gate.md"
 ---
 
-# kiro-spec-requirements Skill
+# sdd-spec-requirements Skill
 
 ## Core Mission
 - **Success Criteria**:

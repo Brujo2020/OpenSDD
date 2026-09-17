@@ -44,6 +44,23 @@ ${agentAliasLine}  --lang <ja|en|zh-TW|zh|es|pt|de|fr|ru|it|ko|ar|el>  Language
   -h, --help                                  Show help
   -v, --version                               Show version
 
+Quick Examples:
+  npx open-sdd@latest                         Install Claude Code skills (default)
+  npx open-sdd@latest --cursor-skills         Install Cursor IDE skills
+  npx open-sdd@latest --antigravity           Install Google Antigravity skills
+  npx open-sdd@latest --copilot-skills        Install GitHub Copilot skills
+  npx open-sdd@latest --lang es -y            Install in Spanish without prompts
+
+In-Chat Skills (The Apple-grade Experience):
+  /sdd-help                                   Interactive guide with real-world examples
+  /sdd-getspecs                               Bootstrap existing repository (Brownfield)
+  /sdd-discovery <idea>                       Discover and structure new initiatives
+  /sdd-spec-quick <feature> --auto            One-shot spec creation & approval
+  /sdd-impl <feature>                         Autonomous TDD implementation with review
+  /sdd-validate-impl <feature>                Standalone integration verification gate
+  /sdd-audit <feature>                        EU AI Act / NIST compliance audit report
+  /sdd-spec-status <feature>                  Show real-time progress and next actions
+
 Note: In non-TTY environments, prompt mode falls back to skip.`;
 
 const resolveManifestPath = async (

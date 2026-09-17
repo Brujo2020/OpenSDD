@@ -5,7 +5,7 @@ allowed-tools: Read, Glob, Grep
 argument-hint: <feature-name>
 ---
 
-# kiro-spec-status Skill
+# sdd-spec-status Skill
 
 ## Core Mission
 - **Success Criteria**:

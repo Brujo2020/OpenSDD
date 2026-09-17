@@ -7,7 +7,7 @@ metadata:
   shared-rules: "tasks-generation.md, tasks-parallel-analysis.md"
 ---
 
-# kiro-spec-tasks Skill
+# sdd-spec-tasks Skill
 
 ## Core Mission
 - **Success Criteria**:

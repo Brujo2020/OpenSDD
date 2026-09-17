@@ -7,7 +7,7 @@ metadata:
   shared-rules: "design-principles.md, design-discovery-full.md, design-discovery-light.md, design-synthesis.md, design-review-gate.md"
 ---
 
-# kiro-spec-design Skill
+# sdd-spec-design Skill
 
 ## Core Mission
 - **Success Criteria**:

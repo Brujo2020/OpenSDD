@@ -202,7 +202,7 @@ describe('real gemini-cli-skills manifest', () => {
     expect(ctx.logs.join('\n')).toMatch(/\d+\/\d+ files written/);
   });
 
-  it('generates exactly 19 skill directories', async () => {
+  it('generates exactly 20 skill directories', async () => {
     const cwd = await mkTmp();
     const ctx = makeIO();
     await runCli(
@@ -233,6 +233,7 @@ describe('real gemini-cli-skills manifest', () => {
       'sdd-debug',
       'sdd-verify-completion',
       'sdd-audit',
+      'sdd-help',
     ];
 
     for (const skill of expectedSkills) {
