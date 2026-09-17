@@ -27,9 +27,9 @@ export const ensureAgentSelection = async (current, io) => {
 const buildGuideSteps = (agent, sddDir) => {
     const definition = getAgentDefinition(agent);
     const steps = [
-        `Run ${definition.commands.spec} to describe what you want to build.`,
-        `Working in an existing codebase? Run ${definition.commands.steering} first so it learns your patterns.`,
-        `Nothing blocks you by default. To change that, set \`profile\` to solo, team or enterprise in \`${sddDir}/settings/governance.json\`.`,
+        `Start here: ${definition.commands.spec} to describe what you want to build.`,
+        `Run ${definition.commands.steering} to document your codebase patterns (brownfield only).`,
+        `Control enforcement in \`${sddDir}/settings/governance.json\` (solo = nothing blocks).`,
     ];
     if (definition.completionGuide?.prependSteps) {
         steps.unshift(...definition.completionGuide.prependSteps);
