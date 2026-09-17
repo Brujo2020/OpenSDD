@@ -10,13 +10,15 @@ export const handleAuditCommand = async (
 ): Promise<number> => {
   const isJson = argv.includes('--json');
   const isRegulatory = argv.includes('--regulatory');
+  const isStrict = argv.includes('--strict') || argv.some((a) => a === '--mode=strict');
+  const mode = isStrict ? 'strict' : undefined;
   const sddDirArg = argv.find((a) => a.startsWith('--sdd-dir='));
   const sddDir = sddDirArg ? sddDirArg.split('=')[1] : await resolveSddDir(cwd);
 
   const featureArg = argv.find((a) => !a.startsWith('-'));
 
   if (featureArg) {
-    const result = await auditFeature(cwd, featureArg, { regulatory: isRegulatory, sddDir });
+    const result = await auditFeature(cwd, featureArg, { regulatory: isRegulatory, sddDir, mode });
 
     if (isJson) {
       io.log(JSON.stringify(result, null, 2));
@@ -25,9 +27,10 @@ export const handleAuditCommand = async (
 
     io.log('');
     io.log(formatHeading(`Open-SDD Compliance Audit: ${colors.bold(featureArg)}`));
+    io.log(`  Governance:        ${isStrict ? colors.yellow('STRICT (Enterprise / Sovereign)') : colors.green('FLUID (Modo Libre: Fast-flow, non-blocking)')}`);
     io.log(`  Health Score:      ${result.score >= 80 ? colors.green(`${result.score}/100`) : colors.yellow(`${result.score}/100`)}`);
     io.log(`  Status:            ${result.inSync ? colors.green('IN_SYNC') : colors.red('ISSUES_DETECTED')}`);
-    io.log(`  Architectural Drift: ${result.driftDetected ? colors.red('DRIFT DETECTED') : colors.green('NONE')}`);
+    io.log(`  Architectural Drift: ${result.driftDetected ? colors.yellow('DRIFT DETECTED') : colors.green('NONE')}`);
 
     if (result.regulatory) {
       io.log('');

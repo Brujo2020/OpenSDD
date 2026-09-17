@@ -237,6 +237,22 @@ Open-SDD prohíbe de forma matemática que un agente toque código fuente sin un
 \end{equation}
 Cualquier intento de ejecutar \texttt{/sdd-impl} en una especificación en borrador o inicializada aborta de inmediato.
 
+\subsection{La Tríada de Invariantes Críticos y Gobernanza Dual frente al "Steel Harness"}
+Un dilema severo observado en los primeros despliegues de ingeniería agéntica consiste en el antipatrón del \textbf{"Steel Harness"} (arnés de acero): imponer decenas de compuertas burocráticas simultáneas que colapsan la velocidad de desarrollo e inducen a los ingenieros a buscar mecanismos clandestinos de evasión (\textit{Bypass Conjecture}).
+
+Para erradicar esta fricción, Open-SDD reduce las compuertas obligatorias exclusivamente a la \textbf{Tríada de Invariantes Críticos}:
+\begin{enumerate}
+    \item \textbf{Invariante de Frontera y Blast Radius ($\mathcal{G}_1$)}: Confinamiento estricto a las rutas declaradas en \texttt{\_Boundary:\_}, impidiendo la mutación descontrolada de archivos no autorizados.
+    \item \textbf{Invariante de Contrato Mínimo ($\mathcal{G}_2$)}: Existencia de especificaciones mínimas (criterios EARS) para impedir la invención de alcance alucinado.
+    \item \textbf{Invariante de Evidencia Empírica Fresca ($\mathcal{G}_3$)}: Ejecución determinista de pruebas unitarias e invariantes metamórficos sin regresiones.
+\end{enumerate}
+
+Para balancear agilidad y conformidad, Open-SDD introduce una \textbf{Gobernanza Dual} configurable vía \texttt{.sdd/settings/governance.json}:
+\begin{itemize}
+    \item \textbf{Modo Libre (\texttt{fluid}, por defecto)}: Maximiza la velocidad del flujo de desarrollo (\textit{flow state}) en startups y equipos ágiles. Las compuertas secundarias actúan como advertencias no bloqueantes (\textit{non-blocking telemetry}), habilitando el avance en vía rápida (\textit{fast-track} con \texttt{-y} y \texttt{--auto}) sin pausas burocráticas.
+    \item \textbf{Modo Soberano (\texttt{strict})}: Diseñado para industrias reguladas y entornos hyperscaler. Activa el bloqueo duro de Gate 0, registro inmutable en Git y auditorías formales conforme al EU AI Act y NIST AI RMF.
+\end{itemize}
+
 \subsection{Automatización SpecOps}
 Al aprobarse la Tríada Documental, Open-SDD automatiza la orquestación en Git:
 \begin{enumerate}

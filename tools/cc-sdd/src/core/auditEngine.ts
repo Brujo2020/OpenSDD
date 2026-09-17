@@ -1,6 +1,6 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
-import type { AuditIssue, AuditResult, RtmEntry } from './types.js';
+import type { AuditIssue, AuditResult, GovernanceMode, RtmEntry } from './types.js';
 import {
   getSpecStatus,
   listSpecs,
@@ -10,13 +10,16 @@ import {
   resolveSddDir,
 } from './specManager.js';
 import { getModifiedFiles, isGitRepo } from './git.js';
+import { loadGovernanceSettings } from './governance.js';
 
 export const auditFeature = async (
   cwd: string,
   feature: string,
-  options: { regulatory?: boolean; sddDir?: string } = {},
+  options: { regulatory?: boolean; sddDir?: string; mode?: GovernanceMode } = {},
 ): Promise<AuditResult> => {
   const sddDir = options.sddDir ?? (await resolveSddDir(cwd));
+  const govSettings = await loadGovernanceSettings(cwd, sddDir);
+  const effectiveMode = options.mode ?? govSettings.mode;
   const specDir = path.join(cwd, sddDir, 'specs', feature);
   const issues: AuditIssue[] = [];
 
@@ -188,9 +191,14 @@ export const auditFeature = async (
     };
   }
 
+  const inSync =
+    effectiveMode === 'fluid'
+      ? criticalCount === 0
+      : !driftDetected && criticalCount === 0;
+
   return {
     feature,
-    inSync: !driftDetected && criticalCount === 0,
+    inSync,
     driftDetected,
     score,
     rtm,
@@ -201,7 +209,7 @@ export const auditFeature = async (
 
 export const auditAll = async (
   cwd: string,
-  options: { regulatory?: boolean; sddDir?: string } = {},
+  options: { regulatory?: boolean; sddDir?: string; mode?: GovernanceMode } = {},
 ): Promise<{ features: AuditResult[]; overallScore: number; projectInSync: boolean }> => {
   const sddDir = options.sddDir ?? (await resolveSddDir(cwd));
   const specs = await listSpecs(cwd, sddDir);

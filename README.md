@@ -14,20 +14,29 @@ Package README: <a href="./tools/cc-sdd/README.md">English</a> | <a href="./tool
 One command installs an agentic SDLC workflow as Agent Skills: brownfield bootstrap, discovery, requirements, design, tasks, gap analysis, regulatory audit, and autonomous implementation with per-task independent review. Works across 8 AI coding agents, with the same 20-skill set on each.
 
 - **5th Generation Software Abstraction (InfoQ 2026)**: Architecture becomes executable. Machine Code → Assembly → High-level compiled → Scripting/Dynamic → **SpecOps (SDD)**.
-- **"It Just Works" (Apple-Grade Simplicity)**: Extreme complexity (22 Zero-Trust gates, AST graphs, PACTS test suites, Strict Git orchestration) hidden beneath effortless, magical conversational commands.
+- **"It Just Works" (Apple-Grade Simplicity)**: Eliminates the "Steel Harness" antipattern (excessive bureaucratic gates that paralyze velocity). Focuses on **3 Critical Invariant Gates** with **Dual Governance (`fluid` vs `strict`)**.
 - **Universal Brownfield Reverse-Engineering (`/sdd-getspecs`)**: Over 90% of real-world software is brownfield. Deduce living specifications from any existing repository—from solo indie projects and startup MVPs to hyperscaler platforms—through code-first reverse engineering, generating spec seeds that require human editing and validation before approval.
 - **Living Documentation in Git (*Spec-as-Code*)**: Specifications live in Git alongside the code (`.sdd/specs/`), versioned together in PRs to eradicate architectural drift.
 - **Strict Git Mode & SpecOps Flow**: Automates feature branch lifecycle (`feat/<slug>`), commits/pushes living specs upon Documentary Triad approval, strictly forbids unapproved implementation, and automates PR creation upon test validation.
 - **Karpathy Principles**: Think before coding, surgical changes, simplicity first, minimal blast radius, and goal-driven test verification.
-- **Zero-Trust Multi-Agent Governance & Compliance**: Enforces verification gates, tamper-evident audit trails, and compliance with EU AI Act (Art. 11/12/14), NIST AI RMF, and ISO/IEC 42001 via `/sdd-audit`.
+- **Dual-Mode Governance (`fluid` vs `strict`)**: By default, **Modo Libre (`fluid`)** guarantees high development speed with non-blocking warnings, while **Modo Estricto (`strict`)** activates full regulatory compliance (EU AI Act, NIST AI RMF).
 - **Autonomous Quality Engineering (Agentic QE & PACTS)**: Integrates autonomous testing via [Agentic QE](https://agentic-qe.dev/) (Proactive, Autonomous, Collaborative, Targeted, Structured) for metamorphic invariant generation and boundary-scoped verification.
 
-## The Apple Philosophy: "It Just Works"
+## The Apple Philosophy: "It Just Works" & No "Steel Harness" Paralysis
 
-Modern AI coding harnesses can be overwhelming: managing context windows, prompt decay, subagents, and test gates often turns developers into tedious prompt wranglers. 
+Excessive validation gates and rigid harnesses often paralyze engineering velocity, turning AI assistants into bureaucratic blockers. 
 
-**Open-SDD flips this completely.** Inspired by Apple's engineering philosophy:
-> *Hide the complexity. Let the magic happen. It just works.*
+**Open-SDD rejects the "Steel Harness" antipattern.** Instead of 20+ blocking gates, Open-SDD focuses exclusively on the **3 Vital Critical Invariant Gates**:
+1. **Boundary & Blast-Radius Gate**: Protects codebase topology and stops unintended file mutations.
+2. **Spec Contract Gate**: Ensures implementation maps to clear user intent, preventing hallucinated scope.
+3. **Verification Gate**: Guarantees tests pass with fresh evidence before release.
+
+### Dual Governance: Speed vs. Compliance (`.sdd/settings/governance.json`)
+
+| Mode | Designed For | Developer Experience |
+|---|---|---|
+| **`fluid` (Default / Modo Libre)** | Solo devs, startups, rapid prototyping, scale-ups | **Maximum speed.** Non-blocking warnings, zero bureaucratic pauses, fast-track by default (`-y`, `--auto`). |
+| **`strict` (Enterprise / Sovereign)** | Regulated industries, hyperscalers, EU AI Act audits | **Full regulatory lock.** Mandatory Gate 0 approval, tamper-evident commit trails, hard drift blocks. |
 
 | What You Type | What You Experience | What Open-SDD Orchestrates Under the Hood |
 |---|---|---|

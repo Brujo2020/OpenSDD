@@ -67,6 +67,14 @@ export interface SpecStatus {
   isApproved: boolean;
 }
 
+export type GovernanceMode = 'fluid' | 'strict';
+
+export interface GovernanceSettings {
+  mode: GovernanceMode;
+  critical_gates_only: boolean;
+  non_blocking_warnings: boolean;
+}
+
 export interface GitSettings {
   mode: 'strict' | 'assisted' | 'off';
   branch_prefix: string;
