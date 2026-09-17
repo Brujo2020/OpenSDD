@@ -18,6 +18,15 @@ import { determineCategoryPolicies, printSummary, summarizeCategories, type Cate
 import { defaultIO, type CliIO } from './cli/io.js';
 import { colors, formatBox, formatError, formatHeading, formatSuccess, formatWarning } from './cli/ui/colors.js';
 import { isInteractive, promptChoice, promptConfirm } from './cli/ui/prompt.js';
+import { handleStatusCommand } from './cli/commands/status.js';
+import { handleInitCommand } from './cli/commands/init.js';
+import { handleAuditCommand } from './cli/commands/audit.js';
+import { handleGapCommand } from './cli/commands/gap.js';
+import { handleGetspecsCommand } from './cli/commands/getspecs.js';
+import { handleVerifyCommand } from './cli/commands/verify.js';
+import { handleHelpCommand } from './cli/commands/help.js';
+
+export * from './core/index.js';
 
 const agentKeys = agentList;
 const aliasFlags = Array.from(new Set(agentKeys.flatMap((key) => getAgentDefinition(key).aliasFlags)));
@@ -232,6 +241,36 @@ export const runCli = async (
   if (argv.includes('--version') || argv.includes('-v')) {
     showVersion(io);
     return 0;
+  }
+
+  // Dispatch CLI subcommands
+  const firstArg = argv[0];
+  if (firstArg && !firstArg.startsWith('-')) {
+    const cmd = firstArg.toLowerCase();
+    const subArgv = argv.slice(1);
+    const targetCwd = execOpts?.cwd ?? process.cwd();
+
+    if (cmd === 'status' || cmd === 'spec-status') {
+      return handleStatusCommand(subArgv, io, targetCwd);
+    }
+    if (cmd === 'init' || cmd === 'spec-init') {
+      return handleInitCommand(subArgv, io, targetCwd);
+    }
+    if (cmd === 'audit') {
+      return handleAuditCommand(subArgv, io, targetCwd);
+    }
+    if (cmd === 'gap' || cmd === 'validate-gap') {
+      return handleGapCommand(subArgv, io, targetCwd);
+    }
+    if (cmd === 'getspecs') {
+      return handleGetspecsCommand(subArgv, io, targetCwd);
+    }
+    if (cmd === 'verify' || cmd === 'validate-impl') {
+      return handleVerifyCommand(subArgv, io, targetCwd);
+    }
+    if (cmd === 'help') {
+      return handleHelpCommand(subArgv, io);
+    }
   }
 
   let parsedArgs;
