@@ -74,10 +74,9 @@ describe('real cursor manifest', () => {
     expect(out).toContain('Recommended models');
 
     // Check that the unified next steps are present
-    expect(out).toContain("Launch Cursor IDE and run `/sdd/spec-init <what-to-build>` to create a new specification.");
-    expect(out).toContain('Tip: Steering holds persistent project knowledge');
-    expect(out).toContain(
-      'Tip: Update `{{KIRO_DIR}}/settings/templates/` like `requirements.md`, `design.md`, and `tasks.md` so the generated steering and specs follow your team\'s and project\'s development process.',
-    );
+    expect(out).toContain('Run `/sdd/spec-init <what-to-build>` to describe what you want to build.');
+    expect(out).toContain('Run `/sdd/steering` first so it learns your patterns.');
+    expect(out).toContain('Nothing blocks you by default.');
+    expect(out).toContain('.sdd/settings/governance.json');
   });
 });

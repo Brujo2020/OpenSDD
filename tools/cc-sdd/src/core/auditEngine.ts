@@ -10,7 +10,7 @@ import {
   resolveSddDir,
 } from './specManager.js';
 import { getModifiedFiles, isGitRepo } from './git.js';
-import { loadGovernanceSettings } from './governance.js';
+import { evaluateGates, gatesPass, loadGovernanceSettings } from './governance.js';
 
 export const auditFeature = async (
   cwd: string,
@@ -28,6 +28,14 @@ export const auditFeature = async (
     return {
       feature,
       inSync: false,
+      mode: effectiveMode,
+      gates: evaluateGates(govSettings, {
+        driftDetected: false,
+        specContractOk: false,
+        specContractDetail: `Specification "${feature}" does not exist`,
+        proofsOk: false,
+        proofsDetail: 'No spec, no evidence',
+      }),
       driftDetected: true,
       score: 0,
       rtm: [],
@@ -191,14 +199,51 @@ export const auditFeature = async (
     };
   }
 
-  const inSync =
-    effectiveMode === 'fluid'
-      ? criticalCount === 0
-      : !driftDetected && criticalCount === 0;
+  // --- Gate evaluation -----------------------------------------------------
+  // A spec that has been initialized but not yet worked on is not a violation:
+  // it is simply early in the lifecycle. Gates judge work in flight, not intent.
+  const implementationStarted = tasksList.some((t) => t.status !== 'pending');
+  const specDrafted = status.files.requirements || status.files.design || status.files.tasks;
+
+  // G2 spec contract: once implementation starts, the Triad must exist and be approved.
+  const specContractOk = implementationStarted
+    ? status.files.requirements && status.files.design && status.files.tasks && status.isApproved
+    : true;
+  // G3 verification proofs: only meaningful once there is something to prove.
+  const proofsOk = !specDrafted || rtm.length === 0 ? true : rtm.every((r) => r.verified);
+
+  const gates = evaluateGates(govSettings, {
+    driftDetected,
+    specContractOk,
+    specContractDetail: !implementationStarted
+      ? 'No implementation started yet; contract not required'
+      : specContractOk
+        ? 'Documentary Triad present and approved'
+        : 'Implementation started before the spec was approved',
+    proofsOk,
+    proofsDetail: rtm.length === 0
+      ? 'No requirements to verify yet'
+      : proofsOk
+        ? `All ${rtm.length} requirement(s) verified by completed tasks`
+        : 'Requirements lack completed, traceable tasks',
+  });
+
+  // Blocking policy:
+  //  - an enforced gate failure always blocks
+  //  - critical issues always block
+  //  - warnings block only when the profile says they should
+  // Report-only profile (no enforced checks): findings are informational, never blocking.
+  const reportOnly = govSettings.critical_invariants.length === 0;
+  const warningsBlock = !govSettings.non_blocking_warnings && !govSettings.critical_gates_only;
+  const inSync = reportOnly
+    ? true
+    : gatesPass(gates) && criticalCount === 0 && (!warningsBlock || warningCount === 0);
 
   return {
     feature,
     inSync,
+    mode: effectiveMode,
+    gates,
     driftDetected,
     score,
     rtm,

@@ -20,12 +20,12 @@ Configure Git automation behavior in your project:
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "mode": "strict",
+  "mode": "assisted",
   "branch_prefix": "feat/",
   "steering_branch": "main",
   "auto_branch": true,
   "auto_commit": true,
-  "auto_push": true,
+  "auto_push": false,
   "require_approved_spec": true,
   "commit_conventions": {
     "steering": "docs(steering): establish architecture and technical standards",
@@ -37,9 +37,20 @@ Configure Git automation behavior in your project:
 ```
 
 ### Operational Modes
-- `strict` (Recommended for Enterprise): Code generation is strictly forbidden without approved specs. Automatically branches, commits, and pushes at each phase gate.
-- `assisted`: The AI generates exact Git commands and prompts for human confirmation before executing.
+- `assisted` (**default**): Branches and commits for you at each phase gate; never pushes. Safe starting point.
+- `strict`: Implementation without an approved spec is blocked. Pairs with the `enterprise` profile.
 - `off`: Manual Git management; Open-SDD writes files to disk without invoking Git commands.
+
+> **`auto_push` ships as `false` on purpose.** Nothing reaches your remote unless you turn it on. Set `"auto_push": true` only when the branch protection on your remote is what you want Open-SDD pushing into.
+
+### Relationship to profiles
+
+`git.json` controls what happens to your repo; `governance.json` controls what blocks you.
+
+| Profile | Suggested `git.mode` |
+|---|---|
+| `solo` / `team` | `assisted` |
+| `enterprise` | `strict` |
 
 ---
 

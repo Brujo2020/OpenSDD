@@ -2,11 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
-**Release Notes**:
-- [Japanese](docs/RELEASE_NOTES/RELEASE_NOTES_ja.md)
-- [English](docs/RELEASE_NOTES/RELEASE_NOTES_en.md)
+**Release Notes**: [English](docs/RELEASE_NOTES/RELEASE_NOTES_en.md)
 
 ## [Unreleased]
+
+### Fixed
+- **Shipped settings were never read.** `governance.json` and `git.json` installed into `.sdd/settings/templates/`, while the engine reads them from `.sdd/settings/`. Every project silently ran on hardcoded defaults regardless of what the files said. They now ship to the correct path (all 18 manifests), with a regression test.
+- **`npm install` failed on npm 10.** vitest 4's peer graph crashed npm's resolver (`Cannot read properties of null (reading 'edgesOut')`). Pinned a `vite` override so a clean `npm i` works without `--legacy-peer-deps`.
+- **Unrendered `{{KIRO_DIR}}` placeholder** leaked into the post-install "Get started" output for every agent.
+
+### Changed
+- **Configuration is one line.** `{ "profile": "solo" | "team" | "enterprise" }` sets everything. Explicit fields still override it.
+- **The default blocks nothing.** `solo` runs every check and reports; it never fails a run. `team` blocks only code written without an approved spec; `enterprise` blocks everything. Previously `mode` changed a single branch and `critical_gates_only`, `non_blocking_warnings` and `critical_invariants` were read by nothing.
+- **A check your profile ignores still reports** as `heads up` — you keep the signal without the friction.
+- **Plain language everywhere.** "Critical Invariant Gate G2" is now "Code follows an approved spec"; "Documentary Triad / Gate 0 violation" is now "Implementation started before the spec was approved". Compliance reporting (EU AI Act, NIST) moved behind `--regulatory` instead of fronting the CLI and README.
+- **Safer defaults**: fresh installs are `solo` + git `assisted` with `auto_push: false`. Previously governance shipped `fluid` while git shipped `strict` with `auto_push: true`, so a first run could push to a remote.
+- A freshly initialised spec no longer fails its checks; they judge work in flight, not intent.
+
+### Added
+- `docs/guides/governance-profiles.md` — profiles, what each check means, exit codes for CI.
+- 17 tests covering profile resolution, check enforcement and the shipped-settings path.
+
+### Removed
+- Four demo specs inherited from the upstream fork (`customer-support-rag-backend-{en,ja}`, `photo-albums-en`, `vercel-ai-chatui-research-agent-ja`).
 
 ## [3.0.2] - 2026-04-14
 

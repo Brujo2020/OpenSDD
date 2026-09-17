@@ -35,7 +35,7 @@ export const handleHelpCommand = async (argv: string[], io: CliIO): Promise<numb
     io.log('');
     io.log(formatHeading('Command: open-sdd audit [feature-slug] [--regulatory]'));
     io.log('  Audits requirements traceability (RTM), detects ambient code drift,');
-    io.log('  and verifies compliance with EU AI Act (Art. 11/12/14) & NIST AI RMF.');
+    io.log('  Add --regulatory for an EU AI Act / NIST AI RMF report.');
     io.log('');
     io.log(colors.bold('Examples:'));
     io.log('  open-sdd audit');
@@ -105,7 +105,7 @@ export const handleHelpCommand = async (argv: string[], io: CliIO): Promise<numb
   io.log(`  ${colors.bold('open-sdd init <slug>')}        Initialize new feature spec & Git branch`);
   io.log(`  ${colors.bold('open-sdd status [slug]')}      View spec progress, tasks bar, and approvals`);
   io.log(`  ${colors.bold('open-sdd impl <slug>')}        Compute parallel DAG waves & disjoint execution plan`);
-  io.log(`  ${colors.bold('open-sdd audit [slug]')}       Run RTM drift & EU AI Act regulatory audit`);
+  io.log(`  ${colors.bold('open-sdd audit [slug]')}       Check a spec against its code`);
   io.log(`  ${colors.bold('open-sdd gap <slug>')}         Analyze blast radius and boundary modifications`);
   io.log(`  ${colors.bold('open-sdd getspecs [focus]')}   Brownfield reverse-engineering & spec seeds`);
   io.log(`  ${colors.bold('open-sdd verify <slug>')}      Validate implementation completion gate`);

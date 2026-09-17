@@ -85,7 +85,7 @@ describe('CLI Subcommands', () => {
     const ctx = makeIO();
     const code = await runCli(['audit', 'feature-audit', '--regulatory'], runtime, ctx.io, {}, { cwd });
     expect(code).toBe(0);
-    expect(ctx.logs.join('\n')).toMatch(/Open-SDD Compliance Audit/);
+    expect(ctx.logs.join('\n')).toMatch(/Open-SDD Audit/);
     expect(ctx.logs.join('\n')).toMatch(/EU AI Act/);
   });
 

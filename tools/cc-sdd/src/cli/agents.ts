@@ -42,12 +42,12 @@ export const ensureAgentSelection = async (
   return option;
 };
 
-const buildGuideSteps = (agent: AgentType): string[] => {
+const buildGuideSteps = (agent: AgentType, sddDir: string): string[] => {
   const definition = getAgentDefinition(agent);
   const steps: string[] = [
-    `Launch ${definition.label} and run ${definition.commands.spec} to create a new specification.`,
-    `Tip: Steering holds persistent project knowledge (patterns, standards, org-wide policies). Kick off ${definition.commands.steering} (essential for existing projects) and ${definition.commands.steeringCustom}. Maintain regularly.`,
-    'Tip: Update `{{KIRO_DIR}}/settings/templates/` like `requirements.md`, `design.md`, and `tasks.md` so the generated steering and specs follow your team\'s and project\'s development process.',
+    `Run ${definition.commands.spec} to describe what you want to build.`,
+    `Working in an existing codebase? Run ${definition.commands.steering} first so it learns your patterns.`,
+    `Nothing blocks you by default. To change that, set \`profile\` to solo, team or enterprise in \`${sddDir}/settings/governance.json\`.`,
   ];
 
   if (definition.completionGuide?.prependSteps) {
@@ -60,7 +60,7 @@ const buildGuideSteps = (agent: AgentType): string[] => {
   return steps;
 };
 
-export const printCompletionGuide = (agent: AgentType, io: CliIO): void => {
+export const printCompletionGuide = (agent: AgentType, io: CliIO, sddDir: string = '.sdd'): void => {
   const definition = getAgentDefinition(agent);
 
   if (definition.upgradeNotice) {
@@ -80,7 +80,7 @@ export const printCompletionGuide = (agent: AgentType, io: CliIO): void => {
     io.log('');
   }
   io.log(formatHeading('  Get started:'));
-  buildGuideSteps(agent).forEach((step, idx) => {
+  buildGuideSteps(agent, sddDir).forEach((step, idx) => {
     io.log(colors.cyan(`    ${idx + 1}. ${step}`));
   });
   io.log('');

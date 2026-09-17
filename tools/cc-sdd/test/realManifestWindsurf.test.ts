@@ -67,7 +67,7 @@ describe('real windsurf manifest', () => {
 
     expect(out).toMatch(/\d+\/\d+ files written/);
     expect(out).toContain('Recommended models');
-    expect(out).toContain('Launch Windsurf IDE and run `/sdd-spec-init <what-to-build>` to create a new specification.');
-    expect(out).toContain('Tip: Steering holds persistent project knowledge');
+    expect(out).toContain('Run `/sdd-spec-init <what-to-build>` to describe what you want to build.');
+    expect(out).toContain('Nothing blocks you by default.');
   });
 });

@@ -7,37 +7,70 @@
 
 ## Turn approved specs into long-running autonomous implementation
 
-One command installs an agentic SDLC workflow as Agent Skills: brownfield bootstrap, discovery, requirements, design, tasks, gap analysis, regulatory audit, and autonomous implementation with per-task independent review. Works across 8 AI coding agents, with the same 20-skill set on each.
+One command installs the whole workflow as Agent Skills: read an existing codebase, discover what to build, write requirements, design, tasks — then implement autonomously with a review pass per task. Works across 8 AI coding agents, same 20 skills on each.
 
-- **5th Generation Software Abstraction (InfoQ 2026)**: Architecture becomes executable. Machine Code → Assembly → High-level compiled → Scripting/Dynamic → **SpecOps (SDD)**.
-- **Dual Governance Architecture (`fluid` vs `strict`)**: Balances rapid developer flow with rigorous enterprise verification, providing **Fluid Mode** for high velocity and **Strict Mode** for mission-critical and EU AI Act regulatory compliance.
-- **Universal Brownfield Reverse-Engineering (`/sdd-getspecs`)**: Over 90% of real-world software is brownfield. Deduce living specifications from any existing repository—from solo indie projects and startup MVPs to hyperscaler platforms—through code-first reverse engineering, generating spec seeds that require human editing and validation before approval.
-- **Living Documentation in Git (*Spec-as-Code*)**: Specifications live in Git alongside the code (`.sdd/specs/`), versioned together in PRs to eradicate architectural drift.
-- **Strict Git Mode & SpecOps Flow**: Automates feature branch lifecycle (`feat/<slug>`), commits/pushes living specs upon Documentary Triad approval, strictly forbids unapproved implementation, and automates PR creation upon test validation.
-- **Karpathy Principles**: Think before coding, surgical changes, simplicity first, minimal blast radius, and goal-driven test verification.
-- **Autonomous Quality Engineering (Agentic QE & PACTS)**: Integrates autonomous testing via [Agentic QE](https://agentic-qe.dev/) (Proactive, Autonomous, Collaborative, Targeted, Structured) for metamorphic invariant generation and boundary-scoped verification.
+- **Works on existing code** (`/sdd-getspecs`): most software is not greenfield. Point it at a repo and it reads the code to draft specs for what is already there. You review and edit them before anything is approved.
+- **Specs live in Git** next to the code (`.sdd/specs/`), so they are reviewed in PRs and cannot quietly drift.
+- **Out of your way by default**: checks report, nothing blocks, and it never pushes to your remote until you say so. Turn enforcement up when you actually need it.
+- **Autonomous implementation**: approved specs run task by task, in parallel where the tasks do not overlap, each with an independent review pass.
+- **Compliance when you need it**: EU AI Act and NIST AI RMF reporting is there behind `--regulatory`, not in your face.
 
-## Dual Governance: Fast Flow & Sovereign Compliance (`.sdd/settings/governance.json`)
+## How strict is it? One line.
 
-Open-SDD operationalizes Spec-Driven Development through a dual-governance model anchored on the **3 Vital Critical Invariant Gates**:
+By default, **nothing blocks you.** Open-SDD runs its checks and tells you what it found; you decide what to do. When you want it to start enforcing, change one word:
 
-1. **Boundary & Blast-Radius Gate ($\mathcal{G}_1$)**: Protects codebase topology and confines mutations strictly to declared task boundaries.
-2. **Spec Contract Gate ($\mathcal{G}_2$)**: Ensures implementation code remains strictly grounded in user intent and EARS requirements.
-3. **Verification Gate ($\mathcal{G}_3$)**: Guarantees fresh empirical test evidence before any release or milestone completion.
+```json
+// .sdd/settings/governance.json
+{ "profile": "solo" }
+```
 
-### Governance Profiles
+| Profile | What it does |
+|---|---|
+| **`solo`** (default) | Nothing blocks. Checks run and report only. |
+| **`team`** | Blocks only code written without an approved spec. |
+| **`enterprise`** | Everything blocks. For audited environments. |
 
-| Mode | Designed For | Operational Experience |
-|---|---|---|
-| **`fluid` (Default / Modo Libre)** | Solo devs, startups, rapid prototyping, scale-ups | **Maximum flow state.** Non-blocking telemetry warnings, zero bureaucratic pauses, fast-track by default (`-y`, `--auto`). |
-| **`strict` (Enterprise / Sovereign)** | Regulated industries, hyperscalers, EU AI Act audits | **Full regulatory lock.** Mandatory Gate 0 approval, tamper-evident commit trails, hard drift blocks. |
+That is the whole configuration. Output looks like this:
 
-| What You Type | What You Experience | What Open-SDD Orchestrates Under the Hood |
-|---|---|---|
-| `/sdd-getspecs` | Instant understanding of your legacy code | AST traversal, dependency graphing, boundary extraction, reverse-engineered spec seeds |
-| `/sdd-spec-quick auth --auto` | Specs generated and locked in seconds | EARS requirements synthesis, ADR generation, blast-radius gap analysis, Git branch lock |
-| `/sdd-impl auth --parallel` | Features implemented autonomously | Parallel DAG waves, disjoint boundary locks, TDD RED→GREEN execution, adversarial review |
-| `/sdd-audit auth` | Instant compliance certificate | Regulatory traceability matrix, EU AI Act Art. 11/12/14 audit, drift report |
+```
+Checks:
+  ok        Code follows an approved spec
+  heads up  Changes stayed in scope
+            2 files modified outside the task's boundary
+```
+
+`heads up` means it found something but is letting you through. Under `team` or `enterprise` the same finding becomes `blocked`.
+
+**Safe defaults**: a fresh install never pushes to your remote. Turn on `auto_push` in `.sdd/settings/git.json` yourself if you want it.
+
+<details>
+<summary>Fine-grained control (most people never need this)</summary>
+
+Three checks exist. A profile decides which of them block:
+
+| Check | id |
+|---|---|
+| Code follows an approved spec | `spec_contract_present` |
+| Changes stayed in scope | `boundary_integrity` |
+| Work is verified | `verification_proofs_pass` |
+
+List exactly the ones you want to block on — anything you leave out still reports:
+
+```json
+{ "profile": "team", "critical_invariants": ["spec_contract_present", "boundary_integrity"] }
+```
+
+Explicit fields always beat the profile. Compliance reporting (EU AI Act Art. 11/12/14, NIST AI RMF) is opt-in via `open-sdd audit --regulatory`.
+
+Full details: **[Governance Profiles](docs/guides/governance-profiles.md)**.
+</details>
+
+| What you type | What you get |
+|---|---|
+| `/sdd-getspecs` | Specs drafted from the code you already have |
+| `/sdd-spec-quick auth --auto` | Requirements, design and tasks for one feature |
+| `/sdd-impl auth --parallel` | The feature built task by task, reviewed as it goes |
+| `/sdd-audit auth` | What drifted from the spec (add `--regulatory` for a compliance report) |
 
 ## Quick Installation (Global & Per-Project)
 
@@ -370,27 +403,29 @@ Steering (`.sdd/steering/`) establishes persistent, project-wide memory that AI 
 - `structure.md`: Architectural topology, folder layout, and component boundaries.
 - Custom steering documents (`/sdd-steering-custom`) for API standards, security, databases, or cloud infrastructure.
 
-## Strict Git Mode (`.sdd/settings/git.json`)
+## Git automation (`.sdd/settings/git.json`)
 
-Configure automated Git branch and commit orchestration:
+Ships as `assisted` — branches and commits for you, **never pushes**:
 
 ```json
 {
-  "mode": "strict",
+  "mode": "assisted",
   "branch_prefix": "feat/",
   "auto_branch": true,
   "auto_commit": true,
-  "auto_push": true,
+  "auto_push": false,
   "require_approved_spec": true
 }
 ```
 
-- **Branch on Init**: Automatically creates and switches to `feat/<slug>` on `/sdd-spec-init`.
-- **Spec Approval Lock**: Automatically commits and pushes `.sdd/specs/<slug>/` when the Documentary Triad (`requirements.md` + `design.md` + `tasks.md`) is approved.
-- **Spec Mandatory Block**: `/sdd-impl` strictly refuses to generate code if `spec.json` is not in approved state.
-- **Implementation Validation Push**: Commits and pushes verified code upon `/sdd-validate-impl` passing, outputting a complete PR summary.
+- **Branch on Init**: Creates and switches to `feat/<slug>` on `/sdd-spec-init`.
+- **Spec Approval Lock**: Commits `.sdd/specs/<slug>/` when the Documentary Triad (`requirements.md` + `design.md` + `tasks.md`) is approved.
+- **Spec Mandatory Block** (`mode: strict`): `/sdd-impl` refuses to generate code if `spec.json` is not approved.
+- **Push**: only when you set `auto_push: true`.
 
-Read the complete guide: [Strict Git Mode & SpecOps Flow](docs/guides/git-workflow.md).
+Pair `mode: "strict"` with the `enterprise` governance profile for the full regulated flow.
+
+Read the complete guide: [Git Automation & SpecOps Flow](docs/guides/git-workflow.md).
 
 ## License
 

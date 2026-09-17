@@ -219,7 +219,7 @@ const runPlanExecution = async (
     const total = result.written + result.skipped;
     io.log(formatSuccess(`  ${result.written}/${total} files written`) + (result.skipped > 0 ? colors.yellow(`, ${result.skipped} skipped`) : ''));
     io.log('');
-    printCompletionGuide(resolvedConfig.agent, io);
+    printCompletionGuide(resolvedConfig.agent, io, resolvedConfig.kiroDir);
     return 0;
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);

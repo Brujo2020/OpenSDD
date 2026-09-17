@@ -1,6 +1,23 @@
 import { colors, formatHeading } from '../ui/colors.js';
 import { auditAll, auditFeature } from '../../core/auditEngine.js';
 import { resolveSddDir } from '../../core/specManager.js';
+import { governanceProfiles, loadGovernanceSettings } from '../../core/governance.js';
+const renderGates = (gates, io) => {
+    if (!gates.length)
+        return;
+    io.log('');
+    io.log(formatHeading('Checks:'));
+    for (const g of gates) {
+        const mark = g.outcome === 'pass'
+            ? colors.green('ok     ')
+            : g.outcome === 'fail'
+                ? colors.red('blocked')
+                : colors.yellow('heads up');
+        io.log(`  ${mark}  ${g.label}`);
+        if (g.outcome !== 'pass')
+            io.log(`           ${colors.dim(g.detail)}`);
+    }
+};
 export const handleAuditCommand = async (argv, io, cwd = process.cwd()) => {
     const isJson = argv.includes('--json');
     const isRegulatory = argv.includes('--regulatory');
@@ -16,14 +33,24 @@ export const handleAuditCommand = async (argv, io, cwd = process.cwd()) => {
             return result.inSync ? 0 : 1;
         }
         io.log('');
-        io.log(formatHeading(`Open-SDD Compliance Audit: ${colors.bold(featureArg)}`));
-        io.log(`  Governance:        ${isStrict ? colors.yellow('STRICT (Enterprise / Sovereign)') : colors.green('FLUID (Modo Libre: Fast-flow, non-blocking)')}`);
+        io.log(formatHeading(`Open-SDD Audit: ${colors.bold(featureArg)}`));
+        const gov = await loadGovernanceSettings(cwd, sddDir);
+        const activeProfile = isStrict ? 'enterprise' : (gov.profile ?? 'solo');
+        const blocking = gov.critical_invariants.length;
+        io.log(`  Profile:           ${colors.cyan(activeProfile)} ${colors.dim(governanceProfiles[activeProfile].summary)}`);
+        if (blocking === 0) {
+            io.log(`  Blocking:          ${colors.dim('nothing — report only')}`);
+        }
+        else {
+            io.log(`  Blocking:          ${colors.yellow(`${blocking} of 3 checks`)}`);
+        }
         io.log(`  Health Score:      ${result.score >= 80 ? colors.green(`${result.score}/100`) : colors.yellow(`${result.score}/100`)}`);
-        io.log(`  Status:            ${result.inSync ? colors.green('IN_SYNC') : colors.red('ISSUES_DETECTED')}`);
-        io.log(`  Architectural Drift: ${result.driftDetected ? colors.yellow('DRIFT DETECTED') : colors.green('NONE')}`);
+        io.log(`  Status:            ${result.inSync ? colors.green('ok') : colors.red('needs attention')}`);
+        io.log(`  Out-of-scope edits: ${result.driftDetected ? colors.yellow('yes') : colors.green('none')}`);
+        renderGates(result.gates, io);
         if (result.regulatory) {
             io.log('');
-            io.log(formatHeading('Regulatory Assessment:'));
+            io.log(formatHeading('Regulatory Assessment (--regulatory):'));
             io.log(`  EU AI Act Art. 11 (Technical Documentation): ${result.regulatory.euAiActArt11 ? colors.green('PASS') : colors.red('FAIL')}`);
             io.log(`  EU AI Act Art. 12 (Traceability & Logs):    ${result.regulatory.euAiActArt12 ? colors.green('PASS') : colors.red('FAIL')}`);
             io.log(`  EU AI Act Art. 14 (Human Oversight Gate):   ${result.regulatory.euAiActArt14 ? colors.green('PASS') : colors.red('FAIL')}`);
@@ -32,7 +59,7 @@ export const handleAuditCommand = async (argv, io, cwd = process.cwd()) => {
         }
         if (result.rtm.length > 0) {
             io.log('');
-            io.log(formatHeading(`Requirements Traceability Matrix (RTM):`));
+            io.log(formatHeading(`Requirements coverage:`));
             for (const entry of result.rtm) {
                 const check = entry.verified ? colors.green('✓') : colors.dim('○');
                 const tasksStr = entry.mappedTasks.length > 0 ? colors.cyan(entry.mappedTasks.join(', ')) : colors.yellow('NO TASKS');
@@ -41,7 +68,7 @@ export const handleAuditCommand = async (argv, io, cwd = process.cwd()) => {
         }
         if (result.issues.length > 0) {
             io.log('');
-            io.log(formatHeading(`Audit Findings (${result.issues.length}):`));
+            io.log(formatHeading(`Details (${result.issues.length}):`));
             for (const issue of result.issues) {
                 const prefix = issue.severity === 'critical' ? colors.red('[CRITICAL]') : issue.severity === 'warning' ? colors.yellow('[WARNING]') : colors.dim('[INFO]');
                 io.log(`  ${prefix} ${colors.bold(issue.code)}: ${issue.message}`);

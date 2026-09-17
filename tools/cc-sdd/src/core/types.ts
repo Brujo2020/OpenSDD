@@ -84,10 +84,44 @@ export interface SpecStatus {
 
 export type GovernanceMode = 'fluid' | 'strict';
 
+/**
+ * Named presets that configure governance + git coherently in one field.
+ * Users pick a profile instead of hand-tuning a dozen flags.
+ */
+export type GovernanceProfile = 'solo' | 'team' | 'enterprise';
+
+/** The three vital gates. Each maps to an invariant id in `critical_invariants`. */
+export type CriticalInvariant =
+  | 'boundary_integrity'
+  | 'spec_contract_present'
+  | 'verification_proofs_pass';
+
+export const ALL_CRITICAL_INVARIANTS: CriticalInvariant[] = [
+  'boundary_integrity',
+  'spec_contract_present',
+  'verification_proofs_pass',
+];
+
 export interface GovernanceSettings {
+  /** Preset that seeds the fields below. Explicit fields always win over the profile. */
+  profile?: GovernanceProfile;
   mode: GovernanceMode;
+  /** When true, only `critical_invariants` can fail a run; everything else is advisory. */
   critical_gates_only: boolean;
+  /** When true, warning-severity findings never change the exit code. */
   non_blocking_warnings: boolean;
+  /** Which gates are enforced. Omit a gate to downgrade it to advisory. */
+  critical_invariants: CriticalInvariant[];
+}
+
+/** Result of evaluating one gate against a spec. */
+export interface GateResult {
+  id: CriticalInvariant;
+  label: string;
+  /** 'pass' | 'fail' | 'advisory' (failed, but not enforced in this profile). */
+  outcome: 'pass' | 'fail' | 'advisory';
+  enforced: boolean;
+  detail: string;
 }
 
 export interface GitSettings {
@@ -116,6 +150,9 @@ export interface RtmEntry {
 export interface AuditResult {
   feature: string;
   inSync: boolean;
+  /** Evaluation of the 3 vital gates under the active governance profile. */
+  gates: GateResult[];
+  mode: GovernanceMode;
   driftDetected: boolean;
   score: number;
   rtm: RtmEntry[];
