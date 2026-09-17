@@ -1,11 +1,21 @@
 {
-  "name": "open-sdd-workspace",
+  "name": "open-sdd",
   "version": "3.0.2",
-  "private": true,
   "description": "Open-SDD: Model-agnostic Spec-Driven Development on an enterprise agentic SDLC",
   "type": "module",
+  "bin": {
+    "open-sdd": "./tools/cc-sdd/dist/cli.js",
+    "sdd-open": "./tools/cc-sdd/dist/cli.js",
+    "sdd": "./tools/cc-sdd/dist/cli.js",
+    "cc-sdd": "./tools/cc-sdd/dist/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Brujo2020/open-sdd.git"
+  },
   "scripts": {
     "build": "npm --prefix tools/cc-sdd run build",
+    "prepare": "npm --prefix tools/cc-sdd run build",
     "test": "npm --prefix tools/cc-sdd test",
     "install:global": "npm --prefix tools/cc-sdd run build && npm install -g ./tools/cc-sdd",
     "install:antigravity": "node tools/cc-sdd/dist/cli.js --antigravity -y",

@@ -1,9 +1,9 @@
 # Open-SDD: Spec-Driven Development & Autonomous Orchestration for AI Coding Agents
 
-<!-- npm badges -->
-[![npm version](https://img.shields.io/npm/v/cc-sdd?logo=npm)](https://www.npmjs.com/package/cc-sdd?activeTab=readme)
-[![install size](https://packagephobia.com/badge?p=cc-sdd)](https://packagephobia.com/result?p=cc-sdd)
+<!-- badges -->
+[![GitHub repository](https://img.shields.io/badge/GitHub-Brujo2020%2Fopen--sdd-blue?logo=github)](https://github.com/Brujo2020/open-sdd)
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+[![Status: Production](https://img.shields.io/badge/status-active-brightgreen.svg)](https://github.com/Brujo2020/open-sdd)
 
 <div align="center" style="font-size: 1.1rem; margin-bottom: 1rem;"><sub>
 Package README: <a href="./tools/cc-sdd/README.md">English</a> | <a href="./tools/cc-sdd/README_ja.md">日本語</a> | <a href="./tools/cc-sdd/README_zh-TW.md">繁體中文</a>
@@ -64,17 +64,21 @@ curl -fsSL https://raw.githubusercontent.com/Brujo2020/open-sdd/main/install.sh 
 ./install.sh
 ```
 
-### 🌐 Option 2: Global NPM Install (Terminal Everywhere)
+### 🌐 Option 2: Global CLI Install (Terminal Everywhere)
 ```bash
-npm install -g cc-sdd@latest
+# Direct install from public GitHub repository:
+npm install -g Brujo2020/open-sdd
 
-# Verify installation
+# Or via npm:
+npm install -g open-sdd@latest
+
+# Verify installation (both open-sdd and sdd-open commands are available):
 open-sdd status
-open-sdd help
+sdd-open help
 ```
 
-### 📦 Option 3: Per-Project Install (Zero Global Installs)
-Run `npx` inside any project folder to immediately inject the 20 skills for your active agent:
+### 📦 Option 3: Per-Project Skills Install (Zero Global Installs)
+Inside any repository, inject the 20 skills directly into your coding agent:
 ```bash
 # Google Antigravity
 npx open-sdd@latest --antigravity -y
@@ -112,17 +116,15 @@ Read our research preprint: [Open-SDD: Spec-Driven Development Orchestration](do
 
 ```bash
 cd your-project
-npx cc-sdd@latest
-# or alias:
 npx open-sdd@latest
 ```
 
 The default installs **Claude Code Skills** with English docs and `.sdd/` storage. To pick another agent or language:
 
 ```bash
-npx cc-sdd@latest --codex-skills --lang ja      # Codex, Japanese
-npx cc-sdd@latest --cursor-skills --lang zh-TW  # Cursor IDE, Traditional Chinese
-npx cc-sdd@latest --antigravity --lang es       # Antigravity, Spanish
+npx open-sdd@latest --codex-skills --lang ja      # Codex, Japanese
+npx open-sdd@latest --cursor-skills --lang zh-TW  # Cursor IDE, Traditional Chinese
+npx open-sdd@latest --antigravity --lang es       # Antigravity, Spanish
 ```
 
 Then, in your agent:

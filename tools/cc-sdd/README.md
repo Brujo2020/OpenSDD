@@ -1,12 +1,12 @@
 # Open-SDD: Spec-Driven Development & Autonomous Orchestration for AI Coding Agents
 
-<!-- npm badges -->
-[![npm version](https://img.shields.io/npm/v/cc-sdd?logo=npm)](https://www.npmjs.com/package/cc-sdd?activeTab=readme)
-[![install size](https://packagephobia.com/badge?p=cc-sdd)](https://packagephobia.com/result?p=cc-sdd)
+<!-- badges -->
+[![GitHub repository](https://img.shields.io/badge/GitHub-Brujo2020%2Fopen--sdd-blue?logo=github)](https://github.com/Brujo2020/open-sdd)
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+[![Status: Production](https://img.shields.io/badge/status-active-brightgreen.svg)](https://github.com/Brujo2020/open-sdd)
 
 <div align="center" style="font-size: 1.1rem; margin-bottom: 1rem;"><sub>
-Package README: <a href="./tools/cc-sdd/README.md">English</a> | <a href="./tools/cc-sdd/README_ja.md">日本語</a> | <a href="./tools/cc-sdd/README_zh-TW.md">繁體中文</a>
+Package README: <a href="./README.md">English</a> | <a href="./README_ja.md">日本語</a> | <a href="./README_zh-TW.md">繁體中文</a>
 </sub></div>
 
 ## Turn approved specs into long-running autonomous implementation
@@ -79,33 +79,37 @@ curl -fsSL https://raw.githubusercontent.com/Brujo2020/open-sdd/main/install.sh 
 
 ### 🌐 2. Global Terminal CLI (NPM)
 ```bash
-npm install -g cc-sdd@latest
+# Direct install from public GitHub repo:
+npm install -g Brujo2020/open-sdd
+
+# Or via npm:
+npm install -g open-sdd@latest
 
 # Available commands in any terminal session:
 open-sdd status
+sdd-open help
 open-sdd impl <feature> --parallel
 open-sdd audit <feature> --regulatory
-open-sdd help
 ```
 
 ### 📦 3. Per-Project Skills Install (Zero Global Installs)
 Inside any repository, inject the 20 skills directly into your coding agent:
 ```bash
 # Claude Code (Default)
-npx cc-sdd@latest -y
+npx open-sdd@latest -y
 
 # Google Antigravity
-npx cc-sdd@latest --antigravity -y
+npx open-sdd@latest --antigravity -y
 
 # Cursor IDE
-npx cc-sdd@latest --cursor-skills -y
+npx open-sdd@latest --cursor-skills -y
 
 # Other supported agents:
-npx cc-sdd@latest --copilot-skills -y
-npx cc-sdd@latest --windsurf-skills -y
-npx cc-sdd@latest --opencode-skills -y
-npx cc-sdd@latest --gemini-cli-skills -y
-npx cc-sdd@latest --codex-skills -y
+npx open-sdd@latest --copilot-skills -y
+npx open-sdd@latest --windsurf-skills -y
+npx open-sdd@latest --opencode-skills -y
+npx open-sdd@latest --gemini-cli-skills -y
+npx open-sdd@latest --codex-skills -y
 ```
 
 Then, in your agent:

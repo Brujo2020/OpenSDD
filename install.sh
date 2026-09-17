@@ -37,15 +37,19 @@ build_package() {
 # Function: Install globally
 install_global() {
   build_package
-  echo -e "${YELLOW}→ Installing 'open-sdd' and 'sdd' globally...${NC}"
+  echo -e "${YELLOW}→ Installing 'open-sdd' and 'sdd-open' globally...${NC}"
   if [ -d "$PACKAGE_DIR" ]; then
     npm install -g "$PACKAGE_DIR"
+  elif npm view open-sdd >/dev/null 2>&1; then
+    npm install -g open-sdd@latest
   else
-    npm install -g cc-sdd@latest
+    echo -e "${YELLOW}→ Installing directly from public GitHub repo: Brujo2020/open-sdd...${NC}"
+    npm install -g github:Brujo2020/open-sdd
   fi
   echo -e "${GREEN}✓ Global installation complete!${NC}"
   echo -e "  Binaries available in PATH:"
   echo -e "    • ${BOLD}open-sdd${NC}  (e.g., 'open-sdd status', 'open-sdd impl <feature> --parallel')"
+  echo -e "    • ${BOLD}sdd-open${NC}  (e.g., 'sdd-open status')"
   echo -e "    • ${BOLD}sdd${NC}       (short alias, e.g., 'sdd status')\n"
 }
 
@@ -88,10 +92,14 @@ install_project() {
 
   if command -v open-sdd >/dev/null 2>&1; then
     (cd "$target_dir" && open-sdd $flag -y --overwrite force)
+  elif command -v sdd-open >/dev/null 2>&1; then
+    (cd "$target_dir" && sdd-open $flag -y --overwrite force)
   elif [ -f "$PACKAGE_DIR/dist/cli.js" ]; then
     (cd "$target_dir" && node "$PACKAGE_DIR/dist/cli.js" $flag -y --overwrite force)
+  elif npm view open-sdd >/dev/null 2>&1; then
+    (cd "$target_dir" && npx open-sdd@latest $flag -y --overwrite force)
   else
-    (cd "$target_dir" && npx cc-sdd@latest $flag -y --overwrite force)
+    (cd "$target_dir" && npx -y github:Brujo2020/open-sdd $flag -y --overwrite force)
   fi
 
   echo -e "\n${GREEN}✓ Project skills and steering initialized for: ${BOLD}$agent${NC}"
