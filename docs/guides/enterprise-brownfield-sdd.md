@@ -162,3 +162,11 @@ Before authorizing an AI agent to execute on a brownfield codebase:
 - [ ] **Strict Git Mode Active**: Feature branch created (`feat/<slug>`), spec committed before implementation.
 - [ ] **Feature Flag Guard**: New code deployed dark behind a feature flag or strangler proxy.
 - [ ] **Audit Report Generated**: `/sdd-audit` passes with 100% requirements coverage and zero unregistered drift.
+
+---
+
+## Related Guides
+
+- [Universal Brownfield Guide (Solo to Hyperscalers)](./universal-brownfield-sdd.md)
+- [Code-First Bootstrap with `/sdd-getspecs`](./brownfield-getspecs.md)
+- [Strict Git Mode & SpecOps Flow](./git-workflow.md)

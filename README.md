@@ -14,7 +14,7 @@ Package README: <a href="./tools/cc-sdd/README.md">English</a> | <a href="./tool
 One command installs an agentic SDLC workflow as Agent Skills: brownfield bootstrap, discovery, requirements, design, tasks, gap analysis, regulatory audit, and autonomous implementation with per-task independent review. Works across 8 AI coding agents, with the same 19-skill set on each.
 
 - **5th Generation Software Abstraction (InfoQ 2026)**: Architecture becomes executable. Machine Code → Assembly → High-level compiled → Scripting/Dynamic → **SpecOps (SDD)**.
-- **Enterprise Brownfield Reverse-Engineering (`/sdd-getspecs`)**: Deduce living specifications from existing repositories through code-first reverse engineering, mapping AST dependencies and generating spec seeds that require human editing and validation before approval.
+- **Universal Brownfield Reverse-Engineering (`/sdd-getspecs`)**: Over 90% of real-world software is brownfield. Deduce living specifications from any existing repository—from solo indie projects and startup MVPs to hyperscaler platforms—through code-first reverse engineering, generating spec seeds that require human editing and validation before approval.
 - **Living Documentation in Git (*Spec-as-Code*)**: Specifications live in Git alongside the code (`.sdd/specs/`), versioned together in PRs to eradicate architectural drift.
 - **Strict Git Mode & SpecOps Flow**: Automates feature branch lifecycle (`feat/<slug>`), commits/pushes living specs upon Documentary Triad approval, strictly forbids unapproved implementation, and automates PR creation upon test validation.
 - **Karpathy Principles**: Think before coding, surgical changes, simplicity first, minimal blast radius, and goal-driven test verification.
@@ -23,9 +23,9 @@ One command installs an agentic SDLC workflow as Agent Skills: brownfield bootst
 
 ## What's new in Open-SDD
 
-Open-SDD represents a major evolution into an agent-agnostic, enterprise-grade SDLC standard:
+Open-SDD represents a major evolution into an agent-agnostic, multi-tier SDLC standard:
 
-- **Brownfield Code-First Bootstrap (`/sdd-getspecs`)**: Dissects existing codebases, extracts architectural invariants into steering, and generates spec seeds (`brief.md`, `spec.json`, requirements stubs) that must be reviewed, edited, and validated before approval.
+- **Universal Brownfield Code-First Bootstrap (`/sdd-getspecs`)**: Dissects existing codebases (solo projects, startups, scale-ups, and enterprise systems), extracts architectural invariants into steering, and generates spec seeds (`brief.md`, `spec.json`, requirements stubs) that must be reviewed, edited, and validated before approval.
 - **`/sdd-discovery` as the unified entry point for new work**: Routes new work into extending an existing spec, implementing directly with no spec, creating one new spec, or decomposing into multiple specs.
 - **`/sdd-impl` for long-running autonomous implementation**: Each task gets a fresh implementer running TDD (RED → GREEN) behind a feature flag, an independent reviewer (`sdd-review`), and an auto-debug pass (`sdd-debug`). Learnings propagate forward via `## Implementation Notes` in `tasks.md`.
 - **`/sdd-audit` for architectural drift & regulatory compliance**: Evaluates spec-to-code alignment, detects ambient code divergence, generates Requirements Traceability Matrices (RTM), and produces EU AI Act / NIST AI RMF audit reports.

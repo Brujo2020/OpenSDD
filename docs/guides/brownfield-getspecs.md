@@ -198,5 +198,7 @@ Logic distilled from [spec-kit brownfield extensions](https://github.com/Pimzino
 
 ## Related
 
+- [Universal Brownfield Guide (Solo to Hyperscalers)](./universal-brownfield-sdd.md)
+- [Enterprise Zero-Trust Brownfield Modernization](./enterprise-brownfield-sdd.md)
 - [Skill Reference](./skill-reference.md)
 - [Why open-sdd?](./why-open-sdd.md)
