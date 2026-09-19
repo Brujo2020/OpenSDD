@@ -38,6 +38,11 @@ Do not look for steering or memory under `.sdd/` in this checkout until a skill 
 ## Minimal Workflow
 - Phase 0 (Steering): `/sdd-steering`, `/sdd-steering-custom`
 - **Brownfield Bootstrap** (existing codebase, no `.sdd/` specs): `/sdd-getspecs [focus]` — reverse-engineers steering + roadmap + unapproved spec seeds from code; seeds must be reviewed, edited, and validated before approval.
+- **Brownfield governance** (the existing code is the source of truth): run the console before specifying a change —
+  - recon: `open-sdd brownfield survey .` — what the project already is (stack, tooling, modules, evidence)
+  - constitution: `open-sdd brownfield constitution . --write` — the descriptive constitution in `.sdd/steering/constitution.md` (principles the code already obeys, each with evidence; desired-but-absent practices become proposed amendments)
+  - delta: `open-sdd delta init <feature> "what changes"` then `open-sdd delta validate <feature>` — the contract of change (ADDED/MODIFIED/REMOVED/RENAMED, delta-scoped `REQ-<AREA>-<NNN>` ids)
+  - rigor: declare the level in `.sdd/settings/rigor.json`; `open-sdd govern rigor` assesses the repository against it. The constitution is the authority a blocking verdict cites, so it is **required (blocking) from Spec-Anchored upward** and only recommended at Spec-First.
 - Discovery (new work/ideas): `/sdd-discovery "idea"` — identifies action path (Greenfield or Brownfield extension), writes `brief.md` and `roadmap.md`
 - Phase 1 (Specification):
   - Single spec: `/sdd-spec-quick {feature} [--auto]` or step-by-step:

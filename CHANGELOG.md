@@ -49,6 +49,53 @@ All notable changes to this project will be documented in this file.
   properties by exit code.
 
 
+### Added — brownfield: delta specs and the reverse constitution
+
+- **Delta specs: the unit of specification is the change, not the system.** `core/deltaSpec.ts`
+  implements the four ADSR sections (ADDED / MODIFIED / REMOVED / RENAMED), delta-scoped
+  `REQ-<AREA>-<NNN>` identifiers, a mandatory `previous` on MODIFIED/REMOVED/RENAMED, a mandatory
+  rationale **and** contracts on REMOVED (contracts are a warning on MODIFIED), a size warning above
+  25 entries, per-entry strangulation (`legacy → both → new`), and two-way traceability: every
+  requirement must have a task, and a task citing an unknown delta id is reported as a phantom. New
+  console surface: `delta init|validate|status|render <feature>`.
+- **The reverse-engineered descriptive constitution.** `core/constitution.ts` models one artifact
+  with two provenances: `descriptive` principles (what the code already obeys, each with mandatory
+  evidence) and `normative` principles (authored, introduced by a governed amendment that requires a
+  migration plan). Six-field anatomy (identifier · threat/CWE reference · MUST/SHOULD/MAY ·
+  restriction · pattern · justification), citable authority, indirect-injection scan and markdown
+  round-trip. `core/reverseConstitution.ts` reads the repository's facts (lockfile, migration dirs
+  and rollbacks, CI workflows, public API entry points, config files) and emits desired-but-absent
+  practices as **proposed amendments**, never as facts. New console surface:
+  `brownfield survey [target]` and `brownfield constitution [target] [--write]`.
+- **Three SDD rigor levels.** `core/rigor.ts` implements Spec-First, Spec-Anchored and
+  Spec-as-Source with the artifacts each level demands, its active gate ids, its evaluator question
+  and its missing-artifact policy; `govern rigor` prints the levels and assesses the repository
+  against the level declared in `.sdd/settings/rigor.json` (exiting 1 on blocking findings), and
+  `govern rigor --select` recommends one. A valid constitution is **required (blocking) from
+  Spec-Anchored upward** and only recommended at Spec-First, because it is the authority a blocking
+  verdict cites. Where a demand is not decidable from artifacts (regeneration at Spec-as-Source) it
+  is reported as a declared gap instead of a fabricated pass.
+- **Reconnaissance is workspace- and configuration-aware (defect fixed).** Running `brownfield
+  survey` on this repository used to report **"JavaScript, no tests detected"** while the project is
+  TypeScript with 500+ tests, because the code lives in `tools/cc-sdd` and the scan read only the
+  repository root. The scanner now walks the declared workspace roots (`tools/cc-sdd`, `packages/*`,
+  `apps/*`, …) and reads both manifests and config files (`tsconfig.json`, `vitest.config.ts`,
+  `governance.json`-style settings), so it reports **TypeScript / npm / tsc / Vitest and 9 modules**
+  with the real module list. A brownfield survey that lies about the project it is run on is worse
+  than no survey.
+- **Drift-gate false positive fixed.** `core/git.ts` · `getModifiedFiles` trimmed the whole
+  `git status --porcelain` output, which stripped the leading space of the **first** line only (the
+  common "modified, not staged" prefix is ` M`); `slice(3)` then removed a real character from that
+  path, so `docs/x.md` appeared as `ocs/x.md` and matched no declared boundary — a false
+  ambient-drift finding on whichever file git listed first. The fix parses the raw output line by
+  line; all 29 paths in this checkout now parse exactly.
+- **Traceability updated.** Gap G-12 is rewritten from "heuristic bootstrap" to "delta specs and a
+  reverse constitution, with behaviour still declared rather than extracted"; three new gaps record
+  what remains (G-15 contracts declared but not executed, G-16 the compliance matrix has no console
+  surface, G-17 no delta merge-back); the component map gains the four modules and the brownfield
+  console; and six new claims (CLM-045 … CLM-050) decide the capabilities by exit code. Registry
+  result: 50 claims, 47 verified, 0 broken, 0 outdated.
+
 ### Added — enforcement floor installed, skills taught, naming unified
 
 - **Level B (commit) is installed, not declared.** `tools/cc-sdd/templates/hooks/pre-commit` runs

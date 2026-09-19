@@ -19,10 +19,9 @@
 #   fail   + non-zero -> not-implemented fail   + exit 0  -> outdated-text
 #   absent + non-zero -> not-measured    absent + exit 0  -> outdated-text
 #
-# IMPORTANT: no runner in this repository reads this file yet (`grep -rq paper-claims
-# tools/cc-sdd/src` exits non-zero — see CLM-030). The registry is therefore a documentation
-# artifact whose verifiers were executed by hand; the counts are recorded in
-# docs/PAPER-ALIGNMENT.md. Do not describe it as automated.
+# IMPORTANT: the product CLI reads and executes this file —
+# `node tools/cc-sdd/dist/cli.js assure claims --verify` (CLM-030). It is the only runner: no second
+# copy exists to drift against it. The counts it prints are recorded in docs/PAPER-ALIGNMENT.md.
 
 - id: CLM-001
   section: "§9.3 / Appendix A, Table 33"
@@ -330,4 +329,67 @@
   statement_es: 'El CLI informa la versión real del paquete publicado, no "vdev", porque resuelve el manifiesto que sí viaja en el artefacto.'
   statement_en: 'The CLI reports the real version of the published package, not "vdev", because it resolves the manifest that ships in the artifact.'
   verifier: "node -e \"const {execSync}=require('child_process');const v=require('./package.json').version;const out=execSync('node tools/cc-sdd/dist/cli.js --version').toString();process.exit(out.includes('v'+v) && !out.includes('vdev') ? 0 : 1)\""
+  expectation: pass
+
+- id: CLM-045
+  section: "§12 / Figure 9 (delta specs: ADSR and two-way traceability)"
+  statement_es: 'La delta de este repositorio valida sin errores y su trazabilidad se comprueba en las dos direcciones: el informe nombra cada requisito de delta sin tarea y cuenta los requisitos con tarea trazable.'
+  statement_en: 'This repository''s delta validates without errors and its traceability is checked in both directions: the report names every delta requirement without a task and counts the requirements with a traced task.'
+  verifier: 'node tools/cc-sdd/dist/cli.js delta validate brownfield-support | grep -q "0 error(es)" && node tools/cc-sdd/dist/cli.js delta validate brownfield-support | grep -q "Trazabilidad: " && node tools/cc-sdd/dist/cli.js delta validate brownfield-support | grep -qE "requisito\(s\) de la delta con tarea \([0-9]+%\)"'
+  expectation: pass
+
+- id: CLM-046
+  section: "§12 (ADSR: a MODIFIED entry must name what it replaces)"
+  statement_es: 'Una entrada MODIFIED sin previous es un error de validación: una modificación que no sabe decir qué sustituye es una reescritura.'
+  statement_en: 'A MODIFIED entry without previous is a validation error: a modification that cannot say what it replaces is a rewrite.'
+  verifier: 'node --input-type=module -e "import {validateDeltaSpec} from ''./tools/cc-sdd/dist/core/deltaSpec.js''; const d={feature:''f'',title:''t'',status:''proposed'',entries:[{id:''REQ-A-001'',kind:''MODIFIED'',title:''t'',statement:''When x, the system shall y.'',targets:[''src/a.ts'']}]}; process.exit(validateDeltaSpec(d).some(i=>i.code===''MISSING_PREVIOUS''&&i.severity===''error'')?0:1)"'
+  expectation: pass
+
+- id: CLM-047
+  section: "§12 / CSDD §3.2 (a descriptive principle must cite evidence)"
+  statement_es: 'Un principio descriptivo sin evidencia es un error de validación: un deseo registrado como hecho no entra en la constitución.'
+  statement_en: 'A descriptive principle without evidence is a validation error: a wish recorded as a fact does not enter the constitution.'
+  verifier: 'node --input-type=module -e "import {validateConstitution} from ''./tools/cc-sdd/dist/core/constitution.js''; const c={project:''p'',provenance:''descriptive'',establishedFacts:[],principles:[{id:''C-X'',title:''t'',level:''SHOULD'',restriction:''r'',pattern:''p'',justification:''j'',provenance:''descriptive''}],amendments:[]}; process.exit(validateConstitution(c).some(i=>i.code===''EVIDENCE-MISSING''&&i.severity===''error'')?0:1)"'
+  expectation: pass
+
+- id: CLM-048
+  section: "Manual Maestro §2.4 (three rigor levels; CSDD §3.4 apex)"
+  statement_es: 'La constitución solo se recomienda en spec-first y es obligatoria y bloqueante desde spec-anchored en adelante, porque es la autoridad que cita todo veredicto bloqueante.'
+  statement_en: 'The constitution is only recommended at spec-first and is required and blocking from spec-anchored upward, because it is the authority every blocking verdict cites.'
+  verifier: 'node --input-type=module -e "import {constitutionRequired} from ''./tools/cc-sdd/dist/core/rigor.js''; process.exit(constitutionRequired(''spec-first'',false).severity===''advisory''&&constitutionRequired(''spec-first'',false).required===false&&constitutionRequired(''spec-anchored'',true).required===true&&constitutionRequired(''spec-anchored'',true).severity===''blocking''&&constitutionRequired(''spec-as-source'',false).severity===''blocking''?0:1)"'
+  expectation: pass
+
+- id: CLM-049
+  section: "§12 (reverse constitution: absent practices travel as amendments)"
+  statement_es: 'Una práctica deseada pero ausente se emite como enmienda propuesta, nunca como hecho: sin tests detectados, el oráculo de regresión es AMD-REGRESSION-ORACLE y no un principio descriptivo.'
+  statement_en: 'A desired-but-absent practice is emitted as a proposed amendment, never as a fact: with no tests detected, the regression oracle is AMD-REGRESSION-ORACLE and not a descriptive principle.'
+  verifier: 'node --input-type=module -e "import {buildDescriptiveConstitution} from ''./tools/cc-sdd/dist/core/reverseConstitution.js''; const project={name:''p'',language:''TypeScript'',frameworks:[],packageManager:''npm'',buildTool:''tsc'',sourceDirs:[''src''],testDirs:[],modules:[''core'']}; const facts={project,migrationDirs:[],rollbackMigrations:[],ciWorkflows:[],publicApiFiles:[],configFiles:[]}; const r=buildDescriptiveConstitution(facts); process.exit(r.constitution.amendments.every(a=>a.status===''proposed'')&&r.constitution.amendments.some(a=>a.id===''AMD-REGRESSION-ORACLE'')&&!r.constitution.principles.some(p=>p.id===''C-REGRESSION-ORACLE'')?0:1)"'
+  expectation: pass
+
+- id: CLM-050
+  section: "§12 (reconnaissance is workspace- and configuration-aware)"
+  statement_es: 'El reconocimiento es consciente del workspace y de la configuración: en este repositorio reporta TypeScript, npm, tsc y Vitest, no el JavaScript sin tests que reportaba al leer solo la raíz.'
+  statement_en: 'Reconnaissance is workspace- and configuration-aware: on this repository it reports TypeScript, npm, tsc and Vitest, not the JavaScript-with-no-tests it reported when reading only the root.'
+  verifier: 'node tools/cc-sdd/dist/cli.js brownfield survey . | grep -q "lenguaje: TypeScript" && node tools/cc-sdd/dist/cli.js brownfield survey . | grep -q "tests: Vitest" && node tools/cc-sdd/dist/cli.js brownfield survey . | grep -qE "módulos \([0-9]+\)"'
+  expectation: pass
+
+- id: CLM-051
+  section: "§12 / CSDD §3.3 (the regression oracle as data)"
+  statement_es: 'La extracción de contratos empareja el fichero cambiado con las pruebas que lo cubren y deriva el comando de test del framework detectado, declarándolo derivado y no verificado.'
+  statement_en: 'Contract extraction binds the changed file to the tests that cover it and derives the test command from the detected framework, declaring it derived and not verified.'
+  verifier: 'node --input-type=module -e "import {extractContracts} from ''./tools/cc-sdd/dist/core/executionContract.js''; const s=await extractContracts({cwd:process.cwd(),feature:''x'',changedFiles:[''tools/cc-sdd/src/core/deltaSpec.ts''],testDirs:[''tools/cc-sdd/test''],testFramework:''Vitest''}); process.exit(s.contracts.some(c=>c.test.includes(''coreDeltaSpec''))&&s.testCommand===''npx vitest run''?0:1)"'
+  expectation: pass
+
+- id: CLM-052
+  section: "§12 (a green run does not launder a missing declared contract)"
+  statement_es: 'Un código de salida 0 con un contrato declarado que no existe en el conjunto NO es un aprobado: satisfied exige ambas cosas.'
+  statement_en: 'Exit code 0 with a declared contract absent from the set is NOT a pass: satisfied requires both.'
+  verifier: 'node --input-type=module -e "import {verifyContracts} from ''./tools/cc-sdd/dist/core/executionContract.js''; const set={feature:''f'',testCommand:''npm test'',contracts:[{id:''DC-a'',description:''d'',test:''test/a.test.ts'',protects:[''src/a.ts''],source:''delta''}],uncoveredChanges:[],complete:true,detail:''''}; const v=verifyContracts(set,{exitCode:0,stdout:''''}); process.exit(v.satisfied===false&&v.missing.length===1?0:1)"'
+  expectation: pass
+
+- id: CLM-053
+  section: "§12 (the analysis of a change before it is written)"
+  statement_es: 'La consola expone el oráculo de regresión como informe del cambio pendiente: `brownfield contracts <feature>` publica el conjunto de contratos con el comando derivado.'
+  statement_en: 'The console exposes the regression oracle as a report over the pending change: `brownfield contracts <feature>` publishes the contract set with the derived command.'
+  verifier: 'node tools/cc-sdd/dist/cli.js brownfield contracts brownfield-support | grep -q "Contratos de ejecución" && node tools/cc-sdd/dist/cli.js brownfield contracts brownfield-support | grep -q "contrato(s)"'
   expectation: pass

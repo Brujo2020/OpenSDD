@@ -1,0 +1,72 @@
+# Delta: brownfield-support — Delta specs, reverse constitution and honest reconnaissance
+
+Status: approved
+
+## ADDED
+
+### REQ-BF-001 — The delta is the contract of change
+- Statement: WHEN a change is specified against an existing repository, the [delta engine] shall express only what changes using the ADDED, MODIFIED, REMOVED and RENAMED sections.
+- Targets: tools/cc-sdd/src/core/deltaSpec.ts, tools/cc-sdd/test/coreDeltaSpec.test.ts
+- Contracts: tools/cc-sdd/test/coreDeltaSpec.test.ts
+- Strangler: new
+
+### REQ-BF-002 — A constitution that states only what the code already is
+- Statement: The [constitution generator] shall emit a principle only when compliance with it is evidenced in the existing code.
+- Targets: tools/cc-sdd/src/core/reverseConstitution.ts, tools/cc-sdd/src/core/constitution.ts, tools/cc-sdd/test/coreBrownfield.test.ts, tools/cc-sdd/test/coreConstitution.test.ts, .sdd/steering/constitution.md
+- Contracts: tools/cc-sdd/test/coreBrownfield.test.ts
+- Strangler: new
+
+### REQ-BF-004 — Traceability in both directions
+- Statement: WHEN a delta is validated, the [traceability check] shall report every delta requirement without a task and every task citing an unknown delta identifier.
+- Targets: tools/cc-sdd/src/core/deltaSpec.ts, tools/cc-sdd/test/coreDeltaSpec.test.ts
+- Contracts: tools/cc-sdd/test/coreDeltaSpec.test.ts
+- Strangler: new
+
+### REQ-BF-005 — The brownfield surface in the console
+- Statement: The [governance console] shall expose reconnaissance, constitution generation and delta validation as commands.
+- Targets: tools/cc-sdd/src/cli/commands/brownfield.ts, tools/cc-sdd/src/index.ts, tools/cc-sdd/test/coreBrownfield.test.ts
+- Contracts: tools/cc-sdd/test/coreBrownfield.test.ts
+- Strangler: new
+
+### REQ-BF-006 — Three rigor levels, with the constitution required from the second
+- Statement: WHEN a project declares its rigor level, the [rigor assessment] shall require a valid constitution from the spec-anchored level upward.
+- Targets: tools/cc-sdd/src/core/rigor.ts, .sdd/settings/rigor.json, tools/cc-sdd/test/coreRigor.test.ts, tools/cc-sdd/src/cli/commands/paper.ts, tools/cc-sdd/templates/hooks/pre-commit, .github/workflows/gates.yml
+- Contracts: tools/cc-sdd/test/coreRigor.test.ts
+- Strangler: new
+
+### REQ-BF-007 — Impact analysis before the change is written
+- Statement: WHEN a change is analysed, the [impact analysis] shall report the dependents of the changed files, the breaking changes and the migrations without a rollback plan.
+- Targets: tools/cc-sdd/src/core/changeImpact.ts, tools/cc-sdd/test/coreChangeImpact.test.ts
+- Contracts: tools/cc-sdd/test/coreChangeImpact.test.ts
+- Strangler: new
+
+### REQ-BF-008 — The tests that protect the change are declared and verified
+- Statement: WHEN contracts are extracted for a change, the [oracle] shall bind every covering test to the changed files and report the changed files no test covers.
+- Targets: tools/cc-sdd/src/core/executionContract.ts, .github/workflows/gates.yml, tools/cc-sdd/test/coreExecutionContract.test.ts
+- Contracts: tools/cc-sdd/test/coreExecutionContract.test.ts
+- Strangler: new
+
+### REQ-BF-009 — Search before creating
+- Statement: WHEN a change proposes a new symbol, the [reuse check] shall report existing symbols that a reuse-first search would have found first.
+- Targets: tools/cc-sdd/src/core/reuseFirst.ts, tools/cc-sdd/test/coreReuseFirst.test.ts
+- Contracts: tools/cc-sdd/test/coreReuseFirst.test.ts
+- Strangler: new
+
+### REQ-BF-010 — The brownfield workflow is documented where the agents read it
+- Statement: WHEN the brownfield workflow changes, the [documentation] shall describe it in the traceability report, the guides and the orientation file each agent reads first.
+- Targets: README.md, CLAUDE.md, AGENTS.md, CHANGELOG.md, docs/PAPER-ALIGNMENT.md, docs/guides/brownfield-delta-workflow.md, docs/claims/paper-claims.yaml, tools/cc-sdd/templates
+- Contracts: tools/cc-sdd/test/docsIntegrity.test.ts
+- Strangler: new
+
+## MODIFIED
+
+### REQ-BF-003 — Reconnaissance of a workspace layout
+- Statement: WHEN a repository keeps its code inside a nested workspace, the [scanner] shall detect the language, test runner and build tool declared in that workspace.
+- Previous: The scan read only the repository root, so a workspace layout was reported as JavaScript with no tests detected — including on this repository, which is TypeScript with a full test suite.
+- Targets: tools/cc-sdd/src/core/reverseEngineering.ts, tools/cc-sdd/test/coreReverseEngineering.test.ts
+- Contracts: tools/cc-sdd/test/coreBrownfield.test.ts, tools/cc-sdd/test/coreReverseEngineering.test.ts
+- Strangler: new
+
+## REMOVED
+
+## RENAMED

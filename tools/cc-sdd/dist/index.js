@@ -22,6 +22,7 @@ import { handleVerifyCommand } from './cli/commands/verify.js';
 import { handleHelpCommand } from './cli/commands/help.js';
 import { handleImplCommand } from './cli/commands/impl.js';
 import { handleGatesCommand, handleGovernCommand, handleAssureCommand, handleWavesCommand, handleFloorCommand, } from './cli/commands/paper.js';
+import { handleDeltaCommand, handleBrownfieldCommand } from './cli/commands/brownfield.js';
 export * from './core/index.js';
 /**
  * Version of the package the user actually installed.
@@ -91,6 +92,12 @@ Zero-Trust console (reference architecture):
   assure [threats|lab|claims|skills|memory]
   waves <feature>                             Transactional wave plan with git commands
   floor [status|install] [target] [--ci]       Enforcement floor: commit hook + PR gate matrix
+Brownfield (existing code that is the de facto source of truth):
+  brownfield survey [target]                    Detect the stack, boundaries and evidence
+  brownfield constitution [target] [--write]   Reverse-engineer the descriptive constitution
+  delta init <feature> "<title>"                Scaffold a delta spec (ADDED/MODIFIED/REMOVED/RENAMED)
+  delta validate <feature>                      Validate ids, EARS, targets, contracts and traceability
+  delta status <feature>                        Change counts, strangulation progress, traceability
 
 Note: In non-TTY environments, prompt mode falls back to skip.`;
 const resolveManifestPath = async (resolvedAgent, argsProfile, manifestArg, templatesBase) => {
@@ -254,6 +261,13 @@ export const runCli = async (argv, runtime = { platform: process.platform, env: 
         }
         if (cmd === 'floor') {
             return handleFloorCommand(subArgv, io, targetCwd);
+        }
+        // Brownfield: the unit of specification is the delta, not the system.
+        if (cmd === 'delta') {
+            return handleDeltaCommand(subArgv, io, targetCwd);
+        }
+        if (cmd === 'brownfield') {
+            return handleBrownfieldCommand(subArgv, io, targetCwd);
         }
     }
     let parsedArgs;

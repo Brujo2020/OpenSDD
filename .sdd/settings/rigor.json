@@ -1,0 +1,7 @@
+{
+  "$comment": "Nivel de rigor SDD declarado para este repositorio. Declarar un nivel es aceptar sus exigencias: desde spec-anchored la constitución es obligatoria y su ausencia bloquea. Ver tools/cc-sdd/src/core/rigor.ts y docs/guides/brownfield-delta-workflow.md.",
+  "level": "spec-anchored",
+  "rationale": "El repositorio ya existe y su código es la fuente de verdad de facto (cambio brownfield), la entrega es auditable y los cambios se revisan por PR: se exigen trazabilidad, ligado de evidencia y detección de deriva, sin llegar a spec-as-source, que reservamos para cambios difíciles de revertir o regulados.",
+  "brownfield": true,
+  "updated_at": "2026-09-19T00:00:00.000Z"
+}

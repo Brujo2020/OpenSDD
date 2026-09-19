@@ -40,10 +40,18 @@ export const hasUncommittedChanges = (cwd: string = process.cwd()): boolean => {
 
 export const getModifiedFiles = (cwd: string = process.cwd()): string[] => {
   try {
-    const out = execSync('git status --porcelain', { cwd, encoding: 'utf8' }).trim();
-    if (!out) return [];
+    // Do NOT trim the output as a whole. The porcelain format is `XY<space>path`, and for the
+    // common "modified, not staged" case the first character is a SPACE. Trimming stripped that
+    // leading space from the FIRST line only, after which `slice(3)` ate a real character from the
+    // path ("docs/x.md" became "ocs/x.md"). The victim was whichever file git happened to list
+    // first, which is why it looked random — and the truncated path matched no declared boundary,
+    // so it produced false ambient-drift findings.
+    const out = execSync('git status --porcelain', { cwd, encoding: 'utf8' });
+    if (!out.trim()) return [];
     return out
       .split('\n')
+      .map((line) => line.replace(/\r$/, ''))
+      .filter((line) => line.length > 3)
       .map((line) => line.slice(3).trim())
       .filter(Boolean);
   } catch {

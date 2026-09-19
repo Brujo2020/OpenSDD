@@ -63,6 +63,25 @@ jobs:
         run: node tools/cc-sdd/dist/cli.js govern discipline
         continue-on-error: true
 
+      - name: Enforce the declared rigor level (the constitution is required from Spec-Anchored)
+        run: node tools/cc-sdd/dist/cli.js govern rigor
+
+      - name: Validate the delta spec, when the change declares one
+        run: |
+          for spec in .sdd/specs/*/delta.md; do
+            [ -f "$spec" ] || continue
+            feature="$(basename "$(dirname "$spec")")"
+            node tools/cc-sdd/dist/cli.js delta validate "$feature"
+          done
+
+      - name: Execution contracts — a declared contract that does not exist fails the build
+        run: |
+          for spec in .sdd/specs/*/delta.md; do
+            [ -f "$spec" ] || continue
+            feature="$(basename "$(dirname "$spec")")"
+            node tools/cc-sdd/dist/cli.js brownfield contracts "$feature"
+          done
+
       - name: Claims registry (§9.6) — a broken claim fails the build
         run: node tools/cc-sdd/dist/cli.js assure claims --verify
 

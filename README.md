@@ -124,6 +124,73 @@ The step-by-step path is `/sdd-steering` → `/sdd-spec-init` → `/sdd-spec-req
 
 ---
 
+## Brownfield: governing an existing codebase
+
+When the code already exists, the existing code is the de facto source of truth and the unit of
+specification is not the system but the **delta**: the artifact that describes only what changes.
+Three mechanisms implement that, all in the `open-sdd` console.
+
+### 1. The delta is the contract of change
+
+A delta has four sections — `ADDED`, `MODIFIED`, `REMOVED`, `RENAMED` (ADSR) — and every entry
+carries a delta-scoped identifier `REQ-<AREA>-<NNN>` rather than an id for the whole system, which
+is what keeps the obligation finite.
+
+| Section | Extra obligation |
+|---|---|
+| `ADDED` | — |
+| `MODIFIED` | `previous` (the behaviour replaced); contracts recommended |
+| `REMOVED` | `previous` + `rationale` + `contracts` (all required) |
+| `RENAMED` | `previous` required |
+
+Each entry also declares a strangulation state (`legacy → both → new`), so moving a piece of the
+old system into the new one is visible progress instead of an implied rewrite.
+
+```bash
+open-sdd delta init <feature> "what changes"    # scaffold .sdd/specs/<feature>/delta.md
+open-sdd delta validate <feature>               # ids, EARS, targets, ADSR obligations, traceability
+open-sdd delta status <feature>                 # counts, strangulation progress, traceability
+```
+
+Three reports back the change before it is written. `brownfield contracts <feature> [--verify]`
+turns the delta's declared tests into the regression oracle: it lists which tests protect the
+changed files, names the changed files **no** contract covers, and with `--verify` runs the test
+command — exit code 0 with a declared contract missing is not a pass. `brownfield impact <feature>`
+reports the reachable set, the touched API surface and the breaking changes; `brownfield reuse
+<feature>` reports the symbols a reuse-first search would have found first.
+
+### 2. The reverse constitution
+
+`brownfield constitution` reads the repository and emits a **descriptive** constitution: the
+principles the code already obeys, each with the evidence that it does, plus the stack declared an
+established fact. A practice that is desired but absent is emitted as a **proposed amendment**, never
+as a fact, and a descriptive principle without evidence is a validation error.
+
+```bash
+open-sdd brownfield survey .                    # what the project is: stack, tooling, modules, evidence
+open-sdd brownfield constitution . --write      # write .sdd/steering/constitution.md
+```
+
+### 3. The three rigor levels
+
+| Level | Constitution | What else it demands |
+|---|---|---|
+| Spec-First | recommended | A spec written before the change; it may be discarded |
+| Spec-Anchored | **required (blocking)** | Living spec, requirement→task traceability, evidence binding, drift detection |
+| Spec-as-Source | **required (blocking)** | Everything above, plus declared contracts and regeneration as the repair mechanism |
+
+The honest note: **from Spec-Anchored upward a valid constitution is required and its absence
+blocks**, because the constitution is the authority a blocking verdict cites. Spec-First only
+recommends it. The declared level lives in `.sdd/settings/rigor.json` with a mandatory rationale;
+`open-sdd govern rigor` prints the three levels and evaluates the repository against the declared
+one (`--select` recommends a level from the decision table).
+
+The reconnaissance is workspace-aware: on this repository `brownfield survey .` reports TypeScript /
+npm / tsc / Vitest and 9 modules, not the "JavaScript, no tests detected" it used to report when the
+code lived in a nested workspace.
+
+---
+
 ## Supported host agents
 
 The authoritative list is `tools/cc-sdd/src/agents/registry.ts` (`agentDefinitions`). Eight variants
@@ -218,6 +285,10 @@ unless stated otherwise.
 | `assure skills` | Skill classes, the MCP hard rule and the promotion ladder |
 | `assure memory` | Memory mesh, distillation pipeline, anti-poisoning probe |
 | `waves <feature>` | Transactional wave plan with the git commands that would materialise it (needs `.sdd/specs/<feature>/tasks.md`) |
+| `brownfield survey [target]` | What the existing project is: stack, tooling, module boundaries and the evidence for each |
+| `brownfield constitution [target] [--write]` | The descriptive constitution (principles the code obeys + proposed amendments); `--write` stores it in `.sdd/steering/constitution.md` |
+| `delta init\|validate\|status\|render <feature>` | The contract of change: scaffold ADSR, validate ids/EARS/contracts/traceability, report counts and strangulation |
+| `brownfield impact\|contracts\|reuse <feature>` | Analysis over the pending change: reachable set and breaking changes, the regression oracle (`--verify` runs the test command), reuse-first candidates |
 
 Environment variables accepted by the console include `SDD_FEATURE`, `SDD_COMPLEXITY`,
 `SDD_RELAXATIONS`, `SDD_CYCLE_TOKENS`, `SDD_META_TOKENS`, `SDD_AUDIT_TOKENS`, `SDD_DISTILL_TOKENS`,

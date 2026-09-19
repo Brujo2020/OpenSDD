@@ -105,6 +105,17 @@ Document patterns and principles, not exhaustive lists.
 **JIT Strategy**: Fetch when needed, not upfront.
 
 
+### Constitution and rigor (brownfield)
+
+In an existing repository the constitution is **descriptive**: it records the principles the code
+already obeys, each with evidence, and declares the current stack an established fact.
+`open-sdd brownfield constitution . --write` generates it into `{{SDD_DIR}}/steering/constitution.md`;
+a practice that is desired but absent is emitted as a proposed amendment, never as a fact. The
+declared rigor level lives in `{{SDD_DIR}}/settings/rigor.json` (Spec-First / Spec-Anchored /
+Spec-as-Source), and from Spec-Anchored upward a valid constitution is **required (blocking)** —
+it is the authority a blocking verdict cites. Changes to existing behaviour are specified as a
+delta (`open-sdd delta init <feature> "<title>"`, then `open-sdd delta validate <feature>`).
+
 ### Strict Git Mode (Steering Governance)
 If git is available and `{{SDD_DIR}}/settings/git.json` has `mode: "strict"` or `auto_commit: true`:
 1. Stage steering files: `git add {{SDD_DIR}}/steering/`

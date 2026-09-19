@@ -87,6 +87,15 @@ than an opinion, run it from the project root:
 | `open-sdd govern hitl` | The quantified human-in-the-loop escalation thresholds |
 | `open-sdd assure claims --verify` | Decide every documentation claim by its verifier's exit code |
 | `open-sdd waves <feature>` | The transactional wave plan and the git commands that materialise it |
+| `open-sdd brownfield survey [target]` | What the existing project already is: stack, tooling, modules and the evidence for each |
+| `open-sdd brownfield constitution [target] [--write]` | The descriptive constitution (principles the code obeys + proposed amendments) |
+| `open-sdd delta init\|validate\|status <feature>` | The contract of change (ADSR): scaffold, validate ids/EARS/contracts, traceability and strangulation |
+| `open-sdd brownfield contracts <feature> [--verify]` | The regression oracle: which tests protect the changed files, and which changed files no contract covers |
+| `open-sdd brownfield impact \| reuse <feature>` | The change's reachable set and breaking changes; the symbols a reuse-first search would have found first |
+
+Brownfield rigor comes in three levels — Spec-First, Spec-Anchored and Spec-as-Source — and from
+Spec-Anchored upward a valid constitution is required (blocking), because it is the authority every
+blocking verdict cites; Spec-First only recommends it.
 
 Two caveats to state rather than paper over: **C7/Karpathy is reported as vacuous** (it runs without
 inspecting anything, so it is activation without measurement, not a passing control), and with **no

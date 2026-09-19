@@ -161,6 +161,19 @@ Present to user:
 
 </instructions>
 
+## Console reconnaissance (optional, deterministic)
+
+The `open-sdd` console can do the reconnaissance deterministically before (or instead of) the
+manual analysis: `open-sdd brownfield survey .` reports the stack, tooling, module boundaries and
+the evidence for each; `open-sdd brownfield constitution . --write` writes the descriptive
+constitution to `{{SDD_DIR}}/steering/constitution.md` (principles the code already obeys, each
+with evidence; desired-but-absent practices become proposed amendments). Once the seeds exist, a
+change to existing behaviour is specified as a delta — `open-sdd delta init <feature> "<title>"`,
+then `open-sdd delta validate <feature>` — with ADDED/MODIFIED/REMOVED/RENAMED sections and
+delta-scoped `REQ-<AREA>-<NNN>` ids. Three rigor levels (Spec-First, Spec-Anchored,
+Spec-as-Source) govern how much of that is required; from Spec-Anchored upward a valid
+constitution is required (blocking), because it is the authority a blocking verdict cites.
+
 ## Output Description
 
 Provide output in the project's language (detect from README or user; default `en`) with:

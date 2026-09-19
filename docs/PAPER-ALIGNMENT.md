@@ -54,20 +54,24 @@ Command run from the repository root, 2026-09-19:
 
 ```
 $ node tools/cc-sdd/dist/cli.js assure claims --verify
-35 afirmaciones | 32 verificadas | 0 declaradas | 3 no medidas | 0 rotas | 0 desactualizadas
+50 afirmaciones | 47 verificadas | 0 declaradas | 3 no medidas | 0 rotas | 0 desactualizadas
 [exit=0]
 ```
 
 | State (§9.6) | Count | Claims |
 |---|---|---|
-| `verified` | 32 | CLM-001 … CLM-027, CLM-030, CLM-032 … CLM-035 |
+| `verified` | 47 | CLM-001 … CLM-027, CLM-030, CLM-032 … CLM-050 |
 | `not-implemented` (declared gap confirmed) | 0 | — |
 | `not-measured` (absence of evidence persists) | 3 | CLM-028 (`docs/lab` absent), CLM-029 (`bin/sh-gate` absent), CLM-031 (`.steelharness/` absent) |
 | `broken` (text claims a pass the code does not deliver) | 0 | — |
 | `outdated-text` (code improved past the prose) | 0 | — |
 
-In the short vocabulary: **verified = 32, declared-gap = 0, absent/not-measured = 3, broken = 0,
-outdated-text = 0** (out of 35).
+In the short vocabulary: **verified = 47, declared-gap = 0, absent/not-measured = 3, broken = 0,
+outdated-text = 0** (out of 50). CLM-045 … CLM-050 decide the brownfield capabilities by exit code:
+delta validation and two-way traceability, the mandatory `previous` on `MODIFIED`, the
+evidence-or-amendment rule for descriptive principles, the constitution being blocking from
+Spec-Anchored upward, absent practices travelling as proposed amendments, and workspace-aware
+reconnaissance.
 
 Observed exit codes, from the run above: **CLM-028, CLM-029 and CLM-031 exited `1`; every other claim
 exited `0`.** Both runners print the per-claim code, so the line above can be re-derived rather than
@@ -168,7 +172,7 @@ where coverage overstates).
 
 | Paper element (§ / Table) | What the code does | File · symbol | Status |
 |---|---|---|---|
-| Framework definition; four pieces (§5, Table 16) | Grammar, validation chain and evidence binding are implemented. A live constitution is **not** shipped; only templates exist under `.sdd/settings/templates/steering/`. | `ears.ts`, `gateRunner.ts`, `triad.ts`, `.sdd/settings/templates/` | `construido` (3 of 4) · **brecha declarada** (constitution) |
+| Framework definition; four pieces (§5, Table 16) | Grammar, validation chain and evidence binding are implemented. The constitution is now a first-class model with two provenances (`constitution.ts`) and a brownfield generator that writes a descriptive one to `.sdd/steering/constitution.md`; steering templates remain under `.sdd/settings/templates/steering/`. | `ears.ts`, `gateRunner.ts`, `triad.ts`, `constitution.ts`, `reverseConstitution.ts`, `.sdd/settings/templates/` | `construido` (4 of 4) · **brecha declarada** (normative amendment promotion unsurfaced — G-16) |
 | Invariants I1–I6 (§5.1, Table 17) | Statements + the inspection that decides each; the runtime enforces I1 (authority on verdicts), I2 (evidence lock), I3 (`resolveFloor`/`assertFloorIsOwned`), I6 (receipts). I4 is modelled but not enforced; I5 has no scoping implementation. | `invariants.ts` · `INVARIANTS`; `enforcement.ts`; `receipts.ts`; `metaEval.ts` · `checkJudgeIndependence` | `construido` (I1, I2, I3, I6) · `propuesto` (I4) · **brecha declarada** (I5) |
 | Conformity C0–C3 (§5.2, Table 18) | Cumulative levels; `assessConformity` derives the level from evidence and refuses C3 without a measured false-positive rate. | `invariants.ts` · `CONFORMITY_LEVELS`, `assessConformity`, `invariantsNotEvidenced` | `construido`; declared level **C1** (see G-09) |
 | Documentary Triad (§4.5, Table 11) | `requirements.md` → `plan.md` → `tasks.md`; `design.md` accepted as a **declared** alias of `plan.md`; presence verdict explicitly labelled "approves by proxy". | `triad.ts` · `TRIAD`, `evaluateTriad`; `specManager.ts` · `parseTasksMarkdown`, `parseRequirementsMarkdown` | `construido` |
@@ -193,9 +197,48 @@ where coverage overstates).
 | Risk lab and refutation thresholds (§14.3, Table 31) | Five banks with purpose, artifact and standard mapping; preregistered refutation thresholds with status `measured`/`preregistered`; fixed artifact format; adversarial-validator steps; three exit questions. | `assurance.ts` · `RISK_LAB_BANKS`, `REFUTATION_THRESHOLDS`, `LAB_ARTIFACT_FIELDS`, `LAB_EXIT_QUESTIONS`, `ADVERSARIAL_VALIDATOR`; CLI `assure lab` | `construido` (protocol data) · `propuesto` (the benches are not run here) |
 | Overhead budget and telemetry (Appendix B.4–B.6, §10.3) | Three cost lines (only the human one does not fall with model prices); 30 % ceiling with expensive-first degradation; 70 % compaction trigger with its four steps; operational metric definitions; ON/OFF comparison function; T0–T3 routing and escalation; harness self-failure asymmetry. | `telemetry.ts` · `COST_LINES`, `evaluateGovernanceBudget`, `CONTEXT_COMPACTION_TRIGGER`, `evaluateCompaction`, `METRIC_DEFINITIONS`, `compareLoopEconomy`, `COMPLEXITY_TIERS`, `routeModel`, `escalateTier`, `HARNESS_SELF_FAILURE`; CLI `govern budget` | `construido` (policy) · **brecha declarada** (no telemetry recorded here) |
 | Manuscript as executable contract (§9.6) | Five claim states with the rule that only `broken` halts publication; `evaluateClaim`, `assessClaims`, the generator limit; implementation-status inventory `measured/built/proposed` with the defensive rule that no proposed component participates in today's guarantees; the registry is executed by the CLI, not only printed. | `claims.ts` · `CLAIM_STATUSES`, `evaluateClaim`, `assessClaims`, `renderClaimsSummary`, `CLAIMS_REGISTRY_LIMIT`, `IMPLEMENTATION_STATUSES`, `auditInventory`; `claimsRegistry.ts` · `parseClaimsRegistry`, `runClaimsRegistry`; `cli/commands/paper.ts` · `assure claims --verify`; `docs/claims/paper-claims.yaml` | `construido` |
-| Brownfield inversion (§12, Figure 9, Tables 40/41) | A heuristic project scan detects language, package manager, frameworks, source/test dirs and modules, then writes descriptive steering (`product.md`, `tech.md`, `structure.md`) and spec seeds. It does **not** extract behaviour from running code, does not build a regression oracle, and emits no `ADDED/MODIFIED/REMOVED` delta markers. | `reverseEngineering.ts` · `scanProject`, `bootstrapSteering`, `bootstrapSpecSeeds`; CLI `getspecs` | **brecha declarada** (partial) — see G-12 |
+| Brownfield inversion (§12, Figure 9, Tables 40/41) | Workspace- and configuration-aware reconnaissance: the scan walks declared workspace roots (`tools/cc-sdd`, `packages/*`, …) and reads both manifests and config files, so this repository reports TypeScript / npm / tsc / Vitest and 9 modules instead of "JavaScript, no tests detected". It still writes descriptive steering and up to five spec seeds. | `reverseEngineering.ts` · `scanProject`, `bootstrapSteering`, `bootstrapSpecSeeds`; CLI `getspecs` | `construido` — the inversion itself is completed by the rows below; see G-12 |
+| Delta specs — the contract of change (§12, Figure 9, Tables 40/41) | ADSR sections, delta-scoped `REQ-<AREA>-<NNN>` ids, mandatory `previous` on MODIFIED/REMOVED/RENAMED, mandatory rationale + contracts on REMOVED (warning on MODIFIED), a 25-entry size warning, per-entry strangulation `legacy → both → new`, and two-way traceability (requirement → task; tasks citing unknown ids reported as phantoms). | `deltaSpec.ts` · `validateDeltaSpec`, `traceDelta`, `strangulationReport`, `renderDeltaSpec`, `parseDeltaSpec`, `deltaCounts`; `cli/commands/brownfield.ts` · `handleDeltaCommand`; CLI `delta init\|validate\|status\|render` | `construido` · **brecha declarada** (contracts declared, not executed — G-15; no merge-back — G-17) |
+| The Constitution: one model, two provenances (CSDD §3.2 six-field anatomy, §3.3 compliance matrix, §3.4 apex; §6.1 injection) | `descriptive` principles must carry evidence; `normative` ones enter only through an amendment with a migration plan. Six-field anatomy, `MUST`/`SHOULD`/`MAY`, citable authority (`resolveAuthority`), indirect-injection scan, markdown round-trip, compliance matrix and amendment promotion. | `constitution.ts` · `validateConstitution`, `principlesInForce`, `resolveAuthority`, `renderConstitution`, `parseConstitution`, `buildComplianceMatrix`, `impactedPrinciples`, `promoteAmendment`, `detectInjection`; CLI `brownfield constitution` | `construido` (model + validation) · **brecha declarada** (matrix and amendment promotion unsurfaced — G-16) |
+| Reverse-engineered descriptive constitution (§12) | Reads the repo's facts (lockfile, migration dirs and rollbacks, CI workflows, public API entry points, config files), emits a principle only when compliance is evidenced in the code, declares the stack an established fact, and emits desired-but-absent practices as PROPOSED AMENDMENTS — never as facts. | `reverseConstitution.ts` · `collectRepoFacts`, `buildDescriptiveConstitution`; CLI `brownfield survey`, `brownfield constitution --write` | `construido` (evidence is artifact presence, not extracted behaviour — G-12) |
+| Three SDD rigor levels (*Manual Maestro* §2.4; reference architecture §4.8/§4.10) | Spec-First / Spec-Anchored / Spec-as-Source, each with its per-aspect demands, active gate ids, evaluator question and missing-artifact policy. A valid constitution is **required (blocking)** from Spec-Anchored upward and only recommended at Spec-First; the declared level lives in `.sdd/settings/rigor.json` with a mandatory rationale, and `assessRigor` evaluates the repository against it. Where a demand is not decidable from artifacts it is reported as a `brecha declarada` (regeneration at Spec-as-Source) instead of being faked as satisfied. | `rigor.ts` · `RIGOR_LEVELS`, `RIGOR_REQUIREMENTS`, `rigorRequirements`, `rigorRequires`, `selectRigorLevel`, `constitutionRequired`, `loadRigorSettings`, `resolveRigorSettings`, `assessRigor`, `isRigorLevel`, `toSddRigorLevel`; `.sdd/settings/rigor.json`; CLI `govern rigor [--select]` | `construido` |
+| Brownfield console (§12; *Manual Maestro* §2.4) | One deterministic surface for the brownfield path: reconnaissance of the existing project, the reverse constitution (printed, or written to `.sdd/steering/constitution.md` with a round-trip check), the delta lifecycle, and three analysis reports over the change — impact (dependents, blast radius, API surface, breaking changes), contracts (the regression oracle, with `--verify` running the test command) and reuse (`REUSE_FIRST_RULE` candidates). | `cli/commands/brownfield.ts` · `handleBrownfieldCommand`, `handleDeltaCommand`; `index.ts` dispatch; CLI `brownfield survey\|constitution\|impact\|contracts\|reuse`, `delta init\|validate\|status\|render` | `construido` · **brecha declarada** (contract verification is not in CI — G-15) |
+| Execution contracts, change impact, reuse-first (§12; CSDD §3.3) | The regression oracle as data: which tests protect the changed files, which changed files no contract covers, and whether a run satisfied the declared contracts (`satisfied` requires exit 0 **and** no declared contract missing); the change's reachable set, breaking changes and integration points; the symbols a reuse-first search would have found first. | `executionContract.ts` · `extractContracts`, `verifyContracts`, `testCommandFor`, `contractsFileName`; `changeImpact.ts` · `analyzeChangeImpact`; `reuseFirst.ts` · `findReuseCandidates`, `scanDeclarations`, `REUSE_FIRST_RULE`; CLI `brownfield impact\|contracts\|reuse` | `construido` (commands) · **brecha declarada** (advisory, not gate-wired) — see G-15/G-18 |
 | Agent-agnostic installation (§6.4 progressive disclosure; Table 4) | 15 agent definitions; 8 skills-based variants × 20 skills = 160 `SKILL.md` templates; per-agent layout, alias flags and completion guides. | `agents/registry.ts` · `agentDefinitions`, `agentList`; `tools/cc-sdd/templates/agents/**` | `construido` |
 | Governance profiles (repo-level) and chain profiles (§9.5) | Two distinct axes: `governance.json` ships `solo|team|enterprise` (what blocks); the Zero-Trust chain resolver accepts `solo|team|regulated` (which controls are declared). | `governance.ts` · `governanceProfiles`, `resolveGovernanceSettings`; `gateCatalog.ts` · `ChainProfile`, `PROFILE_MANDATED` | `construido` — but see G-08 (naming divergence) |
+
+### 4.1 Brownfield — the unit of specification is the delta
+
+In a brownfield repository the existing code is the de facto source of truth, so the unit of
+specification is not the system but the **delta**: the artifact that describes only what changes. A
+delta is four sections, and three of them carry an obligation beyond the statement:
+
+| ADSR section | What it declares | Extra obligation |
+|---|---|---|
+| `ADDED` | Behaviour that does not exist yet | — |
+| `MODIFIED` | Behaviour that exists and changes | `previous` (the behaviour being replaced) is required; contracts are recommended (warning) |
+| `REMOVED` | Behaviour that is withdrawn | `previous`, `rationale` and `contracts` are all required (errors) |
+| `RENAMED` | Behaviour that keeps its semantics under a new name | `previous` is required |
+
+Every entry carries a delta-scoped identifier `REQ-<AREA>-<NNN>` and a strangulation state
+(`legacy → both → new`) that makes coexistence with the old path visible instead of implying a
+rewrite. `delta validate` checks identifiers, EARS statements, targets, the ADSR obligations and
+two-way traceability; `delta status` prints the counts and the strangulation progress.
+
+**The honest example is this repository's own delta.** `.sdd/specs/brownfield-support/delta.md`
+contains the brownfield work as ADSR entries. `REQ-BF-003` is a `MODIFIED` entry whose `Previous:`
+line names the defect it replaces ("the scan read only the repository root, so a workspace layout was
+reported as JavaScript with no tests detected — including on this repository"), and whose
+`Contracts:` line names `tools/cc-sdd/test/coreBrownfield.test.ts` and
+`coreReverseEngineering.test.ts`. Running
+`node tools/cc-sdd/dist/cli.js delta validate brownfield-support` reports **0 errors** and, at the
+time of writing, **9/10 requirements with a traced task (90%), naming `REQ-BF-010` as the one
+without** — the two-way check stated in a single line. The single warning is the empty `REMOVED`
+section: a decision recorded rather than an omission. What that line does *not* prove is the
+regression oracle: the contracts are declared, but nothing executes the delta→contract mapping
+(G-15) — a gap the delta itself now declares as the `ADDED` entry `REQ-BF-008` ("the tests that
+protect the change are declared and verified"), whose target module exists but has no caller. The
+delta is also never merged back into a base spec (G-17).
 
 ---
 
@@ -283,7 +326,8 @@ runs the registry directly: `assure claims --verify` → `claimsRegistry.ts` · 
 `1` only on `broken`. There is exactly one runner: a second, documentation-side copy was removed
 rather than left to drift against the product command. Two declared differences from the paper's run:
 
-- The registry holds **35 claims**, not the paper's 33, because it registers this port's components.
+- The registry holds **50 claims**, not the paper's 33, because it registers this port's components
+  (including the brownfield capabilities, CLM-045 … CLM-050).
 - The **three `not-measured` entries are the honest residue of the unpublished prototype** (no
   `docs/lab`, no `bin/sh-gate`, no `.steelharness/`): the paper's own instrument cannot decide them
   from here, and this report does not pretend otherwise.
@@ -352,16 +396,60 @@ console prints `interpretSentinel(1)` as a demonstration of the semantics, not a
 recorded channel, so a bypass is invisible to the audit. `open-sdd floor status` reports B and C, and
 exits non-zero the moment either stops being installed.
 
-### G-12 — Brownfield is a heuristic bootstrap, not spec extraction as regression oracle
+**One false-positive generator in the drift check, fixed.** The ambient-drift check that the floor
+and the rigor assessment both use reads the changed paths through `git.ts` · `getModifiedFiles`,
+which trimmed the whole `git status --porcelain` output. The porcelain format is `XY<space>path`, and
+for the common "modified, not staged" case the first character is a space, so trimming removed it
+from the **first line only** and `slice(3)` then ate a real character of that path: `docs/x.md`
+became `ocs/x.md`, which matched no declared boundary and produced a false drift finding on whichever
+file git listed first. The fix reads the raw output line by line and strips the status prefix
+per line; all 29 paths in this checkout now parse exactly.
 
-Paper: §12, Figure 9, Tables 40/41. `reverseEngineering.ts` scans for `package.json` / `Cargo.toml` /
-`go.mod` / `pyproject.toml`, detects language, frameworks, package manager and source/test
-directories, then writes descriptive steering and up to five spec seeds (`initSpec`). It does not
-derive behaviour from the running system, it builds no regression oracle, and it emits no
-`ADDED/MODIFIED/REMOVED` delta sections (a repository-wide grep for those markers in
-`tools/cc-sdd/src` returns nothing). The descriptive-constitution step is partially honoured by the
-generated `tech.md`/`structure.md` ("the stack as an established fact"), but the central inversion of
-§12 — the extracted specification as the thing modernization must preserve — is not implemented.
+### G-12 — Brownfield has delta specs and a reverse constitution; behaviour is still declared, not extracted
+
+Paper: §12, Figure 9, Tables 40/41; CSDD §3.2/§3.3; *Manual Maestro* §2.4. The heuristic bootstrap
+remains (`reverseEngineering.ts` · `scanProject`, `bootstrapSteering`, `bootstrapSpecSeeds`; CLI
+`getspecs`), but the central inversion of §12 is now implemented in three parts.
+
+1. **The delta is the unit of specification** (`deltaSpec.ts` · `validateDeltaSpec`, `traceDelta`,
+   `strangulationReport`, `renderDeltaSpec`, `parseDeltaSpec`; `cli/commands/brownfield.ts` ·
+   `handleDeltaCommand`; CLI `delta init|validate|status|render`). A delta carries the four ADSR
+   sections, delta-scoped `REQ-<AREA>-<NNN>` identifiers, a mandatory `previous` on
+   MODIFIED/REMOVED/RENAMED, a mandatory rationale **and** contracts on REMOVED (contracts are a
+   warning on MODIFIED), a size warning above 25 entries, per-entry strangulation
+   (`legacy → both → new`), and two-way traceability: every requirement must have a task, and a task
+   citing an unknown delta id is reported as a phantom.
+2. **The reverse constitution** (`constitution.ts` + `reverseConstitution.ts`; CLI
+   `brownfield survey|constitution [--write]`) is descriptive by construction. One model has two
+   provenances: `descriptive` principles must cite evidence that the code already satisfies them,
+   and `normative` principles enter only through a governed amendment carrying a migration plan.
+   The six-field anatomy (identifier · threat/CWE reference · imposition level · restriction ·
+   pattern · justification), `MUST`/`SHOULD`/`MAY`, citable authority (`resolveAuthority`), a
+   markdown round-trip and a validator that refuses a descriptive principle without evidence are
+   all implemented; a desired-but-absent practice is emitted as a PROPOSED AMENDMENT, never as a
+   fact.
+3. **The three SDD rigor levels** (`rigor.ts`; CLI `govern rigor` and `govern rigor --select`) make
+   a valid constitution **blocking** from Spec-Anchored upward and only recommended at Spec-First,
+   because the constitution is the authority a blocking verdict cites.
+
+Reconnaissance is now workspace-aware and configuration-aware: on this repository `brownfield
+survey .` reports **TypeScript / npm / tsc / Vitest and 9 modules**. Before the fix it reported
+"JavaScript, no tests detected" because the code lives in `tools/cc-sdd` and the scan read only the
+repository root.
+
+What is still **not** built — verified in the code, not assumed:
+
+- **The contracts are declared, not executed.** `validateDeltaSpec` requires them on REMOVED and
+  warns on MODIFIED, and `assessRigor` requires them at Spec-as-Source, but nothing runs the tests a
+  delta names: `Contracts:` is a string list and no command, gate or CI step resolves it to an
+  executed check. `traceDelta` maps requirements to tasks, never contracts to runs. See G-15.
+- **Behaviour is declared, not extracted.** The descriptive constitution derives its evidence from
+  artifacts that exist (lockfile, public entry points, module directories, test runner) and the
+  compliance matrix resolves those paths against the filesystem; it does not read, run or otherwise
+  extract the behaviour the code implements.
+- **A delta is never merged back into the base spec.** `DeltaSpec.status` accepts `merged` and
+  `base` records the target, but `delta` has no merge subcommand and nothing rewrites the base
+  `requirements.md` from the ADSR entries; the delta stays a reviewed change proposal. See G-17.
 
 ### G-13 — Provenance, MCP mediation and sandboxes are represented, not enforced
 
@@ -382,6 +470,71 @@ selection from an impact graph. `govern conformance` records `I5 no cumple`. The
 paper names — a governance corpus degrading past the attention budget it is read with — is
 acknowledged and unrepaired here.
 
+### G-15 — Delta contracts are the declared regression oracle; verification exists but is not in CI
+
+Paper: §12, Figure 9 ("the extracted specification's first use is protecting what must not
+change"); CSDD §3.3 (regression prevention). `deltaSpec.ts` · `validateDeltaSpec` requires a
+`Contracts:` list on every REMOVED entry (error) and recommends one on every MODIFIED entry
+(warning), `rigor.ts` · `assessRigor` requires it at Spec-as-Source, and
+`reverseConstitution.ts` · `C-REGRESSION-ORACLE` calls the existing tests the regression oracle.
+
+The mechanism now exists. `executionContract.ts` · `extractContracts` walks the test directories,
+matches candidates against the changed files and against the delta's declared `Contracts:`,
+publishes a `ContractSet` (and `contracts.json` with `--write`), **reports the changed files no
+contract covers**, and sets `complete: false` when a `REMOVED` entry's declared contract does not
+exist in the repository. `verifyContracts` deliberately refuses to launder a green run:
+`satisfied = run.exitCode === 0 && missing.length === 0`, so exit code 0 with a declared contract
+absent is not a pass. The console exposes it as `brownfield contracts <feature> [--write] [--verify]`
+(`--verify` runs the derived test command and exits 1 unless the contract set is satisfied). Run on
+this repository it reports **18 contracts (10 discovered, 8 declared), 28 changed files without
+coverage** — and that honesty is the point: the uncovered files are documentation, templates and
+compiled `dist` output, which no unit test covers.
+
+What is still **not** true: **CI does not run it.** `.github/workflows/gates.yml` runs install,
+build, test, `gates chain`, `gates run`, `govern discipline`, `assure claims --verify` and
+`floor status`; no step invokes `brownfield contracts --verify`, and no step reads a committed
+`contracts.json`. The oracle is a command a reviewer runs, not yet a boundary that blocks a merge.
+
+### G-16 — The compliance traceability matrix is modelled but has no console surface
+
+CSDD §3.3/§4.2 names four purposes for the matrix that maps each principle to its implementation
+artifacts: audit support, change-impact analysis, gap detection and regression prevention.
+`constitution.ts` implements all four as functions — `buildComplianceMatrix` (per-principle
+artifacts resolved against the filesystem, with the uncovered principles as the gap list),
+`impactedPrinciples` (given the paths a change touches, which principles it affects) and
+`promoteAmendment` (the governed promotion path with its mandatory migration plan). None of them is
+called by the CLI or by any gate: `brownfield constitution` reports principles, evidence and
+amendments, but never the matrix, its coverage or its gaps, and `brownfield impact` answers the
+change-impact question from the *dependency graph* (`changeImpact.ts`) rather than from the
+constitution's evidence. The four answers therefore exist only to a caller that imports the module.
+The normative amendment path is likewise modelled and unexercised — no command promotes a proposed
+amendment to in-force.
+
+### G-17 — A delta is never merged back into the base specification
+
+Paper: §12 (the extracted specification as the thing modernization preserves). `DeltaSpec` carries
+`base` and a `status` of `proposed | approved | merged`, and `renderDeltaSpec`/`parseDeltaSpec`
+round-trip both, but `delta` exposes only `init | validate | status | render` and nothing rewrites
+the base `requirements.md` from the ADSR entries. `merged` is a label an author types into
+`delta.md`, not a state a command produces. The delta therefore remains a reviewed change proposal
+against the base; applying it is manual, and the drift between the two is not checked.
+
+### G-18 — Change impact and reuse-first consult code, not the constitution
+
+Paper: §12 (what a brownfield change must analyse before it is written); CSDD §3.3 (change-impact
+analysis is one of the matrix's four purposes). Two modules landed with the brownfield work and both
+now have a console surface:
+
+| Module | Command | What it answers — and its limit |
+|---|---|---|
+| `changeImpact.ts` · `analyzeChangeImpact` | `brownfield impact <feature>` | Dependents, blast radius, touched API surface, integration points, breaking changes implied by the delta's targets. It reads the **import graph and the delta**, so it reports which *files* are reached; it does not name which **constitutional principles** the change affects — that is `constitution.ts` · `impactedPrinciples`, which no command calls (G-16) |
+| `reuseFirst.ts` · `findReuseCandidates` / `REUSE_FIRST_RULE` | `brownfield reuse <feature>` | Which existing symbols a reuse-first search would have found before a new one was created. It is an advisory report, deliberately: the generated constitution emits "reuse-first policy" as `AMD-REUSE-FIRST`, a **proposed** amendment, so the code and the constitution agree that the practice is not enforced |
+
+Neither is a gate: `brownfield impact` exits 1 only on an `error`-severity finding, and its findings
+on this repository are warnings (public API entry points touched, delta targets with no `previous`).
+Both are honest reports a reviewer reads, which is the correct starting point — an advisory that is
+actually run beats a gate that verifies nothing.
+
 ---
 
 ## 6. Where the paper and the code genuinely disagree
@@ -398,13 +551,57 @@ acknowledged and unrepaired here.
    (`enterprise` vs `regulated`); see G-08. Code: `governance.ts` · `governanceProfiles`;
    `gateCatalog.ts` · `ChainProfile`.
 4. **Level B/C floor** — the paper asserts the floor is universal and cheap ("cuesta una tarde de
-   trabajo"); this repository ships neither the hooks nor the CI matrix, so the floor is
-   declaration-only here (G-11). Section reference: §6.3, Table 19 caption, §16.1.
+   trabajo"); this repository now installs both boundaries (pre-commit hook and pull-request gate
+   matrix), so the floor is no longer declaration-only. What remains unverified is level A, the
+   write-time ceiling (G-11). Section reference: §6.3, Table 19 caption, §16.1.
 5. **`implemented: false` gap** — the paper's §9.5 describes a period where the regulated profile
    declared 12 controls and executed 7. This port models that state (`ExecutableGate.implemented`)
    but has no gate in it, so the declared-vs-executed gap reads zero. That is a difference in
    state, not a contradiction, but a reader should not read "0 no implementados" as evidence that
    the paper's gap was closed by this port.
+
+The next six are **divergences between the two source documents and the implemented code** that the
+brownfield/constitution work exposed. They are recorded, not reconciled: where the documents
+disagree, the code had to pick one, and this report says which.
+
+6. **Six fields or three.** CSDD §3.2 fixes six fields per principle — identifier, CWE reference,
+   enforcement level, constraint, implementation pattern, rationale. The *Manual Maestro* §4.2 lists
+   only three (WHAT / WHY / HOW) and its example uses roman-numeral identifiers with no CWE
+   references. The implemented model follows CSDD: `constitution.ts` · `validateConstitution`
+   requires the six fields, rejects positional ids (`isPositionalIdentifier`) and rejects a `MUST`
+   that names no threat (`MUST-THREAT`). A constitution written to the *Manual Maestro* example
+   would therefore fail validation here — deliberately, because its ids are not citable by a
+   blocking verdict (I1) and a `MUST` without a threat is an arbitrary rule.
+7. **A fourth modal.** The *Manual Maestro* example uses `SHALL NOT`. The implemented model defines
+   exactly three imposition levels, `MUST` / `SHOULD` / `MAY` (CSDD §3.2), and
+   `validateConstitution` reports `LEVEL-INVALID` for anything else. `SHALL NOT` is expressed as a
+   `MUST` whose restriction is a prohibition, so the level stays citable.
+8. **Where a level starts.** *Manual Maestro* §8.2 places an authentication system and a legacy
+   migration at Spec-Anchored, while the implemented decision table
+   (`rigor.ts` · `selectRigorLevel`) treats high-consequence work — authentication, authorization,
+   payments, cross-team contracts, legacy modernization — as Spec-as-Source. §8.2 also pairs
+   "distributed microservices" with "Spec-First + Constitution", which contradicts the implemented
+   rule that a constitution is required only from Spec-Anchored upward
+   (`constitutionRequired`). The code follows the CSDD §3.4 apex argument: a Spec-First
+   specification may be discarded, so there is no blocking verdict that needs citable authority, and
+   the constitution is advisory at that level only.
+9. **Slash-separated CWE references.** CSDD §4.1 SEC-010 cites two CWEs as `CWE-862/863`. The
+   implemented format is strictly `CWE-<number>` (`constitution.ts` · `CWE_REFERENCE_PATTERN`,
+   `normalizeCweReference`), so a slash-separated multiple is rejected as `CWE-FORMAT` rather than
+   silently accepted. A principle answering two weaknesses must be split into two principles or pick
+   the primary one; the validator does not guess which.
+10. **Two rigor scales, one bridge.** `hitl.ts` · `RigorMode` keeps five values
+    (`none | lite | spec-first | spec-anchored | spec-as-source`) because it also models the
+    decision *not* to apply SDD, while `rigor.ts` · `SddRigorLevel` has the three SDD levels.
+    `toSddRigorLevel` is the declared bridge, and `none`/`lite` collapse to the lightest level
+    (`spec-first`). Two scales remain in the codebase; only the bridge keeps them from drifting.
+11. **The compliance matrix is implemented, not enforced.** CSDD §3.3/§4.2 gives the matrix four
+    purposes (audit support, change-impact analysis, gap detection, regression prevention) and
+    `constitution.ts` implements all four (`buildComplianceMatrix`, `impactedPrinciples`), but no
+    CI workflow calls them: `.github/workflows/gates.yml` runs install, build, test,
+    `gates chain`, `gates run`, `govern discipline`, `assure claims --verify` and `floor status` —
+    not `govern rigor`, and not the matrix. The four answers are available to a caller; nothing in
+    the pipeline asks for them (G-16).
 
 ---
 

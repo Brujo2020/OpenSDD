@@ -50,13 +50,26 @@ try {
     }
   }
 
-  if (process.argv.includes('--force') || !existsSync(hookTarget)) {
+  const force = process.argv.includes('--force');
+  const current = existsSync(hookTarget) ? readFileSync(hookTarget, 'utf8') : null;
+  const desired = readFileSync(hookSource, 'utf8');
+
+  if (force || current === null) {
     copyFileSync(hookSource, hookTarget);
     chmodSync(hookTarget, 0o755);
     finish(`commit gate installed at ${path.relative(root, hookTarget)} (level B: runs C1, C2, C3 on the staged index).`);
   }
 
-  finish('commit gate already installed.');
+  // An existing hook that is OURS but outdated must be refreshed. Skipping on mere presence meant a
+  // contributor kept running the previous version of the gate forever — including versions that did
+  // not yet enforce the declared rigor level.
+  if (current !== desired) {
+    copyFileSync(hookSource, hookTarget);
+    chmodSync(hookTarget, 0o755);
+    finish(`commit gate updated at ${path.relative(root, hookTarget)} (it was an older version of this gate).`);
+  }
+
+  finish('commit gate already up to date.');
 } catch (error) {
   // Never break `npm install` over hook installation; report and continue.
   const message = error instanceof Error ? error.message : String(error);

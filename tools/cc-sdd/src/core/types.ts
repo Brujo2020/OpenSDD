@@ -188,4 +188,6 @@ export interface DiscoveredProject {
   sourceDirs: string[];
   testDirs: string[];
   modules: string[];
+  /** Nested workspace roots that hold their own manifest (`packages/*`, `tools/*`, ...). */
+  workspaceRoots?: string[];
 }

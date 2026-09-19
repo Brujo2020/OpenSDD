@@ -112,6 +112,22 @@
       ],
       "reason": "Compiled twin of tools/cc-sdd/src/core/memory.ts: the memory poisoning scanner pattern table.",
       "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "tools/cc-sdd/test/coreChangeImpact.test.ts",
+      "ids": [
+        "drop-table"
+      ],
+      "reason": "Fixture: una sentencia DDL destructiva con la que se ejercita el analisis de impacto y de migraciones.",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "tools/cc-sdd/test/coreConstitution.test.ts",
+      "ids": [
+        "ignore-previous"
+      ],
+      "reason": "Fixture: las pruebas de resistencia a inyeccion deben alimentar al detector con los patrones que existen para cazar.",
+      "actor": "spec:paper-alignment"
     }
   ]
 }
