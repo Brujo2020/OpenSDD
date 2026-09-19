@@ -61,3 +61,27 @@ Skills are located in `.claude/skills/sdd-*/SKILL.md`
 - Load entire `{{SDD_DIR}}/steering/` as project memory
 - Default files: `product.md`, `tech.md`, `structure.md`
 - Custom files are supported (managed via `/sdd-steering-custom`)
+
+## Zero-Trust console
+
+This project carries a governance console (the `open-sdd` CLI). When a change needs a verdict rather
+than an opinion, run it from the project root:
+
+| Command | What it answers |
+|---|---|
+| `open-sdd gates chain` | Which controls are declared for this project, and which are executable |
+| `open-sdd gates crosswalk` | Which logical gates each executable check imposes, and the residue no check covers |
+| `open-sdd gates run --base <ref>` | Run the declared chain against a change; exits 1 when it fails |
+| `open-sdd floor status` | Is the commit/merge enforcement floor installed? |
+| `open-sdd govern conformance` | The conformity level (C0–C3) with per-invariant evidence |
+| `open-sdd govern hitl` | The quantified human-in-the-loop escalation thresholds |
+| `open-sdd assure claims --verify` | Decide every documentation claim by its verifier's exit code |
+| `open-sdd waves <feature>` | The transactional wave plan and the git commands that materialise it |
+
+Two caveats to state rather than paper over: **C7/Karpathy is reported as vacuous** (it runs without
+inspecting anything, so it is activation without measurement, not a passing control), and with **no
+model backend configured, intent alignment (C5) reports `mode=degraded`** and is explicitly not
+evidence. Install the enforcement floor into this project with `open-sdd floor install . --ci`
+(commit hook + pull-request gate matrix).
+
+Run `open-sdd --help` for the full command surface, or invoke the `sdd-help` skill.
