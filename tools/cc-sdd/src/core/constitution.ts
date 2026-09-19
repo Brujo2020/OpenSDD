@@ -42,6 +42,11 @@ export interface AmendmentRecord {
   status: 'proposed' | 'under-review' | 'approved' | 'rejected' | 'in-force';
   /** Mandatory before a normative principle can be promoted to in-force. */
   migrationPlan?: string;
+  /**
+   * Why a human accepted the amendment. Recorded by `ratifyDraft`: a ratification that does not say
+   * why it happened is indistinguishable from nobody having looked.
+   */
+  rationale?: string;
   approvals?: { actor: string; at: string }[];
   /** ISO-8601 of the last state change. */
   updatedAt?: string;
@@ -73,6 +78,13 @@ export interface ConstitutionPrinciple {
   evidence?: string[];
   /** Set when the principle is not yet in force: the amendment that introduces it. */
   amendment?: AmendmentRecord;
+  /**
+   * True while the principle is a PROPOSAL: it belongs to a draft a named person has not ratified
+   * yet, so it has no authority at all. `principlesInForce` excludes it, which is what makes "a
+   * draft cannot be cited" a structural fact instead of a convention: the pivot, the compliance
+   * matrix and every verdict that resolves authority all read the in-force list.
+   */
+  draft?: boolean;
 }
 
 export interface Constitution {
@@ -356,13 +368,24 @@ export const validateConstitution = (constitution: Constitution): ConstitutionIs
     }
 
     // CSDD §3.2/§6.1: a MUST names the vulnerability it prevents, or it is an arbitrary rule.
+    //
+    // A draft principle is a PROPOSAL, so the same defect is reported as a `warning` and never as an
+    // `error`. The decision, and why: `error` is this validator's word for "this document cannot be
+    // the authority a blocking verdict cites", and a draft is not the authority yet — flagging it
+    // invalid would be a false accusation. Silence was the alternative and it is worse: the whole
+    // point of the draft is that a named person ratifies it, and that person must see, before
+    // ratifying, that this principle does not yet name the threat it prevents. So the finding stays
+    // and only its severity changes — a draft is judged as a proposal, not as law.
+    const draft = principle.draft === true;
+    const draftNote = draft ? ' (borrador: se reporta para quien debe ratificarlo; todavía no es ley)' : '';
     if (principle.level === 'MUST' && !principle.cweReference && !principle.threatReference) {
       issues.push({
-        severity: 'error',
+        severity: draft ? 'warning' : 'error',
         code: 'MUST-THREAT',
         id: principle.id,
         message:
-          'Un MUST debe nombrar la amenaza que previene (cweReference o threatReference): sin esa referencia la regla es arbitraria.',
+          'Un MUST debe nombrar la amenaza que previene (cweReference o threatReference): sin esa referencia la regla es arbitraria.' +
+          draftNote,
       });
     }
 
@@ -372,11 +395,12 @@ export const validateConstitution = (constitution: Constitution): ConstitutionIs
       !rationaleNamesThreat(principle.justification)
     ) {
       issues.push({
-        severity: principle.level === 'MUST' ? 'error' : 'warning',
+        severity: draft ? 'warning' : principle.level === 'MUST' ? 'error' : 'warning',
         code: 'RATIONALE-THREAT',
         id: principle.id,
         message:
-          'La justificación debe nombrar el vector de ataque que el principio previene: una razón de una línea no permite juzgar los casos límite.',
+          'La justificación debe nombrar el vector de ataque que el principio previene: una razón de una línea no permite juzgar los casos límite.' +
+          draftNote,
       });
     }
 
@@ -451,10 +475,22 @@ export const validateConstitution = (constitution: Constitution): ConstitutionIs
   return issues;
 };
 
-/** Principles currently in force: descriptive ones, plus normative ones with an in-force amendment. */
+/**
+ * Principles currently in force: descriptive ones, plus normative ones with an in-force amendment.
+ *
+ * A DRAFT is excluded BY CONSTRUCTION, not by convention: a proposal nobody ratified has no
+ * authority, so it must never resolve a citation, satisfy a gate or reach a verdict. The rule is
+ * checked here — and not merely trusted to the callers — because this is the single place the
+ * consumers of authority read: `specConstitution`'s pivot resolves a spec's citations against it and
+ * `rigor` reports the citable authority from it. A draft that leaked into this list would turn "a
+ * draft cannot be cited" into a comment instead of a property.
+ *
+ * `buildComplianceMatrix` is deliberately NOT filtered: it maps every principle, draft included, to
+ * the artifacts that satisfy it, which is exactly what a ratifier wants to see before ratifying.
+ */
 export const principlesInForce = (constitution: Constitution): ConstitutionPrinciple[] =>
   constitution.principles.filter(
-    (p) => p.provenance === 'descriptive' || p.amendment?.status === 'in-force',
+    (p) => p.draft !== true && (p.provenance === 'descriptive' || p.amendment?.status === 'in-force'),
   );
 
 // ---------------------------------------------------------------------------------------------
@@ -583,7 +619,7 @@ export const resolveAuthority = (
   constitution: Constitution,
   citation: string,
 ): { known: boolean; kind: 'principle' | 'requirement' | 'unknown'; detail: string } => {
-  const principle = constitution.principles.find((p) => p.id === citation);
+  const principle = principlesInForce(constitution).find((p) => p.id === citation);
   if (principle) {
     return {
       known: true,
@@ -671,6 +707,9 @@ export const renderConstitution = (constitution: Constitution): string => {
     lines.push(`- Pattern: ${p.pattern}`);
     lines.push(`- Justification: ${p.justification}`);
     lines.push(`- Provenance: ${p.provenance}`);
+    // Rendered only when set, so an in-force constitution keeps its previous byte-for-byte shape and
+    // a reloaded draft stays a draft (`parseConstitution` reads the flag back).
+    if (p.draft === true) lines.push('- Draft: true');
     if ((p.evidence ?? []).length > 0) lines.push(`- Evidence: ${(p.evidence ?? []).join('; ')}`);
     if (p.amendment) lines.push(`- Amendment: ${p.amendment.id} (${p.amendment.status})`);
   }
@@ -682,6 +721,7 @@ export const renderConstitution = (constitution: Constitution): string => {
     for (const a of constitution.amendments) {
       const attributes: string[] = [];
       if (a.migrationPlan) attributes.push(`plan: ${a.migrationPlan}`);
+      if (a.rationale) attributes.push(`rationale: ${a.rationale}`);
       if (a.proposedBy) attributes.push(`by: ${a.proposedBy}`);
       if (a.updatedAt) attributes.push(`at: ${a.updatedAt}`);
       lines.push(
@@ -757,7 +797,7 @@ export const parseConstitution = (markdown: string): Constitution => {
         continue;
       }
       const field = line.match(
-        /^- (Level|CWE|Threat|Restriction|Pattern|Justification|Provenance|Evidence|Amendment):\s*(.*)$/,
+        /^- (Level|CWE|Threat|Restriction|Pattern|Justification|Provenance|Draft|Evidence|Amendment):\s*(.*)$/,
       );
       if (field && current) {
         const [, key, value] = field;
@@ -770,7 +810,11 @@ export const parseConstitution = (markdown: string): Constitution => {
         else if (key === 'Pattern') current.pattern = value.trim();
         else if (key === 'Justification') current.justification = value.trim();
         else if (key === 'Provenance') current.provenance = value.trim() as ConstitutionProvenance;
-        else if (key === 'Evidence') current.evidence = value.split(';').map((v) => v.trim()).filter(Boolean);
+        // Only `true` sets the flag: leaving it `undefined` for every other principle keeps the
+        // round-trip of an in-force document byte-identical to what it was before drafts existed.
+        else if (key === 'Draft') {
+          if (value.trim().toLowerCase() === 'true') current.draft = true;
+        } else if (key === 'Evidence') current.evidence = value.split(';').map((v) => v.trim()).filter(Boolean);
         else if (key === 'Amendment') {
           const parsed = value.match(/^([A-Z0-9-]+)\s*\(([a-z-]+)\)$/);
           if (parsed) {
@@ -797,9 +841,10 @@ export const parseConstitution = (markdown: string): Constitution => {
           status: parsed[3] as AmendmentRecord['status'],
         };
         for (const attribute of attributes) {
-          const pair = attribute.match(/^(plan|by|at):\s*(.+)$/);
+          const pair = attribute.match(/^(plan|rationale|by|at):\s*(.+)$/);
           if (!pair) continue;
           if (pair[1] === 'plan') amendment.migrationPlan = pair[2];
+          else if (pair[1] === 'rationale') amendment.rationale = pair[2];
           else if (pair[1] === 'by') amendment.proposedBy = pair[2];
           else amendment.updatedAt = pair[2];
         }

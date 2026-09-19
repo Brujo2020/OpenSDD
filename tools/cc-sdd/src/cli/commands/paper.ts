@@ -12,7 +12,7 @@
  * evidence rather than returning a green light.
  */
 
-import { chmod, mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -86,6 +86,15 @@ import {
   selectRigorLevel,
   validateGateOverride,
 } from '../../core/rigor.js';
+import {
+  buildConstitutionDraft,
+  constitutionArtifactPaths,
+  DRAFT_FILE_NAME,
+  draftPrincipleIds,
+  evidencePackForHost,
+  ratifyDraft,
+  RATIFY_INSTRUCTION,
+} from '../../core/constitutionDraft.js';
 import { buildTaskDependencyWaves } from '../../core/scheduler.js';
 import { parseTasksMarkdown, readSpecMetadata } from '../../core/specManager.js';
 
@@ -704,6 +713,200 @@ export const handleGovernCommand = async (args: string[], io: CliIO, cwd: string
     // CSDD §3.3/§4.2: the compliance traceability matrix maps every principle to the artifacts that
     // satisfy it, for audit support, gap detection and change impact. It was implemented but had no
     // caller, so the artifact CSDD calls the bridge between constitution and code was unreachable.
+    //
+    // The draft gate ("el día uno no es una página en blanco") is handled BEFORE the in-force read:
+    // a project with no constitution — exactly the day-one case — can draft, hand the evidence pack
+    // to its AI host and ratify, all from here, and none of it pretends to be authority.
+    const draftPaths = constitutionArtifactPaths(root);
+    const flagValue = (flag: string): string | undefined => {
+      const inline = args.find((value) => value.startsWith(`${flag}=`));
+      if (inline) return inline.slice(flag.length + 1);
+      const index = args.findIndex((value) => value === flag);
+      if (index < 0) return undefined;
+      const next = args[index + 1];
+      // `--by --write` must be a MISSING name, not a person called "--write": the human gate only
+      // means something if an absent value cannot masquerade as one.
+      return next === undefined || next.startsWith('--') ? undefined : next;
+    };
+
+    if (args.includes('--draft') || args.includes('--evidence-pack')) {
+      const draft = await buildConstitutionDraft(root, { sddDir: '.sdd' });
+
+      if (args.includes('--evidence-pack')) {
+        const pack = evidencePackForHost(draft);
+        if (args.includes('--json')) {
+          io.log(JSON.stringify(pack, null, 2));
+          return 0;
+        }
+        const codes = (pack.validationCodes as string[] | undefined) ?? [];
+        const unresolved = (pack.incompleteBecause as string[] | undefined) ?? [];
+        io.log('');
+        io.log(heading('Paquete de evidencia para tu modelo anfitrión (esta herramienta no embarca modelo)'));
+        io.log('');
+        io.log(`  ${'proyecto'.padEnd(14)} ${draft.project}`);
+        io.log(
+          `  ${'estado'.padEnd(14)} ${draft.complete ? colors.yellow('análisis completo, pero SIN ratificar') : colors.red('INCOMPLETO')}`,
+        );
+        io.log(`  ${'propuestas'.padEnd(14)} ${draft.proposals.length} (${draft.proposals.filter((p) => !p.needsHumanDecision).length} con evidencia)`);
+        io.log(`  ${'preguntas'.padEnd(14)} ${draft.questions.length} (sin evidencia: nunca serán principios por sí solas)`);
+        io.log(`  ${'reglas'.padEnd(14)} ${codes.length} código(s): ${codes.join(', ')}`);
+        io.log('');
+        io.log(`  ${colors.bold('No se pudo determinar / queda pendiente')}:`);
+        for (const item of unresolved) io.log(`    · ${item}`);
+        io.log('');
+        io.log(dim('  Con --json se imprime el paquete completo, listo para pegar en tu asistente.'));
+        io.log(dim(`  ${RATIFY_INSTRUCTION}`));
+        if ((await readFile(draftPaths.inForce, 'utf8').catch(() => null)) !== null) {
+          io.log(
+            dim(
+              `  Ya existe ${path.relative(root, draftPaths.inForce)} en vigor: este paquete describe un borrador nuevo y no la toca.`,
+            ),
+          );
+        }
+        io.log('');
+        return 0;
+      }
+
+      const write = args.includes('--write');
+      const draftIssues = validateConstitution(parseConstitution(draft.text));
+      io.log('');
+      io.log(heading(`Borrador de constitución — ${draft.project}`));
+      io.log('');
+      io.log(
+        `  ${draft.complete ? colors.green('sin preguntas abiertas') : colors.yellow('INCOMPLETO')} ${dim('(NO en vigor: falta la ratificación de una persona nombrada)')}`,
+      );
+      io.log(`  ${dim(draft.detail)}`);
+      io.log('');
+      for (const proposal of draft.proposals) {
+        const state = proposal.needsHumanDecision ? colors.yellow('pregunta') : colors.green('propuesta');
+        io.log(
+          `  ${colors.bold(proposal.principle.id.padEnd(22))} ${proposal.principle.level.padEnd(7)} ${state.padEnd(12)} ${proposal.principle.restriction.split('\n')[0].slice(0, 76)}`,
+        );
+        io.log(`      ${dim(`evidencia: ${proposal.evidence.length}`)}`);
+      }
+      if (draft.questions.length > 0) {
+        io.log('');
+        io.log(`  ${colors.bold('Preguntas para el humano')} ${dim('(prácticas que el código NO muestra; no son principios)')}:`);
+        for (const question of draft.questions) io.log(`    · ${question}`);
+      }
+      io.log('');
+      for (const issue of draftIssues) {
+        const mark = issue.severity === 'error' ? colors.red('error') : colors.yellow('aviso');
+        io.log(`  ${mark} ${issue.id}: ${dim(issue.message)}`);
+      }
+      if (!write) {
+        io.log('');
+        io.log(dim('  Añade --write para escribir el borrador en .sdd/steering/constitution.draft.md (plan only, nada escrito).'));
+        io.log('');
+        return 0;
+      }
+
+      await mkdir(path.dirname(draftPaths.draft), { recursive: true });
+      const inForceRaw = await readFile(draftPaths.inForce, 'utf8').catch(() => null);
+      await writeFile(draftPaths.draft, draft.text, 'utf8');
+      io.log('');
+      io.log(`  ${colors.green('✓')} borrador escrito en ${path.relative(root, draftPaths.draft)} (NO en vigor)`);
+      if (inForceRaw !== null) {
+        io.log(
+          `  ${colors.yellow('!')} ${path.relative(root, draftPaths.inForce)} existe y no se ha tocado: el borrador va al lado y solo --ratify lo sustituye.`,
+        );
+      }
+      io.log('');
+      return draftIssues.some((issue) => issue.severity === 'error') ? 1 : 0;
+    }
+
+    if (args.includes('--ratify')) {
+      const by = flagValue('--by')?.trim();
+      const rationale = flagValue('--rationale')?.trim();
+      // The human gate is checked before anything is read or written: a ratification without a named
+      // person and a reason is not a weaker ratification, it is not one at all.
+      if (!by || !rationale) {
+        io.error(
+          colors.red(
+            'La ratificación es una puerta humana: exige --by "<nombre>" y --rationale "<texto>". Sin persona nombrada y motivo no hay autoridad, y el borrador sigue sin estar en vigor.',
+          ),
+        );
+        return 1;
+      }
+
+      const draftRaw = await readFile(draftPaths.draft, 'utf8').catch(() => null);
+      const inForceSource = draftRaw === null ? await readFile(draftPaths.inForce, 'utf8').catch(() => null) : null;
+      const source = draftRaw ?? inForceSource;
+      if (source === null) {
+        io.error(
+          colors.red(
+            `No hay borrador que ratificar en ${path.relative(root, draftPaths.draft)}. Genéralo con: open-sdd govern constitution --draft --write`,
+          ),
+        );
+        return 1;
+      }
+      const parsed = parseConstitution(source);
+      if (draftPrincipleIds(parsed).length === 0) {
+        io.error(
+          colors.red(
+            'Lo que hay en .sdd/steering no contiene ningún principio en borrador: o ya está en vigor, o el documento no es un borrador.',
+          ),
+        );
+        return 1;
+      }
+
+      const idsValue = flagValue('--ids');
+      const ids = idsValue
+        ? idsValue
+            .split(',')
+            .map((id) => id.trim())
+            .filter(Boolean)
+        : [];
+      const result = ratifyDraft(parsed, { by, rationale, ...(ids.length > 0 ? { ids } : {}) });
+
+      io.log('');
+      io.log(heading(`Ratificación — ${parsed.project}`));
+      io.log('');
+      for (const id of result.ratified) io.log(`  ${colors.green('✓')} ${id} en vigor · ratificado por ${colors.bold(by)}`);
+      for (const refusal of result.refused) io.log(`  ${colors.red('✗')} ${refusal.id}: ${refusal.why}`);
+      io.log(
+        `  ${dim(`${result.ratified.length} ratificado(s) · ${result.refused.length} rechazado(s) · ${draftPrincipleIds(parsed).length} en borrador en el origen`)}`,
+      );
+      if (result.ratified.length === 0) {
+        io.log('');
+        io.error(colors.red('Nada se ratificó: el borrador sigue sin autoridad.'));
+        return 1;
+      }
+
+      // A ratified draft is consumed. Leaving it in place was a sharp edge: a later `--ratify --write`
+      // would re-ratify the OLD text over the in-force constitution, silently reverting whatever changed
+      // in between. The draft is kept only when it still has proposals waiting for a decision.
+      if (args.includes('--write')) {
+        const draftPath = path.join(root, '.sdd', 'steering', DRAFT_FILE_NAME);
+        const stillPending = parsed.principles.some(
+          (principle) => principle.draft === true && !result.ratified.includes(principle.id),
+        );
+        if (!stillPending) {
+          const existed = await stat(draftPath).catch(() => null);
+          if (existed !== null) {
+            await rm(draftPath, { force: true });
+            io.log(dim(`  = borrador consumido: ${path.relative(root, draftPath)} eliminado (ya no hay propuestas pendientes)`));
+          }
+        }
+      }
+
+      if (!args.includes('--write')) {
+        io.log('');
+        io.log(dim('  Añade --write para escribir .sdd/steering/constitution.md en vigor (sin --write no se ha tocado ningún fichero).'));
+        io.log('');
+        return result.refused.length > 0 ? 1 : 0;
+      }
+
+      await mkdir(path.dirname(draftPaths.inForce), { recursive: true });
+      await writeFile(draftPaths.inForce, renderConstitution(result.constitution), 'utf8');
+      io.log('');
+      io.log(
+        `  ${colors.green('✓')} constitución en vigor escrita en ${path.relative(root, draftPaths.inForce)}: ${result.ratified.length} principio(s), sin marca de borrador.`,
+      );
+      io.log('');
+      return result.refused.length > 0 ? 1 : 0;
+    }
+
     const file = path.join(root, '.sdd', 'steering', 'constitution.md');
     const raw = await readFile(file, 'utf8').catch(() => null);
     if (raw === null) {
@@ -918,7 +1121,7 @@ export const handleGovernCommand = async (args: string[], io: CliIO, cwd: string
     return findings.some((f) => f.decidable && f.violated) ? 1 : 0;
   }
 
-  io.log(`Subcomando desconocido: ${sub}. Usa: invariants | conformance | hitl | rigor [--set <nivel> --rationale "..." | --gates | --verbose | --quiet | --select] | constitution [--matrix] | appeal | meta-eval | budget | discipline`);
+  io.log(`Subcomando desconocido: ${sub}. Usa: invariants | conformance | hitl | rigor [--set <nivel> --rationale "..." | --gates | --verbose | --quiet | --select] | constitution [--matrix|--draft|--evidence-pack|--ratify --by "<nombre>" --rationale "<texto>"] | appeal | meta-eval | budget | discipline`);
   return 1;
 };
 
@@ -1200,7 +1403,10 @@ export const handleFloorCommand = async (args: string[], io: CliIO, cwd: string)
 
   if (sub === 'install') {
     const here = path.dirname(fileURLToPath(import.meta.url));
-    const hookSource = path.resolve(here, '../../../templates/hooks/pre-commit');
+    // pre-commit.mjs is the primary gate: the portable Node one. `floor install` copied the POSIX
+    // fallback, so it installed a DIFFERENT file than `npm run hooks:install` and the console doctor
+    // reported the correct hook as outdated.
+    const hookSource = path.resolve(here, '../../../templates/hooks/pre-commit.mjs');
     const workflowSource = path.resolve(here, '../../../templates/hooks/open-sdd-gates.yml');
 
     if ((await stat(path.join(target, '.git')).catch(() => null)) === null) {

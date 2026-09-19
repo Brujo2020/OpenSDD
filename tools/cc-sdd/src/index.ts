@@ -2,6 +2,8 @@ import path from 'node:path';
 import { stat } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { agentList, getAgentDefinition } from './agents/registry.js';
+import { runMcpServer } from './mcp/server.js';
+import { handleDoctorCommand } from './core/doctor.js';
 import { parseArgs } from './cli/args.js';
 import { mergeConfigAndArgs, type EnvRuntime, type UserConfig } from './cli/config.js';
 import { planFromFile } from './manifest/planner.js';
@@ -318,6 +320,18 @@ export const runCli = async (
     if (cmd === 'assure') {
       return handleAssureCommand(subArgv, io, targetCwd);
     }
+    if (cmd === 'doctor') {
+      // Self-diagnosis: Node range, CLI reachability, the commit gate and its version and portability,
+      // declared rigor, constitution, specs and the offline posture — each with the fix to apply.
+      return handleDoctorCommand(subArgv, io, targetCwd);
+    }
+
+    if (cmd === 'mcp') {
+      // Model Context Protocol over stdio: the agnostic integration surface. Any modern AI host can
+      // call the engine's checks and read the constitution as a resource without per-host code.
+      return runMcpServer({ cwd: targetCwd });
+    }
+
     if (cmd === 'waves') {
       return handleWavesCommand(subArgv, io, targetCwd);
     }

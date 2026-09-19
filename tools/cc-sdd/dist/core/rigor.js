@@ -427,8 +427,12 @@ export const resolveRigorSettings = (parsed, fallbackLevel = DEFAULT_RIGOR_LEVEL
  * - JSON malformado → excepción. Degradar en silencio a `spec-first` convertiría un archivo roto en
  *   una bajada de exigencia invisible, que es justo el fallo que este módulo existe para evitar.
  */
-export const loadRigorSettings = async (cwd = process.cwd(), sddDir = '.sdd') => {
-    const settingsPath = path.join(cwd, sddDir, 'settings', 'rigor.json');
+export const loadRigorSettings = async (cwd = process.cwd(), sddDir) => {
+    // `.sdd` or the legacy `.kiro`, resolved the same way assessRigor and the dashboard do. Defaulting
+    // to the literal '.sdd' meant a .kiro project got the spec-first defaults while its own file said
+    // otherwise: reading the declared rigor is the one thing that must never silently degrade.
+    const dir = sddDir ?? (await resolveSddDir(cwd));
+    const settingsPath = path.join(cwd, dir, 'settings', 'rigor.json');
     let content;
     try {
         content = await readFile(settingsPath, 'utf8');
@@ -441,7 +445,7 @@ export const loadRigorSettings = async (cwd = process.cwd(), sddDir = '.sdd') =>
         parsed = JSON.parse(content);
     }
     catch (err) {
-        throw new Error(`${path.join(sddDir, 'settings', 'rigor.json')} no es JSON válido (${err.message}): corrígelo o elimínalo; no se degrada la exigencia en silencio.`);
+        throw new Error(`${path.join(dir, 'settings', 'rigor.json')} no es JSON válido (${err.message}): corrígelo o elimínalo; no se degrada la exigencia en silencio.`);
     }
     return resolveRigorSettings(parsed);
 };

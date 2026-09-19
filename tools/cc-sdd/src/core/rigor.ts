@@ -552,9 +552,13 @@ export const resolveRigorSettings = (
  */
 export const loadRigorSettings = async (
   cwd: string = process.cwd(),
-  sddDir: string = '.sdd',
+  sddDir?: string,
 ): Promise<RigorSettings> => {
-  const settingsPath = path.join(cwd, sddDir, 'settings', 'rigor.json');
+  // `.sdd` or the legacy `.kiro`, resolved the same way assessRigor and the dashboard do. Defaulting
+  // to the literal '.sdd' meant a .kiro project got the spec-first defaults while its own file said
+  // otherwise: reading the declared rigor is the one thing that must never silently degrade.
+  const dir = sddDir ?? (await resolveSddDir(cwd));
+  const settingsPath = path.join(cwd, dir, 'settings', 'rigor.json');
 
   let content: string;
   try {
@@ -568,7 +572,7 @@ export const loadRigorSettings = async (
     parsed = JSON.parse(content) as Partial<RigorSettings>;
   } catch (err) {
     throw new Error(
-      `${path.join(sddDir, 'settings', 'rigor.json')} no es JSON válido (${(err as Error).message}): corrígelo o elimínalo; no se degrada la exigencia en silencio.`,
+      `${path.join(dir, 'settings', 'rigor.json')} no es JSON válido (${(err as Error).message}): corrígelo o elimínalo; no se degrada la exigencia en silencio.`,
     );
   }
 

@@ -63,10 +63,10 @@ const resolveAction = async (op, exists, resolved, opts) => {
     const categoryPolicy = resolveCategoryPolicy(op.category, opts.categoryPolicies);
     const effective = resolved.effectiveOverwrite;
     if (!exists) {
-        if (categoryPolicy === 'skip')
-            return 'skip';
-        if (categoryPolicy === 'append')
-            return 'write';
+        // `skip` means "do NOT OVERWRITE", not "do not create". Skipping creation made a pristine install
+        // with `--overwrite=skip` write 0 of 62 files and still exit 0 — the documented default silently
+        // no-oping the entire installation, which is the worst possible first impression for a tool whose
+        // first job is to install. An `append` onto a missing file is a write for the same reason.
         return 'write';
     }
     switch (categoryPolicy) {

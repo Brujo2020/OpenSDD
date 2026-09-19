@@ -16,6 +16,7 @@ import { colors } from '../ui/colors.js';
 import type { CliIO } from '../io.js';
 import { scanProject } from '../../core/reverseEngineering.js';
 import { buildDescriptiveConstitution, collectRepoFacts } from '../../core/reverseConstitution.js';
+import { buildConstitutionDraft, constitutionArtifactPaths } from '../../core/constitutionDraft.js';
 import { parseConstitution, renderConstitution, validateConstitution, principlesInForce, resolveAuthority } from '../../core/constitution.js';
 import {
   deltaCounts,
@@ -388,6 +389,61 @@ export const handleBrownfieldCommand = async (args: string[], io: CliIO, cwd: st
   }
 
   if (sub === 'survey' || sub === 'constitution') {
+    // `--draft` is handled BEFORE the descriptive constitution is built: the draft is a proposal, not
+    // an authoritative artifact, and it must not inherit the "in force" reading of the flow below.
+    if (sub === 'constitution' && args.includes('--draft')) {
+      const write = args.includes('--write');
+      const draft = await buildConstitutionDraft(target, { sddDir: '.sdd' });
+      const draftIssues = validateConstitution(parseConstitution(draft.text));
+
+      io.log('');
+      io.log(heading(`Borrador de constitución — ${draft.project}`));
+      io.log('');
+      io.log(
+        `  ${draft.complete ? colors.green('sin preguntas abiertas') : colors.yellow('INCOMPLETO')} ${dim('(NO en vigor: falta la ratificación de una persona nombrada)')}`,
+      );
+      io.log(`  ${dim(draft.detail)}`);
+      io.log('');
+      for (const proposal of draft.proposals) {
+        const state = proposal.needsHumanDecision ? colors.yellow('pregunta') : colors.green('propuesta');
+        io.log(
+          `  ${colors.bold(proposal.principle.id.padEnd(22))} ${proposal.principle.level.padEnd(7)} ${state.padEnd(12)} ${proposal.principle.restriction.split('\n')[0].slice(0, 76)}`,
+        );
+        io.log(`      ${dim(`evidencia: ${proposal.evidence.length}`)}`);
+      }
+      if (draft.questions.length > 0) {
+        io.log('');
+        io.log(`  ${colors.bold('Preguntas para el humano')} ${dim('(prácticas que el código NO muestra; no son principios)')}:`);
+        for (const question of draft.questions) io.log(`    · ${question}`);
+      }
+      io.log('');
+      for (const issue of draftIssues) {
+        const mark = issue.severity === 'error' ? colors.red('error') : colors.yellow('aviso');
+        io.log(`  ${mark} ${issue.id}: ${dim(issue.message)}`);
+      }
+
+      if (!write) {
+        io.log('');
+        io.log(dim('  Añade --write para escribir el borrador en .sdd/steering/constitution.draft.md (plan only, nada escrito).'));
+        io.log('');
+        return 0;
+      }
+
+      const paths = constitutionArtifactPaths(target);
+      await mkdir(path.dirname(paths.draft), { recursive: true });
+      const inForce = await readIfExists(paths.inForce);
+      await writeFile(paths.draft, draft.text, 'utf8');
+      io.log('');
+      io.log(`  ${colors.green('✓')} borrador escrito en ${path.relative(target, paths.draft)} (NO en vigor)`);
+      if (inForce !== null) {
+        io.log(
+          `  ${colors.yellow('!')} ${path.relative(target, paths.inForce)} existe y no se ha tocado: el borrador va al lado y solo --ratify lo sustituye.`,
+        );
+      }
+      io.log('');
+      return draftIssues.some((issue) => issue.severity === 'error') ? 1 : 0;
+    }
+
     const project = await scanProject(target);
     const facts = await collectRepoFacts(target, project);
     const { constitution, detected, deferred } = buildDescriptiveConstitution(facts);
@@ -663,6 +719,6 @@ export const handleBrownfieldCommand = async (args: string[], io: CliIO, cwd: st
     return report.violations.length > 0 ? 1 : 0;
   }
 
-  io.log(`Subcomando desconocido: ${sub}. Usa: survey | constitution [target] [--write] | bootstrap [target] [--focus "<texto>"] [--write] [--json] | impact <feature> [--base <ref>] | contracts <feature> [--write] [--verify] [--base <ref>] | reuse <feature> [--symbols A,B] [--base <ref>]`);
+  io.log(`Subcomando desconocido: ${sub}. Usa: survey | constitution [target] [--write|--draft] | bootstrap [target] [--focus "<texto>"] [--write] [--json] | impact <feature> [--base <ref>] | contracts <feature> [--write] [--verify] [--base <ref>] | reuse <feature> [--symbols A,B] [--base <ref>]`);
   return 1;
 };
