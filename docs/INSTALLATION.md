@@ -77,9 +77,9 @@ open-sdd --cursor-skills -y
 The package is named `open-sdd` and the CLI help advertises npx:
 
 ```bash
-npx open-sdd@latest                        # Claude Code skills (default)
-npx open-sdd@latest --cursor-skills -y
-npx open-sdd@latest --lang es -y
+npx @brujo2020/open-sdd@latest             # Claude Code skills (default) — once published
+npx @brujo2020/open-sdd@latest --cursor-skills -y
+npx @brujo2020/open-sdd@latest --lang es -y
 ```
 
 ## Choosing an agent
@@ -167,4 +167,4 @@ reference: [guides/governance-profiles.md](guides/governance-profiles.md).
 
 There is **no** uninstall command. Remove the agent's skill directory, the `.sdd/settings/` tree and
 the agent documentation file by hand, or restore them from version control. Remove a global install
-with `npm uninstall -g open-sdd`.
+with `npm uninstall -g @brujo2020/open-sdd`.

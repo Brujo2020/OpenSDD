@@ -162,7 +162,7 @@ Phase 6  Handoff     /sdd-spec-requirements or /sdd-spec-batch
 
 ```bash
 # 1. Install open-sdd skills (once)
-npx open-sdd@latest --cursor-skills
+npx @brujo2020/open-sdd@latest --cursor-skills
 
 # 2. Bootstrap from existing code
 /sdd-getspecs

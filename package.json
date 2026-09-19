@@ -31,7 +31,7 @@
     "conformance": "node tools/cc-sdd/dist/cli.js govern conformance",
     "assure": "node tools/cc-sdd/dist/cli.js assure threats",
     "floor:status": "node tools/cc-sdd/dist/cli.js floor status",
-    "install:global": "npm --prefix tools/cc-sdd run build && npm install -g ./tools/cc-sdd",
+    "install:global": "npm run build && npm install -g .",
     "install:antigravity": "node tools/cc-sdd/dist/cli.js --antigravity -y",
     "install:claude": "node tools/cc-sdd/dist/cli.js -y",
     "install:cursor": "node tools/cc-sdd/dist/cli.js --cursor-skills -y",
@@ -40,5 +40,8 @@
     "install:opencode": "node tools/cc-sdd/dist/cli.js --opencode-skills -y",
     "install:gemini": "node tools/cc-sdd/dist/cli.js --gemini-cli-skills -y",
     "install:codex": "node tools/cc-sdd/dist/cli.js --codex-skills -y"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

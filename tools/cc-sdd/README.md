@@ -77,7 +77,7 @@ curl -fsSL https://raw.githubusercontent.com/Brujo2020/open-sdd/main/install.sh 
 npm install -g Brujo2020/open-sdd
 
 # Or via npm:
-npm install -g open-sdd@latest
+npm install -g @brujo2020/open-sdd@latest
 
 # Available commands in any terminal session:
 open-sdd status
@@ -90,20 +90,20 @@ open-sdd audit <feature> --regulatory
 Inside any repository, inject the 20 skills directly into your coding agent:
 ```bash
 # Claude Code (Default)
-npx open-sdd@latest -y
+npx @brujo2020/open-sdd@latest -y
 
 # Google Antigravity
-npx open-sdd@latest --antigravity -y
+npx @brujo2020/open-sdd@latest --antigravity -y
 
 # Cursor IDE
-npx open-sdd@latest --cursor-skills -y
+npx @brujo2020/open-sdd@latest --cursor-skills -y
 
 # Other supported agents:
-npx open-sdd@latest --copilot-skills -y
-npx open-sdd@latest --windsurf-skills -y
-npx open-sdd@latest --opencode-skills -y
-npx open-sdd@latest --gemini-cli-skills -y
-npx open-sdd@latest --codex-skills -y
+npx @brujo2020/open-sdd@latest --copilot-skills -y
+npx @brujo2020/open-sdd@latest --windsurf-skills -y
+npx @brujo2020/open-sdd@latest --opencode-skills -y
+npx @brujo2020/open-sdd@latest --gemini-cli-skills -y
+npx @brujo2020/open-sdd@latest --codex-skills -y
 ```
 
 Then, in your agent:

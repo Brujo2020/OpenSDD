@@ -156,7 +156,7 @@ No matter the size of your project:
 
 ```bash
 # Step 1: Install Open-SDD in your project
-npx open-sdd@latest
+npx @brujo2020/open-sdd@latest
 
 # Step 2: Bootstrap from your existing codebase
 /sdd-getspecs

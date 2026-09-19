@@ -6,6 +6,35 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed — one publishable identity, and a parser bug it exposed
+
+- **The publish pipeline targeted the wrong package.** `publish.yml` ran `npm publish` from
+  `tools/cc-sdd` (the build workspace), so a release tag would have published an **unscoped**
+  `open-sdd` while the repository had already decided on `@brujo2020/open-sdd`. It now builds and
+  tests the workspace, runs the gate chain and the claims registry, asserts the published name, and
+  publishes from the repository root with `--access public --provenance`.
+- **The workspace can no longer be published by accident.** `tools/cc-sdd/package.json` is marked
+  `"private": true`; the root manifest carries `publishConfig.access = "public"` (scoped packages
+  default to private on npm) and remains the only publishable artifact.
+- **`install:global` installed the wrong identity.** It installed `./tools/cc-sdd` (global name
+  `open-sdd`) instead of the scoped package; it now installs the repository root.
+- **Documentation no longer advertises a command that resolves to nothing.** `npx open-sdd@latest`
+  was named in the README, the installation guide, two workflow guides and the workspace README
+  (9 occurrences). All install/uninstall instructions use `@brujo2020/open-sdd`, the README states
+  that the scoped package **is not published yet**, and the paths that work today (clone +
+  `install.sh`, or `npm run install:global`) are given explicitly.
+- **Bug found while verifying the above, and fixed.** The claims-registry parser processed YAML
+  double-quoted escapes in sequence, which turned `\\n` into a backslash plus a real newline and
+  split a verifier command across lines. It now unescapes in a single left-to-right pass. This was
+  caught by a new claim that failed as `broken` — the registry reporting on itself as intended.
+- **Guards so none of it returns:** `test/releaseIntegrity.test.ts` (10 tests) asserts the single
+  publishable identity, that every `bin` target exists, that the workspace is private, that
+  `install:global` installs the root, that the publish pipeline tests before publishing and never
+  runs from the workspace, that the identity is asserted before `npm publish`, and that **no
+  documentation code block** advertises the unscoped name. Claims CLM-041 … CLM-043 decide the same
+  properties by exit code.
+
+
 ### Added — enforcement floor installed, skills taught, naming unified
 
 - **Level B (commit) is installed, not declared.** `tools/cc-sdd/templates/hooks/pre-commit` runs

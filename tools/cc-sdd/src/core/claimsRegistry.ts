@@ -37,11 +37,15 @@ const unquote = (value: string): string => {
     return s.slice(1, -1).replace(/''/g, "'");
   }
   if (s.length >= 2 && s[0] === '"' && s[s.length - 1] === '"') {
-    return s
-      .slice(1, -1)
-      .replace(/\\"/g, '"')
-      .replace(/\\n/g, '\n')
-      .replace(/\\\\/g, '\\');
+    // Single left-to-right pass. Replacing the escape sequences in sequence is wrong: it turns
+    // \\n into a backslash followed by a real newline, splitting the command across lines.
+    return s.slice(1, -1).replace(/\\(.)/g, (_match, ch: string) => {
+      if (ch === 'n') return '\n';
+      if (ch === 't') return '\t';
+      if (ch === '"') return '"';
+      if (ch === '\\') return '\\';
+      return ch;
+    });
   }
   return s;
 };

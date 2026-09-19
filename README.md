@@ -58,17 +58,30 @@ agent's skill directory.
 ### Global CLI
 
 ```bash
-npm run install:global          # builds, then npm install -g ./tools/cc-sdd
+npm run install:global          # builds, then installs this checkout globally
 open-sdd gates chain            # one of: open-sdd, sdd-open, sdd, cc-sdd
 ```
 
 ### Published package
 
-The package is named `open-sdd` and the CLI's own help advertises `npx open-sdd@latest`. If you
-prefer npx:
+The npm package is **`@brujo2020/open-sdd`**. Note two facts that the earlier documentation got
+wrong — it advertised `npx open-sdd@latest`, which resolves to nothing:
+
+- The unscoped name `open-sdd` is **not** this project (it does not exist on the registry), so
+  `npx open-sdd@latest` fails. The scoped name is the only correct one.
+- The scoped package is **not published yet**; `v3.0.2` is the version it will carry.
+
+Until it is published, use one of the two paths that work today:
 
 ```bash
-npx open-sdd@latest --cursor-skills -y
+bash install.sh /path/to/your/repo            # from a clone: installs into a target repository
+npm run install:global                        # from a clone: puts open-sdd on your PATH
+```
+
+Once published, the same entry point is available without a clone:
+
+```bash
+npx @brujo2020/open-sdd@latest --cursor-skills -y
 ```
 
 ### CLI flags
