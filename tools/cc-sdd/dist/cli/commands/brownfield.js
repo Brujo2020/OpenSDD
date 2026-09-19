@@ -524,8 +524,12 @@ export const handleBrownfieldCommand = async (args, io, cwd) => {
             // not exist (fatal — the oracle is missing a protection someone promised) and a changed file no
             // test covers (a hole to report, not a reason to block a legitimate change). Separating them is
             // what makes the CI step meaningful instead of either decorative or unusable.
-            const declaredTests = new Set(set.contracts.map((c) => c.test));
-            const missingDeclared = (delta?.entries ?? []).flatMap((entry) => (entry.contracts ?? []).filter((declared) => !declaredTests.has(declared)));
+            // Only DISCOVERED contracts count as evidence that a declared contract exists. Building this
+            // set from every contract made the check vacuous: extractContracts always emits a
+            // source:'delta' contract for each declared test, so the declared test was always "present"
+            // and this command could never fail — the hole it exists to report was structurally hidden.
+            const discoveredTests = new Set(set.contracts.filter((c) => c.source === 'discovered').map((c) => c.test));
+            const missingDeclared = (delta?.entries ?? []).flatMap((entry) => (entry.contracts ?? []).filter((declared) => !discoveredTests.has(declared)));
             if (missingDeclared.length > 0) {
                 io.log('');
                 io.log(`  ${colors.red('!')} contratos declarados en la delta que no existen: ${missingDeclared.join(', ')}`);
