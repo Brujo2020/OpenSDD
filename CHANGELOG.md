@@ -6,6 +6,51 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added — one entry point, one dashboard, and the constitution as the pivot
+
+- **`open-sdd brownfield bootstrap [target] [--focus "<texto>"] [--write] [--json]` — the single entry
+  point for an existing repository.** `core/bootstrap.ts` composes the scanners that already existed
+  (`scanProject`, `collectRepoFacts` + `buildDescriptiveConstitution`, `findReuseCandidates`) into one
+  plan plus two artifacts that did not exist: the **module responsibility map**, with a decidable
+  answer to "where does new code go?" (`answerCodePlacement`), and
+  `.sdd/steering/codebase-intelligence.md` for agents — generated with a provenance marker and never
+  overwriting a hand-authored file. This is our reading of spec-kit issue #1436's
+  brownfield-bootstrap / module-map / knowledge-document concept, **reimplemented on our own engine**,
+  not a port of their extension. Without `--write` it writes nothing; with `--write` it writes the
+  intelligence document and generates the constitution only when it is missing.
+- **`open-sdd status [feature] [--check] [--quiet] [--json]` — one dashboard for the whole state:**
+  the constitution, every spec, the delta, the contract set, the constitutional alignment, the rigor
+  level and the **next command to run**. `--check` appends the per-spec constitutional validation,
+  `--quiet` collapses the panel to one line with the verdict in the exit code (the commit-time form),
+  and `--json` emits the aggregate. `status` is a panel, not a wall.
+- **The constitution is now the pivot of every spec, not a decorative document.**
+  `core/specConstitution.ts` (`alignSpecWithConstitution`) compares a spec's requirements/plan/tasks
+  and its brownfield delta with the constitution: a cited principle that is not in force is a
+  **phantom authority** (`UNKNOWN_PRINCIPLE`, error), a spec that cites none leaves the pivot unused
+  (`NO_PRINCIPLES_DECLARED`, warning, alignment 0), a requirement or delta entry that contradicts a
+  `MUST` is `MUST_CONTRADICTED` / `TECH_LOCK_VIOLATION`, and the boundary, API-compatibility and
+  regression-oracle rules are `BOUNDARY_VIOLATION` / `API_COMPAT_MISSING` / `ORACLE_MISSING`. When a
+  rule cannot decide it says so in `detail` instead of emitting a finding — an `ok` over something not
+  inspected is refused. `status --check` exits 1 only on error-severity findings. On this repository:
+  alignment 100 %, 0 errors, 1 warning.
+- **The `sdd-brownfield` skill — the fast-learning-curve artifact.** The 21st skill, shipped
+  byte-identical for all 8 skills-based agents (168 `SKILL.md` templates in this repository, was 160):
+  the five-step brownfield flow (reconocer → anclar → describir el cambio → comprobar → entregar), the
+  **ADSR / EARS / EGTAV** mnemonics of the *Manual Maestro SDD v3.0*, the constitution-as-pivot
+  explanation with this repository's real principle `C-API-COMPAT`, the cumulative rigor ladder, the
+  reuse-first rule and the honesty rules (a green test run with a declared contract missing is not a
+  pass). It complements `/sdd-getspecs` and `/sdd-steering`; it does not replace them. Paired with
+  **[docs/guides/brownfield-quickstart.md](docs/guides/brownfield-quickstart.md)**, the 10-minute path
+  with the FAQ and an honest "what it does not do yet" section.
+- **Four new declared gaps and five new claims.** G-20 … G-23 record the real limits of the new
+  surface: `bootstrap --write` writes two of the three artifacts its own plan announces; multi-module
+  discovery is Node-only (no Maven/Gradle, Go, Rust or Python workspace discovery, so the spec-kit
+  issue's language coverage is not matched — the concept is, the coverage is not); the module map and
+  the constitution's boundary evidence use two different vocabularies; and `publicApiFiles` matches
+  entry-point filenames instead of reading the manifest, which is why the compliance matrix reports
+  50 % coverage on this repository. Claims CLM-058 … CLM-062 decide the new surface by exit code;
+  registry result: 62 claims, 59 verified, 0 declared, 3 not measured, 0 broken, 0 outdated.
+
 ### Changed — the rigor levels are a cumulative ladder, and the default is the floor
 
 - **The three SDD rigor levels (`tools/cc-sdd/src/core/rigor.ts`) are now a cumulative ladder**

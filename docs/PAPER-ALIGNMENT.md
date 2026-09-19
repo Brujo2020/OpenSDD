@@ -54,13 +54,13 @@ Command run from the repository root, 2026-09-19:
 
 ```
 $ node tools/cc-sdd/dist/cli.js assure claims --verify
-53 afirmaciones | 50 verificadas | 0 declaradas | 3 no medidas | 0 rotas | 0 desactualizadas
+62 afirmaciones | 59 verificadas | 0 declaradas | 3 no medidas | 0 rotas | 0 desactualizadas
 [exit=0]
 ```
 
 | State (§9.6) | Count | Claims |
 |---|---|---|
-| `verified` | 54 | CLM-001 … CLM-027, CLM-030, CLM-032 … CLM-057 |
+| `verified` | 59 | CLM-001 … CLM-027, CLM-030, CLM-032 … CLM-062 |
 | `not-implemented` (declared gap confirmed) | 0 | — |
 | `not-measured` (absence of evidence persists) | 3 | CLM-028 (`docs/lab` absent), CLM-029 (`bin/sh-gate` absent), CLM-031 (`.steelharness/` absent) |
 | `broken` (text claims a pass the code does not deliver) | 0 | — |
@@ -207,7 +207,10 @@ where coverage overstates).
 | Three SDD rigor levels (*Manual Maestro* §2.4; reference architecture §4.8/§4.10) | Spec-First / Spec-Anchored / Spec-as-Source as a **cumulative ladder** (gates 2 → 4 → 6; every level only adds), each with its per-aspect demands, active gate ids, evaluator question and missing-artifact policy. A valid constitution is **required (blocking) at every level**, Spec-First included, because a blocking verdict must cite an authority at every level (CSDD §3.4, invariant I1); the default `spec-first` is deliberately fluid because it adds nothing above that floor. The declared level lives in `.sdd/settings/rigor.json` with a mandatory rationale and an optional `gates` override that may narrow the list but whose unknown ids are rejected; `assessRigor` evaluates the repository against it. Where a demand is not decidable from artifacts it is reported as a `brecha declarada` (regeneration at Spec-as-Source) instead of being faked as satisfied. | `rigor.ts` · `RIGOR_LEVELS`, `RIGOR_LADDER`, `RIGOR_REQUIREMENTS`, `rigorRequirements`, `rigorRequires`, `effectiveGates`, `validateGateOverride`, `selectRigorLevel`, `constitutionRequired`, `loadRigorSettings`, `resolveRigorSettings`, `assessRigor`, `isRigorLevel`, `toSddRigorLevel`; `.sdd/settings/rigor.json`; CLI `govern rigor [--select\|--gates\|--verbose\|--quiet]` | `construido` |
 | Brownfield console (§12; *Manual Maestro* §2.4) | One deterministic surface for the brownfield path: reconnaissance of the existing project, the reverse constitution (printed, or written to `.sdd/steering/constitution.md` with a round-trip check), the delta lifecycle, and three analysis reports over the change — impact (dependents, blast radius, API surface, breaking changes), contracts (the regression oracle, with `--verify` running the test command) and reuse (`REUSE_FIRST_RULE` candidates). | `cli/commands/brownfield.ts` · `handleBrownfieldCommand`, `handleDeltaCommand`; `index.ts` dispatch; CLI `brownfield survey\|constitution\|impact\|contracts\|reuse`, `delta init\|validate\|status\|render` | `construido` · **brecha declarada** (contract verification is not in CI — G-15) |
 | Execution contracts, change impact, reuse-first (§12; CSDD §3.3) | The regression oracle as data: which tests protect the changed files, which changed files no contract covers, and whether a run satisfied the declared contracts (`satisfied` requires exit 0 **and** no declared contract missing); the change's reachable set, breaking changes and integration points; the symbols a reuse-first search would have found first. | `executionContract.ts` · `extractContracts`, `verifyContracts`, `testCommandFor`, `contractsFileName`; `changeImpact.ts` · `analyzeChangeImpact`; `reuseFirst.ts` · `findReuseCandidates`, `scanDeclarations`, `REUSE_FIRST_RULE`; CLI `brownfield impact\|contracts\|reuse` | `construido` (commands) · **brecha declarada** (advisory, not gate-wired) — see G-15/G-18 |
-| Agent-agnostic installation (§6.4 progressive disclosure; Table 4) | 15 agent definitions; 8 skills-based variants × 20 skills = 160 `SKILL.md` templates; per-agent layout, alias flags and completion guides. | `agents/registry.ts` · `agentDefinitions`, `agentList`; `tools/cc-sdd/templates/agents/**` | `construido` |
+| One entry point for an existing repository — `brownfield bootstrap` (spec-kit issue #1436: the **concept is adopted and reimplemented on our own engine**, not a port of their extension; *Manual Maestro* v3.0 EGTAV) | Composes the scanners that already existed — `scanProject`, `collectRepoFacts` + `buildDescriptiveConstitution`, `findReuseCandidates` — into one plan, plus two artifacts that did not exist: the **module responsibility map**, with a decidable answer to "where does new code go?" (`answerCodePlacement`), and `.sdd/steering/codebase-intelligence.md` for agents, carrying a provenance marker and never overwriting a hand-authored file. This is our reading of the spec-kit issue's knowledge-document idea, rebuilt on our engine: it re-scans nothing and re-implements no symbol search. `--focus` names the first change; `--write` writes the intelligence document and generates the constitution if absent; `--json` emits the plan. | `bootstrap.ts` · `planBootstrap`, `buildModuleMap`, `answerCodePlacement`, `writeCodeIntelligence`, `CODE_INTELLIGENCE_MARKER`; `cli/commands/brownfield.ts` · `handleBrownfieldCommand`; CLI `brownfield bootstrap [target] [--focus "<texto>"] [--write] [--json]` | `construido` · **brecha declarada** (the plan lists the focus delta seed as `create`, but `--write` writes only the intelligence document and the constitution; the seed comes from `delta init` — G-20) |
+| Agent-agnostic installation (§6.4 progressive disclosure; Table 4) | 15 agent definitions; 8 skills-based variants × 21 skills = 168 `SKILL.md` templates; per-agent layout, alias flags and completion guides. `sdd-brownfield` is the 21st skill and its eight copies are byte-identical (the `sdd-help` precedent). | `agents/registry.ts` · `agentDefinitions`, `agentList`; `tools/cc-sdd/templates/agents/**` | `construido` |
+| One dashboard for the whole state — `status [feature] [--check] [--quiet] [--json]` (*Manual Maestro* v3.0 EGTAV — the validation layer is where a brownfield workflow is read) | A single panel over the repository: the constitution (present/valid, principles in force, pending amendments), every spec (phase, triad, traceability, evidence), the delta counts and strangulation, the contract set with its uncovered changes, the constitutional alignment, the rigor level with its active gates, and the **next command to run**. `--check` appends the per-spec constitutional validation; `--quiet` collapses the panel to one line with the verdict in the exit code, which is the commit-time form; `--json` emits the aggregate for tooling. | `core/status.ts` · `buildRepositoryStatus`, `renderStatusPanel`, `renderStatusLine`, `nextAction`; `cli/commands/status.ts` · `handleStatusCommand`; CLI `status [feature] [--check] [--quiet] [--json]` | `construido` · **brecha declarada** (the alignment is a report: nothing blocks because a spec ignores a principle — G-16) |
+| The constitution as the pivot of every spec (*Manual Maestro* v3.0; CSDD §3.4 apex, invariant I1) | Given a spec's requirements/plan/tasks and its brownfield delta, answers three questions a reviewer cannot answer consistently: whether the principles the spec **cites** exist and are in force (`UNKNOWN_PRINCIPLE`, error — a phantom authority), whether the spec **contradicts** a `MUST` (`MUST_CONTRADICTED`, `TECH_LOCK_VIOLATION`), and whether the artifacts it produces respect the imposed boundary, API-compatibility and regression-oracle rules (`BOUNDARY_VIOLATION`, `API_COMPAT_MISSING`, `ORACLE_MISSING`). A spec that cites nothing is `NO_PRINCIPLES_DECLARED` (warning) and scores alignment 0, so the pivot cannot be silently unused. When a rule cannot decide, it says so in `detail` instead of emitting a finding: an `ok` over something not inspected is refused. `status --check` exits 1 only on error-severity findings. | `specConstitution.ts` · `alignSpecWithConstitution`, `declaredPrinciples`, `SPEC_PRINCIPLES_MARKER`, `ConstitutionalAlignmentFinding`, `SpecAlignment`; `constitution.ts` · `principlesInForce`; CLI `status --check` | `construido` · verified on this repository (alignment 100 %, 0 errors, 1 `BOUNDARY_VIOLATION` warning; a synthetic phantom principle makes `status --check` exit 1 — CLM-062) |
 | Governance profiles (repo-level) and chain profiles (§9.5) | Two distinct axes: `governance.json` ships `solo|team|enterprise` (what blocks); the Zero-Trust chain resolver accepts `solo|team|regulated` (which controls are declared). | `governance.ts` · `governanceProfiles`, `resolveGovernanceSettings`; `gateCatalog.ts` · `ChainProfile`, `PROFILE_MANDATED` | `construido` — but see G-08 (naming divergence) |
 
 ### 4.1 Brownfield — the unit of specification is the delta
@@ -558,6 +561,59 @@ What this costs, stated plainly: until the remaining classes are addressed, `bro
 **review aid with a known false-positive rate**, not a gate. It is deliberately not wired into CI
 (G-18), which is consistent — a check with this noise level would train its readers to ignore it.
 
+### G-20 — `bootstrap --write` writes two of the three artifacts its own plan announces
+
+Paper: §12 / *Manual Maestro* v3.0 EGTAV. `brownfield bootstrap --focus "<texto>" --write` prints an
+`Artefactos` list in which the focus delta seed appears with the action `create`
+(`.sdd/specs/<slug>/delta.md`, reason "semilla de delta para el foco «…»"), and the summary line counts
+it ("3 artefacto(s) por crear"). The write path creates only two: `.sdd/steering/codebase-intelligence.md`
+and, when absent, `.sdd/steering/constitution.md`. The delta seed is not written; the plan's own step 5
+is the instruction to run `delta init` for it. Verified on a scratch repository: the statement claims
+three artifacts to create, `find` shows two files, and no `delta.md` exists until `delta init` runs.
+
+This is a **reporting** defect, not a missing capability — the ordered steps are correct and the delta
+does get created, by the command that owns it. It matters because `BootstrapPlan.artifacts` is documented
+as "artifacts the bootstrap would write" and is the artifact a reader or an agent would act on; a plan
+that overstates its own write set is exactly the class of silent mismatch this report exists to record.
+The honest reading of `bootstrap --write` today: it writes the intelligence document and the constitution;
+the delta seed is a **step**, not a write.
+
+### G-21 — Multi-module discovery is Node-only
+
+Paper: §12 / spec-kit issue #1436 (the concept is adopted and reimplemented on our engine; the language
+coverage is not). `reverseEngineering.ts` · `scanProject` builds its workspace roots from `package.json`
+`workspaces` plus conventional directories that contain a `package.json`. There is **no** Maven/Gradle
+(`pom.xml`, `settings.gradle`), Go (`go.work`), Rust (`Cargo.toml` workspace) or Python monorepo
+discovery, so the layouts the spec-kit issue names are not matched: on such a repository the module map
+returns a single root module. (`go.mod` and `Cargo.toml` are recognised as *build tools* for a single
+project, not as workspace declarations.) Consequence to state plainly: `brownfield bootstrap`'s module
+map is correct for Node/TypeScript workspaces and **narrower than the reference** everywhere else — the
+honest output is "one root module", not a fabricated decomposition.
+
+### G-22 — Two boundary vocabularies coexist
+
+Paper: §12 / CSDD §3.3 (boundary evidence). The bootstrap module map uses "root + every workspace root"
+(`bootstrap.ts` · `buildModuleMap`), while `reverseConstitution.ts` still derives `C-BOUNDARIES` evidence
+from `project.modules` — the subdirectories of the detected source directories, falling back to the
+source dirs themselves (`reverseConstitution.ts:242-243`). On the same repository the two therefore
+describe different things: on this checkout the module map reports 2 modules (root + `tools/cc-sdd`),
+while the constitution lists the 9 source subdirectories (`agents`, `cli`, `constants`, `core`, …) as the
+boundaries. Neither is wrong for its purpose; they are **not reconciled**, so a reader must not assume
+the map and the constitution's boundary evidence agree.
+
+### G-23 — `publicApiFiles` is a filename pattern, not a manifest read
+
+Paper: §12 / CSDD §3.4 (the constitution's authority cites evidence). `collectRepoFacts.publicApiFiles`
+matches entry-point **filenames** with
+`/(^|\/)(index|main|mod|api|routes?)\.(ts|js|mjs|py|go|rb|java|rs)$/` (`reverseConstitution.ts:132`) and
+never consults `package.json` `bin`/`exports`. A package whose public surface is declared only in its
+manifest can therefore be missed, and `C-API-COMPAT`'s evidence is incomplete for it. The bootstrap's
+responsibility detection *does* read the manifest (`bin`), so the two disagree about what "public API"
+means. This is why the compliance matrix reports **50 % coverage** on this repository, with
+`C-STACK-FACT` and `C-BOUNDARIES` as the gaps — their evidence is a fact and a directory list rather than
+a `file:line`, which is the honest state of a descriptive constitution whose evidence is not all code
+(see also G-16).
+
 ## 6. Where the paper and the code genuinely disagree
 
 1. **Conformity level** — paper claims C2 for its described instance (Table 18 caption); this code
@@ -581,7 +637,7 @@ What this costs, stated plainly: until the remaining classes are addressed, `bro
    state, not a contradiction, but a reader should not read "0 no implementados" as evidence that
    the paper's gap was closed by this port.
 
-The next six are **divergences between the two source documents and the implemented code** that the
+The next seven are **divergences between the two source documents and the implemented code** that the
 brownfield/constitution work exposed. They are recorded, not reconciled: where the documents
 disagree, the code had to pick one, and this report says which.
 
@@ -630,6 +686,16 @@ disagree, the code had to pick one, and this report says which.
     `gates chain`, `gates run`, `govern discipline`, `assure claims --verify` and `floor status` —
     not `govern rigor`, and not the matrix. The four answers are available to a caller; nothing in
     the pipeline asks for them (G-16).
+12. **A bootstrap *command* and a skill, not a slash command inside the tool.** spec-kit issue #1436
+    proposes brownfield bootstrap as a slash command shipped inside the agent extension, with a
+    module map and a generated knowledge document. This port adopts the **concept** and reimplements
+    it on its own engine: `brownfield bootstrap` is an engine command in the console (so it runs
+    headless, in CI and without any agent), and the teaching layer is a skill
+    (`sdd-brownfield`, installed as `/sdd-brownfield`) rather than the command's implementation.
+    Nothing of the spec-kit extension's code is used. The delta-spec mechanism that this port pairs
+    with it — ADSR sections, delta-scoped ids, per-entry strangulation, the delta as the unit of
+    specification — has **no counterpart in spec-kit**, so the concept travels but the workflow does
+    not: a reader coming from that issue should not expect its artifacts or its command syntax here.
 
 ---
 

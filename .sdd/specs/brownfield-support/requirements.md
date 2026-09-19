@@ -119,3 +119,42 @@ the behaviour being replaced, the targets and the contracts.
 
 - The [documentation] shall describe the delta workflow, the constitution and the level ladder in the traceability report and in a guide.
 - The [templates] shall name the brownfield commands in the orientation file each agent reads first.
+
+### REQ-BF-011 — One dashboard for the whole state
+
+**Objective:** As a maintainer, I want the state of the project on one screen, so that I do not have to remember which command answers which question.
+
+#### Acceptance Criteria
+
+- When the status is requested, the [dashboard] shall report the constitution, the specs, the delta, the contracts, the alignment and the declared level.
+- When everything is in order, the [dashboard] shall name the single next command to run.
+- If a section could not be inspected, then the [dashboard] shall mark it as unknown instead of reporting it as healthy.
+
+### REQ-BF-012 — One entry point for an existing repository
+
+**Objective:** As an architect, I want a single command to bring an existing repository into the workflow, so that adoption is not a checklist of nine commands.
+
+#### Acceptance Criteria
+
+- When a repository is bootstrapped, the [bootstrap] shall compose reconnaissance, the constitution, the module map, the code intelligence and the steps into one plan.
+- If an artifact already exists, then the [bootstrap] shall propose to keep it rather than overwrite it.
+
+### REQ-BF-013 — The constitution validates every spec
+
+**Objective:** As an auditor, I want each spec checked against the constitution, so that the authority it cites is real and its requirements do not contradict what the code already is.
+
+#### Acceptance Criteria
+
+- When a spec is checked, the [alignment] shall report the principles it declares and the ones it ignores.
+- If a spec cites a principle that is not in force, then the [alignment] shall report a phantom authority as an error.
+- If a requirement contradicts a principle in force, then the [alignment] shall report it.
+- If the rule cannot decide, then the [alignment] shall stay silent instead of reporting a violation.
+
+### REQ-BF-014 — The workflow is taught where the agents read it
+
+**Objective:** As a new user, I want a short skill and a quickstart, so that the learning curve is minutes and not an afternoon.
+
+#### Acceptance Criteria
+
+- The [skill] shall teach the five steps with the exact commands and the constitution as the pivot.
+- The [quickstart] shall state what the tool does not do yet.

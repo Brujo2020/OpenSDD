@@ -8,7 +8,7 @@ Multiagente para Desarrollo Enterprise: Una Arquitectura de Referencia Zero-Trus
 Ramos, NTT DATA, rev. 3, Sept 2026). Specs live in Git next to the code; the console resolves a
 Zero-Trust gate chain, reports declared-vs-executed honestly, and never invents a measurement.
 
-- **One CLI, many hosts.** 18 agent definitions across 8 skills-based variants (160 `SKILL.md`
+- **One CLI, many hosts.** 18 agent definitions across 8 skills-based variants (168 `SKILL.md`
   templates ship in this repository).
 - **Specs in the repository.** `.sdd/specs/<feature>/` holds the Documentary Triad
   (`requirements.md` in EARS, `plan.md`, `tasks.md`), versioned and reviewed like code.
@@ -112,6 +112,7 @@ After installing, use the skills from your agent's chat:
 |---|---|
 | `/sdd-help` | Interactive guide, cheatsheet and examples |
 | `/sdd-getspecs [focus]` | Brownfield: reverse-engineer steering + editable spec seeds |
+| `/sdd-brownfield` | Brownfield governance: recon, constitution, delta, impact and rigor (the 5 steps) |
 | `/sdd-discovery "idea"` | Route new work; writes `brief.md` + `roadmap.md` |
 | `/sdd-spec-quick <feature> [--auto]` | Requirements → design → tasks in one pass |
 | `/sdd-impl <feature> [tasks] [--review required\|inline\|off]` | Autonomous or targeted implementation |
@@ -129,6 +130,26 @@ The step-by-step path is `/sdd-steering` → `/sdd-spec-init` → `/sdd-spec-req
 When the code already exists, the existing code is the de facto source of truth and the unit of
 specification is not the system but the **delta**: the artifact that describes only what changes.
 Three mechanisms implement that, all in the `open-sdd` console.
+
+### Brownfield en 5 pasos
+
+La regla que manda: **el código existente es la fuente de verdad de facto: no reinventes la
+arquitectura, gobiérnala.** La ruta corta, en orden, con los mnemónicos del *Manual Maestro SDD
+v3.0* (**ADSR** para la delta, **EARS** para la forma comprobable del requisito, **EGTAV** para las
+cinco capas: Especificación, Generación, Tareas, Artefactos, Validación):
+
+| Paso | Comando | Qué produce |
+|---|---|---|
+| 1. Reconocer | `open-sdd brownfield bootstrap .` | stack, módulos, evidencia y el plan ordenado de pasos |
+| 2. Anclar | `open-sdd brownfield constitution . --write` | `.sdd/steering/constitution.md` descriptiva, con evidencia |
+| 3. Describir el cambio | `open-sdd delta init <feature> "..."` → `open-sdd delta validate <feature>` | la delta ADSR: el contrato del cambio, no la spec de todo el sistema |
+| 4. Comprobar | `open-sdd status --check`, `brownfield impact\|contracts\|reuse`, `govern rigor` | pivote constitucional, impacto, oráculo de regresión, reutilización |
+| 5. Entregar | `open-sdd status` | la evidencia en las tareas, los gates del nivel declarado y un único panel |
+
+El detalle está en el skill **`/sdd-brownfield`**
+(`tools/cc-sdd/templates/agents/*/skills/sdd-brownfield/SKILL.md`) y en la guía de 10 minutos
+[docs/guides/brownfield-quickstart.md](docs/guides/brownfield-quickstart.md). La constitución es el
+**pivote**: cada spec se valida contra ella con `open-sdd status --check`.
 
 ### 1. The delta is the contract of change
 
@@ -410,7 +431,7 @@ open-sdd/
 │   ├── src/core/            governance models (see the map above)
 │   ├── src/agents/          agent registry (18 definitions)
 │   ├── src/cli/commands/    status, init, getspecs, gap, impl, verify, audit, paper
-│   ├── templates/agents/    160 SKILL.md templates across 8 skills variants
+│   ├── templates/agents/    168 SKILL.md templates across 8 skills variants
 │   └── dist/                compiled CLI (committed)
 ├── docs/
 │   ├── PAPER-ALIGNMENT.md   traceability report (paper → code → gaps)
@@ -432,7 +453,7 @@ open-sdd/
 - **[docs/PAPER-ALIGNMENT.md](docs/PAPER-ALIGNMENT.md)** — paper-to-code traceability and gaps.
 - **[docs/guides/governance-profiles.md](docs/guides/governance-profiles.md)** — what blocks, and when.
 - **[docs/guides/spec-driven.md](docs/guides/spec-driven.md)** — the SDD workflow end to end.
-- **[docs/guides/skill-reference.md](docs/guides/skill-reference.md)** — the 20 skills.
+- **[docs/guides/skill-reference.md](docs/guides/skill-reference.md)** — the 21 skills.
 - **[docs/guides/git-workflow.md](docs/guides/git-workflow.md)** — branch/commit automation.
 - **[docs/guides/brownfield-getspecs.md](docs/guides/brownfield-getspecs.md)** — existing codebases.
 - **[docs/README.md](docs/README.md)** — documentation index.

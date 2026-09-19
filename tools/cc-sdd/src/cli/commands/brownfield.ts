@@ -28,10 +28,11 @@ import {
   type DeltaKind,
   type DeltaSpec,
 } from '../../core/deltaSpec.js';
-import { parseTasksMarkdown } from '../../core/specManager.js';
+import { parseTasksMarkdown, resolveSddDir } from '../../core/specManager.js';
 import { analyzeChangeImpact, type ChangeImpactReport } from '../../core/changeImpact.js';
 import { contractsFileName, extractContracts, testCommandFor, verifyContracts } from '../../core/executionContract.js';
 import { REUSE_FIRST_RULE, findReuseCandidates } from '../../core/reuseFirst.js';
+import { planBootstrap, writeCodeIntelligence } from '../../core/bootstrap.js';
 
 const heading = (t: string): string => colors.bold(colors.cyan(t));
 const dim = (t: string): string => colors.dim(t);
@@ -251,6 +252,140 @@ export const handleBrownfieldCommand = async (args: string[], io: CliIO, cwd: st
   const sub = args[0] ?? 'survey';
   const positional = args.slice(1).filter((a) => !a.startsWith('-'));
   const target = positional[0] ? path.resolve(cwd, positional[0]) : await findRepoRoot(cwd);
+
+  if (sub === 'bootstrap') {
+    // El positional de `bootstrap` es una RUTA (como en survey/constitution), no un nombre de
+    // feature: `target` ya resuelve `positional[0]` o, en su ausencia, la raíz del repositorio.
+    const focusFlag = args.find((a) => a.startsWith('--focus='));
+    const focusIdx = args.findIndex((a) => a === '--focus');
+    const focus = focusFlag ? focusFlag.slice('--focus='.length) : focusIdx >= 0 ? args[focusIdx + 1] : undefined;
+    const json = args.includes('--json');
+    const write = args.includes('--write');
+
+    const plan = await planBootstrap({ cwd: target, ...(focus ? { focus } : {}) });
+
+    const failures: string[] = [];
+    let intelligence: Awaited<ReturnType<typeof writeCodeIntelligence>> | null = null;
+    let constitutionCreated = false;
+    /** Written by `--write` because the plan promised it; reported so the plan and reality agree. */
+    let deltaCreated: string | null = null;
+    let deltaKept: string | null = null;
+    if (write) {
+      intelligence = await writeCodeIntelligence({ cwd: target, modules: plan.modules, write: true });
+      if (!intelligence.written) failures.push(`no se pudo escribir ${intelligence.path}`);
+
+      const sddDir = await resolveSddDir(target);
+
+      // The plan lists the delta seed with action `create`, so `--write` must actually create it.
+      // It reuses the same scaffold as `delta init` instead of a second template.
+      if (focus) {
+        const slug = focus
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+        if (slug.length > 0) {
+          const deltaFile = path.join(target, sddDir, 'specs', slug, 'delta.md');
+          if ((await stat(deltaFile).catch(() => null)) === null) {
+            try {
+              await mkdir(path.dirname(deltaFile), { recursive: true });
+              await writeFile(deltaFile, deltaTemplate(slug, focus), 'utf8');
+              deltaCreated = path.posix.join(sddDir, 'specs', slug, 'delta.md');
+            } catch (error) {
+              failures.push(`no se pudo escribir ${path.posix.join(sddDir, 'specs', slug, 'delta.md')} (${(error as Error).message})`);
+            }
+          } else {
+            deltaKept = path.posix.join(sddDir, 'specs', slug, 'delta.md');
+          }
+        }
+      }
+
+      const constitutionFile = path.join(target, sddDir, 'steering', 'constitution.md');
+      if ((await stat(constitutionFile).catch(() => null)) === null) {
+        try {
+          const project = await scanProject(target);
+          const facts = await collectRepoFacts(target, project);
+          const { constitution } = buildDescriptiveConstitution(facts);
+          await mkdir(path.dirname(constitutionFile), { recursive: true });
+          await writeFile(constitutionFile, renderConstitution(constitution), 'utf8');
+          constitutionCreated = true;
+        } catch (error) {
+          failures.push(
+            `no se pudo escribir ${path.posix.join(sddDir, 'steering', 'constitution.md')} (${(error as Error).message})`,
+          );
+        }
+      }
+    }
+
+    if (json) {
+      io.log(JSON.stringify(plan, null, 2));
+      return failures.length > 0 ? 1 : 0;
+    }
+
+    io.log('');
+    io.log(heading(`Bootstrap brownfield — ${plan.project.name}`));
+    io.log('');
+    io.log(`  raíz: ${plan.root}`);
+    io.log(
+      `  stack: ${plan.project.language}${plan.project.frameworks.length > 0 ? ` · ${plan.project.frameworks.join(', ')}` : ''}${plan.project.testFramework ? ` · tests: ${plan.project.testFramework}` : ''}`,
+    );
+    io.log('');
+    io.log(`  ${colors.bold(`Mapa de módulos (${plan.modules.length})`)}`);
+    for (const module of plan.modules) {
+      io.log(`    ${colors.bold(module.path)}  ${dim(module.name)}`);
+      io.log(`      posee: ${module.owns.length > 0 ? module.owns.join(', ') : dim('(sin directorios observados)')}`);
+      io.log(
+        `      responsabilidades: ${
+          module.responsibilities.length > 0 ? module.responsibilities.join(' · ') : dim('(ninguna derivable de la evidencia)')
+        }`,
+      );
+      io.log(`      depende de: ${module.dependsOn.length > 0 ? module.dependsOn.join(', ') : dim('(ninguno observado)')}`);
+      if (module.testDirs.length > 0) io.log(`      tests: ${module.testDirs.join(', ')}`);
+    }
+    io.log('');
+    io.log(`  ${colors.bold('Artefactos')}`);
+    for (const artifact of plan.artifacts) {
+      const mark =
+        artifact.action === 'create'
+          ? colors.green(artifact.action)
+          : artifact.action === 'update'
+            ? colors.yellow(artifact.action)
+            : colors.dim(artifact.action);
+      io.log(`    ${mark.padEnd(18)} ${artifact.path}`);
+      io.log(`        ${dim(artifact.reason)}`);
+    }
+    io.log('');
+    io.log(`  ${colors.bold('Pasos')}`);
+    plan.steps.forEach((step, index) => io.log(`    ${index + 1}. ${step}`));
+    io.log('');
+    io.log(`  ${plan.complete ? colors.green(plan.detail) : colors.yellow(plan.detail)}`);
+
+    if (write) {
+      io.log('');
+      if (intelligence?.written) {
+        io.log(
+          `  ${colors.green('✓')} ${intelligence.path} escrito (${intelligence.complete ? 'evidencia completa' : 'evidencia parcial'})`,
+        );
+      }
+      if (constitutionCreated) {
+        io.log(`  ${colors.green('✓')} constitución creada desde el código`);
+      } else {
+        io.log(dim('  = constitución existente: se conserva (no se sobrescribe)'));
+      }
+      if (deltaCreated) {
+        io.log(`  ${colors.green('✓')} semilla de delta creada en ${deltaCreated}`);
+      } else if (deltaKept) {
+        io.log(dim(`  = semilla de delta existente en ${deltaKept}: se conserva`));
+      }
+      for (const failure of failures) io.log(`  ${colors.red('✗')} ${failure}`);
+    } else {
+      io.log('');
+      io.log(dim('  Añade --write para escribir el documento de inteligencia y generar la constitución si falta.'));
+    }
+    io.log('');
+    return failures.length > 0 ? 1 : 0;
+  }
 
   if (sub === 'survey' || sub === 'constitution') {
     const project = await scanProject(target);
@@ -508,6 +643,6 @@ export const handleBrownfieldCommand = async (args: string[], io: CliIO, cwd: st
     return report.violations.length > 0 ? 1 : 0;
   }
 
-  io.log(`Subcomando desconocido: ${sub}. Usa: survey | constitution [target] [--write] | impact <feature> [--base <ref>] | contracts <feature> [--write] [--verify] [--base <ref>] | reuse <feature> [--symbols A,B] [--base <ref>]`);
+  io.log(`Subcomando desconocido: ${sub}. Usa: survey | constitution [target] [--write] | bootstrap [target] [--focus "<texto>"] [--write] [--json] | impact <feature> [--base <ref>] | contracts <feature> [--write] [--verify] [--base <ref>] | reuse <feature> [--symbols A,B] [--base <ref>]`);
   return 1;
 };

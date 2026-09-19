@@ -67,7 +67,7 @@ The skills **shipped by this repository** are source templates; the CLI copies t
 set into a target project.
 
 - Templates (this repository): `tools/cc-sdd/templates/agents/<agent>/skills/sdd-*/SKILL.md`
-  — 160 `SKILL.md` files across 8 skills-based agents (20 skills each).
+  — 168 `SKILL.md` files across 8 skills-based agents (21 skills each).
 - Installed in a target project: the agent's layout directory, e.g. `.claude/skills/sdd-*/SKILL.md`
   (Claude Code Skills), `.agent/skills/` (Antigravity), `.cursor/skills/` (Cursor).
 - The agent registry that defines every layout and alias flag is

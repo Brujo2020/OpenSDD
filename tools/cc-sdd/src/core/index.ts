@@ -33,3 +33,6 @@ export * from './rigor.js';
 export * from './changeImpact.js';
 export * from './executionContract.js';
 export * from './reuseFirst.js';
+export * from './specConstitution.js';
+export * from './status.js';
+export * from './bootstrap.js';

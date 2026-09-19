@@ -58,6 +58,30 @@ Status: approved
 - Contracts: tools/cc-sdd/test/docsIntegrity.test.ts
 - Strangler: new
 
+### REQ-BF-011 — One dashboard for the whole state
+- Statement: WHEN a project asks for its status, the [console] shall report the constitution, the specs, the delta, the contracts, the constitutional alignment and the rigour level on one screen, together with the next command to run.
+- Targets: tools/cc-sdd/src/core/status.ts, tools/cc-sdd/src/cli/commands/status.ts, tools/cc-sdd/test/coreStatus.test.ts
+- Contracts: tools/cc-sdd/test/coreStatus.test.ts
+- Strangler: new
+
+### REQ-BF-012 — One entry point for an existing repository
+- Statement: WHEN a repository is bootstrapped, the [bootstrap] shall compose reconnaissance, the descriptive constitution, the module responsibility map, the code-intelligence document and the ordered steps into one plan.
+- Targets: tools/cc-sdd/src/core/bootstrap.ts, tools/cc-sdd/src/cli/commands/brownfield.ts, tools/cc-sdd/test/coreBootstrap.test.ts
+- Contracts: tools/cc-sdd/test/coreBootstrap.test.ts
+- Strangler: new
+
+### REQ-BF-013 — The constitution validates every spec
+- Statement: WHEN a spec is checked, the [constitutional alignment] shall report the principles it declares, the ones it ignores, any phantom authority and any requirement that contradicts a principle in force.
+- Targets: tools/cc-sdd/src/core/specConstitution.ts, tools/cc-sdd/test/coreSpecConstitution.test.ts
+- Contracts: tools/cc-sdd/test/coreSpecConstitution.test.ts
+- Strangler: new
+
+### REQ-BF-014 — The workflow is taught where the agents read it
+- Statement: The [skill] shall teach the five-step brownfield flow with the exact commands and the constitution as the pivot for validating every spec.
+- Targets: tools/cc-sdd/templates, docs/guides/brownfield-quickstart.md, docs/claims/paper-claims.yaml
+- Contracts: tools/cc-sdd/test/docsIntegrity.test.ts
+- Strangler: new
+
 ## MODIFIED
 
 ### REQ-BF-003 — Reconnaissance of a workspace layout

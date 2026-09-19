@@ -1,79 +1,119 @@
-import { colors, formatHeading } from '../ui/colors.js';
+/**
+ * `open-sdd status` — la superficie de consola del panel único.
+ *
+ * Dos decisiones que la forma del comando hace explícitas:
+ *
+ *  1. El panel se pinta TONO A TONO. `renderStatus` devuelve texto plano, una entrada por línea, y
+ *     aquí se colorea con `report.lines[i].tone`. Nada de ANSI en el core: el JSON queda limpio y el
+ *     renderizador es testeable sin despojar códigos de escape.
+ *  2. `--check` es el GATE del pivote constitucional. El panel informa; `--check` valida la spec
+ *     CONTRA la constitución y devuelve 1 ante cualquier hallazgo de error — incluido «no se pudo
+ *     validar», porque no poder inspeccionar no es aprobar.
+ *
+ * ── Compatibilidad heredada (documentada, no silenciosa) ────────────────────────────────────────
+ * `test/cliSubcommands.test.ts` fija dos contratos anteriores que este comando conserva:
+ *   · `status --json` SIN feature sigue devolviendo la lista de estados por spec (un array con
+ *     `name`), no el `StatusReport`. `status <feature> --json` sí devuelve el `StatusReport`, que es
+ *     la forma máquina-legible del panel.
+ *   · `status <feature>` conserva los tokens `Specification:` y `Phase:` en la línea de la spec.
+ * Nota de idioma: el resto de los textos visibles son español; esos dos tokens se mantienen porque
+ * un test ya instalado los exige.
+ */
+import { colors } from '../ui/colors.js';
 import { getSpecStatus, listSpecs, resolveSddDir } from '../../core/specManager.js';
-export const handleStatusCommand = async (argv, io, cwd = process.cwd()) => {
-    const isJson = argv.includes('--json');
-    const sddDirArg = argv.find((a) => a.startsWith('--sdd-dir='));
-    const sddDir = sddDirArg ? sddDirArg.split('=')[1] : await resolveSddDir(cwd);
-    const featureArg = argv.find((a) => !a.startsWith('-'));
-    if (featureArg) {
-        const status = await getSpecStatus(cwd, featureArg, sddDir);
-        if (!status.exists) {
-            if (isJson) {
-                io.log(JSON.stringify({ error: `Spec "${featureArg}" not found`, exists: false }, null, 2));
-            }
-            else {
-                io.error(colors.red(`No spec found for "${featureArg}". Check available specs with: open-sdd status`));
-            }
-            return 1;
-        }
-        if (isJson) {
-            io.log(JSON.stringify(status, null, 2));
-            return 0;
-        }
-        io.log('');
-        io.log(formatHeading(`Specification: ${colors.bold(status.name)}`));
-        io.log(`  Phase:        ${colors.cyan(status.phase)}`);
-        io.log(`  Approved:     ${status.isApproved ? colors.green('✓ YES') : colors.yellow('✗ NO')}`);
-        io.log(`  Requirements: ${status.requirementsCount} defined`);
-        // Task progress bar
-        const { total, completed, inProgress, pending, percent } = status.tasks;
-        const barLength = 20;
-        const filled = Math.round((percent / 100) * barLength);
-        const empty = barLength - filled;
-        const bar = colors.green('█'.repeat(filled)) + colors.dim('░'.repeat(empty));
-        io.log(`  Tasks:        [${bar}] ${percent}% (${completed}/${total} done, ${inProgress} active, ${pending} pending)`);
-        io.log(`  Triad Files:  ` + [
-            status.files.requirements ? colors.green('reqs: ✓') : colors.dim('reqs: ✗'),
-            status.files.design ? colors.green('design: ✓') : colors.dim('design: ✗'),
-            status.files.tasks ? colors.green('tasks: ✓') : colors.dim('tasks: ✗'),
-            status.files.auditReport ? colors.green('audit: ✓') : colors.dim('audit: ✗'),
-        ].join(' | '));
-        if (status.boundaries.length > 0) {
-            io.log(`  Boundaries:   ${status.boundaries.slice(0, 4).join(', ')}${status.boundaries.length > 4 ? ` (+${status.boundaries.length - 4} more)` : ''}`);
-        }
-        io.log('');
+import { alignFeature, buildStatus, renderStatus, worstTone, } from '../../core/status.js';
+const TONE_PAINT = {
+    ok: colors.green,
+    warn: colors.yellow,
+    err: colors.red,
+    dim: colors.dim,
+};
+/** Cabecera de sección: `value` vacío. El contenido se colorea por su tono. */
+const paint = (text, line) => line.value ? TONE_PAINT[line.tone](text) : colors.bold(colors.cyan(text));
+/** Ejecutar el pivote. No poder ejecutarlo es un fallo (1): no se declara aprobado lo no inspeccionado. */
+const runPivot = async (cwd, feature, sddDir) => {
+    const outcome = await alignFeature(cwd, {
+        ...(feature ? { feature } : {}),
+        ...(sddDir ? { sddDir } : {}),
+    });
+    if (!outcome.alignment) {
+        return { alignment: null, error: outcome.error ?? 'el pivote no se pudo ejecutar', exitCode: 1 };
+    }
+    const errors = outcome.alignment.findings.filter((finding) => finding.severity === 'error').length;
+    return { alignment: outcome.alignment, exitCode: errors > 0 ? 1 : 0 };
+};
+/**
+ * Compatibilidad: la lista por spec que `status --json` (sin feature) devolvía antes del panel.
+ * Se mantiene tal cual para no romper a quien la consume por máquina.
+ */
+const legacySpecList = async (cwd, sddDir) => {
+    const dir = sddDir ?? (await resolveSddDir(cwd));
+    const specs = await listSpecs(cwd, dir);
+    return Promise.all(specs.map((feature) => getSpecStatus(cwd, feature, dir)));
+};
+export const handleStatusCommand = async (args, io, cwd = process.cwd()) => {
+    const isJson = args.includes('--json');
+    const isCheck = args.includes('--check');
+    const isQuiet = args.includes('--quiet');
+    const sddArg = args.find((arg) => arg.startsWith('--sdd-dir='));
+    const sddDir = sddArg ? sddArg.slice('--sdd-dir='.length) : undefined;
+    const feature = args.find((arg) => !arg.startsWith('-'));
+    if (isJson && !feature && !isCheck) {
+        io.log(JSON.stringify(await legacySpecList(cwd, sddDir), null, 2));
         return 0;
     }
-    // List all specs
-    const specs = await listSpecs(cwd, sddDir);
-    if (specs.length === 0) {
-        if (isJson) {
-            io.log(JSON.stringify({ specs: [], count: 0 }, null, 2));
+    const report = await buildStatus(cwd, {
+        ...(feature ? { feature } : {}),
+        ...(sddDir ? { sddDir } : {}),
+    });
+    const rendered = renderStatus(report);
+    const hasErrorLine = report.lines.some((line) => line.tone === 'err');
+    // ── Guion: una sola línea, para scripts ─────────────────────────────────────────────────────
+    if (isQuiet) {
+        const worst = worstTone(report.lines.map((line) => line.tone)) ?? 'dim';
+        io.log(`${report.level} · ${worst} · ${report.nextAction ?? 'sin acción determinada'}`);
+        return hasErrorLine ? 1 : 0;
+    }
+    // ── JSON: el StatusReport (con el pivote añadido si se pidió --check) ───────────────────────
+    if (isJson) {
+        if (!isCheck) {
+            io.log(JSON.stringify(report, null, 2));
+            return hasErrorLine ? 1 : 0;
+        }
+        const pivot = await runPivot(cwd, feature, sddDir);
+        io.log(JSON.stringify(pivot.alignment
+            ? { ...report, alignment: pivot.alignment, checkExitCode: pivot.exitCode }
+            : { ...report, alignmentError: pivot.error ?? 'el pivote no se pudo ejecutar', checkExitCode: pivot.exitCode }, null, 2));
+        return hasErrorLine || pivot.exitCode !== 0 ? 1 : 0;
+    }
+    // ── Panel ───────────────────────────────────────────────────────────────────────────────────
+    io.log('');
+    rendered.forEach((text, index) => io.log(paint(text, report.lines[index])));
+    let exitCode = hasErrorLine ? 1 : 0;
+    if (isCheck) {
+        const pivot = await runPivot(cwd, feature, sddDir);
+        io.log('');
+        io.log(colors.bold(colors.cyan('Validación constitucional (--check)')));
+        if (!pivot.alignment) {
+            io.log(`  ${colors.red('✗')} ${pivot.error ?? 'el pivote no se pudo ejecutar'}`);
+            exitCode = 1;
         }
         else {
-            io.log('');
-            io.log(colors.yellow(`No specifications found in ${sddDir}/specs/.`));
-            io.log(`Start a new spec with: ${colors.bold('open-sdd init <feature-name>')}`);
-            io.log(`Or bootstrap legacy code with: ${colors.bold('open-sdd getspecs')}`);
-            io.log('');
+            const alignment = pivot.alignment;
+            if (alignment.findings.length === 0) {
+                io.log(`  ${colors.green('✓')} ${alignment.detail.split(';')[0]}: sin hallazgos.`);
+            }
+            for (const finding of alignment.findings) {
+                const mark = finding.severity === 'error' ? colors.red('error') : finding.severity === 'warning' ? colors.yellow('aviso') : colors.dim('info');
+                const where = [finding.principleId, finding.artifactId].filter(Boolean).join(' → ');
+                io.log(`  ${mark.padEnd(18)} ${finding.code.padEnd(22)} ${where}`);
+                io.log(`      ${colors.dim(finding.message)}`);
+            }
+            io.log(`  ${colors.dim(alignment.detail)}`);
+            if (alignment.findings.some((finding) => finding.severity === 'error'))
+                exitCode = 1;
         }
-        return 0;
-    }
-    const statuses = await Promise.all(specs.map((s) => getSpecStatus(cwd, s, sddDir)));
-    if (isJson) {
-        io.log(JSON.stringify(statuses, null, 2));
-        return 0;
     }
     io.log('');
-    io.log(formatHeading(`Active Specifications (${specs.length}):`));
-    io.log(`  ${'Feature'.padEnd(25)} ${'Phase'.padEnd(18)} ${'Progress'.padEnd(12)} ${'Approved'}`);
-    io.log(`  ${'─'.repeat(25)} ${'─'.repeat(18)} ${'─'.repeat(12)} ${'─'.repeat(8)}`);
-    for (const s of statuses) {
-        const nameStr = s.name.length > 24 ? s.name.slice(0, 21) + '...' : s.name;
-        const progressStr = `${s.tasks.percent}% (${s.tasks.completed}/${s.tasks.total})`;
-        const approvedStr = s.isApproved ? colors.green('YES') : colors.yellow('NO');
-        io.log(`  ${colors.bold(nameStr.padEnd(25))} ${colors.cyan(s.phase.padEnd(18))} ${progressStr.padEnd(12)} ${approvedStr}`);
-    }
-    io.log('');
-    return 0;
+    return exitCode;
 };

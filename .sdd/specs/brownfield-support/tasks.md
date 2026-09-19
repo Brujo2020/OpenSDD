@@ -22,6 +22,22 @@
   - Observable completion: a repository declaring Spec-Anchored without a constitution has its commit refused.
   - _Evidence: a throwaway repository declaring \`spec-anchored\` with no constitution exits 1 with "Constitución ausente: el nivel Spec-Anchored emite veredictos bloqueantes y estos deben citar autoridad, pero no hay principios en vigor que citar"; this repository (valid constitution) passes the same hook with exit 0. Two design defects were fixed to get here: the hook installer refused to refresh an older version of its own gate, and the drift aspect was blocking commits — drift is tautological at commit time (the change being committed IS the modification) and now runs at the pull-request boundary instead, with \`--except/--no-drift\` announcing the exclusion so it cannot be read as a passed check._
 
+- [-] 16. One dashboard for the whole state — _Requirements: REQ-BF-011_ — _Boundary:_ `tools/cc-sdd/src/core/status.ts`, `tools/cc-sdd/src/cli/commands/status.ts`, `tools/cc-sdd/test/coreStatus.test.ts`_
+  - Constitution, specs, delta, contracts, constitutional alignment and level on one screen, plus the next command. Unknown sections are marked unknown, never healthy.
+  - Observable completion: `open-sdd status` exits 0 on a healthy repository and `--check` exits 1 on a phantom principle.
+
+- [-] 17. One entry point for an existing repository — _Requirements: REQ-BF-012_ — _Boundary:_ `tools/cc-sdd/src/core/bootstrap.ts`, `tools/cc-sdd/src/cli/commands/brownfield.ts`, `tools/cc-sdd/test/coreBootstrap.test.ts`_
+  - Composes reconnaissance, the descriptive constitution, the module responsibility map, the code-intelligence document and the ordered steps. Adopts the spec-kit bootstrap concept (issue #1436) reimplemented on this engine, not copied.
+  - Observable completion: `brownfield bootstrap` prints the plan, and `--write` never overwrites an existing constitution.
+
+- [-] 18. The constitution validates every spec — _Requirements: REQ-BF-013_ — _Boundary:_ `tools/cc-sdd/src/core/specConstitution.ts`, `tools/cc-sdd/test/coreSpecConstitution.test.ts`_
+  - Declared principles, ignored principles, phantom authority (error), contradiction with a principle in force, and silence when the rule cannot decide.
+  - Observable completion: a spec citing an unknown principle fails the check and the alignment ratio is 0 — not 1 — when nothing is declared.
+
+- [-] 19. Teach the workflow where the agents read it — _Requirements: REQ-BF-014_ — _Boundary:_ `tools/cc-sdd/templates`, `docs/guides/brownfield-quickstart.md`, `README.md`, `docs/claims/paper-claims.yaml`_
+  - A skill with the five steps and the constitution as pivot, plus a quickstart that states what the tool does not do yet.
+  - Observable completion: the skill exists for every skills-based agent as one identical variant and the claims registry stays at 0 broken.
+
 - [-] 11. Document brownfield, the constitution and the three levels — _Requirements: REQ-BF-001, REQ-BF-002, REQ-BF-006, REQ-BF-010_ — _Boundary:_ `README.md`, `CLAUDE.md`, `AGENTS.md`, `CHANGELOG.md`, `docs`, `tools/cc-sdd/templates`_
   - Rewrite gap G-12 with what is now built and what is not, add the new component rows and claims, write the brownfield workflow guide, and teach the brownfield commands to the shipped templates.
   - Observable completion: the claims registry stays at 0 broken and 0 outdated, and the traceability report states the divergences between the source documents and the implementation instead of hiding them.
@@ -58,6 +74,6 @@
   - Generate the repository's own descriptive constitution and describe this very change as a delta.
   - _Evidence: `.sdd/steering/constitution.md` written with 4 principles in force and 2 proposed amendments; this spec's `delta.md` validates with full traceability (5/5 requirements mapped)._
 
-- [-] 8. The three rigor levels, with the constitution required — _Requirements: REQ-BF-006_ — _Boundary:_ `tools/cc-sdd/src/core/rigor.ts`, `tools/cc-sdd/src/cli/commands/paper.ts`, `tools/cc-sdd/src/core/index.ts`, `tools/cc-sdd/src/core/types.ts`, `tools/cc-sdd/dist`_
+- [-] 8. The three rigor levels, with the constitution required — _Requirements: REQ-BF-006_ — _Boundary:_ `tools/cc-sdd/src/core/rigor.ts`, `tools/cc-sdd/src/cli/commands/paper.ts`, `tools/cc-sdd/src/core/index.ts`, `tools/cc-sdd/src/core/types.ts`, `.sdd/settings/rigor.json`, `tools/cc-sdd/dist`_
   - Spec-First / Spec-Anchored / Spec-as-Source as a CUMULATIVE ladder whose default is fluid: Spec-First demands a valid constitution plus requirements in checkable EARS form, and each step up only adds (traceability and evidence binding, then contracts and regeneration). The constitution is required at every level because a blocking verdict must cite authority.
   - Observable completion: a project with no constitution fails the assessment at every level, the ladder activates 2 -> 4 -> 6 gates as it rises, and an unknown gate id in the configuration is rejected instead of ignored.

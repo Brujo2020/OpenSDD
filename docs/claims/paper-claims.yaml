@@ -207,9 +207,9 @@
 
 - id: CLM-027
   section: "§6.4"
-  statement_es: 'El repositorio envía 160 ficheros SKILL.md (8 variantes de agente × 20 skills) bajo tools/cc-sdd/templates/agents/.'
-  statement_en: 'The repository ships 160 SKILL.md files (8 agent variants × 20 skills) under tools/cc-sdd/templates/agents/.'
-  verifier: 'test "$(find tools/cc-sdd/templates/agents -name SKILL.md | wc -l | tr -d " ")" = 160'
+  statement_es: 'El repositorio envía 168 ficheros SKILL.md (8 variantes de agente × 21 skills) bajo tools/cc-sdd/templates/agents/.'
+  statement_en: 'The repository ships 168 SKILL.md files (8 agent variants × 21 skills) under tools/cc-sdd/templates/agents/.'
+  verifier: 'test "$(find tools/cc-sdd/templates/agents -name SKILL.md | wc -l | tr -d " ")" = 168'
   expectation: pass
 
 - id: CLM-028
@@ -420,4 +420,39 @@
   statement_es: 'El hook de pre-commit ejecuta govern rigor con --quiet y --no-drift: el veredicto viaja en el codigo de salida y un commit no se lee como una auditoria.'
   statement_en: 'The pre-commit hook runs govern rigor with --quiet and --no-drift: the verdict travels in the exit code and a commit does not read like an audit.'
   verifier: 'node -e "const fs=require(''fs'');const t=fs.readFileSync(''tools/cc-sdd/templates/hooks/pre-commit'',''utf8'');const nl=String.fromCharCode(10);const line=t.split(nl).map(l=>l.trim()).find(l=>l.startsWith(''node'')&&l.includes(''govern rigor''));process.exit(line&&line.includes(''--quiet'')&&line.includes(''--no-drift'')?0:1)"'
+  expectation: pass
+
+- id: CLM-058
+  section: "§12 / spec-kit issue #1436 (one entry point for an existing repository; concept adopted on our own engine)"
+  statement_es: 'La consola ofrece un unico punto de entrada para un repositorio existente: brownfield bootstrap imprime el plan con el mapa de modulos observado, los artefactos y los pasos ordenados, y sale 0.'
+  statement_en: 'The console offers one entry point for an existing repository: brownfield bootstrap prints the plan with the observed module map, the artifacts and the ordered steps, and exits 0.'
+  verifier: 'node tools/cc-sdd/dist/cli.js brownfield bootstrap . >/dev/null && node tools/cc-sdd/dist/cli.js brownfield bootstrap . | grep -q "Mapa de módulos" && node tools/cc-sdd/dist/cli.js brownfield bootstrap . | grep -q "Plan de bootstrap" && node tools/cc-sdd/dist/cli.js brownfield bootstrap . | grep -q "Pasos"'
+  expectation: pass
+
+- id: CLM-059
+  section: "§6.4 / Manual Maestro v3.0 (the workflow is taught where the agents read it)"
+  statement_es: 'El flujo brownfield se ensena donde los agentes lo leen: el skill sdd-brownfield existe para los 8 agentes basados en skills y las 8 copias son identicas byte a byte.'
+  statement_en: 'The brownfield workflow is taught where the agents read it: the sdd-brownfield skill exists for all 8 skills-based agents and the 8 copies are byte-identical.'
+  verifier: 'node -e "const fs=require(''fs''),cp=require(''crypto'');const base=''tools/cc-sdd/templates/agents'';const dirs=fs.readdirSync(base).filter(d=>fs.existsSync(base+''/''+d+''/skills/sdd-brownfield/SKILL.md''));const hashes=dirs.map(d=>cp.createHash(''md5'').update(fs.readFileSync(base+''/''+d+''/skills/sdd-brownfield/SKILL.md'')).digest(''hex''));process.exit(dirs.length===8&&new Set(hashes).size===1?0:1)"'
+  expectation: pass
+
+- id: CLM-060
+  section: "§12 / Manual Maestro v3.0 EGTAV (one dashboard)"
+  statement_es: 'El panel unico de estado informa de la constitucion, las specs, la delta, los contratos, la alineacion constitucional y el rigor, e imprime el nivel declarado, saliendo 0 en un repositorio sano.'
+  statement_en: 'The single status dashboard reports the constitution, the specs, the delta, the contracts, the constitutional alignment and the rigor, prints the declared level, and exits 0 on a healthy repository.'
+  verifier: 'node tools/cc-sdd/dist/cli.js status >/dev/null && node tools/cc-sdd/dist/cli.js status | grep -q "Rigor — spec-first"'
+  expectation: pass
+
+- id: CLM-061
+  section: "§9.5 / Manual Maestro v3.0 (the panel does not become a wall)"
+  statement_es: 'status --quiet imprime una sola linea con el nivel y el veredicto, para que el panel no se convierta en un muro en cada commit.'
+  statement_en: 'status --quiet prints a single line with the level and the verdict, so the dashboard does not become a wall on every commit.'
+  verifier: 'test "$(node tools/cc-sdd/dist/cli.js status --quiet | wc -l | tr -d " ")" = 1 && node tools/cc-sdd/dist/cli.js status --quiet | grep -q "^spec-first"'
+  expectation: pass
+
+- id: CLM-062
+  section: "CSDD §3.4 / Manual Maestro v3.0 (the constitution is the pivot of every spec)"
+  statement_es: 'Una spec que declara un principio que no esta en vigor es una autoridad fantasma: status --check la reporta como error UNKNOWN_PRINCIPLE y sale con codigo 1.'
+  statement_en: 'A spec that declares a principle not in force is a phantom authority: status --check reports it as an UNKNOWN_PRINCIPLE error and exits 1.'
+  verifier: 'node -e "const fs=require(''fs''),os=require(''os''),p=require(''path''),cp=require(''child_process'');const cli=p.resolve(''tools/cc-sdd/dist/cli.js'');const d=fs.mkdtempSync(p.join(os.tmpdir(),''sdd-phantom-''));const s=p.join(d,''.sdd'');fs.mkdirSync(p.join(s,''specs'',''x''),{recursive:true});fs.mkdirSync(p.join(s,''steering''),{recursive:true});fs.copyFileSync(''.sdd/steering/constitution.md'',p.join(s,''steering'',''constitution.md''));fs.writeFileSync(p.join(s,''specs'',''x'',''requirements.md''),''# R''+String.fromCharCode(10)+''_Constitution: C-FANTASMA_''+String.fromCharCode(10));const r=cp.spawnSync(process.execPath,[cli,''status'',''x'',''--check''],{cwd:d,encoding:''utf8''});process.exit(r.status===1&&String(r.stdout).includes(''UNKNOWN_PRINCIPLE'')?0:1)"'
   expectation: pass

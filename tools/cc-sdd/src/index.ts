@@ -108,6 +108,11 @@ Zero-Trust console (reference architecture):
   floor [status|install] [target] [--ci]       Enforcement floor: commit hook + PR gate matrix
 Brownfield (existing code that is the de facto source of truth):
   brownfield survey [target]                    Detect the stack, boundaries and evidence
+  brownfield bootstrap [target] [--focus F] [--write]  One entry point: recon + constitution + module map + code intelligence + steps
+  brownfield impact <feature> [--base R]        Dependents, breaking changes, migrations, public API surface
+  brownfield contracts <feature> [--write] [--verify]  The regression oracle: which tests protect the change
+  brownfield reuse <feature> [--symbols A,B]    Search for existing symbols before creating new ones
+  status [feature] [--check] [--quiet] [--json] Whole state on one screen, with the next command to run
   brownfield constitution [target] [--write]   Reverse-engineer the descriptive constitution
   delta init <feature> "<title>"                Scaffold a delta spec (ADDED/MODIFIED/REMOVED/RENAMED)
   delta validate <feature>                      Validate ids, EARS, targets, contracts and traceability
