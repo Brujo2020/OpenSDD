@@ -76,7 +76,9 @@ if [ -f "$ROOT/.sdd/settings/rigor.json" ]; then
   # `--no-drift`: at commit time the change you are committing IS the modification, so a drift
   # check against declared boundaries is tautological and would block the very act of committing.
   # Drift is enforced at the pull-request boundary (.github/workflows/gates.yml runs the full check).
-  node "$CLI" govern rigor --no-drift
+  # --quiet: un commit no debería parecer una auditoría. El código de salida lleva el veredicto;
+  # el detalle completo está a un `open-sdd govern rigor` de distancia.
+  node "$CLI" govern rigor --no-drift --quiet
   RIGOR_STATUS=$?
   if [ "$RIGOR_STATUS" -ne 0 ]; then
     echo "" >&2

@@ -171,8 +171,11 @@ with evidence; desired-but-absent practices become proposed amendments). Once th
 change to existing behaviour is specified as a delta — `open-sdd delta init <feature> "<title>"`,
 then `open-sdd delta validate <feature>` — with ADDED/MODIFIED/REMOVED/RENAMED sections and
 delta-scoped `REQ-<AREA>-<NNN>` ids. Three rigor levels (Spec-First, Spec-Anchored,
-Spec-as-Source) govern how much of that is required; from Spec-Anchored upward a valid
-constitution is required (blocking), because it is the authority a blocking verdict cites.
+Spec-as-Source) govern how much of that is required. They are a cumulative ladder and the default
+is fluid: Spec-First demands a valid constitution and requirements in checkable EARS form, and each
+step up only adds checks (delta, traceability, evidence binding, drift, then contracts and
+regeneration). The constitution is required (blocking) at EVERY level, because it is the authority a
+blocking verdict cites.
 
 ## Output Description
 

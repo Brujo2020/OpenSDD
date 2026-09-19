@@ -77,10 +77,14 @@ import {
 } from '../../core/constitution.js';
 import {
   RIGOR_LEVELS,
+  RIGOR_SETTINGS_FILE,
   assessRigor,
+  effectiveGates,
+  isRigorLevel,
   rigorRequirements,
   loadRigorSettings,
   selectRigorLevel,
+  validateGateOverride,
 } from '../../core/rigor.js';
 import { buildTaskDependencyWaves } from '../../core/scheduler.js';
 import { parseTasksMarkdown, readSpecMetadata } from '../../core/specManager.js';
@@ -512,11 +516,85 @@ export const handleGovernCommand = async (args: string[], io: CliIO, cwd: string
   }
 
   if (sub === 'rigor') {
-    // The three SDD rigor levels (Manual Maestro §2.4) as a first-class mechanism, and the point of
-    // the module: from spec-anchored upward a valid constitution is REQUIRED, so declaring a level is
-    // accepting its demands rather than labelling the project.
+    // The three SDD rigor levels are a LADDER: the default demands the floor (a constitution to cite
+    // and requirements in checkable form) and every step up adds checks. The old output printed the
+    // whole table and every finding on each run, which made a normal commit feel like an audit; by
+    // default this is now a couple of lines, and --verbose restores the full report.
+    const quiet = args.includes('--quiet');
+    const verbose = args.includes('--verbose');
     const rigorSettings = await loadRigorSettings(root);
     const specFeature = process.env.SDD_FEATURE ?? (await firstSpec(root)) ?? undefined;
+
+    // Configuring the level should not require hand-editing JSON: `--set` writes the same file the
+    // hook and the assessment read, validates the level and the rationale, and refuses unknown gate
+    // ids. Raising the level here ADDS checks; it never silently removes any.
+    if (args.includes('--set')) {
+      const setIdx = args.indexOf('--set');
+      const level = args[setIdx + 1] ?? '';
+      if (!isRigorLevel(level)) {
+        io.error(colors.red(`Nivel inválido: "${level}". Admitidos: ${RIGOR_LEVELS.map((l) => l.level).join(', ')}.`));
+        return 1;
+      }
+      const rationaleIdx = args.indexOf('--rationale');
+      const rationale = rationaleIdx >= 0 ? (args[rationaleIdx + 1] ?? '') : '';
+      if (rationale.trim().length === 0) {
+        io.error(colors.red('El nivel exige un motivo: añade --rationale "por qué este nivel".'));
+        return 1;
+      }
+      const gatesIdx = args.indexOf('--allow-gates');
+      let gates: string[] | undefined;
+      try {
+        gates = validateGateOverride(
+          gatesIdx >= 0 ? (args[gatesIdx + 1] ?? '').split(',').map((g) => g.trim()).filter(Boolean) : undefined,
+        );
+      } catch (error) {
+        io.error(colors.red(error instanceof Error ? error.message : String(error)));
+        return 1;
+      }
+
+      const settingsPath = path.join(root, RIGOR_SETTINGS_FILE);
+      await mkdir(path.dirname(settingsPath), { recursive: true });
+      const previous = await readFile(settingsPath, 'utf8').catch(() => null);
+      const brownfield = previous ? (JSON.parse(previous).brownfield ?? true) : true;
+      const payload = {
+        $comment: previous ? (JSON.parse(previous).$comment ?? undefined) : undefined,
+        level,
+        rationale,
+        brownfield,
+        ...(gates ? { gates } : {}),
+        updated_at: new Date().toISOString(),
+      };
+      await writeFile(settingsPath, JSON.stringify(payload, null, 2) + '\n', 'utf8');
+
+      const demanded = rigorRequirements(level)
+        .filter((r) => r.demand === 'required' && (r.aspect !== 'delta' || brownfield))
+        .map((r) => r.aspect);
+      io.log('');
+      io.log(`  ${colors.green('✓')} nivel ${colors.bold(level)} escrito en ${path.relative(root, settingsPath)}`);
+      io.log(`  ${dim(`exige: ${demanded.join(', ')}`)}`);
+      io.log(`  ${dim(`gates activos: ${effectiveGates(level, gates).join(', ')}`)}`);
+      io.log('');
+      return 0;
+    }
+
+    if (args.includes('--gates')) {
+      io.log('');
+      io.log(heading('La escalera: qué añade cada nivel'));
+      io.log('');
+      for (const level of RIGOR_LEVELS) {
+        const demanded = rigorRequirements(level.level)
+          .filter((r) => r.demand === 'required')
+          .map((r) => r.aspect);
+        io.log(`  ${level.level.padEnd(16)} ${effectiveGates(level.level).join(', ').padEnd(20)} exige: ${demanded.join(', ')}`);
+      }
+      io.log('');
+      io.log(
+        dim('  C2 (secretos y comandos destructivos) está activo en todos los niveles: es el suelo duro, no un ajuste de rigor.'),
+      );
+      io.log(dim('  El nivel decide las EXIGENCIAS; el campo "gates" de .sdd/settings/rigor.json decide qué comprobaciones corren.'));
+      io.log('');
+      return 0;
+    }
 
     if (args.includes('--select')) {
       const selection = selectRigorLevel({
@@ -539,36 +617,14 @@ export const handleGovernCommand = async (args: string[], io: CliIO, cwd: string
       return 0;
     }
 
-    io.log('');
-    io.log(heading('Niveles de rigor del SDD (Manual Maestro §2.4)'));
-    io.log('');
-    for (const level of RIGOR_LEVELS) {
-      const declared = rigorSettings.level === level.level;
-      io.log(`  ${declared ? colors.green('▶') : ' '} ${colors.bold(level.level)} — ${level.name}`);
-      io.log(`      ${dim(level.definition)}`);
-      const demanded = rigorRequirements(level.level)
-        .filter((r) => r.demand === 'required')
-        .map((r) => r.aspect)
-        .join(', ');
-      if (demanded) io.log(`      ${dim(`exige: ${demanded}`)}`);
-      if (declared) io.log(`      ${dim(`evaluador: ${level.evaluatorCheck}`)}`);
-    }
-    io.log('');
-    io.log(
-      `  ${colors.bold('Nivel declarado')}: ${rigorSettings.level}${rigorSettings.brownfield ? ' (proyecto brownfield)' : ''}`,
-    );
-    io.log(`  ${dim(`motivo: ${rigorSettings.rationale}`)}`);
-    io.log('');
-
+    const gateOverride = validateGateOverride((rigorSettings as { gates?: unknown }).gates);
     const assessment = await assessRigor(root, {
       level: rigorSettings.level,
       brownfield: rigorSettings.brownfield,
       ...(specFeature ? { feature: specFeature } : {}),
+      ...(gateOverride ? { gates: gateOverride } : {}),
     });
 
-    // Aspects the caller asked to exclude, e.g. the commit gate excludes `drift` on purpose: at
-    // commit time every change is by definition a modification of the working tree, so drift is
-    // tautological there and belongs to the pull-request boundary (CI runs the full assessment).
     const exceptIdx = args.findIndex((a) => a === '--except');
     const excluded = new Set(
       (exceptIdx >= 0 ? (args[exceptIdx + 1] ?? '') : args.includes('--no-drift') ? 'drift' : '')
@@ -577,48 +633,68 @@ export const handleGovernCommand = async (args: string[], io: CliIO, cwd: string
         .filter(Boolean),
     );
     const considered = excluded.size > 0 ? assessment.findings.filter((f) => !excluded.has(f.aspect)) : assessment.findings;
-    if (excluded.size > 0) {
-      io.log(
-        `  ${dim(`aspecto(s) excluido(s) en esta ejecución: ${[...excluded].join(', ')} — se declara para que la exclusión no se lea como una comprobación superada`)}`,
-      );
-    }
-
     const errors = considered.filter((f) => f.severity === 'error');
     const warnings = considered.filter((f) => f.severity === 'warning');
 
-    if (considered.length === 0) {
-      io.log(`  ${colors.green('Sin hallazgos')}: el repositorio cumple lo que exige ${assessment.level}.`);
-    }
-    for (const finding of considered) {
-      const mark =
-        finding.severity === 'error'
-          ? colors.red('error')
-          : finding.severity === 'warning'
-            ? colors.yellow('aviso')
-            : colors.dim('info');
-      io.log(`  ${mark.padEnd(18)} ${finding.aspect.padEnd(16)} ${finding.message}`);
-      if (finding.artifact) io.log(`      ${dim(finding.artifact)}`);
-    }
-    io.log('');
-    if (excluded.size === 0) {
-      io.log(`  ${assessment.satisfied ? colors.green(assessment.detail) : colors.red(assessment.detail)}`);
-    } else {
-      // The assessment's own summary counts every aspect, including the ones this run excluded.
-      // Printing it here would say "not satisfied" while the command exits 0 — the reader would be
-      // right to distrust both numbers. The summary is recomputed over the aspects considered.
+    if (quiet) {
       const verdict =
         errors.length === 0
-          ? colors.green(`Nivel ${assessment.level} satisfecho en los aspectos considerados (${considered.length} hallazgo(s), 0 errores).`)
-          : colors.red(`Nivel ${assessment.level} NO satisfecho: ${errors.length} error(es) en los aspectos considerados.`);
-      io.log(`  ${verdict}`);
-      io.log(
-        `  ${dim(`No evaluado en esta ejecución: ${[...excluded].join(', ')}. El resumen completo del nivel se obtiene sin --except.`)}`,
-      );
+          ? `rigor ${assessment.level}: OK (${considered.length} comprobación(es))`
+          : `rigor ${assessment.level}: ${errors.length} bloqueante(s) — ${errors[0]?.message.slice(0, 140) ?? ''}`;
+      (errors.length === 0 ? io.log : io.error)(errors.length === 0 ? colors.green(verdict) : colors.red(verdict));
+      return errors.length === 0 ? 0 : 1;
     }
+
+    io.log('');
+    io.log(
+      `  ${colors.bold('Rigor')}: ${colors.green(rigorSettings.level)}${rigorSettings.brownfield ? ' (brownfield)' : ''} · gates activos: ${assessment.gates.join(', ')}`,
+    );
+    const demanded = rigorRequirements(rigorSettings.level)
+      .filter((r) => r.demand === 'required' && (r.aspect !== 'delta' || rigorSettings.brownfield))
+      .map((r) => r.aspect);
+    io.log(`  ${dim(`exige: ${demanded.join(', ')}`)}`);
+    if (excluded.size > 0) {
+      io.log(`  ${dim(`no evaluado ahora mismo: ${[...excluded].join(', ')}`)}`);
+    }
+
+    if (verbose) {
+      io.log('');
+      for (const level of RIGOR_LEVELS) {
+        const declared = rigorSettings.level === level.level;
+        io.log(`  ${declared ? colors.green('▶') : ' '} ${colors.bold(level.level)} — ${level.name}`);
+        io.log(`      ${dim(level.definition)}`);
+        if (declared) io.log(`      ${dim(`evaluador: ${level.evaluatorCheck}`)}`);
+      }
+      io.log('');
+      io.log(`  ${dim(`motivo declarado: ${rigorSettings.rationale}`)}`);
+    }
+
+    if (errors.length === 0 && warnings.length === 0) {
+      io.log(`  ${colors.green('✓ sin hallazgos')}: cumples lo que exige ${assessment.level}.`);
+    } else {
+      io.log('');
+      const shown = verbose ? considered : [...errors, ...warnings];
+      for (const finding of shown) {
+        const mark =
+          finding.severity === 'error' ? colors.red('bloqueante') : finding.severity === 'warning' ? colors.yellow('aviso') : colors.dim('info');
+        io.log(`  ${mark.padEnd(20)} ${finding.aspect.padEnd(14)} ${finding.message}`);
+        if (verbose && finding.artifact) io.log(`      ${dim(finding.artifact)}`);
+      }
+      if (!verbose && considered.length > shown.length) {
+        io.log(dim(`  (${considered.length - shown.length} hallazgo(s) informativo(s) ocultos; usa --verbose para verlos)`));
+      }
+    }
+
+    io.log('');
     if (errors.length > 0) {
       io.log(
-        `  ${colors.red('La constitución y lo que exige este nivel son obligatorios:')} ${errors.length} hallazgo(s) bloqueante(s).`,
+        `  ${colors.red(`${errors.length} bloqueante(s) en ${assessment.level}.`)} ${dim('Baja el nivel si este cambio no justifica esa exigencia, o resuélvelos.')}`,
       );
+    } else if (warnings.length > 0) {
+      io.log(`  ${colors.yellow(`${warnings.length} aviso(s)`)}: no bloquean en ${assessment.level}.`);
+    }
+    if (effectiveGates(rigorSettings.level).length < 3) {
+      io.log(dim('  Sube el nivel en .sdd/settings/rigor.json para añadir drift, evidencia y contratos.'));
     }
     io.log('');
     return errors.length > 0 ? 1 : 0;
@@ -842,7 +918,7 @@ export const handleGovernCommand = async (args: string[], io: CliIO, cwd: string
     return findings.some((f) => f.decidable && f.violated) ? 1 : 0;
   }
 
-  io.log(`Subcomando desconocido: ${sub}. Usa: invariants | conformance | hitl | rigor [--select] | constitution [--matrix] | appeal | meta-eval | budget | discipline`);
+  io.log(`Subcomando desconocido: ${sub}. Usa: invariants | conformance | hitl | rigor [--set <nivel> --rationale "..." | --gates | --verbose | --quiet | --select] | constitution [--matrix] | appeal | meta-eval | budget | discipline`);
   return 1;
 };
 

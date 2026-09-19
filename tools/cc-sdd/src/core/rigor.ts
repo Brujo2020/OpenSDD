@@ -42,6 +42,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { HITL_DEFAULTS, type RigorMode } from './hitl.js';
+import { EXECUTABLE_CHAIN, getExecutableGate } from './gateCatalog.js';
 import {
   parseConstitution,
   principlesInForce,
@@ -111,13 +112,13 @@ const ROWS: Record<SddRigorLevel, Array<[string, RigorDemand, string]>> = {
   'spec-first': [
     [
       'constitution',
-      'recommended',
-      'Recomendada, no exigida (§2.4: la spec se escribe antes y puede desecharse). Sin ella no hay autoridad citable, pero el nivel no la demanda.',
+      'required',
+      'Obligatoria: es el SUELO de la escalera, no un extra del nivel. Todo veredicto bloqueante debe citar autoridad (CSDD §3.4, I1) y sin constitución no hay nada que citar. Lo que este nivel no exige es lo de arriba: drift, ligado de evidencia, contratos y regeneración se añaden al subir de nivel.',
     ],
     [
       'triad',
-      'recommended',
-      'La spec escrita antes del código es la única conformidad que este nivel comprueba; su ausencia se reporta, no bloquea.',
+      'required',
+      'Los requisitos escritos antes del cambio, en forma comprobable (EARS), son la única conformidad que este nivel comprueba. Se exigen porque un requisito que no dice nada verificable no se puede revisar; lo que no se exige es que sobrevivan al cambio.',
     ],
     ['delta', 'not-required', 'Un cambio exploratorio o desechable no justifica el contrato de una delta.'],
     [
@@ -226,6 +227,20 @@ const requiresOf = (level: SddRigorLevel): Record<string, RigorDemand> =>
   Object.fromEntries(ROWS[level].map(([aspect, demand]) => [aspect, demand]));
 
 /**
+ * La escalera, en una tabla.
+ *
+ * | Nivel | Exige además | Gates activos |
+ * |---|---|---|
+ * | `spec-first` (por defecto, fluido) | requisitos EARS + constitución válida | C1, C2 |
+ * | `spec-anchored` | + tríada viva, delta en brownfield, trazabilidad, ligado de evidencia, drift | C1, C2, C3, C6 |
+ * | `spec-as-source` | + contratos declarados y regeneración como reparación | C1…C6 |
+ *
+ * C2 (secretos y comandos destructivos) está activo en TODOS los niveles a propósito: pertenece al
+ * subconjunto duro que nunca se auto-autoriza (§9.2), así que bajarse de nivel no vuelve aceptable
+ * una credencial commiteada. La exigencia que se ajusta con el nivel es la del `requires`, y cada
+ * nivel solo AÑADE: ninguno quita el suelo.
+ */
+/**
  * La tabla §2.4, en sustancia.
  *
  * Los tres niveles exigen cosas distintas y por eso son niveles y no etiquetas: `spec-first` no
@@ -239,10 +254,10 @@ export const RIGOR_LEVELS: RigorLevelSpec[] = [
     definition:
       'La especificación se escribe antes del código y puede desecharse: la conformidad se comprueba en el momento de crearla, no se mantiene después.',
     requires: requiresOf('spec-first'),
-    gatesActive: ['C1'],
+    gatesActive: ['C1', 'C2'],
     evaluatorCheck:
-      '¿Existe una spec escrita antes del cambio y era conforme en el momento de crearla? (No se le puede exigir todavía que sobreviva al cambio.)',
-    missingArtifactPolicy: 'advisory',
+      '¿Existen requisitos en forma comprobable (EARS) y una constitución válida con la que justificar cada veredicto? (C1 + C2.) Nada más: este es el nivel fluido por defecto.',
+    missingArtifactPolicy: 'blocking',
   },
   {
     level: 'spec-anchored',
@@ -250,7 +265,7 @@ export const RIGOR_LEVELS: RigorLevelSpec[] = [
     definition:
       'La spec es viva y se actualiza con el código: cada cambio deja trazabilidad requisito→tarea, evidencia capturada y detección de drift.',
     requires: requiresOf('spec-anchored'),
-    gatesActive: ['C1', 'C3', 'C6'],
+    gatesActive: ['C1', 'C2', 'C3', 'C6'],
     evaluatorCheck:
       '¿La spec viva refleja este cambio, cada requisito tiene tarea trazable y cada tarea completada cita la evidencia de la comprobación que la habría falsado? (C1 + C3 + C6.)',
     missingArtifactPolicy: 'blocking',
@@ -273,6 +288,9 @@ const RIGOR_BY_NAME = new Map<SddRigorLevel, RigorLevelSpec>(
 );
 
 /** Type guard used by settings resolution and by callers reading user input. */
+/** La escalera completa, ya declarada: 2 → 4 → 6 gates. */
+export const RIGOR_LADDER = RIGOR_LEVELS;
+
 export const isRigorLevel = (value: unknown): value is SddRigorLevel =>
   typeof value === 'string' && RIGOR_BY_NAME.has(value as SddRigorLevel);
 
@@ -384,7 +402,7 @@ export const selectRigorLevel = (input: RigorSelectionInput): { level: SddRigorL
  *
  * Este es el punto del módulo. La Constitución es el vértice de la jerarquía (CSDD §3.4) y la
  * autoridad que todo veredicto bloqueante debe citar (I1). Por eso su ausencia es BLOQUEANTE en
- * `spec-anchored` y `spec-as-source`, y solo advisory en `spec-first`, donde la spec puede
+ * `spec-anchored` y `spec-as-source`, y blocking en los tres niveles: es el suelo, no un extra del nivel, donde la spec puede
  * desecharse y no hay veredicto que anclar.
  *
  * `brownfield` no cambia el umbral (la política es la misma), pero sí la forma del documento: en
@@ -401,11 +419,11 @@ export const constitutionRequired = (
 
   if (level === 'spec-first') {
     return {
-      required: false,
-      severity: 'advisory',
+      required: true,
+      severity: 'blocking',
       reason: brownfield
-        ? 'En spec-first la spec puede desecharse: la constitución descriptiva del legado se recomienda (para fijar el ADN anclado), pero no se exige porque este nivel no emite veredictos que deban citarla.'
-        : 'En spec-first la conformidad se comprueba solo al crear la spec: la constitución se recomienda, pero no hay veredicto bloqueante que necesite citar autoridad.',
+        ? 'La constitución es el suelo del nivel por defecto: los requisitos EARS y la constitución descriptiva del legado son lo mínimo revisable, y todo veredicto bloqueante debe poder citarla. Sube de nivel para añadir drift, evidencia y contratos, no para tener autoridad.'
+        : 'La constitución es el suelo del nivel por defecto: sin ella no hay autoridad que citar y el veredicto bloqueante no puede justificarse. Sube de nivel para añadir drift, evidencia y contratos, no para tener ley.',
     };
   }
 
@@ -427,8 +445,47 @@ export interface RigorSettings {
   /** Por qué se eligió este nivel; auditable y no vacío. */
   rationale: string;
   brownfield: boolean;
+  /**
+   * Override opcional del conjunto de gates que activa el nivel. El nivel decide las EXIGENCIAS; esto
+   * decide qué comprobaciones corren. Debe ser una lista válida del catálogo: un id desconocido se
+   * rechaza en lugar de ignorarse, porque un error de escritura reduciría en silencio la vigilancia.
+   */
+  gates?: string[];
   updated_at?: string;
 }
+
+/**
+ * Environment variable names and the gate catalogue are the two things a project may want to point
+ * at without editing code. The level decides the DEMANDS; the gate set decides which checks run.
+ */
+export const effectiveGates = (level: SddRigorLevel, override?: string[]): string[] => {
+  if (override && override.length > 0) return [...override];
+  const spec = RIGOR_BY_NAME.get(level);
+  if (!spec) throw new Error(`Nivel de rigor desconocido: ${String(level)}`);
+  return [...spec.gatesActive];
+};
+
+/**
+ * Validate an override before trusting it.
+ *
+ * Unknown ids are REJECTED rather than ignored: a typo in a gate id would otherwise silently reduce
+ * the checks a project believes it is running, which is the failure mode this whole module exists to
+ * prevent. Overriding is allowed — narrowing to fewer gates is a legitimate choice — but it has to be
+ * an explicit, valid list.
+ */
+export const validateGateOverride = (ids: unknown): string[] | undefined => {
+  if (ids === undefined) return undefined;
+  if (!Array.isArray(ids) || ids.some((id) => typeof id !== 'string')) {
+    throw new Error(`El campo "gates" de ${RIGOR_SETTINGS_FILE} debe ser una lista de identificadores.`);
+  }
+  const unknown = (ids as string[]).filter((id) => !getExecutableGate(id));
+  if (unknown.length > 0) {
+    throw new Error(
+      `Gates desconocidos en ${RIGOR_SETTINGS_FILE}: ${unknown.join(', ')}. Admitidos: ${EXECUTABLE_CHAIN.map((g) => g.id).join(', ')}.`,
+    );
+  }
+  return [...(ids as string[])];
+};
 
 /** Default location, mirroring `.sdd/settings/governance.json`. */
 export const RIGOR_SETTINGS_FILE = '.sdd/settings/rigor.json';
@@ -476,6 +533,11 @@ export const resolveRigorSettings = (
     level,
     rationale: declared.rationale?.trim() || originRationale(level, origin),
     brownfield: declared.brownfield === true,
+    // The override must survive the trip through settings. It was validated and used at the API
+    // level but never copied here, so a project could declare "gates": ["C1"] and keep running C1+C2
+    // while the documentation said otherwise — the "documented but not wired" failure this module
+    // exists to make impossible.
+    ...(declared.gates !== undefined ? { gates: validateGateOverride(declared.gates) } : {}),
     ...(declared.updated_at ? { updated_at: declared.updated_at } : {}),
   };
 };
@@ -545,6 +607,8 @@ export interface RigorFinding {
 export interface RigorAssessment {
   level: SddRigorLevel;
   brownfield: boolean;
+  /** Gates this level activates, after any declared override. */
+  gates: string[];
   findings: RigorFinding[];
   /** no error-severity findings */
   satisfied: boolean;
@@ -597,7 +661,7 @@ const planCandidates = (specDir: string): string[] => [
  */
 export const assessRigor = async (
   cwd: string,
-  options: { level: SddRigorLevel; brownfield: boolean; feature?: string; sddDir?: string },
+  options: { level: SddRigorLevel; brownfield: boolean; feature?: string; sddDir?: string; gates?: string[] },
 ): Promise<RigorAssessment> => {
   const spec = RIGOR_BY_NAME.get(options.level);
   if (!spec) throw new Error(`Nivel de rigor desconocido: ${String(options.level)}`);
@@ -1019,6 +1083,7 @@ export const assessRigor = async (
   return {
     level,
     brownfield,
+    gates: effectiveGates(level, options.gates),
     findings,
     satisfied,
     detail: satisfied

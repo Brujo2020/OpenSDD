@@ -68,7 +68,7 @@ than an opinion, run it from the project root:
 
 Brownfield rigor comes in three levels — Spec-First, Spec-Anchored and Spec-as-Source — and from
 Spec-Anchored upward a valid constitution is required (blocking), because it is the authority every
-blocking verdict cites; Spec-First only recommends it.
+blocking verdict cites. The three levels are a cumulative ladder and the default is fluid: Spec-First (the default) demands a valid constitution and requirements in checkable EARS form (gates C1+C2), Spec-Anchored adds the delta, traceability, evidence binding and drift detection (C1+C2+C3+C6), and Spec-as-Source adds declared contracts and regeneration (C1...C6).
 
 Two caveats to state rather than paper over: **C7/Karpathy is reported as vacuous** (it runs without
 inspecting anything, so it is activation without measurement, not a passing control), and with **no

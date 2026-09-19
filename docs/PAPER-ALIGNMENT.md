@@ -60,19 +60,21 @@ $ node tools/cc-sdd/dist/cli.js assure claims --verify
 
 | State (§9.6) | Count | Claims |
 |---|---|---|
-| `verified` | 50 | CLM-001 … CLM-027, CLM-030, CLM-032 … CLM-053 |
+| `verified` | 54 | CLM-001 … CLM-027, CLM-030, CLM-032 … CLM-057 |
 | `not-implemented` (declared gap confirmed) | 0 | — |
 | `not-measured` (absence of evidence persists) | 3 | CLM-028 (`docs/lab` absent), CLM-029 (`bin/sh-gate` absent), CLM-031 (`.steelharness/` absent) |
 | `broken` (text claims a pass the code does not deliver) | 0 | — |
 | `outdated-text` (code improved past the prose) | 0 | — |
 
-In the short vocabulary: **verified = 50, declared-gap = 0, absent/not-measured = 3, broken = 0,
-outdated-text = 0** (out of 53). CLM-045 … CLM-053 decide the brownfield capabilities by exit code:
-delta validation and two-way traceability, the mandatory `previous` on `MODIFIED`, the
-evidence-or-amendment rule for descriptive principles, the constitution being blocking from
-Spec-Anchored upward, absent practices travelling as proposed amendments, workspace-aware
-reconnaissance, contract extraction, the rule that exit code 0 never launders a missing declared
-contract, and the console report that publishes the oracle.
+In the short vocabulary: **verified = 54, declared-gap = 0, absent/not-measured = 3, broken = 0,
+outdated-text = 0** (out of 57). CLM-045 … CLM-057 decide the brownfield and rigor capabilities by
+exit code: delta validation and two-way traceability, the mandatory `previous` on `MODIFIED`, the
+evidence-or-amendment rule for descriptive principles, the constitution being blocking at every
+level as the floor of the ladder, absent practices travelling as proposed amendments,
+workspace-aware reconnaissance, contract extraction, the rule that exit code 0 never launders a
+missing declared contract, the console report that publishes the oracle, the default level's
+constitution-plus-requirements floor, the ladder monotonicity (2 → 4 → 6 gates), the rejection of an
+unknown gate id, and the quiet `--no-drift` commit path.
 
 Observed exit codes, from the run above: **CLM-028, CLM-029 and CLM-031 exited `1`; every other claim
 exited `0`.** Both runners print the per-claim code, so the line above can be re-derived rather than
@@ -202,7 +204,7 @@ where coverage overstates).
 | Delta specs — the contract of change (§12, Figure 9, Tables 40/41) | ADSR sections, delta-scoped `REQ-<AREA>-<NNN>` ids, mandatory `previous` on MODIFIED/REMOVED/RENAMED, mandatory rationale + contracts on REMOVED (warning on MODIFIED), a 25-entry size warning, per-entry strangulation `legacy → both → new`, and two-way traceability (requirement → task; tasks citing unknown ids reported as phantoms). | `deltaSpec.ts` · `validateDeltaSpec`, `traceDelta`, `strangulationReport`, `renderDeltaSpec`, `parseDeltaSpec`, `deltaCounts`; `cli/commands/brownfield.ts` · `handleDeltaCommand`; CLI `delta init\|validate\|status\|render` | `construido` · **brecha declarada** (contracts declared, not executed — G-15; no merge-back — G-17) |
 | The Constitution: one model, two provenances (CSDD §3.2 six-field anatomy, §3.3 compliance matrix, §3.4 apex; §6.1 injection) | `descriptive` principles must carry evidence; `normative` ones enter only through an amendment with a migration plan. Six-field anatomy, `MUST`/`SHOULD`/`MAY`, citable authority (`resolveAuthority`), indirect-injection scan, markdown round-trip, compliance matrix and amendment promotion. | `constitution.ts` · `validateConstitution`, `principlesInForce`, `resolveAuthority`, `renderConstitution`, `parseConstitution`, `buildComplianceMatrix`, `impactedPrinciples`, `promoteAmendment`, `detectInjection`; CLI `brownfield constitution` | `construido` (model + validation) · **brecha declarada** (matrix and amendment promotion unsurfaced — G-16) |
 | Reverse-engineered descriptive constitution (§12) | Reads the repo's facts (lockfile, migration dirs and rollbacks, CI workflows, public API entry points, config files), emits a principle only when compliance is evidenced in the code, declares the stack an established fact, and emits desired-but-absent practices as PROPOSED AMENDMENTS — never as facts. | `reverseConstitution.ts` · `collectRepoFacts`, `buildDescriptiveConstitution`; CLI `brownfield survey`, `brownfield constitution --write` | `construido` (evidence is artifact presence, not extracted behaviour — G-12) |
-| Three SDD rigor levels (*Manual Maestro* §2.4; reference architecture §4.8/§4.10) | Spec-First / Spec-Anchored / Spec-as-Source, each with its per-aspect demands, active gate ids, evaluator question and missing-artifact policy. A valid constitution is **required (blocking)** from Spec-Anchored upward and only recommended at Spec-First; the declared level lives in `.sdd/settings/rigor.json` with a mandatory rationale, and `assessRigor` evaluates the repository against it. Where a demand is not decidable from artifacts it is reported as a `brecha declarada` (regeneration at Spec-as-Source) instead of being faked as satisfied. | `rigor.ts` · `RIGOR_LEVELS`, `RIGOR_REQUIREMENTS`, `rigorRequirements`, `rigorRequires`, `selectRigorLevel`, `constitutionRequired`, `loadRigorSettings`, `resolveRigorSettings`, `assessRigor`, `isRigorLevel`, `toSddRigorLevel`; `.sdd/settings/rigor.json`; CLI `govern rigor [--select]` | `construido` |
+| Three SDD rigor levels (*Manual Maestro* §2.4; reference architecture §4.8/§4.10) | Spec-First / Spec-Anchored / Spec-as-Source as a **cumulative ladder** (gates 2 → 4 → 6; every level only adds), each with its per-aspect demands, active gate ids, evaluator question and missing-artifact policy. A valid constitution is **required (blocking) at every level**, Spec-First included, because a blocking verdict must cite an authority at every level (CSDD §3.4, invariant I1); the default `spec-first` is deliberately fluid because it adds nothing above that floor. The declared level lives in `.sdd/settings/rigor.json` with a mandatory rationale and an optional `gates` override that may narrow the list but whose unknown ids are rejected; `assessRigor` evaluates the repository against it. Where a demand is not decidable from artifacts it is reported as a `brecha declarada` (regeneration at Spec-as-Source) instead of being faked as satisfied. | `rigor.ts` · `RIGOR_LEVELS`, `RIGOR_LADDER`, `RIGOR_REQUIREMENTS`, `rigorRequirements`, `rigorRequires`, `effectiveGates`, `validateGateOverride`, `selectRigorLevel`, `constitutionRequired`, `loadRigorSettings`, `resolveRigorSettings`, `assessRigor`, `isRigorLevel`, `toSddRigorLevel`; `.sdd/settings/rigor.json`; CLI `govern rigor [--select\|--gates\|--verbose\|--quiet]` | `construido` |
 | Brownfield console (§12; *Manual Maestro* §2.4) | One deterministic surface for the brownfield path: reconnaissance of the existing project, the reverse constitution (printed, or written to `.sdd/steering/constitution.md` with a round-trip check), the delta lifecycle, and three analysis reports over the change — impact (dependents, blast radius, API surface, breaking changes), contracts (the regression oracle, with `--verify` running the test command) and reuse (`REUSE_FIRST_RULE` candidates). | `cli/commands/brownfield.ts` · `handleBrownfieldCommand`, `handleDeltaCommand`; `index.ts` dispatch; CLI `brownfield survey\|constitution\|impact\|contracts\|reuse`, `delta init\|validate\|status\|render` | `construido` · **brecha declarada** (contract verification is not in CI — G-15) |
 | Execution contracts, change impact, reuse-first (§12; CSDD §3.3) | The regression oracle as data: which tests protect the changed files, which changed files no contract covers, and whether a run satisfied the declared contracts (`satisfied` requires exit 0 **and** no declared contract missing); the change's reachable set, breaking changes and integration points; the symbols a reuse-first search would have found first. | `executionContract.ts` · `extractContracts`, `verifyContracts`, `testCommandFor`, `contractsFileName`; `changeImpact.ts` · `analyzeChangeImpact`; `reuseFirst.ts` · `findReuseCandidates`, `scanDeclarations`, `REUSE_FIRST_RULE`; CLI `brownfield impact\|contracts\|reuse` | `construido` (commands) · **brecha declarada** (advisory, not gate-wired) — see G-15/G-18 |
 | Agent-agnostic installation (§6.4 progressive disclosure; Table 4) | 15 agent definitions; 8 skills-based variants × 20 skills = 160 `SKILL.md` templates; per-agent layout, alias flags and completion guides. | `agents/registry.ts` · `agentDefinitions`, `agentList`; `tools/cc-sdd/templates/agents/**` | `construido` |
@@ -429,9 +431,12 @@ remains (`reverseEngineering.ts` · `scanProject`, `bootstrapSteering`, `bootstr
    markdown round-trip and a validator that refuses a descriptive principle without evidence are
    all implemented; a desired-but-absent practice is emitted as a PROPOSED AMENDMENT, never as a
    fact.
-3. **The three SDD rigor levels** (`rigor.ts`; CLI `govern rigor` and `govern rigor --select`) make
-   a valid constitution **blocking** from Spec-Anchored upward and only recommended at Spec-First,
-   because the constitution is the authority a blocking verdict cites.
+3. **The three SDD rigor levels** (`rigor.ts`; CLI `govern rigor` and `govern rigor --select`) are a
+   cumulative ladder (gates 2 → 4 → 6; every level only adds) in which a valid constitution is
+   **required (blocking) at every level**, Spec-First included, because the constitution is the
+   authority every blocking verdict cites. The default `spec-first` stays fluid by demanding only
+   the floor — EARS requirements plus a citable constitution, gates C1+C2 — and the level's `gates`
+   list is configurable, with unknown ids rejected rather than ignored.
 
 Reconnaissance is now workspace-aware and configuration-aware: on this repository `brownfield
 survey .` reports **TypeScript / npm / tsc / Vitest and 9 modules**. Before the fix it reported
@@ -592,15 +597,22 @@ disagree, the code had to pick one, and this report says which.
    exactly three imposition levels, `MUST` / `SHOULD` / `MAY` (CSDD §3.2), and
    `validateConstitution` reports `LEVEL-INVALID` for anything else. `SHALL NOT` is expressed as a
    `MUST` whose restriction is a prohibition, so the level stays citable.
-8. **Where a level starts.** *Manual Maestro* §8.2 places an authentication system and a legacy
-   migration at Spec-Anchored, while the implemented decision table
-   (`rigor.ts` · `selectRigorLevel`) treats high-consequence work — authentication, authorization,
-   payments, cross-team contracts, legacy modernization — as Spec-as-Source. §8.2 also pairs
-   "distributed microservices" with "Spec-First + Constitution", which contradicts the implemented
-   rule that a constitution is required only from Spec-Anchored upward
-   (`constitutionRequired`). The code follows the CSDD §3.4 apex argument: a Spec-First
-   specification may be discarded, so there is no blocking verdict that needs citable authority, and
-   the constitution is advisory at that level only.
+8. **Where a level starts, and whether the constitution is optional at Spec-First.** *Manual
+   Maestro* §8.2 places an authentication system and a legacy migration at Spec-Anchored, while the
+   implemented decision table (`rigor.ts` · `selectRigorLevel`) treats high-consequence work —
+   authentication, authorization, payments, cross-team contracts, legacy modernization — as
+   Spec-as-Source. The sharper divergence is §2.4 and the reference architecture, which allow a
+   "Spec-First + Constitución" pairing in which the constitution is a companion the level does not
+   demand. **This implementation declares that reading rejected.** `constitutionRequired` returns
+   `required: true, severity: 'blocking'` at all three levels (Spec-First included, greenfield and
+   brownfield), because a blocking verdict must cite an authority at every level (CSDD §3.4 apex;
+   invariant I1, `constitution.ts` · `resolveAuthority`). A Spec-First project that omitted the
+   constitution would leave C1/C2 with no rule to cite when they block. What the levels still differ
+   in is everything above that floor — evidence binding, drift, contracts and regeneration — which is
+   why the default can stay fluid without becoming lawless. The active gate set is likewise
+   configurable: `effectiveGates(level, override)` may narrow the level's list, but
+   `validateGateOverride` rejects an unknown id instead of ignoring it, so a typo cannot lower the
+   bar in silence.
 9. **Slash-separated CWE references.** CSDD §4.1 SEC-010 cites two CWEs as `CWE-862/863`. The
    implemented format is strictly `CWE-<number>` (`constitution.ts` · `CWE_REFERENCE_PATTERN`,
    `normalizeCweReference`), so a slash-separated multiple is rejected as `CWE-FORMAT` rather than

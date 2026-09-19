@@ -202,12 +202,20 @@ describe('core/rigor — los tres niveles (§2.4)', () => {
     expect(new Set(asJson).size).toBe(3);
   });
 
-  it('spec-first comprueba al crear y no exige evidencia, drift ni regeneración', () => {
+  it('spec-first es el suelo: exige requisitos y constitución, y no exige evidencia, drift ni regeneración', () => {
+    // Policy change, deliberate: the ladder is cumulative and the default level is the floor. The
+    // constitution stopped being "recommended" at spec-first because a blocking verdict must cite an
+    // authority at EVERY level; what distinguishes the levels is everything above (evidence binding,
+    // drift, contracts, regeneration), not whether authority exists.
     const first = RIGOR_LEVELS.find((l) => l.level === 'spec-first')!;
+    expect(first.requires.constitution).toBe('required');
+    expect(first.requires.triad).toBe('required');
     expect(first.requires.evidence).toBe('not-required');
     expect(first.requires.drift).toBe('not-required');
     expect(first.requires.regeneration).toBe('not-required');
-    expect(first.missingArtifactPolicy).toBe('advisory');
+    expect(first.missingArtifactPolicy).toBe('blocking');
+    // The default is fluid by running FEWER checks, not by running unenforced ones.
+    expect(first.gatesActive).toEqual(['C1', 'C2']);
   });
 
   it('spec-anchored exige trazabilidad, evidencia y drift, pero no regeneración', () => {
@@ -267,11 +275,11 @@ describe('core/rigor — los tres niveles (§2.4)', () => {
 // ---------------------------------------------------------------------------------------------
 
 describe('core/rigor — constitutionRequired', () => {
-  it('es advisory exactamente en spec-first, greenfield o brownfield', () => {
+  it('es blocking también en spec-first: la constitución es el suelo, no un extra del nivel', () => {
     for (const brownfield of [false, true]) {
       const verdict = constitutionRequired('spec-first', brownfield);
-      expect(verdict.required).toBe(false);
-      expect(verdict.severity).toBe('advisory');
+      expect(verdict.required).toBe(true);
+      expect(verdict.severity).toBe('blocking');
       expect(verdict.reason.length).toBeGreaterThan(0);
     }
   });
@@ -431,17 +439,13 @@ describe('core/rigor — loadRigorSettings', () => {
 // ---------------------------------------------------------------------------------------------
 
 describe('core/rigor — assessRigor', () => {
-  it('(a) la constitución ausente bloquea en spec-anchored y spec-as-source, y solo se informa en spec-first', async () => {
+  it('(a) la constitución ausente bloquea en los tres niveles, porque es el suelo de la escalera', async () => {
     const root = await makeRoot();
     await writeTriad(root, 'alpha');
 
-    const first = await assessRigor(root, { level: 'spec-first', brownfield: false, feature: 'alpha' });
-    const firstConstitutionFindings = first.findings.filter((f) => f.aspect === 'constitution');
-    expect(firstConstitutionFindings.some((f) => f.severity === 'error')).toBe(false);
-    expect(firstConstitutionFindings.length).toBeGreaterThan(0);
-    expect(first.satisfied).toBe(true);
-
-    for (const level of ['spec-anchored', 'spec-as-source'] as const) {
+    // Every level, the default included: the constitution is the floor of the ladder, so its absence
+    // is blocking everywhere and the levels above only add other demands.
+    for (const level of ['spec-first', 'spec-anchored', 'spec-as-source'] as const) {
       const assessment = await assessRigor(root, { level, brownfield: false, feature: 'alpha' });
       const blocking = assessment.findings.filter((f) => f.aspect === 'constitution' && f.severity === 'error');
       expect(blocking.length, `${level}: la constitución ausente debe bloquear`).toBeGreaterThan(0);
@@ -468,20 +472,21 @@ describe('core/rigor — assessRigor', () => {
     expect(assessment.detail).toMatch(/satisfecho/i);
   });
 
-  it('una constitución inválida avisa en spec-first y bloquea en spec-anchored', async () => {
+  it('una constitución inválida bloquea en los tres niveles', async () => {
     const root = await makeRoot();
     await writeTriad(root, 'alpha');
     await writeConstitution(root, invalidConstitution());
 
-    const first = await assessRigor(root, { level: 'spec-first', brownfield: false, feature: 'alpha' });
-    const firstErrors = first.findings.filter((f) => f.aspect === 'constitution' && f.severity === 'error');
-    expect(firstErrors).toHaveLength(0);
-    expect(first.findings.some((f) => f.aspect === 'constitution' && f.severity === 'warning')).toBe(true);
-    expect(first.satisfied).toBe(true);
-
-    const anchored = await assessRigor(root, { level: 'spec-anchored', brownfield: false, feature: 'alpha' });
-    expect(anchored.findings.some((f) => f.aspect === 'constitution' && f.severity === 'error')).toBe(true);
-    expect(anchored.satisfied).toBe(false);
+    // An invalid constitution is a blocking finding at every level: the default demands a
+    // constitution that can actually be cited, not merely a file with that name.
+    for (const level of ['spec-first', 'spec-anchored', 'spec-as-source'] as const) {
+      const assessment = await assessRigor(root, { level, brownfield: false, feature: 'alpha' });
+      expect(
+        assessment.findings.some((f) => f.aspect === 'constitution' && f.severity === 'error'),
+        `${level}: una constitución inválida debe bloquear`,
+      ).toBe(true);
+      expect(assessment.satisfied).toBe(false);
+    }
   });
 
   it('(c) brownfield sin delta bloquea en spec-anchored', async () => {

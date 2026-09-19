@@ -353,10 +353,10 @@
   expectation: pass
 
 - id: CLM-048
-  section: "Manual Maestro §2.4 (three rigor levels; CSDD §3.4 apex)"
-  statement_es: 'La constitución solo se recomienda en spec-first y es obligatoria y bloqueante desde spec-anchored en adelante, porque es la autoridad que cita todo veredicto bloqueante.'
-  statement_en: 'The constitution is only recommended at spec-first and is required and blocking from spec-anchored upward, because it is the authority every blocking verdict cites.'
-  verifier: 'node --input-type=module -e "import {constitutionRequired} from ''./tools/cc-sdd/dist/core/rigor.js''; process.exit(constitutionRequired(''spec-first'',false).severity===''advisory''&&constitutionRequired(''spec-first'',false).required===false&&constitutionRequired(''spec-anchored'',true).required===true&&constitutionRequired(''spec-anchored'',true).severity===''blocking''&&constitutionRequired(''spec-as-source'',false).severity===''blocking''?0:1)"'
+  section: "Manual Maestro §2.4 (three rigor levels; CSDD §3.4 apex; invariant I1)"
+  statement_es: 'La constitución es el suelo de la escalera: se exige y bloquea en los tres niveles —spec-first incluido— porque todo veredicto bloqueante debe citar autoridad, y los niveles superiores solo añaden exigencias.'
+  statement_en: 'The constitution is the floor of the ladder: it is required and blocking at all three levels — spec-first included — because every blocking verdict must cite an authority, and the higher levels only add demands.'
+  verifier: 'node --input-type=module -e "import {constitutionRequired} from ''./tools/cc-sdd/dist/core/rigor.js''; const levels=[''spec-first'',''spec-anchored'',''spec-as-source'']; const ok=levels.every(l=>constitutionRequired(l,false).required===true&&constitutionRequired(l,false).severity===''blocking''&&constitutionRequired(l,true).required===true&&constitutionRequired(l,true).severity===''blocking''&&constitutionRequired(l,false).reason.trim().length>0); process.exit(ok?0:1)"'
   expectation: pass
 
 - id: CLM-049
@@ -392,4 +392,32 @@
   statement_es: 'La consola expone el oráculo de regresión como informe del cambio pendiente: `brownfield contracts <feature>` publica el conjunto de contratos con el comando derivado.'
   statement_en: 'The console exposes the regression oracle as a report over the pending change: `brownfield contracts <feature>` publishes the contract set with the derived command.'
   verifier: 'node tools/cc-sdd/dist/cli.js brownfield contracts brownfield-support | grep -q "Contratos de ejecución" && node tools/cc-sdd/dist/cli.js brownfield contracts brownfield-support | grep -q "contrato(s)"'
+  expectation: pass
+
+- id: CLM-054
+  section: "Manual Maestro §2.4 / CSDD §3.4 (the floor of the rigor ladder)"
+  statement_es: 'El nivel por defecto exige la constitución y los requisitos en forma comprobable, y nada de los niveles superiores: spec-first activa C1 y C2 y no exige evidencia, drift, contratos ni regeneración.'
+  statement_en: 'The default level demands the constitution and checkable requirements, and nothing from the higher levels: spec-first activates C1 and C2 and requires no evidence, drift, contracts or regeneration.'
+  verifier: 'node --input-type=module -e "import {RIGOR_LEVELS,constitutionRequired,effectiveGates} from ''./tools/cc-sdd/dist/core/rigor.js''; const f=RIGOR_LEVELS.find(l=>l.level===''spec-first''); const ok=f.requires.constitution===''required''&&f.requires.triad===''required''&&f.requires.evidence===''not-required''&&f.requires.drift===''not-required''&&f.requires.contracts===''not-required''&&f.requires.regeneration===''not-required''&&effectiveGates(''spec-first'').join('','')===''C1,C2''&&constitutionRequired(''spec-first'',false).severity===''blocking''; process.exit(ok?0:1)"'
+  expectation: pass
+
+- id: CLM-055
+  section: "Manual Maestro §2.4 (the rigor levels are a cumulative ladder)"
+  statement_es: 'La escalera solo añade: cada nivel conserva las exigencias obligatorias y los gates del anterior, ninguna exigencia baja, y el recuento de gates crece 2, 4, 6.'
+  statement_en: 'The ladder only adds: each level keeps the previous level''s required aspects and gates, no demand is downgraded, and the gate count grows 2, 4, 6.'
+  verifier: 'node --input-type=module -e "import {RIGOR_LEVELS} from ''./tools/cc-sdd/dist/core/rigor.js''; const rank={''not-required'':0,recommended:1,required:2}; let ok=RIGOR_LEVELS.map(l=>l.gatesActive.length).join('','')===''2,4,6''; for(let i=1;i<RIGOR_LEVELS.length;i++){const p=RIGOR_LEVELS[i-1]; const c=RIGOR_LEVELS[i]; for(const a of Object.keys(p.requires)){if(rank[c.requires[a]]<rank[p.requires[a]])ok=false;} for(const g of p.gatesActive){if(!c.gatesActive.includes(g))ok=false;}} process.exit(ok?0:1)"'
+  expectation: pass
+
+- id: CLM-056
+  section: "Manual Maestro §2.4 / reference architecture §4.8 (configurable gate set, validated)"
+  statement_es: 'El conjunto de gates del nivel es configurable y un id desconocido se rechaza nombrandolo en lugar de ignorarse, de modo que un error de escritura no puede reducir la vigilancia en silencio.'
+  statement_en: 'The level''s gate set is configurable and an unknown id is rejected by name rather than ignored, so a typo cannot silently reduce the checks.'
+  verifier: 'node --input-type=module -e "import {validateGateOverride} from ''./tools/cc-sdd/dist/core/rigor.js''; const copy=validateGateOverride([''C3'']); let threw=false; try{validateGateOverride([''C9'']);}catch(e){threw=String(e.message).includes(''C9'');} process.exit(copy.join('','')===''C3''&&threw?0:1)"'
+  expectation: pass
+
+- id: CLM-057
+  section: "§9.5 / reference architecture level B (the commit gate stays fluid)"
+  statement_es: 'El hook de pre-commit ejecuta govern rigor con --quiet y --no-drift: el veredicto viaja en el codigo de salida y un commit no se lee como una auditoria.'
+  statement_en: 'The pre-commit hook runs govern rigor with --quiet and --no-drift: the verdict travels in the exit code and a commit does not read like an audit.'
+  verifier: 'node -e "const fs=require(''fs'');const t=fs.readFileSync(''tools/cc-sdd/templates/hooks/pre-commit'',''utf8'');const nl=String.fromCharCode(10);const line=t.split(nl).map(l=>l.trim()).find(l=>l.startsWith(''node'')&&l.includes(''govern rigor''));process.exit(line&&line.includes(''--quiet'')&&line.includes(''--no-drift'')?0:1)"'
   expectation: pass

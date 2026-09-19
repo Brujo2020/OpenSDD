@@ -13,7 +13,7 @@ the behaviour being replaced, the targets and the contracts.
 
 ## Requirements
 
-### Requirement 1: Describe only what changes
+### REQ-BF-001 — The delta is the contract of change
 
 **Objective:** As an engineer, I want the change described as a delta, so that the obligation stays finite.
 
@@ -25,7 +25,7 @@ the behaviour being replaced, the targets and the contracts.
 - If a requirement is REMOVED, then the [validator] shall require its rationale and its covering contracts.
 - When a delta exceeds twenty-five entries, the [validator] shall warn that it resembles a whole-system specification.
 
-### Requirement 2: Trace the change to its tasks
+### REQ-BF-004 — Traceability in both directions
 
 **Objective:** As an auditor, I want every delta requirement traced to work, so that nothing is claimed without a task.
 
@@ -35,7 +35,7 @@ the behaviour being replaced, the targets and the contracts.
 - If a delta requirement has no task, then the [traceability check] shall report it as unmapped.
 - If a task cites a delta identifier that the delta does not define, then the [traceability check] shall report a phantom task.
 
-### Requirement 3: State the existing system as it is
+### REQ-BF-002 — A constitution that states only what the code already is
 
 **Objective:** As an architect, I want a descriptive constitution, so that an agent cannot silently modernize what nobody asked it to modernize.
 
@@ -47,7 +47,7 @@ the behaviour being replaced, the targets and the contracts.
 - If a descriptive principle lacks evidence, then the [constitution validator] shall reject it.
 - While every principle of a constitution of four or more principles is MUST, the [constitution validator] shall warn that the levels no longer distinguish anything.
 
-### Requirement 4: Reconnaissance that does not lie
+### REQ-BF-003 — Reconnaissance that does not lie
 
 **Objective:** As a maintainer, I want the survey to describe my repository accurately, so that the generated artifacts are trustworthy.
 
@@ -57,7 +57,7 @@ the behaviour being replaced, the targets and the contracts.
 - When a language, test runner or build tool is declared only by a configuration file, the [scanner] shall detect it.
 - If a fact cannot be determined, then the [scanner] shall report it as unknown instead of guessing.
 
-### Requirement 5: Analyse the impact of a change before writing it
+### REQ-BF-007 — Analyse the impact of a change before writing it
 
 **Objective:** As an architect, I want the blast radius of a change measured, so that a bounded change does not become an involuntary refactor.
 
@@ -68,7 +68,7 @@ the behaviour being replaced, the targets and the contracts.
 - If a changed migration has no rollback counterpart, then the [impact analysis] shall report an error.
 - If the analysis cannot read the project sources, then the [impact analysis] shall report that the radius is unknown instead of reporting a small one.
 
-### Requirement 6: Bind the change to the tests that protect it
+### REQ-BF-008 — Bind the change to the tests that protect it
 
 **Objective:** As an engineer, I want the existing tests bound to the change, so that the specification's first use is regression protection.
 
@@ -79,7 +79,7 @@ the behaviour being replaced, the targets and the contracts.
 - If a changed file has no covering contract, then the [oracle] shall report it as an uncovered change.
 - The [oracle] shall not report success from an exit code alone when a declared contract is missing.
 
-### Requirement 7: Search before creating
+### REQ-BF-009 — Search before creating
 
 **Objective:** As a maintainer, I want a reuse check, so that a new symbol does not duplicate one that already exists.
 
@@ -88,3 +88,34 @@ the behaviour being replaced, the targets and the contracts.
 - When a change proposes a new symbol, the [reuse check] shall report existing symbols that match by name or by variant above the similarity threshold.
 - If a proposed symbol already has a reusable candidate, then the [reuse check] shall report a violation.
 - If the source directories cannot be read, then the [reuse check] shall report that the search did not run.
+
+### REQ-BF-005 — The brownfield surface in the console
+
+**Objective:** As an engineer, I want the brownfield workflow as commands, so that the correct artifact is the easy one.
+
+#### Acceptance Criteria
+
+- The [console] shall expose reconnaissance, constitution generation, impact analysis, contract extraction and reuse search for a feature.
+- When a delta exists, the [console] shall validate it and report its traceability.
+
+### REQ-BF-006 — Three rigor levels, and the constitution is the floor
+
+**Objective:** As a maintainer, I want to choose how much stringency this project accepts, so that the default is fluid and raising the level adds checks.
+
+#### Acceptance Criteria
+
+- When no level is declared, the [rigor model] shall require requirements in checkable form and a valid constitution in the same breath.
+- When the level rises to Spec-Anchored, the [rigor model] shall additionally require traceability, evidence binding and drift detection.
+- When the level is Spec-Source, the [rigor model] shall additionally require declared contracts and regeneration as repair.
+- If the declared level demands an artifact that is missing, then the [assessment] shall report a blocking finding.
+- When a blocking finding exists, the [commit gate] shall refuse the commit.
+- When a project declares an explicit gate list, the [model] shall reject unknown gate identifiers instead of silently reducing the checks.
+
+### REQ-BF-010 — The brownfield workflow is documented where the agents read it
+
+**Objective:** As a user, I want the workflow documented in the places I actually read, so that the tool is usable without reading its source.
+
+#### Acceptance Criteria
+
+- The [documentation] shall describe the delta workflow, the constitution and the level ladder in the traceability report and in a guide.
+- The [templates] shall name the brownfield commands in the orientation file each agent reads first.

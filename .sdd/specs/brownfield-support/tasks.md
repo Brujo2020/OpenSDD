@@ -59,5 +59,5 @@
   - _Evidence: `.sdd/steering/constitution.md` written with 4 principles in force and 2 proposed amendments; this spec's `delta.md` validates with full traceability (5/5 requirements mapped)._
 
 - [-] 8. The three rigor levels, with the constitution required — _Requirements: REQ-BF-006_ — _Boundary:_ `tools/cc-sdd/src/core/rigor.ts`, `tools/cc-sdd/src/cli/commands/paper.ts`, `tools/cc-sdd/src/core/index.ts`, `tools/cc-sdd/src/core/types.ts`, `tools/cc-sdd/dist`_
-  - Spec-First / Spec-Anchored / Spec-as-Source as first-class levels: what each demands, how it is selected, and the requirement that a valid constitution exists from Spec-Anchored upward.
-  - Observable completion: a project declaring Spec-Anchored without a constitution fails an assessment that can block.
+  - Spec-First / Spec-Anchored / Spec-as-Source as a CUMULATIVE ladder whose default is fluid: Spec-First demands a valid constitution plus requirements in checkable EARS form, and each step up only adds (traceability and evidence binding, then contracts and regeneration). The constitution is required at every level because a blocking verdict must cite authority.
+  - Observable completion: a project with no constitution fails the assessment at every level, the ladder activates 2 -> 4 -> 6 gates as it rises, and an unknown gate id in the configuration is rejected instead of ignored.

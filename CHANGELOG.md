@@ -6,6 +6,41 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed — the rigor levels are a cumulative ladder, and the default is the floor
+
+- **The three SDD rigor levels (`tools/cc-sdd/src/core/rigor.ts`) are now a cumulative ladder**
+  whose default (`spec-first`, also what `.sdd/settings/rigor.json` declares in this repository) is
+  deliberately fluid: 2 → 4 → 6 gates, and every level only **adds** demands and gates. `spec-first`
+  now requires the constitution and the triad (requirements in checkable EARS form) — it previously
+  only recommended them — adding nothing else: evidence, drift, contracts and regeneration stay
+  `not-required`. `gatesActive` is `['C1','C2']` (was `['C1']`) and `missingArtifactPolicy` is
+  `blocking` (was `advisory`). The maintainer's rationale: *por defecto que sea cumplir con los
+  requerimientos y constitución bien hecha, y a medida que subo nivel se aumenten los gates*.
+- **`spec-anchored` adds delta (brownfield), traceability, evidence and drift** and activates
+  `['C1','C2','C3','C6']`; **`spec-as-source` adds contracts and regeneration** and activates
+  `['C1','C2','C3','C4','C5','C6']`. No level removes a demand or a gate, and **C2 (secrets and
+  destructive commands) is active at every level on purpose**: it is the hard subset that never
+  self-authorizes, so lowering rigor must not make a committed credential acceptable.
+- **The constitution is now `required: true, severity: 'blocking'` at all three levels**, greenfield
+  and brownfield: a blocking verdict must cite an authority, so the default level cannot be lawless.
+  What the levels differ in is everything above that floor (evidence binding, drift, contracts,
+  regeneration), not whether authority exists. This is a **declared divergence** from the *Manual
+  Maestro* §2.4 / reference-architecture reading that lets Spec-First pair with a constitution the
+  level does not demand; recorded in `docs/PAPER-ALIGNMENT.md` (divergence 8) with its citation
+  (CSDD §3.4, invariant I1).
+- **The gate set is configurable and validated.** New API: `effectiveGates(level, override?)`,
+  `validateGateOverride(ids)`, `RIGOR_LADDER`, `RigorSettings.gates?`, `RigorAssessment.gates`, and
+  `assessRigor` takes `gates?`. The optional `gates` field in `.sdd/settings/rigor.json` may
+  **narrow** the level's list, but an unknown id is **rejected** (naming the id) instead of being
+  ignored, so a typo cannot silently reduce the checks.
+- **`govern rigor` is compact by default; the commit path stays fluid.** It now prints two lines
+  (level + active gates, and what it demands) and only blocking findings and warnings, with a count
+  of the hidden informational findings; `--verbose` restores the full level table, the declared
+  rationale and every finding; `--quiet` prints a single line and carries the verdict in the exit
+  code; `--gates` prints the ladder table; `--select` is unchanged. The pre-commit hook
+  (`tools/cc-sdd/templates/hooks/pre-commit`) runs `govern rigor --no-drift --quiet`, so a commit
+  does not read like an audit while C2 still blocks.
+
 ### Fixed — one publishable identity, and a parser bug it exposed
 
 - **The publish pipeline targeted the wrong package.** `publish.yml` ran `npm publish` from

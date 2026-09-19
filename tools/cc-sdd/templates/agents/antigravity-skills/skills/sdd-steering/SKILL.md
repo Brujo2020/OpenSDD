@@ -146,8 +146,12 @@ already obeys, each with evidence, and declares the current stack an established
 `open-sdd brownfield constitution . --write` generates it into `{{SDD_DIR}}/steering/constitution.md`;
 a practice that is desired but absent is emitted as a proposed amendment, never as a fact. The
 declared rigor level lives in `{{SDD_DIR}}/settings/rigor.json` (Spec-First / Spec-Anchored /
-Spec-as-Source), and from Spec-Anchored upward a valid constitution is **required (blocking)** —
-it is the authority a blocking verdict cites. Changes to existing behaviour are specified as a
+Spec-as-Source). The levels are a CUMULATIVE ladder and the default is deliberately fluid: Spec-First
+demands a valid constitution and requirements in checkable EARS form (gates C1+C2), Spec-Anchored adds
+the delta, traceability, evidence binding and drift detection (C1+C2+C3+C6), and Spec-as-Source adds
+declared contracts and regeneration (C1…C6). The constitution is **required (blocking) at every
+level** — it is the authority a blocking verdict cites — and raising the bar means editing the level
+in {{SDD_DIR}}/settings/rigor.json, never lowering what the floor already checks. Changes to existing behaviour are specified as a
 delta (`open-sdd delta init <feature> "<title>"`, then `open-sdd delta validate <feature>`).
 
 ### Strict Git Mode (Steering Governance)

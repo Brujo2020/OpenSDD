@@ -119,19 +119,27 @@ do, and introduce them through a governed change when you are ready.
 
 ## The three rigor levels
 
-Declaring a level is accepting its demands, not labelling the project.
+Declaring a level is accepting its demands, not labelling the project. The levels are a **cumulative
+ladder**: each step up only *adds* checks (2 → 4 → 6 gates), so raising the level is how you add
+rigor, and no level retires what a lower one demanded.
 
-| Level | Constitution | What else it demands |
+| Level | What it adds | Active gates |
 |---|---|---|
-| **Spec-First** | recommended (advisory) | A spec written before the change; it may be discarded. No drift detection, no evidence binding. |
-| **Spec-Anchored** | **required (blocking)** | A living spec, requirement→task traceability, evidence binding, drift detection on every change. |
-| **Spec-as-Source** | **required (blocking)** | Everything above, plus declared contracts and regeneration from the spec as the repair mechanism. |
+| **Spec-First** (default, fluid) | A requirements spec in checkable EARS form and a valid constitution. No drift detection, no evidence binding, no contracts, no regeneration. | C1, C2 |
+| **Spec-Anchored** | + a living spec, the brownfield delta, requirement→task traceability, evidence binding and drift detection on every change. | C1, C2, C3, C6 |
+| **Spec-as-Source** | + declared execution contracts and regeneration from the spec as the repair mechanism. | C1, C2, C3, C4, C5, C6 |
 
-**The honest rule:** from Spec-Anchored upward a valid constitution is required, and its absence or
-invalidity is a **blocking** finding — because the constitution is the authority a blocking verdict
-cites, and a gate that blocks while citing a rule nobody wrote is not a control. Spec-First only
-recommends it, because a Spec-First specification may be discarded and there is no blocking verdict
-to anchor.
+**The honest rule:** the constitution is the authority a blocking verdict cites, so it is
+**required (blocking) at every level**, Spec-First included — a gate that blocks while citing a rule
+nobody wrote is not a control. The default stays fluid not by skipping authority but by adding
+nothing above the floor: EARS requirements, a valid constitution and C1+C2. **Raise the level to add
+checks** (delta governance, traceability, evidence, drift, contracts, regeneration), never to earn
+the right to cite a rule. C2 (secrets and destructive commands) is never one of the optional checks:
+it stays active at every level, so lowering rigor does not make a committed credential acceptable.
+
+The level's gate set is **configurable but validated**: the optional `gates` field in
+`.sdd/settings/rigor.json` may narrow the list of checks, but an unknown id is rejected instead of
+ignored, so a typo cannot lower the bar in silence.
 
 ### Which level to choose
 
@@ -185,7 +193,9 @@ open-sdd brownfield contracts <feature> --verify          # run the test command
 open-sdd brownfield reuse <feature> [--symbols a,b]       # symbols a reuse-first search would have found first
 
 # Rigor
-open-sdd govern rigor            # the three levels + assessment against the declared one (exit 1 if blocking)
+open-sdd govern rigor            # compact: level + active gates + what it demands (exit 1 if blocking)
+open-sdd govern rigor --verbose  # the full level table, the rationale and every finding
+open-sdd govern rigor --gates    # the ladder table: what each level adds and its gates
 open-sdd govern rigor --select   # recommend a level from the decision table
 ```
 

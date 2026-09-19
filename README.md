@@ -171,19 +171,34 @@ open-sdd brownfield survey .                    # what the project is: stack, to
 open-sdd brownfield constitution . --write      # write .sdd/steering/constitution.md
 ```
 
-### 3. The three rigor levels
+### 3. Niveles de exigencia (la escalera)
 
-| Level | Constitution | What else it demands |
+The three SDD rigor levels are a **cumulative ladder**: every level only *adds* demands and gates,
+and a valid constitution is required at **every** level, because a blocking verdict must be able to
+cite an authority. The default is **Spec-First**, and it is deliberately fluid: it runs the two
+gates you can never self-authorize, not the whole audit.
+
+| Level | What it adds | Active gates |
 |---|---|---|
-| Spec-First | recommended | A spec written before the change; it may be discarded |
-| Spec-Anchored | **required (blocking)** | Living spec, requirement→task traceability, evidence binding, drift detection |
-| Spec-as-Source | **required (blocking)** | Everything above, plus declared contracts and regeneration as the repair mechanism |
+| **Spec-First** (default, fluid) | A requirements spec in checkable EARS form and a valid constitution. Nothing else: no evidence binding, no drift detection, no contracts, no regeneration. | C1, C2 |
+| **Spec-Anchored** | + a living spec, the brownfield delta, requirement→task traceability, evidence binding and drift detection on every change. | C1, C2, C3, C6 |
+| **Spec-as-Source** | + declared execution contracts and regeneration from the spec as the repair mechanism. | C1, C2, C3, C4, C5, C6 |
 
-The honest note: **from Spec-Anchored upward a valid constitution is required and its absence
-blocks**, because the constitution is the authority a blocking verdict cites. Spec-First only
-recommends it. The declared level lives in `.sdd/settings/rigor.json` with a mandatory rationale;
-`open-sdd govern rigor` prints the three levels and evaluates the repository against the declared
-one (`--select` recommends a level from the decision table).
+C2 (secrets and destructive commands) is active at every level **on purpose**: it is the hard subset
+that never self-authorizes, so lowering rigor must not make a committed credential acceptable.
+
+**How to raise the level:** declare it in `.sdd/settings/rigor.json` with the level and a non-empty
+rationale (a rigor choice without a declared motive is not auditable, and a malformed file is
+rejected rather than silently degraded). The optional `gates` field overrides which checks run: it
+may **narrow** the list, but an unknown gate id is **rejected** rather than ignored, so a typo cannot
+silently reduce the checks a project believes it is running.
+
+```bash
+open-sdd govern rigor            # compact: level + active gates + what it demands
+open-sdd govern rigor --verbose  # the full level table, the rationale and every finding
+open-sdd govern rigor --gates    # the ladder table: what each level adds and its gates
+open-sdd govern rigor --select   # recommend a level from the decision table
+```
 
 The reconnaissance is workspace-aware: on this repository `brownfield survey .` reports TypeScript /
 npm / tsc / Vitest and 9 modules, not the "JavaScript, no tests detected" it used to report when the
