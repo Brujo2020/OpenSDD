@@ -23,6 +23,28 @@ import { handleHelpCommand } from './cli/commands/help.js';
 import { handleImplCommand } from './cli/commands/impl.js';
 import { handleGatesCommand, handleGovernCommand, handleAssureCommand, handleWavesCommand, handleFloorCommand, } from './cli/commands/paper.js';
 export * from './core/index.js';
+/**
+ * Version of the package the user actually installed.
+ *
+ * The published artifact ships `tools/cc-sdd/dist` and `templates` but NOT the workspace manifest,
+ * so the previous `require('../package.json')` threw inside an installed package and `--version`
+ * printed `vdev`. Three levels up from `dist/cli.js` is the repository root in a checkout and the
+ * package root once installed, which is exactly the manifest that carries the released version.
+ */
+const readCliVersion = () => {
+    const require = createRequire(import.meta.url);
+    for (const candidate of ['../../../package.json', '../package.json']) {
+        try {
+            const pkg = require(candidate);
+            if (typeof pkg?.version === 'string' && pkg.version.length > 0)
+                return pkg.version;
+        }
+        catch {
+            // try the next candidate
+        }
+    }
+    return 'dev';
+};
 const agentKeys = agentList;
 const aliasFlags = Array.from(new Set(agentKeys.flatMap((key) => getAgentDefinition(key).aliasFlags)));
 const agentAliasLine = aliasFlags.length > 0 ? `  ${aliasFlags.join(' | ')}  Agent alias flags\n` : '';
@@ -122,15 +144,7 @@ const createConflictHandler = (summaries, resolvedOverwrite) => {
     };
 };
 const showVersion = (io) => {
-    let version = 'dev';
-    try {
-        const require = createRequire(import.meta.url);
-        const pkg = require('../package.json');
-        version = pkg?.version ?? version;
-    }
-    catch {
-        // ignore
-    }
+    const version = readCliVersion();
     io.log(`open-sdd v${version}`);
 };
 const handleDryRun = async (manifestPath, resolvedConfig, io, execOpts) => {
@@ -152,15 +166,7 @@ const handleDryRun = async (manifestPath, resolvedConfig, io, execOpts) => {
 const runPlanExecution = async (manifestPath, resolvedConfig, io, execOpts) => {
     try {
         const agentDef = getAgentDefinition(resolvedConfig.agent);
-        let version = 'dev';
-        try {
-            const require = createRequire(import.meta.url);
-            const pkg = require('../package.json');
-            version = pkg?.version ?? version;
-        }
-        catch {
-            // ignore
-        }
+        const version = readCliVersion();
         io.log('');
         io.log(formatBox(`open-sdd v${version} / ${agentDef.label}`));
         const plan = await planFromFile(manifestPath, resolvedConfig);

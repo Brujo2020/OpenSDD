@@ -22,11 +22,12 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const workspace = path.resolve(here, '..', 'tools', 'cc-sdd');
 
-if (!existsSync(path.join(workspace, 'package.json'))) {
-  // Installing the published package does not need a build: `files` ships the compiled `dist`.
-  console.log(
-    '[open-sdd] workspace tools/cc-sdd is not present; skipping dependency install (prebuilt dist is used).',
-  );
+// Only a source checkout has anything to install. The published package ships the compiled dist
+// and the templates, so a consumer install has no workspace to build and needs no message about it.
+const isSourceCheckout =
+  existsSync(path.join(workspace, 'package.json')) && existsSync(path.join(workspace, 'src'));
+
+if (!isSourceCheckout) {
   process.exit(0);
 }
 

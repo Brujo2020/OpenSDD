@@ -1,10 +1,19 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { existsSync, readFileSync, statSync } from 'node:fs';
+import { copyFile, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const read = (rel: string): string => readFileSync(path.join(repoRoot, rel), 'utf8');
+
+const tempDirs: string[] = [];
+
+afterEach(async () => {
+  await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
+});
 const pkg = (rel: string) => JSON.parse(read(rel)) as Record<string, any>;
 
 /** Fenced code blocks only: an install command inside prose may legitimately quote the wrong one. */
@@ -107,5 +116,56 @@ describe('release integrity — the documentation advertises what actually resol
   it('the root README states that the scoped package is not published yet', () => {
     // Promising `npx` before the first publish is the false claim the earlier docs made.
     expect(read('README.md')).toMatch(/not published yet/i);
+  });
+});
+
+describe('release integrity — the installed CLI reports the released version', () => {
+  it('resolves the version from the published manifest, not from a file that is not shipped', () => {
+    const root = pkg('package.json');
+    // The tarball ships dist + templates and never the workspace manifest, so a version read that
+    // depends on `tools/cc-sdd/package.json` prints "vdev" once installed. That was a real defect
+    // of the published artifact, found by installing the packed tarball.
+    expect(root.files).not.toContain('tools/cc-sdd/package.json');
+    expect(existsSync(path.join(repoRoot, 'tools', 'cc-sdd', 'package.json'))).toBe(true);
+
+    const cli = path.join(repoRoot, 'tools', 'cc-sdd', 'dist', 'cli.js');
+    const run = spawnSync(process.execPath, [cli, '--version'], { encoding: 'utf8' });
+
+    expect(run.status).toBe(0);
+    expect(run.stdout).toContain('v' + root.version);
+    expect(run.stdout).not.toContain('vdev');
+  });
+});
+
+describe('release integrity — postinstall is silent for consumers, useful for contributors', () => {
+  it('exits quietly when the workspace sources are absent (a published install)', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'open-sdd-postinstall-'));
+    tempDirs.push(dir);
+    await mkdir(path.join(dir, 'scripts'), { recursive: true });
+    await mkdir(path.join(dir, 'tools', 'cc-sdd'), { recursive: true });
+    await copyFile(
+      path.join(repoRoot, 'scripts', 'postinstall.mjs'),
+      path.join(dir, 'scripts', 'postinstall.mjs'),
+    );
+    await writeFile(
+      path.join(dir, 'tools', 'cc-sdd', 'package.json'),
+      '{"name":"x","version":"1.0.0"}',
+      'utf8',
+    );
+
+    const run = spawnSync(process.execPath, [path.join(dir, 'scripts', 'postinstall.mjs')], {
+      encoding: 'utf8',
+    });
+
+    expect(run.status).toBe(0);
+    expect(run.stdout.trim()).toBe('');
+    expect(run.stderr.trim()).toBe('');
+  });
+
+  it('still installs workspace dependencies in a source checkout', () => {
+    const script = read('scripts/postinstall.mjs');
+    // The condition that separates a contributor checkout from a consumer install.
+    expect(script).toContain("existsSync(path.join(workspace, 'src'))");
+    expect(script).toContain("spawnSync('npm'");
   });
 });

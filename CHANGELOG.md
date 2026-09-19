@@ -27,6 +27,20 @@ All notable changes to this project will be documented in this file.
   double-quoted escapes in sequence, which turned `\\n` into a backslash plus a real newline and
   split a verifier command across lines. It now unescapes in a single left-to-right pass. This was
   caught by a new claim that failed as `broken` — the registry reporting on itself as intended.
+- **The published artifact reported its version as `vdev`.** Packing the tarball and installing it into a
+  throwaway prefix showed `open-sdd --version` printing `vdev`: the CLI read
+  `../package.json`, and `tools/cc-sdd/package.json` is deliberately not shipped. It now resolves the
+  repository/package root manifest first (three levels up from `dist/cli.js`, which is the same
+  directory in a checkout and once installed) and falls back to the workspace one, through a single
+  `readCliVersion()` helper that replaced two duplicated read sites.
+- **`postinstall` was noisy for consumers.** It announced a skipped workspace on every consumer
+  install; it now installs workspace dependencies only when `tools/cc-sdd/src` exists (a source
+  checkout) and exits silently in the published layout, where the compiled `dist` is already shipped.
+- **Verified against the real artifact, not the source tree:** the packed tarball installed into a
+  temporary prefix exposes all four binaries (`open-sdd`, `sdd-open`, `sdd`, `cc-sdd`),
+  `--version` prints `open-sdd v3.0.2`, `--help` works, and `gates chain --profile team` resolves 9
+  controls from the installed copy. Three more tests (13 in total) cover the version resolution and
+  both postinstall paths, and CLM-044 decides the version by exit code.
 - **Guards so none of it returns:** `test/releaseIntegrity.test.ts` (10 tests) asserts the single
   publishable identity, that every `bin` target exists, that the workspace is private, that
   `install:global` installs the root, that the publish pipeline tests before publishing and never
