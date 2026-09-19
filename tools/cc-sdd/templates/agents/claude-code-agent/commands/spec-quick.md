@@ -133,9 +133,9 @@ Execute these 4 phases in order:
 /sdd:spec-requirements {feature-name}
 ```
 
-Wait for completion. Subagent will return with "次のステップ" message.
+Wait for completion. Subagent will return with its "次のステップ" (next step) message.
 
-**IMPORTANT**: In Automatic Mode, IGNORE the "次のステップ" message. It is for standalone usage.
+**IMPORTANT**: In Automatic Mode, IGNORE the "次のステップ" (next step) message. It is for standalone usage.
 
 **Update TodoWrite**: Mark task 2 as `completed`, task 3 as `in_progress`.
 
@@ -163,9 +163,9 @@ Wait for completion. Subagent will return with "次のステップ" message.
 
 Note: `-y` flag auto-approves requirements.
 
-Wait for completion. Subagent will return with "次のステップ" message.
+Wait for completion. Subagent will return with its "次のステップ" (next step) message.
 
-**IMPORTANT**: In Automatic Mode, IGNORE the "次のステップ" message.
+**IMPORTANT**: In Automatic Mode, IGNORE the "次のステップ" (next step) message.
 
 **Update TodoWrite**: Mark task 3 as `completed`, task 4 as `in_progress`.
 
@@ -214,7 +214,7 @@ Output final completion summary (see Output Description section) and exit.
 ### Automatic Mode Behavior
 - Do NOT stop between phases
 - Do NOT wait for user input
-- Do NOT be influenced by "次のステップ" messages from Phases 2-4
+- Do NOT be influenced by "次のステップ" (next step) messages from Phases 2-4
 - Update TodoWrite after each phase to maintain progress visibility
 - Continue loop until all 4 phases complete
 

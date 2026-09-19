@@ -9,14 +9,14 @@ This guide covers migration paths across Open-SDD releases, detailing architectu
 | Goal | Recommended action |
 | --- | --- |
 | Keep the legacy 1.x workflow untouched | Run `npx cc-sdd@1.1.5` whenever you install/refresh files. Continue editing agent-specific prompt folders (only the original 8 spec/steering commands exist). |
-| Adopt unified templates, research/design split, and consistent behavior across all 8 supported agents | Reinstall with `npx cc-sdd@latest` (=2.0.0) and customize only `.kiro/settings/templates/*` plus `.kiro/settings/rules/` (full 11-command set, including validate-*). |
+| Adopt unified templates, research/design split, and consistent behavior across all 8 supported agents | Reinstall with `npx cc-sdd@latest` (=2.0.0) and customize only `.sdd/settings/templates/*` plus `.sdd/settings/rules/` (full 11-command set, including validate-*). |
 
 > ⚠️ Mixing 1.x and 2.x layouts in the same `.kiro` tree is not supported. Pick one path per repo/branch.
 
 ### What carries over unchanged
 
-- `.kiro/specs/<feature>/` directories you already authored remain valid inputs; simply regenerate newer templates when you are ready.
-- `.kiro/steering/` (or a single `steering.md`) can be reused as-is—the content is still consumed verbatim as project memory.
+- `.sdd/specs/<feature>/` directories you already authored remain valid inputs; simply regenerate newer templates when you are ready.
+- `.sdd/steering/` (or a single `steering.md`) can be reused as-is—the content is still consumed verbatim as project memory.
 - The 11 commands (`spec-*`, `validate-*`, `steering*`) and the high-level spec→design→tasks→impl flow stay identical; only the template internals have moved to a just-in-time, agentic style.
 
 ---
@@ -30,10 +30,10 @@ npx cc-sdd@1.1.5 --claude-code   # legacy flag name (use --cursor / --gemini / e
 npx cc-sdd@1.1.5 --lang ja       # legacy i18n flags still work
 ```
 
-- You can keep editing `.claude/commands/*`, `.cursor/prompts/*`, `.codex/prompts/*` などのエージェント別フォルダを直接編集するスタイルで運用できます。
+- You can keep working in the style of directly editing agent-specific folders such as `.claude/commands/*`, `.cursor/prompts/*`, and `.codex/prompts/*`.
 - Agent-specific directory layouts stay exactly as they were in v1.
 - No new features will land here—future work targets `@latest` only.
-- The validate commands (`/kiro:validate-gap`, `-design`, `-impl`) do **not** exist in 1.1.5. If you rely on those gates, migrate to v2.
+- The validate commands (`/validate-gap`, `-design`, `-impl`) do **not** exist in 1.1.5. If you rely on those gates, migrate to v2.
 
 ---
 
@@ -41,10 +41,10 @@ npx cc-sdd@1.1.5 --lang ja       # legacy i18n flags still work
 
 > The core workflow (spec-init → design → tasks → impl, with validation gates) and the 11 command entry points are unchanged. What changed is **where you customize and how much structure the resulting docs provide.**
 
-- **Template & rules driven customization** – stop patching commands; edit `.kiro/settings/templates/` and `.kiro/settings/rules/` once and every agent picks it up.
+- **Template & rules driven customization** – stop patching commands; edit `.sdd/settings/templates/` and `.sdd/settings/rules/` once and every agent picks it up.
 - **Spec fidelity** – Research.md captures discovery logs while Design.md becomes reviewer friendly with Summary tables, Req Coverage, Supporting References, and lighter Components/Interfaces blocks.
-- **Steering = Project Memory** – drop structured knowledge across `.kiro/steering/*.md` files and every command consumes it.
-- **Brownfield guardrails** – `/kiro:validate-gap`, `validate-design`, `validate-impl` plus the research/design split make gap analysis and existing-system upgrades much safer.
+- **Steering = Project Memory** – drop structured knowledge across `.sdd/steering/*.md` files and every command consumes it.
+- **Brownfield guardrails** – `/validate-gap`, `validate-design`, `validate-impl` plus the research/design split make gap analysis and existing-system upgrades much safer.
 - **Unified coverage** – all 8 supported agents in v2 (Claude Code, Cursor, Codex CLI, Gemini CLI, GitHub Copilot, Qwen Code, OpenCode, Windsurf) run the same 11-command workflow, so mixing agents (e.g., Cursor + Claude) requires zero spec rewrites. Claude Code also has an optional `--claude-agent` install target that adds a subagent-accelerated `spec-quick` flow.
 
 ---
@@ -66,11 +66,11 @@ npx cc-sdd@1.1.5 --lang ja       # legacy i18n flags still work
    - The installer now prompts per file group (overwrite / append / keep). You can choose “append” for steering/specs to merge existing documents, or “keep” to skip untouched assets.
 
 3. **Regenerate + merge templates/rules**
-   - New layout: `.kiro/settings/templates/` (centralized) + `.kiro/settings/rules/`.
+   - New layout: `.sdd/settings/templates/` (centralized) + `.sdd/settings/rules/`.
    - Compare the new templates with any custom logic you previously kept inside agent prompt folders and move the reusable parts into templates/rules.
 
 4. **Move custom rules**
-   - Place Markdown files under `.kiro/settings/rules/`. Every spec/design/tasks command reads them.
+   - Place Markdown files under `.sdd/settings/rules/`. Every spec/design/tasks command reads them.
    - Anything you previously hard-coded into prompts becomes a rule entry (“DO/DO NOT …”).
 
 5. **Rebuild steering (optional)**
@@ -87,10 +87,10 @@ npx cc-sdd@1.1.5 --lang ja       # legacy i18n flags still work
 
 | Legacy touchpoint | v2 replacement | Notes |
 | --- | --- | --- |
-| `.claude/commands/spec-design.prompt.md` などエージェント別コマンドファイル | `.kiro/settings/templates/specs/design.md` | Templates now live in `.kiro/settings/templates/` and generate Summary/Supporting References automatically. |
-| `.claude/commands/<cmd>.prompt`, `.cursor/prompts/*` | `.kiro/settings/rules/*.md` | Replace prompt edits with shared rule statements so every agent receives identical guidance. |
-| `.kiro/steering/` (single file or not) | `.kiro/steering/*.md` with clearer principles/guides | Same folder path; v2 simply encourages breaking content into focused project-memory guides. |
-| Research notes interleaved in design.md | `.kiro/specs/<feature>/research.md` + Supporting References section | Design stays reviewer friendly; research keeps raw findings without cluttering the main body. |
+| Agent-specific command files such as `.claude/commands/spec-design.prompt.md` | `.sdd/settings/templates/specs/design.md` | Templates now live in `.sdd/settings/templates/` and generate Summary/Supporting References automatically. |
+| `.claude/commands/<cmd>.prompt`, `.cursor/prompts/*` | `.sdd/settings/rules/*.md` | Replace prompt edits with shared rule statements so every agent receives identical guidance. |
+| `.sdd/steering/` (single file or not) | `.sdd/steering/*.md` with clearer principles/guides | Same folder path; v2 simply encourages breaking content into focused project-memory guides. |
+| Research notes interleaved in design.md | `.sdd/specs/<feature>/research.md` + Supporting References section | Design stays reviewer friendly; research keeps raw findings without cluttering the main body. |
 
 ---
 
@@ -104,8 +104,8 @@ npx cc-sdd@1.1.5 --lang ja       # legacy i18n flags still work
 | --- | --- | --- |
 | Skill count | 12-13 | **17** |
 | Discovery | Basic idea refinement | **Routing/scoping entry point**; writes `brief.md` and, when needed, `roadmap.md` |
-| Spec batch | N/A | **`/kiro-spec-batch`** -- parallel multi-spec creation with cross-spec review |
-| Implementation | `kiro-spec-impl` (single-pass) | **`/kiro-impl`** -- unified skill with native subagent dispatch (implementer + reviewer + debugger) |
+| Spec batch | N/A | **`/sdd-spec-batch`** -- parallel multi-spec creation with cross-spec review |
+| Implementation | `sdd-impl` (single-pass) | **`/sdd-impl`** -- unified skill with native subagent dispatch (implementer + reviewer + debugger) |
 | `--codex prompts` mode | Supported | **Blocked** (use `--codex-skills` instead) |
 | Session persistence | None | **`brief.md`** persists across sessions; downstream skills read it automatically |
 | TDD protocol | Basic TDD | **Feature Flag TDD**: RED then GREEN protocol for safe incremental delivery |
@@ -128,11 +128,11 @@ npx cc-sdd@1.1.5 --lang ja       # legacy i18n flags still work
    npx cc-sdd@latest --antigravity       # Antigravity
    ```
 
-2. **Remove legacy skill references** -- if you have custom scripts or documentation referencing `kiro-spec-impl`, update them to `/kiro-impl`.
+2. **Remove legacy skill references** -- if you have custom scripts or documentation referencing `sdd-impl`, update them to `/sdd-impl`.
 
-3. **Adopt the new entry point** -- start new features with `/kiro-discovery` instead of jumping straight to `/kiro:spec-init`. Discovery now produces `brief.md` and `roadmap.md` that feed into downstream skills.
+3. **Adopt the new entry point** -- start new features with `/sdd-discovery` instead of jumping straight to `/spec-init`. Discovery now produces `brief.md` and `roadmap.md` that feed into downstream skills.
 
-4. **Use `/kiro-spec-batch`** for multi-feature work -- when your roadmap contains multiple specs, `/kiro-spec-batch` creates them in parallel and runs a cross-spec review to catch contradictions.
+4. **Use `/sdd-spec-batch`** for multi-feature work -- when your roadmap contains multiple specs, `/sdd-spec-batch` creates them in parallel and runs a cross-spec review to catch contradictions.
 
 5. **Migrate from legacy modes** -- all non-skills modes (`--claude`, `--cursor`, `--copilot`, `--windsurf`, `--opencode`, `--gemini`) are deprecated and will be removed. `--codex` is already blocked. Use the corresponding `--*-skills` flag.
 
@@ -141,9 +141,9 @@ npx cc-sdd@1.1.5 --lang ja       # legacy i18n flags still work
 ### What carries over unchanged
 
 - All spec phases (steering, init, requirements, design, tasks) work identically.
-- `.kiro/specs/<feature>/` directory structure is the same.
+- `.sdd/specs/<feature>/` directory structure is the same.
 - Steering documents, templates, and rules are fully compatible.
-- `/kiro-validate-impl` behaviour is unchanged.
+- `/sdd-validate-impl` behaviour is unchanged.
 
 ---
 
@@ -153,7 +153,7 @@ npx cc-sdd@1.1.5 --lang ja       # legacy i18n flags still work
 
 **Can I switch between 1.1.5 and 2.0.0 in one repo?** – Only if you isolate `.kiro` per branch or automate swapping directories; the layouts conflict.
 
-**After editing templates, which commands should I run?** – At minimum: `/kiro:steering`, `/kiro:spec-init`, `/kiro:spec-design` to regenerate Research/Design/Tasks with the new format.
+**After editing templates, which commands should I run?** – At minimum: `/steering`, `/spec-init`, `/spec-design` to regenerate Research/Design/Tasks with the new format.
 
 ---
 

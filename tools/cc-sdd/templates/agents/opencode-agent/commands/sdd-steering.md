@@ -1,6 +1,6 @@
 ---
 description: Manage {{SDD_DIR}}/steering/ as persistent project knowledge
-agent: kiro/steering
+agent: sdd/steering
 subtask: true
 ---
 

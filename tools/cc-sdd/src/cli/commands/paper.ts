@@ -12,7 +12,8 @@
  * evidence rather than returning a green light.
  */
 
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { chmod, mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { colors } from '../ui/colors.js';
@@ -62,6 +63,8 @@ import { MEMORY_PIPELINE, MEMORY_MESH, scanForInjection } from '../../core/memor
 import { SKILL_CLASSES, PROMOTION_LADDER, checkMcpPermissions, SKILL_METRICS } from '../../core/skills.js';
 import { planWorktrees, waveGitCommands, WAVE_INVARIANTS, type WavePlan } from '../../core/waves.js';
 import { runGate, runChain, type GateRunContext } from '../../core/gateRunner.js';
+import { parseSecurityAllowlist, type SecurityAllowlistEntry } from '../../core/securityAllowlist.js';
+import { detectInstalledFloor } from '../../core/floorInstallation.js';
 import { checkDecidableDiscipline, NON_DECIDABLE_DISCIPLINE_NOTE } from '../../core/triad.js';
 import { buildTaskDependencyWaves } from '../../core/scheduler.js';
 import { parseTasksMarkdown, readSpecMetadata } from '../../core/specManager.js';
@@ -77,6 +80,33 @@ const outcomeColor = (outcome: string): string => {
   if (outcome === 'fail') return colors.red(outcome);
   if (outcome === 'self-authorized') return colors.yellow(outcome);
   return colors.dim(outcome);
+};
+
+const runGit = (cwd: string, args: string[]): { status: number; stdout: string } => {
+  const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
+  return { status: result.status ?? 1, stdout: result.stdout ?? "" };
+};
+
+const gitLines = (cwd: string, args: string[]): string[] => {
+  const { status, stdout } = runGit(cwd, args);
+  return status === 0 ? stdout.split('\n').map((l) => l.trim()).filter(Boolean) : [];
+};
+
+/** Content of a git object: ":path" reads the index, "rev:path" reads a revision. */
+const gitShow = (cwd: string, spec: string): string | null => {
+  const { status, stdout } = runGit(cwd, ['show', spec]);
+  return status === 0 ? stdout : null;
+};
+
+/** Declared C2 exceptions. An unreadable entry is reported, never silently dropped. */
+const loadSecurityAllowlist = async (
+  root: string,
+): Promise<{ entries: SecurityAllowlistEntry[]; rejected: { path: string; reason: string }[] }> => {
+  const raw = await readFile(path.join(root, '.sdd', 'settings', 'security-allowlist.json'), 'utf8').catch(
+    () => null,
+  );
+  if (raw === null) return { entries: [], rejected: [] };
+  return parseSecurityAllowlist(raw);
 };
 
 const findRepoRoot = async (cwd: string): Promise<string> => {
@@ -305,20 +335,62 @@ export const handleGatesCommand = async (args: string[], io: CliIO, cwd: string)
     const gateIds = ids.length > 0 ? ids : chain.declared;
     const root = await findRepoRoot(cwd);
     const feature = process.env.SDD_FEATURE ?? (await firstSpec(cwd)) ?? 'governance';
+    const staged = args.includes('--staged');
+    const baseIdx = args.findIndex((a) => a === '--base');
+    const base = baseIdx >= 0 ? args[baseIdx + 1] : undefined;
+    const strict = args.includes('--strict') || profile === 'regulated';
+
+    // Which files the chain judges. A run that inspects nothing is activation without measurement,
+    // so the mode is explicit: the staged index (pre-commit), a base...HEAD diff (CI), or nothing.
+    let changedFiles: string[] = [];
+    const contentOverrides: Record<string, string> = {};
+    if (staged) {
+      changedFiles = gitLines(root, ['diff', '--cached', '--name-only', '--diff-filter=ACMR']);
+      for (const file of changedFiles) {
+        // Judge what is being committed, not what happens to be on disk.
+        const content = gitShow(root, `:${file}`);
+        if (content !== null) contentOverrides[file] = content;
+      }
+    } else if (base) {
+      changedFiles = gitLines(root, ['diff', '--name-only', '--diff-filter=ACMR', `${base}...HEAD`]);
+    }
+
+    const allowlist = await loadSecurityAllowlist(root);
+
     const ctx: GateRunContext = {
       cwd: root,
       sddDir: '.sdd',
       feature,
-      changedFiles: [],
+      changedFiles,
       declaredScope: [],
       mcpServers: signals.declaresThirdPartyMcpServers ? ['declared-in-host-config'] : [],
       mcpAllowlist: [],
       graphIndexPath: '.sdd/.graph/symbols.json',
+      contentOverrides,
+      securityAllowlist: allowlist.entries,
     };
     io.log('');
-    io.log(heading(`Ejecutando la cadena resuelta (${gateIds.length} control(es), perfil ${profile})`));
+    io.log(
+      heading(
+        `Ejecutando la cadena resuelta (${gateIds.length} control(es), perfil ${profile}, régimen ${strict ? 'estricto' : 'flexible'})`,
+      ),
+    );
+    io.log(
+      `  ${dim(
+        staged
+          ? `modo: índice (staged), ${changedFiles.length} fichero(s)`
+          : base
+            ? `modo: diff contra ${base}, ${changedFiles.length} fichero(s)`
+            : 'modo: controles independientes del diff (usa --staged o --base <ref> para juzgar un cambio)',
+      )}`,
+    );
+    if (allowlist.rejected.length > 0) {
+      io.log(
+        `  ${colors.yellow('!')} ${allowlist.rejected.length} entrada(s) inválida(s) en la lista de excepciones: ${allowlist.rejected.map((r) => r.path).join(', ')}`,
+      );
+    }
     io.log('');
-    const report = await runChain(gateIds, ctx, profile === 'regulated' ? 'strict' : 'flexible');
+    const report = await runChain(gateIds, ctx, strict ? 'strict' : 'flexible');
     for (const f of report.findings) {
       const gate = getExecutableGate(f.gateId);
       io.log(`  ${f.gateId.padEnd(4)} ${(gate?.name ?? '').padEnd(42)} ${outcomeColor(f.outcome)}`);
@@ -821,4 +893,113 @@ export const handleWavesCommand = async (args: string[], io: CliIO, cwd: string)
   io.log(dim('  Fusionar es entero o no ocurre: si una tarea falla sus gates, su worktree se descarta y el repositorio nunca conoció el estado intermedio. La reversión es la rama que no llegó a fusionarse.'));
   io.log('');
   return 0;
+};
+
+// ---------------------------------------------------------------------------------------------
+// floor — is the owned enforcement floor installed, or only declared?
+// ---------------------------------------------------------------------------------------------
+
+export const handleFloorCommand = async (args: string[], io: CliIO, cwd: string): Promise<number> => {
+  const sub = args[0] ?? 'status';
+  const targetArg = args.slice(1).find((a) => !a.startsWith('-'));
+  const target = targetArg ? path.resolve(cwd, targetArg) : await findRepoRoot(cwd);
+  const force = args.includes('--force');
+
+  if (sub === 'status') {
+    const floor = await detectInstalledFloor(target);
+    io.log('');
+    io.log(heading(`Suelo de imposición (niveles B y C) — ${target}`));
+    io.log('');
+    io.log(row('Hook de commit incluido', floor.commitHookShipped ? colors.green('sí') : colors.red('no')));
+    io.log(
+      row(
+        'Hook instalado en .git/hooks',
+        floor.commitHookInstalled ? colors.green('sí') : colors.yellow('no (npm run hooks:install)'),
+      ),
+    );
+    io.log(
+      row('Matriz de gates en pull_request', floor.ciGateMatrix ? colors.green('sí') : colors.red('no')),
+    );
+    if (floor.workflowsReferencingGates.length > 0) {
+      io.log(row('Workflows que citan la cadena', floor.workflowsReferencingGates.join(', ')));
+    }
+    io.log('');
+    io.log(`  ${floor.floorInstalled ? colors.green(floor.detail) : colors.yellow(floor.detail)}`);
+    io.log('');
+    io.log(
+      dim(
+        '  El suelo se apoya en fronteras que la organización posee (git y CI). El nivel A se reporta aparte: es techo, no garantía, hasta que un centinela conductual lo verifique.',
+      ),
+    );
+    io.log('');
+    return floor.floorInstalled ? 0 : 1;
+  }
+
+  if (sub === 'install') {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const hookSource = path.resolve(here, '../../../templates/hooks/pre-commit');
+    const workflowSource = path.resolve(here, '../../../templates/hooks/open-sdd-gates.yml');
+
+    if ((await stat(path.join(target, '.git')).catch(() => null)) === null) {
+      io.error(colors.red(`No es un repositorio git: ${target}`));
+      return 1;
+    }
+    const hookContent = await readFile(hookSource, 'utf8').catch(() => null);
+    if (hookContent === null) {
+      io.error(colors.red(`No se encontró la plantilla del hook en ${hookSource}`));
+      return 1;
+    }
+
+    const hooksDir = path.join(target, '.git', 'hooks');
+    const hookTarget = path.join(hooksDir, 'pre-commit');
+    await mkdir(hooksDir, { recursive: true });
+
+    const existing = await readFile(hookTarget, 'utf8').catch(() => null);
+    if (existing !== null && !existing.includes('open-sdd')) {
+      const backup = `${hookTarget}.open-sdd-backup`;
+      if ((await stat(backup).catch(() => null)) === null) {
+        await writeFile(backup, existing, 'utf8');
+        io.log(`  ${colors.yellow('!')} hook preexistente preservado en ${path.relative(target, backup)}`);
+      } else if (!force) {
+        io.error(
+          colors.red('Ya hay un hook pre-commit ajeno y existe copia de seguridad. Usa --force para reemplazarlo.'),
+        );
+        return 1;
+      }
+    }
+
+    await writeFile(hookTarget, hookContent, 'utf8');
+    await chmod(hookTarget, 0o755);
+    io.log('');
+    io.log(`  ${colors.green('✓')} nivel B instalado: ${path.relative(target, hookTarget)}`);
+
+    if (args.includes('--ci')) {
+      const workflowContent = await readFile(workflowSource, 'utf8').catch(() => null);
+      if (workflowContent === null) {
+        io.error(colors.red('No se encontró la plantilla del workflow de CI.'));
+        return 1;
+      }
+      const workflowDir = path.join(target, '.github', 'workflows');
+      await mkdir(workflowDir, { recursive: true });
+      const workflowTarget = path.join(workflowDir, 'open-sdd-gates.yml');
+      await writeFile(workflowTarget, workflowContent, 'utf8');
+      io.log(`  ${colors.green('✓')} nivel C instalado: ${path.relative(target, workflowTarget)}`);
+    } else {
+      io.log(dim('  nivel C pendiente: añade la matriz de gates en CI con --ci'));
+    }
+
+    io.log('');
+    io.log('  Siguiente:');
+    io.log('    - El hook ejecuta C1 (tríada, advisory), C2 (secretos/comandos destructivos,');
+    io.log('      bloqueante) y C3 (bloqueo por evidencia) sobre el ÍNDICE, no sobre el árbol');
+    io.log('      de trabajo.');
+    io.log('    - Los falsos positivos legítimos se declaran con motivo en');
+    io.log('      .sdd/settings/security-allowlist.json; cada ejecución reporta cuántos suprimió.');
+    io.log('    - git commit --no-verify también lo salta, pero ese bypass NO queda registrado.');
+    io.log('');
+    return 0;
+  }
+
+  io.log(`Subcomando desconocido: ${sub}. Usa: status | install [target] [--ci] [--force]`);
+  return 1;
 };

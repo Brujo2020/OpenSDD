@@ -49,10 +49,10 @@ Project memory keeps persistent guidance (steering, specs notes, component docs)
 - Progress check: `@sdd-spec-status {feature}` (use anytime)
 
 ## Skills Structure
-Skills are located in `.windsurf/skills/kiro-*/SKILL.md`
+Skills are located in `.windsurf/skills/sdd-*/SKILL.md`
 - Each skill is a directory with a `SKILL.md` file
 - Use `/skills` to inspect currently available skills
-- Invoke a skill directly with `@kiro-<skill-name>`
+- Invoke a skill directly with `@sdd-<skill-name>`
 - **If there is even a 1% chance a skill applies to the current task, invoke it.** Do not skip skills because the task seems simple.
 - `sdd-review` — task-local adversarial review protocol used by reviewer subagents
 - `sdd-debug` — root-cause-first debug protocol used by debugger subagents

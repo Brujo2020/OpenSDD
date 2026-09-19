@@ -31,6 +31,7 @@ import {
   handleGovernCommand,
   handleAssureCommand,
   handleWavesCommand,
+  handleFloorCommand,
 } from './cli/commands/paper.js';
 
 export * from './core/index.js';
@@ -82,6 +83,7 @@ Zero-Trust console (reference architecture):
   govern [invariants|conformance|hitl|rigor|appeal|meta-eval|budget]
   assure [threats|lab|claims|skills|memory]
   waves <feature>                             Transactional wave plan with git commands
+  floor [status|install] [target] [--ci]       Enforcement floor: commit hook + PR gate matrix
 
 Note: In non-TTY environments, prompt mode falls back to skip.`;
 
@@ -299,6 +301,9 @@ export const runCli = async (
     }
     if (cmd === 'waves') {
       return handleWavesCommand(subArgv, io, targetCwd);
+    }
+    if (cmd === 'floor') {
+      return handleFloorCommand(subArgv, io, targetCwd);
     }
   }
 

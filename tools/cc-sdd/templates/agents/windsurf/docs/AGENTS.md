@@ -30,7 +30,7 @@ SDD-style Spec-Driven Development on an agentic SDLC
   - `/sdd-spec-design {feature} [-y]`
   - `/sdd-validate-design {feature}` (optional: design review)
   - `/sdd-spec-tasks {feature} [-y]`
-- Phase 2 (Implementation): `/sdd-spec-impl {feature} [tasks]`
+- Phase 2 (Implementation): `/sdd-impl {feature} [tasks]`
   - `/sdd-validate-impl {feature}` (optional: after implementation)
 - Progress check: `/sdd-spec-status {feature}` (use anytime)
 

@@ -1,6 +1,6 @@
 ---
 description: Create custom steering documents for specialized project contexts
-agent: kiro/steering-custom
+agent: sdd/steering-custom
 subtask: true
 ---
 

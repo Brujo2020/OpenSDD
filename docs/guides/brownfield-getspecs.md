@@ -38,7 +38,7 @@ flowchart TB
     DISC["/sdd-discovery<br/>idea-first greenfield"]
   end
 
-  subgraph kiro [".sdd/ artifacts"]
+  subgraph sdd [".sdd/ artifacts"]
     ST["steering/<br/>product · tech · structure · roadmap"]
     SEED["specs/&lt;slug&gt;/<br/>brief · spec.json · requirements stub"]
   end
@@ -125,7 +125,7 @@ erDiagram
 
 ```
 Phase 0  Gate        Confirm brownfield + user approval before writes
-Phase 1  Lite scan   Metadata only (.kiro inventory, root listing)
+Phase 1  Lite scan   Metadata only (.sdd inventory, root listing)
 Phase 2  Reverse     Sub-agent summary ≤200 lines (stack, arch, modules)
 Phase 3  Git         Optional branch/commit themes (read-only)
 Phase 4  Steering    Bootstrap or additive merge of product/tech/structure

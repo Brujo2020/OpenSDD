@@ -119,14 +119,14 @@ Provide brief summary in the language specified in spec.json:
 ### Next Phase: Implementation
 
 **Before Starting Implementation**:
-- **IMPORTANT**: Clear conversation history and free up context before running `/sdd-spec-impl`
+- **IMPORTANT**: Clear conversation history and free up context before running `/sdd-impl`
 - This applies when starting first task OR switching between tasks
 - Fresh context ensures clean state and proper task focus
 
 **If Tasks Approved**:
-- Execute specific task: `/sdd-spec-impl $1 1.1` (recommended: clear context between each task)
-- Execute multiple tasks: `/sdd-spec-impl $1 1.1,1.2` (use cautiously, clear context between tasks)
-- Without arguments: `/sdd-spec-impl $1` (executes all pending tasks - NOT recommended due to context bloat)
+- Execute specific task: `/sdd-impl $1 1.1` (recommended: clear context between each task)
+- Execute multiple tasks: `/sdd-impl $1 1.1,1.2` (use cautiously, clear context between tasks)
+- Without arguments: `/sdd-impl $1` (executes all pending tasks - NOT recommended due to context bloat)
 
 **If Modifications Needed**:
 - Provide feedback and re-run `/sdd-spec-tasks $1`

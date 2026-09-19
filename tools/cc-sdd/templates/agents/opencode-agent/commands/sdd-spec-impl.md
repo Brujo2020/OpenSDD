@@ -1,6 +1,6 @@
 ---
 description: Execute spec tasks using TDD methodology
-agent: kiro/spec-impl
+agent: sdd/spec-impl
 subtask: true
 ---
 
@@ -44,13 +44,13 @@ Show Subagent summary to user, then provide next step guidance:
 ### Task Execution
 
 **Execute specific task(s)**:
-- `/sdd-spec-impl $1 1.1` - Single task
-- `/sdd-spec-impl $1 1,2,3` - Multiple tasks
+- `/sdd-impl $1 1.1` - Single task
+- `/sdd-impl $1 1,2,3` - Multiple tasks
 
 **Execute all pending**:
-- `/sdd-spec-impl $1` - All unchecked tasks
+- `/sdd-impl $1` - All unchecked tasks
 
 **Before Starting Implementation**:
-- **IMPORTANT**: Clear conversation history and free up context before running `/sdd-spec-impl`
+- **IMPORTANT**: Clear conversation history and free up context before running `/sdd-impl`
 - This applies when starting first task OR switching between tasks
 - Fresh context ensures clean state and proper task focus

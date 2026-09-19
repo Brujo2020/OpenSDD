@@ -94,6 +94,7 @@ node tools/cc-sdd/dist/cli.js govern hitl                       # quantified HIL
 node tools/cc-sdd/dist/cli.js govern discipline                 # §9.7 decidable properties over the diff
 node tools/cc-sdd/dist/cli.js assure threats                    # OWASP/ATLAS + regulatory crosswalk
 node tools/cc-sdd/dist/cli.js waves <feature>                   # wave plan + git commands
+node tools/cc-sdd/dist/cli.js floor status                    # is the commit/merge floor installed?
 ```
 
 Non-negotiables when using that model:
@@ -114,6 +115,12 @@ Non-negotiables when using that model:
 - Strict Git Mode: specs are mandatory and implementation without an approved specification is
   blocked **under the `team` and `enterprise` governance profiles**; the default `solo` profile runs
   its checks and reports without blocking (`tools/cc-sdd/src/core/governance.ts`).
+- **The enforcement floor is installed, not merely declared.** `npm install` wires a pre-commit hook
+  (`tools/cc-sdd/templates/hooks/pre-commit`) that runs C1/C2/C3 against the **staged index** and
+  fails closed if the CLI is missing; `.github/workflows/gates.yml` runs the full chain on every pull
+  request. Never bypass with `--no-verify` — declare a genuine false positive in
+  `.sdd/settings/security-allowlist.json` with a reason, which is the channel an audit can read.
+  Level A remains a ceiling: no behavioural sentinel has verified write-time blocking in any host.
 - Keep steering current and verify alignment with `/sdd-spec-status`.
 
 ## Steering Configuration

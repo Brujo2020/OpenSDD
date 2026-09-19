@@ -5,7 +5,7 @@ allowed-tools: Read, Bash, Grep, Glob, Agent
 argument-hint: <feature-name> [task-numbers]
 ---
 
-# kiro-validate-impl Skill
+# sdd-validate-impl Skill
 
 ## Role
 Individual tasks are usually reviewed during implementation. Your job is to catch problems that only become visible when looking across all tasks together.

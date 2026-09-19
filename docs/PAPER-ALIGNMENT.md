@@ -321,18 +321,36 @@ numeric cap (§7.2, "no numeric max-subagents value is published"), so this is a
 choice, not a transcription. Additionally, `waves <feature>` needs `.sdd/specs/<feature>/tasks.md`;
 with none it exits 1 with `Sin tasks.md en .sdd/specs/<feature>/`.
 
-### G-11 — The commit/merge floor is declared, not installed here
+### G-11 — The commit/merge floor is installed here; level A still is not verified
 
 Paper: §6.3, §16.1, Table 19 caption — the floor is B (commit) and C (merge) because those boundaries
 belong to the organization. `resolveFloor` returns `floor: B, C` for every known tool **by ownership
-reasoning**, before any installation is verified. But this repository ships **no pre-commit/pre-push
-hooks and no CI gate workflow**: `.github/workflows/` contains only `publish.yml`, `stale.yml`,
-`claude.yml` and `claude-dispatch.yml`. So the floor is a design property of the boundary, not a
-verified property of this installation. The paper's own reading rule applies (§6.3): the table
-describes the *ceiling a tool allows*, and only a periodically re-run behavioural sentinel (probe
-must return the host's exact blocking code) establishes the floor. No sentinel is run here; the
-console prints `interpretSentinel(1)` as a warning, which is a demonstration of the semantics, not a
-verification of this installation.
+reasoning**; installation is a separate question, and this repository now answers it too.
+
+**Installed (level B — commit).** `tools/cc-sdd/templates/hooks/pre-commit` is the single source,
+copied into `.git/hooks/pre-commit` by `npm run hooks:install` (wired to `npm run prepare`), or into
+any target repository with `open-sdd floor install <target> --ci`. It runs `gates run C1 C2 C3
+--staged --strict`: C1 is advisory, C2 blocks on secrets and destructive commands **in the staged
+index**, and C3 blocks when a completed task carries no captured `_Evidence:`. Behaviour was verified
+by running the hook itself, not by reading it: a real credential in the index is refused (exit 1, C2
+`fail`), a clean change passes, an allow-listed fixture passes while reporting how many findings it
+suppressed, and a task marked complete without evidence is refused (exit 1, C3 `fail`). When the CLI
+is missing the hook **fails closed** and prints the three ways to fix it.
+
+**Installed (level C — merge).** `.github/workflows/gates.yml` runs on `pull_request` and on pushes to
+`main`: workspace install, build, the full test suite, the resolved chain, `gates run --base
+<base-sha>` **against the pull-request diff** (a run that inspects nothing is activation without
+measurement), `govern discipline`, `assure claims --verify`, and `floor status`. The CI template
+shipped for target projects is `tools/cc-sdd/templates/hooks/open-sdd-gates.yml`.
+
+**What is still not verified, stated plainly.** (1) `resolveFloor` remains an ownership argument: the
+*ceiling* a host allows and the *guarantee* an installation achieves are different claims, and only a
+periodically re-run behavioural sentinel establishes the latter — no sentinel is run here, and the
+console prints `interpretSentinel(1)` as a demonstration of the semantics, not as verification.
+(2) Level A is therefore still a ceiling: no host hook is verified in this checkout. (3)
+`git commit --no-verify` bypasses level B, and that bypass is **not recorded** — the allow-list is the
+recorded channel, so a bypass is invisible to the audit. `open-sdd floor status` reports B and C, and
+exits non-zero the moment either stops being installed.
 
 ### G-12 — Brownfield is a heuristic bootstrap, not spec extraction as regression oracle
 

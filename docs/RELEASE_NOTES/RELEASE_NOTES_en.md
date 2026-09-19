@@ -2,6 +2,13 @@
 
 New features and improvements for cc-sdd. See [CHANGELOG.md](../../CHANGELOG.md) for technical changes.
 
+> **Historical archive.** These entries record releases made under the project's earlier naming,
+> when the CLI was branded `cc-sdd` and its skills and slash commands used a `kiro-` / `kiro:`
+> prefix. That prefix was later replaced by `sdd-` (skills) and bare command names such as
+> `/spec-init` (slash commands). The entries below are kept verbatim as a record of what shipped at
+> the time and are **not** updated to the current names; see the [Migration Guide](../guides/migration-guide.md)
+> for the mapping.
+
 ---
 
 ## 🔬 In Development (Unreleased)

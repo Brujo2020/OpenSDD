@@ -268,3 +268,38 @@
   statement_en: 'Irreversible, unbounded damage is not answered with a stricter gate but with a human hand: there is a dedicated HIL escalation.'
   verifier: 'node --input-type=module -e "import {evaluateEscalations} from \"./tools/cc-sdd/dist/core/hitl.js\"; process.exit(evaluateEscalations({irreversibleDamage:true}).some(d=>d.trigger===\"irreversible-damage\")?0:1)"'
   expectation: pass
+
+- id: CLM-036
+  section: "§6.3 / Table 19 (level B — commit)"
+  statement_es: 'El repositorio incluye un gate de commit ejecutable que juzga el ÍNDICE (staged) y falla cerrado si falta el CLI.'
+  statement_en: 'The repository ships an executable commit gate that judges the staged index and fails closed when the CLI is missing.'
+  verifier: "test -x tools/cc-sdd/templates/hooks/pre-commit && grep -q -- '--staged' tools/cc-sdd/templates/hooks/pre-commit && grep -q 'COMMIT BLOQUEADO' tools/cc-sdd/templates/hooks/pre-commit"
+  expectation: pass
+
+- id: CLM-037
+  section: "§6.3 / Table 19 (level B installed)"
+  statement_es: 'El instalador del gate de commit es funcional: al ejecutarlo queda un hook pre-commit ejecutable en .git/hooks.'
+  statement_en: 'The commit-gate installer works: running it leaves an executable pre-commit hook in .git/hooks.'
+  verifier: "node scripts/install-hooks.mjs >/dev/null && test -x .git/hooks/pre-commit"
+  expectation: pass
+
+- id: CLM-038
+  section: "§6.3 / Table 19 (level C — merge)"
+  statement_es: 'Un workflow ejecuta la cadena de gates en cada pull request: la matriz de gates es la frontera de merge.'
+  statement_en: 'A workflow runs the gate chain on every pull request: the gate matrix is the merge boundary.'
+  verifier: "grep -q 'pull_request' .github/workflows/gates.yml && grep -q 'gates run' .github/workflows/gates.yml && grep -q -- '--base' .github/workflows/gates.yml"
+  expectation: pass
+
+- id: CLM-039
+  section: "I6 / §9.2 (default-FAIL y relajaciones registradas)"
+  statement_es: 'Toda excepción de la lista de seguridad declara motivo y actor, de modo que una supresión nunca es anónima ni silenciosa.'
+  statement_en: 'Every security allow-list exception declares a reason and an actor, so a suppression is never anonymous or silent.'
+  verifier: "node --input-type=module -e \"import {readFileSync} from 'node:fs'; import {parseSecurityAllowlist} from './tools/cc-sdd/dist/core/securityAllowlist.js'; const r=parseSecurityAllowlist(readFileSync('.sdd/settings/security-allowlist.json','utf8')); process.exit(r.rejected.length===0 && r.entries.length>0 && r.entries.every(e=>e.reason.trim() && e.ids.length && (e.actor||'').trim()) ? 0 : 1)\""
+  expectation: pass
+
+- id: CLM-040
+  section: "§6.3 / Table 19 caption (techo frente a suelo)"
+  statement_es: 'La comprobación del suelo puede fallar: en un directorio sin hook ni CI informa de que el suelo no está instalado.'
+  statement_en: 'The floor check can fail: in a directory with neither hook nor CI it reports that the floor is not installed.'
+  verifier: "node --input-type=module -e \"import {mkdtempSync} from 'node:fs'; import {tmpdir} from 'node:os'; import {detectInstalledFloor} from './tools/cc-sdd/dist/core/floorInstallation.js'; const r=await detectInstalledFloor(mkdtempSync(tmpdir()+'/floor-')); process.exit(r.floorInstalled===false && r.detail.includes('NO instalado') ? 0 : 1)\""
+  expectation: pass

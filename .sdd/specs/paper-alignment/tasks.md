@@ -110,6 +110,23 @@ output that would have falsified them (invariant I2).
   - Observable completion: a property nobody inspects is reported as not measurable, never as `ok`.
   - _Evidence: `node tools/cc-sdd/dist/cli.js govern discipline` → diff-budget evaluated against the declared budget, scope-containment `no medible` without `SDD_SCOPE`, declared-uncertainty `no medible` (needs the assumption register); `declared-uncertainty` was changed from `decidable: true` to `decidable: false` precisely because reporting `ok` for an uninspected property is activation without measurement. `npm --prefix tools/cc-sdd test` → 63 files, 481 passed._
 
+- [x] 23. Install the owned enforcement floor instead of declaring it — _Requirements: 5, 6_ — _Depends:_ `7`, `8`_ — _Boundary:_ `tools/cc-sdd/templates/hooks`, `.github/workflows`, `scripts/install-hooks.mjs`, `tools/cc-sdd/src/core/securityAllowlist.ts`, `tools/cc-sdd/src/core/floorInstallation.ts`_
+  - Level B: a pre-commit hook that runs C1/C2/C3 over the staged index and fails closed when the CLI is missing.
+  - Level C: a pull-request workflow that runs the chain against the PR diff, the suite, the claims registry and the floor report.
+  - False positives are declared per (path, pattern) with a reason and reported on every run, never suppressed silently.
+  - Observable completion: the hook blocks a real secret and an unproven completion, passes a clean change, and `floor status` exits 0 only when both boundaries are installed.
+  - _Evidence: hook behaviour verified by running it — a staged AWS key + GitHub token → exit 1, C2 fail, 4 findings; a clean file → exit 0; an allow-listed fixture → exit 0 with "8 hallazgo(s) suprimido(s) por la lista de excepciones"; a completed task with no _Evidence: → exit 1, C3 fail. `node tools/cc-sdd/dist/cli.js floor status` → exit 0, "Suelo instalado". 13 new tests in `test/enforcementFloor.test.ts`; suite 63 → 64 files, 481 → 494 tests._
+
+- [x] 24. Teach the Zero-Trust console to the shipped agent skills — _Requirements: 2, 3_ — _Depends:_ `16`_ — _Boundary:_ `tools/cc-sdd/templates/agents/\*/skills/sdd-help/SKILL.md`_
+  - The 20 skills an install copies into a target project must tell the agent that the console exists, or the model is invisible to the very agents it governs.
+  - Observable completion: every skills-based agent ships the console reference, and the eight copies stay identical.
+  - _Evidence: the console section was appended to all 8 `sdd-help/SKILL.md` files (claude-code, cursor, codex, gemini-cli, github-copilot, opencode, windsurf, antigravity); `md5` reports 1 distinct variant across the 8, so the copies cannot drift apart._
+
+- [x] 25. Purge the legacy naming from the guides and the shipped templates — _Requirements: 10_ — _Boundary:_ `docs/guides`, `tools/cc-sdd/templates`_
+  - The restored docs and templates still used the previous product's `kiro-` / `kiro:` / `/kiro/` prefixes, named commands that no longer exist, and carried untranslated Japanese fragments.
+  - Observable completion: every referenced command and skill matches the shipped templates, no internal anchor is broken, and no unexplained legacy token remains.
+  - _Evidence: 588 replacements across 40 files (`kiro-spec-impl` → `sdd-impl`, `/kiro:spec-init` → `/spec-init`, `/kiro/spec-impl` → `/sdd/spec-impl`, `{{KIRO_DIR}}` → `{{SDD_DIR}}`, `.kiro/` → `.sdd/`, `@kiro-` → `@sdd-`, `agent: kiro/` → `agent: sdd/`). A name audit found 0 unknown skill/command tokens; an anchor audit found and fixed 39 broken links and now reports 0; 52 Japanese fragments were translated (the literal `次のステップ` marker was deliberately kept, with justification, because the runtime emits it). Remaining `kiro` references are the supported `--kiro-dir` alias, the archived release notes and legacy README, and the migration guide's deliberate before-column._
+
 - [x] 19. Verify the end state and freeze the milestone — _Requirements: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10_ — _Depends:_ `17`, `18`, `20`, `21`, `22`_ — _Boundary:_ `.`_
   - Full build, full test suite, package dry-run, postinstall guard and a claims-registry re-run on the frozen tree.
   - _Evidence: `npm run verify` → build exit 0, 63 test files / 481 tests passed. `gates chain --profile solo|team|regulated` → 7/9/12 declared. `gates crosswalk` → 21 logical, 13 executable, 1 vacuous, 16 covered, 5 residue. `gates run` → exit 0, "La cadena pasa". `govern conformance` → C1. `audit paper-alignment` → 0 ambient-drift warnings. `assure claims --verify` → 35 claims, 32 verified, 0 broken, 0 outdated, exit 0. `npm pack --dry-run` → 496 files, 628.6 kB. Postinstall guard on a tree without `tools/cc-sdd` → exit 0, no nested install (was 81 concurrent processes)._

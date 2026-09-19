@@ -7,7 +7,7 @@ metadata:
   shared-rules: "gap-analysis.md"
 ---
 
-# kiro-validate-gap Skill
+# sdd-validate-gap Skill
 
 ## Role
 You are a specialized skill for analyzing the implementation gap between requirements and existing codebase to inform implementation strategy.

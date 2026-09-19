@@ -15,6 +15,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { getExecutableGate } from './gateCatalog.js';
 import { applyDefaultFail, type GateVerdict, type PostureRegime, type HardControl } from './enforcement.js';
+import { applySecurityAllowlist, type SecurityAllowlistEntry } from './securityAllowlist.js';
 import { evaluateTriad, checkEvidenceLock } from './triad.js';
 import { validateEarsRequirement } from './ears.js';
 
@@ -40,6 +41,13 @@ export interface GateRunContext {
   contextReferences?: string[];
   /** Live file claims for the swarm overlap check. */
   claims?: { path: string; owner: string; grantedAt: string; ttlMs: number }[];
+  /**
+   * Content to judge instead of the working tree, keyed by repository-relative path. Used by the
+   * pre-commit hook to scan the staged index rather than the files on disk.
+   */
+  contentOverrides?: Record<string, string>;
+  /** Declared security exceptions (see securityAllowlist.ts). Never silent, always reported. */
+  securityAllowlist?: SecurityAllowlistEntry[];
 }
 
 export interface GateFinding {
@@ -238,16 +246,28 @@ export const runGate = async (
     case 'C2': {
       const files: { path: string; content: string }[] = [];
       for (const rel of ctx.changedFiles) {
-        const content = await readIfExists(path.join(ctx.cwd, rel));
+        // A pre-commit gate must judge what is being COMMITTED, not whatever happens to be on
+        // disk: `--staged` supplies the index content as an override.
+        const override = ctx.contentOverrides?.[rel];
+        const content = override ?? (await readIfExists(path.join(ctx.cwd, rel)));
         if (content !== null) files.push({ path: rel, content });
       }
-      const findings = scanSecurity(files);
+      const raw = scanSecurity(files);
+      const decision = applySecurityAllowlist(raw, ctx.securityAllowlist ?? []);
+      const findings = decision.kept;
+      const suppressedNote =
+        decision.suppressed.length > 0
+          ? ` ${decision.suppressed.length} hallazgo(s) suprimido(s) por la lista de excepciones (${[
+              ...new Set(decision.suppressed.map((s) => s.id)),
+            ].join(', ')}).`
+          : '';
       return finalize(
         true,
         findings.length > 0,
-        findings.length > 0
+        (findings.length > 0
           ? `${findings.length} hallazgo(s) de línea base de seguridad.`
-          : `${files.length} fichero(s) del cambio sin secretos, comandos destructivos ni patrones de inyección.`,
+          : `${files.length} fichero(s) del cambio sin secretos, comandos destructivos ni patrones de inyección.`) +
+          suppressedNote,
         findings.map((f) => `${f.kind}:${f.id} ${f.file}:${f.line}`),
       );
     }

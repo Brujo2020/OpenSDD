@@ -111,3 +111,35 @@ Provide an Apple-grade ("It Just Works"), crystal-clear interactive reference wi
 | `/sdd-help` | `/sdd-help` or `/sdd-help impl` | Shows this interactive help guide and examples |
 
 Output the guidance formatted cleanly with rich Markdown, GitHub alerts, and copy-paste code blocks.
+
+## Zero-Trust Console (reference architecture)
+
+Beyond the in-chat commands, the `open-sdd` CLI exposes the governance model of *Orquestación
+SDD-First Multiagente para Desarrollo Enterprise* (rev. 3, Sept 2026). Run these from the project
+root; inside this repository use `node tools/cc-sdd/dist/cli.js` in place of `open-sdd`:
+
+| Command | What it answers |
+|---|---|
+| `open-sdd gates chain [--profile solo\|team\|regulated]` | Which controls are declared for this repository, and which are executable |
+| `open-sdd gates crosswalk` | Which logical gates each executable check imposes, and the residue no check covers |
+| `open-sdd gates enforcement` | Per-host enforcement ceiling (levels A–D) versus the floor the organization owns |
+| `open-sdd gates run [--staged \| --base <ref>]` | Runs the declared chain; exits 1 when it fails |
+| `open-sdd govern conformance` | The conformity level (C0–C3) with per-invariant evidence |
+| `open-sdd govern hitl` | The quantified human-in-the-loop thresholds |
+| `open-sdd govern appeal` | The relaxation ledger and override recalibration |
+| `open-sdd govern discipline` | The §9.7 decidable properties over the working diff |
+| `open-sdd assure threats` / `lab` / `skills` / `memory` | Threat and regulatory crosswalks, risk-lab banks, skill privileges, memory quarantine |
+| `open-sdd assure claims --verify` | Decides every documentation claim by its verifier's exit code |
+| `open-sdd waves <feature>` | The transactional wave plan and the git commands that materialise it |
+| `open-sdd floor status` / `floor install [target] --ci` | Whether the commit/merge floor is installed, and installing it |
+
+Non-negotiables when reporting on this model:
+
+- **C7 / Karpathy is vacuous**: it runs without inspecting anything, so never present it as a
+  passing control.
+- **No model backend ships with this repository**, so intent alignment (C5) reports
+  `mode=degraded` and is explicitly *not* evidence.
+- **Never restate the reference prototype's measurements** (κ = 0.86 at n = 15, the C4
+  false-positive rate, the 2.1–2.2 s sweep) as measurements of this repository.
+- The full mapping — every paper section, its implementing symbol, and the declared gaps — is
+  `docs/PAPER-ALIGNMENT.md`. Read it before claiming the code does what the paper describes.

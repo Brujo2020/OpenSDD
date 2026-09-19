@@ -6,6 +6,43 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added — enforcement floor installed, skills taught, naming unified
+
+- **Level B (commit) is installed, not declared.** `tools/cc-sdd/templates/hooks/pre-commit` runs
+  `gates run C1 C2 C3 --staged --strict` — C1 advisory, C2 blocking on secrets and destructive
+  commands **in the staged index**, C3 blocking when a completed task carries no captured
+  `_Evidence:`. It fails closed with an actionable message when the CLI is missing, and it is
+  installed automatically by `npm run prepare` / `npm run hooks:install`, or into any target project
+  with `open-sdd floor install <target> --ci`.
+- **Level C (merge) is installed.** `.github/workflows/gates.yml` runs on every pull request:
+  install, build, the full suite, the resolved chain, `gates run --base <base-sha>` against the PR
+  diff, `govern discipline`, `assure claims --verify` and `floor status`.
+  `tools/cc-sdd/templates/hooks/open-sdd-gates.yml` is the copy shipped for target projects.
+- **Declared security exceptions.** `.sdd/settings/security-allowlist.json` records each suppression
+  per (path, pattern id) with a reason and an actor, and every run reports how many findings it
+  suppressed — a suppression can never be mistaken for a clean scan. `git commit --no-verify` is
+  documented as an unrecorded bypass.
+- **`open-sdd floor status|install`** (new `floorInstallation.ts` and `securityAllowlist.ts`; new
+  `--staged`, `--base` and `--strict` modes on `gates run`) answers whether the owned floor is
+  installed rather than argued, and exits non-zero the moment it is not. 13 tests in
+  `test/enforcementFloor.test.ts`.
+- **The shipped skills teach the console.** All eight `sdd-help` skills (one per skills-based agent)
+  now document `gates` / `govern` / `assure` / `waves` / `floor`, the C7-vacuity and
+  no-model-backend caveats, and the pointer to `docs/PAPER-ALIGNMENT.md`.
+- **Legacy naming purged from the guides and the shipped templates.** 588 replacements across 40
+  files: `kiro-spec-impl` → `sdd-impl`, `/kiro:spec-init` → `/spec-init`, `/kiro/spec-impl` →
+  `/sdd/spec-impl`, `{{KIRO_DIR}}` → `{{SDD_DIR}}`, `.kiro/` → `.sdd/`, `@kiro-` → `@sdd-`, and
+  `agent: kiro/` → `agent: sdd/`. Thirty-nine broken internal anchors were repaired; a name audit now
+  finds zero unknown skill or command tokens. The supported `--kiro-dir` alias, the archived release
+  notes and the migration guide's deliberate before-column are untouched.
+- **Untranslated Japanese fragments removed** from four English documents. The runtime literal
+  `次のステップ` was kept on purpose — the subagents actually emit it — with the surrounding prose
+  clarified.
+- **Traceability updated.** Gap G-11 was rewritten from "declared, not installed" to "installed, with
+  level A still unverified", and five new claims (CLM-036 … CLM-040) decide the floor by exit code.
+  Registry result: 40 claims, 37 verified, 0 broken, 0 outdated.
+
+
 ### Added — restoration, Zero-Trust console, paper-aligned core
 - **Restored the product.** The `cleanup: remove legacy cc-sdd and docs` commit had removed the CLI surface while the npm package (`open-sdd@3.0.2`) still declared a `bin` pointing at `tools/cc-sdd/dist/cli.js`. The CLI, its commands and the shipped agent templates are restored, and `install.sh` now drives the real CLI instead of copying files into a `src/cli/` layout that never existed in any commit.
 - **Zero-Trust governance console.** `open-sdd gates|govern|assure|waves` implements the reference architecture: the gate chain resolved from catalog + profile + repository signals, the crosswalk and the residue computed by subtraction, enforcement levels A–D with ceiling-vs-floor and behavioural-sentinel semantics, conformity C0–C3, quantified HIL thresholds, relaxation receipts and the appeal channel, META-EVAL, the overhead budget, the OWASP Agentic / MITRE ATLAS and EU AI Act / NIST / ISO crosswalks, the five risk-lab banks, the skills and memory models, and transactional wave planning. `--help` lists the subcommands.

@@ -21,7 +21,7 @@ import { handleGetspecsCommand } from './cli/commands/getspecs.js';
 import { handleVerifyCommand } from './cli/commands/verify.js';
 import { handleHelpCommand } from './cli/commands/help.js';
 import { handleImplCommand } from './cli/commands/impl.js';
-import { handleGatesCommand, handleGovernCommand, handleAssureCommand, handleWavesCommand, } from './cli/commands/paper.js';
+import { handleGatesCommand, handleGovernCommand, handleAssureCommand, handleWavesCommand, handleFloorCommand, } from './cli/commands/paper.js';
 export * from './core/index.js';
 const agentKeys = agentList;
 const aliasFlags = Array.from(new Set(agentKeys.flatMap((key) => getAgentDefinition(key).aliasFlags)));
@@ -68,6 +68,7 @@ Zero-Trust console (reference architecture):
   govern [invariants|conformance|hitl|rigor|appeal|meta-eval|budget]
   assure [threats|lab|claims|skills|memory]
   waves <feature>                             Transactional wave plan with git commands
+  floor [status|install] [target] [--ci]       Enforcement floor: commit hook + PR gate matrix
 
 Note: In non-TTY environments, prompt mode falls back to skip.`;
 const resolveManifestPath = async (resolvedAgent, argsProfile, manifestArg, templatesBase) => {
@@ -244,6 +245,9 @@ export const runCli = async (argv, runtime = { platform: process.platform, env: 
         }
         if (cmd === 'waves') {
             return handleWavesCommand(subArgv, io, targetCwd);
+        }
+        if (cmd === 'floor') {
+            return handleFloorCommand(subArgv, io, targetCwd);
         }
     }
     let parsedArgs;

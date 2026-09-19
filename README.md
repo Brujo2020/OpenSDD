@@ -194,6 +194,7 @@ unless stated otherwise.
 | `govern conformance` | Conformity level C0–C3 with per-invariant evidence |
 | `govern hitl` | The quantified Human-in-the-Loop thresholds |
 | `govern discipline` | §9.7 decidable properties (diff budget, scope containment) over the working diff |
+| `floor status` / `floor install` | Whether the owned enforcement floor (commit hook + PR gate matrix) is installed, and installing it into a target project |
 | `govern rigor` | Rigor mode for a change (`none`/`lite`/`spec-first`/`spec-anchored`/`spec-as-source`) |
 | `govern appeal` | Relaxation receipts and override-rate recalibration |
 | `govern meta-eval` | Cohen's κ pilot, the Landis–Koch floor and the preregistered `n` |
@@ -265,11 +266,40 @@ Stated here so the reference section is not read as a claim of completeness:
 - **The §9.7 decidable properties are implemented but not gate-wired.**
 - **No gate calibration, no labelled corpus, no ON/OFF delta table.** The paper publishes no ON/OFF
   table either, so none is invented here.
-- **The commit/merge floor is declared, not installed:** this repository ships no pre-commit hooks
-  and no CI gate workflow.
+- **The commit/merge floor is installed, but level A is not verified.** The pre-commit hook
+  (level B) and the pull-request gate matrix (level C) both exist and are exercised; `resolveFloor`
+  remains an ownership argument, and no behavioural sentinel has verified write-time blocking in any
+  host, so level A is a ceiling and not a guarantee. `git commit --no-verify` bypasses level B and
+  that bypass is not recorded.
 
 Each of these is a numbered gap (G-01 … G-14) with its paper citation and code location in
 [docs/PAPER-ALIGNMENT.md](docs/PAPER-ALIGNMENT.md).
+
+---
+
+## Enforcement floor (levels B and C)
+
+The guarantee this tool can make on day one is the **commit/merge floor**, because those boundaries
+belong to the organization rather than to a vendor. Both are installed here, and installed into any
+target project:
+
+```bash
+npm run hooks:install              # level B in this checkout (also runs automatically on npm install)
+open-sdd floor install . --ci      # level B + C in a target project
+open-sdd floor status              # is the floor installed? exits 1 when it is not
+```
+
+The hook judges the **staged index**, not the working tree, and runs three controls: C1 (triad,
+advisory), C2 (secrets and destructive commands, blocking) and C3 (evidence lock, blocking when a
+task is marked complete without its captured proof). If the CLI itself is missing, the hook **fails
+closed** and prints how to fix it. Legitimate false positives are declared per (path, pattern) with a
+reason in `.sdd/settings/security-allowlist.json`, and every run reports how many findings it
+suppressed — a suppression is never silent. `git commit --no-verify` also bypasses the hook, and
+that bypass is **not** recorded; the allow-list is the channel an audit can read.
+
+Level C is `.github/workflows/gates.yml` (`templates/hooks/open-sdd-gates.yml` for target projects):
+the chain runs against the pull-request diff via `--base`, because a gate run that inspects nothing
+is activation without measurement.
 
 ---
 

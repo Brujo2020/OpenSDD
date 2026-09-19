@@ -7,7 +7,7 @@ metadata:
   shared-rules: "design-review.md"
 ---
 
-# kiro-validate-design Skill
+# sdd-validate-design Skill
 
 ## Role
 You are a specialized skill for conducting interactive quality review of technical design to ensure readiness for implementation.

@@ -1,0 +1,117 @@
+{
+  "$comment": "Declared exceptions for gate C2 / G5 (security baseline). Each entry is per (path, pattern id) and carries a reason: an exception without a reason is not a recorded event. Every run reports how many findings were suppressed, so a suppression can never be read as a clean scan. Review this file like any other control. NOTE: dist/ is committed and shipped, so it is scanned too; an allow-listed source file needs its compiled twin listed as well, and test/enforcementFloor.test.ts enforces that pairing.",
+  "allow": [
+    {
+      "path": ".sdd/settings/templates/specs/requirements.md",
+      "ids": [
+        "hidden-comment-instruction"
+      ],
+      "reason": "Spec requirements template: the HTML comment is authoring guidance to the spec writer, not an instruction addressed to a model.",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": ".sdd/specs/paper-alignment/tasks.md",
+      "ids": [
+        "rm-rf-root"
+      ],
+      "reason": "The specification quotes the destructive command as captured evidence for the C2 fix (the regex previously missed the root form).",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "ids": [
+        "curl-pipe-shell"
+      ],
+      "reason": "The changelog records that the previous README advertised a curl-pipe-shell installer the script cannot serve.",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "Claude outputs/",
+      "ids": [
+        "curl-pipe-shell"
+      ],
+      "reason": "Legacy delivery documents restored from git history; they quote installer one-liners as usage examples.",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "tools/cc-sdd/README.md",
+      "ids": [
+        "curl-pipe-shell"
+      ],
+      "reason": "Documents the supported installation one-liner for the CLI.",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "tools/cc-sdd/src/cli/commands/paper.ts",
+      "ids": [
+        "ignore-previous"
+      ],
+      "reason": "The `assure memory` command demonstrates the injection scanner with a probe string.",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "tools/cc-sdd/src/core/gateRunner.ts",
+      "ids": [
+        "rm-rf-root",
+        "system-prompt-exfil"
+      ],
+      "reason": "The scanner's own pattern table: these literals ARE the detector, not an occurrence of the threat.",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "tools/cc-sdd/src/core/memory.ts",
+      "ids": [
+        "hidden-comment-instruction"
+      ],
+      "reason": "The memory poisoning scanner's pattern table.",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "tools/cc-sdd/test/coreGateRunner.test.ts",
+      "ids": [
+        "aws-access-key",
+        "private-key-block",
+        "openai-key",
+        "generic-assignment",
+        "rm-rf-root",
+        "ignore-previous"
+      ],
+      "reason": "Unit-test fixtures: the scanner must be fed real-shaped credentials and commands to prove it detects them.",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "tools/cc-sdd/test/coreMemory.test.ts",
+      "ids": [
+        "ignore-previous",
+        "hidden-comment-instruction"
+      ],
+      "reason": "Unit-test fixtures for the poisoning scanner.",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "tools/cc-sdd/dist/core/gateRunner.js",
+      "ids": [
+        "rm-rf-root",
+        "system-prompt-exfil"
+      ],
+      "reason": "Compiled twin of tools/cc-sdd/src/core/gateRunner.ts: the emitted artifact contains the same detector pattern table (dist is committed so the package ships the CLI).",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "tools/cc-sdd/dist/cli/commands/paper.js",
+      "ids": [
+        "ignore-previous"
+      ],
+      "reason": "Compiled twin of tools/cc-sdd/src/cli/commands/paper.ts: the assure-memory demo probe string.",
+      "actor": "spec:paper-alignment"
+    },
+    {
+      "path": "tools/cc-sdd/dist/core/memory.js",
+      "ids": [
+        "hidden-comment-instruction"
+      ],
+      "reason": "Compiled twin of tools/cc-sdd/src/core/memory.ts: the memory poisoning scanner pattern table.",
+      "actor": "spec:paper-alignment"
+    }
+  ]
+}

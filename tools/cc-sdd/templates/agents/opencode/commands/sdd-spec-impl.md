@@ -100,8 +100,8 @@ Provide brief summary in the language specified in spec.json:
 ### Task Execution
 
 **Execute specific task(s)**:
-- `/sdd-spec-impl $1 1.1` - Single task
-- `/sdd-spec-impl $1 1,2,3` - Multiple tasks
+- `/sdd-impl $1 1.1` - Single task
+- `/sdd-impl $1 1,2,3` - Multiple tasks
 
 **Execute all pending**:
-- `/sdd-spec-impl $1` - All unchecked tasks
+- `/sdd-impl $1` - All unchecked tasks

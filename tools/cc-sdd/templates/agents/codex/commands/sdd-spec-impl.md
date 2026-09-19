@@ -94,7 +94,7 @@ Provide brief summary in the language specified in spec.json:
 
 **Tasks Not Approved or Missing Spec Files**:
 - **Stop Execution**: All spec files must exist and tasks must be approved
-- **Suggested Action**: "Complete previous phases: `/prompts:kiro-spec-requirements`, `/prompts:kiro-spec-design`, `/prompts:kiro-spec-tasks`"
+- **Suggested Action**: "Complete previous phases: `/sdd-spec-requirements`, `/sdd-spec-design`, `/sdd-spec-tasks`"
 
 **Test Failures**:
 - **Stop Implementation**: Fix failing tests before continuing
@@ -103,9 +103,9 @@ Provide brief summary in the language specified in spec.json:
 ### Task Execution
 
 **Execute specific task(s)**:
-- `/prompts:kiro-spec-impl $1 1.1` - Single task
-- `/prompts:kiro-spec-impl $1 1,2,3` - Multiple tasks
+- `/sdd-impl $1 1.1` - Single task
+- `/sdd-impl $1 1,2,3` - Multiple tasks
 
 **Execute all pending**:
-- `/prompts:kiro-spec-impl $1` - All unchecked tasks
+- `/sdd-impl $1` - All unchecked tasks
 

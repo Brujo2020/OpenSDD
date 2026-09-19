@@ -24,3 +24,5 @@ export * from './claims.js';
 export * from './claimsRegistry.js';
 export * from './assurance.js';
 export * from './gateRunner.js';
+export * from './securityAllowlist.js';
+export * from './floorInstallation.js';

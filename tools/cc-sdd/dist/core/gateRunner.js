@@ -14,6 +14,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { getExecutableGate } from './gateCatalog.js';
 import { applyDefaultFail } from './enforcement.js';
+import { applySecurityAllowlist } from './securityAllowlist.js';
 import { evaluateTriad, checkEvidenceLock } from './triad.js';
 import { validateEarsRequirement } from './ears.js';
 // --- secret & destructive-command detection (C2 / G5) ----------------------------------------
@@ -145,14 +146,25 @@ export const runGate = async (gateId, ctx, regime = 'flexible') => {
         case 'C2': {
             const files = [];
             for (const rel of ctx.changedFiles) {
-                const content = await readIfExists(path.join(ctx.cwd, rel));
+                // A pre-commit gate must judge what is being COMMITTED, not whatever happens to be on
+                // disk: `--staged` supplies the index content as an override.
+                const override = ctx.contentOverrides?.[rel];
+                const content = override ?? (await readIfExists(path.join(ctx.cwd, rel)));
                 if (content !== null)
                     files.push({ path: rel, content });
             }
-            const findings = scanSecurity(files);
-            return finalize(true, findings.length > 0, findings.length > 0
+            const raw = scanSecurity(files);
+            const decision = applySecurityAllowlist(raw, ctx.securityAllowlist ?? []);
+            const findings = decision.kept;
+            const suppressedNote = decision.suppressed.length > 0
+                ? ` ${decision.suppressed.length} hallazgo(s) suprimido(s) por la lista de excepciones (${[
+                    ...new Set(decision.suppressed.map((s) => s.id)),
+                ].join(', ')}).`
+                : '';
+            return finalize(true, findings.length > 0, (findings.length > 0
                 ? `${findings.length} hallazgo(s) de línea base de seguridad.`
-                : `${files.length} fichero(s) del cambio sin secretos, comandos destructivos ni patrones de inyección.`, findings.map((f) => `${f.kind}:${f.id} ${f.file}:${f.line}`));
+                : `${files.length} fichero(s) del cambio sin secretos, comandos destructivos ni patrones de inyección.`) +
+                suppressedNote, findings.map((f) => `${f.kind}:${f.id} ${f.file}:${f.line}`));
         }
         case 'C3': {
             const tasksText = await readIfExists(path.join(specDir, 'tasks.md'));

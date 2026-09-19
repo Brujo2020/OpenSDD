@@ -1,0 +1,81 @@
+#!/bin/bash
+# open-sdd | pre-commit gate — enforcement level B ("commit").
+#
+# Level B is the floor an organization OWNS: git belongs to no vendor, so this hook works in every
+# host tool. It runs the three controls whose failure is silent and whose cost is asymmetric:
+#
+#   C1  Triad Integrity      (advisory — never blocks; presence, not sense)
+#   C2  Security Baseline    (blocking — secrets and destructive commands in the staged diff)
+#   C3  Evidence Validation  (blocking when a completed task carries no captured evidence)
+#
+# It judges the INDEX, not the working tree: `--staged` makes the gates read what is actually
+# being committed.
+#
+# If the harness itself is missing the hook FAILS CLOSED and says how to fix it. A commit gate that
+# silently degrades to "no checks" is worse than none, because the compliance report still lists it
+# as running — the failure mode the reference architecture documents for level A, avoided here by
+# making the missing instrument loud instead of silent.
+#
+# To relax a genuine false positive, declare it in .sdd/settings/security-allowlist.json with a
+# reason. `git commit --no-verify` also bypasses this hook, but that bypass is NOT recorded — the
+# allow-list is the recorded channel, and it is the one the audit can read.
+
+set -uo pipefail
+
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+  echo "open-sdd: no es un repositorio git; se omite el gate de commit." >&2
+  exit 0
+}
+
+resolve_cli() {
+  if [ -n "${OPEN_SDD_CLI:-}" ] && [ -f "${OPEN_SDD_CLI}" ]; then
+    printf '%s' "${OPEN_SDD_CLI}"
+    return 0
+  fi
+  local candidates=(
+    "$ROOT/tools/cc-sdd/dist/cli.js"
+    "$ROOT/node_modules/open-sdd/tools/cc-sdd/dist/cli.js"
+    "$ROOT/node_modules/.bin/open-sdd"
+  )
+  for candidate in "${candidates[@]}"; do
+    if [ -f "$candidate" ]; then
+      printf '%s' "$candidate"
+      return 0
+    fi
+  done
+  if command -v open-sdd >/dev/null 2>&1; then
+    command -v open-sdd
+    return 0
+  fi
+  return 1
+}
+
+CLI="$(resolve_cli)" || {
+  echo "" >&2
+  echo "open-sdd: COMMIT BLOQUEADO — el gate de commit no puede ejecutarse." >&2
+  echo "  No se encontró el CLI (level B falla cerrado: un instrumento ausente no se lee como" >&2
+  echo "  verificación aprobada). Resuélvelo con una de estas opciones:" >&2
+  echo "    npm run build                 # checkout del propio open-sdd" >&2
+  echo "    npm install -D open-sdd        # como dependencia del proyecto" >&2
+  echo "    export OPEN_SDD_CLI=/ruta/al/cli.js" >&2
+  echo "  Para commitear sin el gate: git commit --no-verify  (bypass NO registrado)." >&2
+  echo "" >&2
+  exit 1
+}
+
+echo "open-sdd: gates críticos sobre el índice (C1 tríada · C2 seguridad · C3 evidencia)..."
+
+node "$CLI" gates run C1 C2 C3 --staged --strict
+STATUS=$?
+
+if [ "$STATUS" -ne 0 ]; then
+  echo "" >&2
+  echo "open-sdd: COMMIT BLOQUEADO." >&2
+  echo "  C2 bloquea ante secretos o comandos destructivos en el índice; C3 bloquea ante una" >&2
+  echo "  tarea marcada como completa sin la línea _Evidence: que captura su comprobación." >&2
+  echo "  Si el hallazgo es un falso positivo legítimo, decláralo con motivo en" >&2
+  echo "  .sdd/settings/security-allowlist.json (registrado y reportado, no silenciado)." >&2
+  exit "$STATUS"
+fi
+
+exit 0

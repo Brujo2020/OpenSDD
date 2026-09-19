@@ -100,6 +100,9 @@ control. Details in gaps G-01/G-02 and G-06 of the report.
 - Keep steering current and verify alignment with `/sdd-spec-status`
 - Specs are mandatory under the `team` and `enterprise` governance profiles; the default `solo`
   profile runs its checks and reports without blocking (`tools/cc-sdd/src/core/governance.ts`)
+- The enforcement floor is installed: a pre-commit hook runs C1/C2/C3 over the staged index and a
+  pull-request workflow runs the full chain. Declare false positives in
+  `.sdd/settings/security-allowlist.json` with a reason instead of using `--no-verify`.
 - Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
 
 ## Steering Configuration

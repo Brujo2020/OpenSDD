@@ -1,6 +1,6 @@
 ---
 description: Validate implementation against requirements, design, and tasks
-agent: kiro/validate-impl
+agent: sdd/validate-impl
 subtask: true
 ---
 
@@ -15,7 +15,7 @@ subtask: true
 **Perform detection before invoking Subagent**:
 
 **If no arguments** (`$1` empty):
-- Parse conversation history for `/sdd-spec-impl <feature> [tasks]` patterns
+- Parse conversation history for `/sdd-impl <feature> [tasks]` patterns
 - OR scan `{{SDD_DIR}}/specs/*/tasks.md` for `[x]` checkboxes
 - Pass detected features and tasks to Subagent
 
@@ -50,7 +50,7 @@ Show Subagent summary to user, then provide next step guidance:
 
 **If NO-GO Decision**:
 - Address critical issues listed
-- Re-run `/sdd-spec-impl <feature> [tasks]` for fixes
+- Re-run `/sdd-impl <feature> [tasks]` for fixes
 - Re-validate with `/sdd-validate-impl [feature] [tasks]`
 
 **Note**: Validation is recommended after implementation to ensure spec alignment and quality.

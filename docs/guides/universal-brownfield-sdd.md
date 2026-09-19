@@ -74,7 +74,7 @@ flowchart TD
 
 ### Why it transforms startups:
 * **Eliminates Bus Factor**: Project architecture is documented as living code in `.sdd/steering/` and `.sdd/specs/`.
-* **Day-1 Onboarding**: New developers run `/sdd-status` and read `.sdd/steering/` to understand the full system in 15 minutes.
+* **Day-1 Onboarding**: New developers run `/sdd-spec-status` and read `.sdd/steering/` to understand the full system in 15 minutes.
 * **Independent Review**: Every task runs with `sdd-review`, catching regressions before code reaches pull requests.
 
 ---
