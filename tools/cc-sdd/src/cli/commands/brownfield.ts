@@ -9,6 +9,7 @@
  */
 
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { statSync } from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { colors } from '../ui/colors.js';
@@ -48,16 +49,48 @@ const findRepoRoot = async (cwd: string): Promise<string> => {
 
 const readIfExists = async (p: string): Promise<string | null> => readFile(p, 'utf8').catch(() => null);
 
-/** Files changed in the working tree and the index, i.e. the change under analysis. */
-const changedSinceHead = (root: string): string[] => {
-  const result = spawnSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' });
-  if (result.status !== 0) return [];
-  return result.stdout
+/**
+ * The change under analysis, from either boundary.
+ *
+ * Locally that is the working tree plus the index; in CI the tree is clean and the change is the
+ * pull request, so `--base <ref>` diffs against the base commit. Without this the CI step would
+ * inspect nothing and pass — the exact "activation without measurement" this tool exists to catch.
+ */
+const changedFilesFor = (root: string, base?: string): { files: string[]; source: string } => {
+  if (base) {
+    const result = spawnSync('git', ['diff', '--name-only', '--diff-filter=ACMR', `${base}...HEAD`], {
+      cwd: root,
+      encoding: 'utf8',
+    });
+    if (result.status !== 0) return { files: [], source: `diff contra ${base} (falló)` };
+    return {
+      files: result.stdout.split('\n').map((l) => l.trim()).filter(Boolean),
+      source: `diff contra ${base}`,
+    };
+  }
+
+  // `--untracked-files=all`: without it git reports an untracked DIRECTORY as a single entry, and a
+  // directory path reaches the file readers downstream (EISDIR) and is counted as a changed file.
+  const result = spawnSync('git', ['status', '--porcelain', '--untracked-files=all'], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  if (result.status !== 0) return { files: [], source: 'árbol de trabajo (git no disponible)' };
+  const files = result.stdout
     .split('\n')
     .map((line) => line.replace(/\r$/, ''))
     .filter((line) => line.length > 3)
     .map((line) => line.slice(3).trim())
-    .filter(Boolean);
+    .map((line) => (line.includes(' -> ') ? line.split(' -> ').pop()!.trim() : line))
+    .filter((line) => line.length > 0 && !line.endsWith('/'))
+    .filter((file) => {
+      try {
+        return statSync(path.join(root, file)).isFile();
+      } catch {
+        return false;
+      }
+    });
+  return { files, source: 'árbol de trabajo e índice' };
 };
 
 const deltaPath = (root: string, feature: string): string =>
@@ -314,10 +347,14 @@ export const handleBrownfieldCommand = async (args: string[], io: CliIO, cwd: st
       io.log(dim('  Sin delta.md: el análisis se hace sin el contrato de cambio declarado.'));
     }
 
-    const changedFiles = changedSinceHead(root);
+    const baseIdx = args.findIndex((a) => a === '--base');
+    const base = baseIdx >= 0 ? args[baseIdx + 1] : undefined;
+    const { files: changedFiles, source } = changedFilesFor(root, base);
+    io.log('');
+    io.log(dim(`  origen del cambio: ${source}`));
     if (changedFiles.length === 0) {
       io.log('');
-      io.log(colors.green('Sin cambios pendientes: no hay nada que analizar.'));
+      io.log(colors.green('Sin cambios que analizar en este origen.'));
       io.log('');
       return 0;
     }
@@ -471,6 +508,6 @@ export const handleBrownfieldCommand = async (args: string[], io: CliIO, cwd: st
     return report.violations.length > 0 ? 1 : 0;
   }
 
-  io.log(`Subcomando desconocido: ${sub}. Usa: survey | constitution [target] [--write] | impact <feature> | contracts <feature> [--write] [--verify] | reuse <feature> [--symbols A,B]`);
+  io.log(`Subcomando desconocido: ${sub}. Usa: survey | constitution [target] [--write] | impact <feature> [--base <ref>] | contracts <feature> [--write] [--verify] [--base <ref>] | reuse <feature> [--symbols A,B] [--base <ref>]`);
   return 1;
 };

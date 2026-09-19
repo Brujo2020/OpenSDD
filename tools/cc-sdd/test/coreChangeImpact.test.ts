@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { execFileSync } from 'node:child_process';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -25,6 +26,21 @@ const write = async (root: string, rel: string, content: string): Promise<void> 
 
 const baseManifest = async (root: string): Promise<void> => {
   await write(root, 'package.json', JSON.stringify({ name: 'impact-fixture', devDependencies: { typescript: '^5', vitest: '^4' } }, null, 2));
+};
+
+/** Comando git dentro del fixture, con identidad local para que `commit` no dependa del entorno. */
+const gitFixture = (root: string, args: string[]): void => {
+  execFileSync('git', ['-c', 'user.email=fixture@example.test', '-c', 'user.name=Fixture', ...args], {
+    cwd: root,
+    stdio: 'pipe',
+  });
+};
+
+/** Repositorio con todo lo escrito hasta ahora como revisión anterior (`HEAD`). */
+const commitFixture = (root: string): void => {
+  execFileSync('git', ['init', '-q'], { cwd: root, stdio: 'pipe' });
+  execFileSync('git', ['add', '-A'], { cwd: root, stdio: 'pipe' });
+  gitFixture(root, ['commit', '-q', '-m', 'fixture']);
 };
 
 const deltaOf = (entries: DeltaSpec['entries']): DeltaSpec => ({
@@ -162,19 +178,85 @@ describe('analyzeChangeImpact — cambios incompatibles', () => {
     ).toBe(true);
   });
 
-  it('avisa cuando un objetivo de la delta se toca sin declarar el comportamiento anterior', async () => {
-    const root = await makeTemp('open-sdd-impact-declared-');
+});
+
+describe('analyzeChangeImpact — regresiones: `previous` y objetivos de directorio', () => {
+  it('(a) no exige `previous` cuando el objetivo ADDED todavía no existe en la revisión anterior', async () => {
+    const root = await makeTemp('open-sdd-impact-added-new-');
     await baseManifest(root);
     await write(root, 'src/core/util.ts', 'export const util = 1;\n');
+    commitFixture(root);
+    // El fichero del objetivo es nuevo: ni rastreado ni presente en HEAD.
+    await write(root, 'src/core/brandNew.ts', 'export const brandNew = 1;\n');
+
+    const report = await analyzeChangeImpact({
+      cwd: root,
+      changedFiles: ['src/core/brandNew.ts'],
+      delta: deltaOf([
+        {
+          id: 'REQ-AUTH-010',
+          kind: 'ADDED',
+          title: 'Añadir un módulo nuevo',
+          statement: 'Cuando se invoque, el sistema debe responder desde el módulo nuevo.',
+          targets: ['src/core/brandNew.ts'],
+        },
+      ]),
+    });
+
+    expect(
+      report.findings.some(
+        (f) => f.area === 'breaking' && f.severity === 'warning' && f.message.includes('`previous`'),
+      ),
+    ).toBe(false);
+    expect(
+      report.findings.some((f) => f.message.includes('ninguna entrada MODIFIED/REMOVED/RENAMED declara')),
+    ).toBe(false);
+    // El objetivo SÍ se toca: no debe aparecer el aviso de objetivo no tocado.
+    expect(report.findings.some((f) => f.message.includes('la delta declara un objetivo que este cambio no toca'))).toBe(false);
+  });
+
+  it('(b) conserva el aviso cuando el objetivo MODIFIED existe en la revisión anterior y no declara `previous`', async () => {
+    const root = await makeTemp('open-sdd-impact-modified-tracked-');
+    await baseManifest(root);
+    await write(root, 'src/core/util.ts', 'export const util = 1;\n');
+    commitFixture(root);
 
     const report = await analyzeChangeImpact({
       cwd: root,
       changedFiles: ['src/core/util.ts'],
       delta: deltaOf([
         {
-          id: 'REQ-AUTH-001',
+          id: 'REQ-AUTH-011',
+          kind: 'MODIFIED',
+          title: 'Modificar la utilidad',
+          statement: 'Cuando se invoque, el sistema debe responder distinto.',
+          targets: ['src/core/util.ts'],
+        },
+      ]),
+    });
+
+    const warning = report.findings.find(
+      (f) => f.area === 'breaking' && f.severity === 'warning' && f.message.includes('ninguna entrada MODIFIED/REMOVED/RENAMED declara'),
+    );
+    expect(warning).toBeDefined();
+    expect(warning!.artifacts).toContain('src/core/util.ts');
+  });
+
+  it('sigue avisando cuando el objetivo ADDED ya existía en HEAD (no todo ADDED es nuevo)', async () => {
+    const root = await makeTemp('open-sdd-impact-added-tracked-');
+    await baseManifest(root);
+    await write(root, 'src/core/util.ts', 'export const util = 1;\n');
+    commitFixture(root);
+    await write(root, 'src/core/util.ts', 'export const util = 2;\n');
+
+    const report = await analyzeChangeImpact({
+      cwd: root,
+      changedFiles: ['src/core/util.ts'],
+      delta: deltaOf([
+        {
+          id: 'REQ-AUTH-012',
           kind: 'ADDED',
-          title: 'Añadir utilidad',
+          title: 'Declarar como añadido algo que ya existía',
           statement: 'Cuando se invoque, el sistema debe responder.',
           targets: ['src/core/util.ts'],
         },
@@ -186,8 +268,147 @@ describe('analyzeChangeImpact — cambios incompatibles', () => {
         (f) => f.severity === 'warning' && f.message.includes('ninguna entrada MODIFIED/REMOVED/RENAMED declara'),
       ),
     ).toBe(true);
-    // El objetivo SÍ se toca: no debe aparecer el aviso de objetivo no tocado.
+  });
+
+  it('no afirma la violación cuando git no puede decir si el objetivo existía', async () => {
+    const root = await makeTemp('open-sdd-impact-no-git-');
+    await baseManifest(root);
+    await write(root, 'src/core/util.ts', 'export const util = 1;\n');
+    // Sin repositorio git: no se puede saber si había una revisión anterior.
+
+    const report = await analyzeChangeImpact({
+      cwd: root,
+      changedFiles: ['src/core/util.ts'],
+      delta: deltaOf([
+        {
+          id: 'REQ-AUTH-013',
+          kind: 'ADDED',
+          title: 'Declarar un añadido sin revisión anterior',
+          statement: 'Cuando se invoque, el sistema debe responder.',
+          targets: ['src/core/util.ts'],
+        },
+      ]),
+    });
+
+    const inconclusive = report.findings.find(
+      (f) => f.area === 'breaking' && f.severity === 'info' && f.message.includes('git no está disponible'),
+    );
+    expect(inconclusive).toBeDefined();
+    expect(
+      report.findings.some(
+        (f) => f.severity === 'warning' && f.message.includes('ninguna entrada MODIFIED/REMOVED/RENAMED declara'),
+      ),
+    ).toBe(false);
+  });
+
+  it('(c) un objetivo de directorio cubre los ficheros que hay debajo', async () => {
+    const root = await makeTemp('open-sdd-impact-dir-target-');
+    await baseManifest(root);
+    await write(root, 'src/core/a.ts', 'export const a = 1;\n');
+    await write(root, 'src/core/b.ts', 'export const b = 1;\n');
+    await write(root, 'src/other.ts', 'export const other = 1;\n');
+
+    const report = await analyzeChangeImpact({
+      cwd: root,
+      changedFiles: ['src/core/a.ts', 'src/core/b.ts', 'src/other.ts'],
+      delta: deltaOf([
+        {
+          id: 'REQ-AUTH-014',
+          kind: 'MODIFIED',
+          title: 'Modificar la capa core',
+          statement: 'Cuando se invoque, el sistema debe responder distinto.',
+          targets: ['src/core'],
+          previous: 'la capa core anterior',
+        },
+      ]),
+    });
+
+    const scope = report.findings.filter((f) => f.message.includes('cambia fuera del alcance declarado'));
+    expect(scope.map((f) => f.artifacts[0])).toEqual(['src/other.ts']);
     expect(report.findings.some((f) => f.message.includes('la delta declara un objetivo que este cambio no toca'))).toBe(false);
+    // El informe dice explícitamente qué se dio por cubierto con el directorio.
+    expect(
+      report.findings.some(
+        (f) => f.severity === 'info' && f.message.includes('se interpretó como directorio') && f.message.includes('src/core/'),
+      ),
+    ).toBe(true);
+  });
+
+  it('(c) un objetivo terminado en `/` también cubre el árbol', async () => {
+    const root = await makeTemp('open-sdd-impact-dir-slash-');
+    await baseManifest(root);
+    await write(root, 'src/core/a.ts', 'export const a = 1;\n');
+
+    const report = await analyzeChangeImpact({
+      cwd: root,
+      changedFiles: ['src/core/a.ts'],
+      delta: deltaOf([
+        {
+          id: 'REQ-AUTH-015',
+          kind: 'MODIFIED',
+          title: 'Modificar la capa core',
+          statement: 'Cuando se invoque, el sistema debe responder distinto.',
+          targets: ['src/core/'],
+          previous: 'la capa core anterior',
+        },
+      ]),
+    });
+
+    expect(report.findings.some((f) => f.message.includes('cambia fuera del alcance declarado'))).toBe(false);
+    expect(report.findings.some((f) => f.message.includes('la delta declara un objetivo que este cambio no toca'))).toBe(false);
+  });
+
+  it('(d) un objetivo de fichero sigue exigiendo coincidencia y no cubre a sus vecinos', async () => {
+    const root = await makeTemp('open-sdd-impact-file-target-');
+    await baseManifest(root);
+    await write(root, 'src/core/a.ts', 'export const a = 1;\n');
+    await write(root, 'src/core/b.ts', 'export const b = 1;\n');
+
+    const report = await analyzeChangeImpact({
+      cwd: root,
+      changedFiles: ['src/core/a.ts', 'src/core/b.ts'],
+      delta: deltaOf([
+        {
+          id: 'REQ-AUTH-016',
+          kind: 'MODIFIED',
+          title: 'Modificar solo a',
+          statement: 'Cuando se invoque, el sistema debe responder distinto.',
+          targets: ['src/core/a.ts'],
+          previous: 'la utilidad a anterior',
+        },
+      ]),
+    });
+
+    const scope = report.findings.filter((f) => f.message.includes('cambia fuera del alcance declarado'));
+    expect(scope.map((f) => f.artifacts[0])).toEqual(['src/core/b.ts']);
+    expect(report.findings.some((f) => f.message.includes('la delta declara un objetivo que este cambio no toca'))).toBe(false);
+    expect(report.findings.some((f) => f.message.includes('se interpretó como directorio'))).toBe(false);
+  });
+
+  it('(d) un objetivo sin extensión es un fichero cuando nada vive debajo', async () => {
+    const root = await makeTemp('open-sdd-impact-extless-');
+    await baseManifest(root);
+    await write(root, 'LICENSE', 'MIT\n');
+    await write(root, 'Makefile', 'all:\n');
+
+    const report = await analyzeChangeImpact({
+      cwd: root,
+      changedFiles: ['LICENSE', 'Makefile'],
+      delta: deltaOf([
+        {
+          id: 'REQ-AUTH-017',
+          kind: 'MODIFIED',
+          title: 'Modificar la licencia',
+          statement: 'Cuando se lea, el sistema debe mostrar la licencia.',
+          targets: ['LICENSE'],
+          previous: 'la licencia anterior',
+        },
+      ]),
+    });
+
+    const scope = report.findings.filter((f) => f.message.includes('cambia fuera del alcance declarado'));
+    expect(scope.map((f) => f.artifacts[0])).toEqual(['Makefile']);
+    expect(report.findings.some((f) => f.message.includes('se interpretó como directorio'))).toBe(false);
   });
 });
 

@@ -67,6 +67,15 @@ import { parseSecurityAllowlist, type SecurityAllowlistEntry } from '../../core/
 import { detectInstalledFloor } from '../../core/floorInstallation.js';
 import { checkDecidableDiscipline, NON_DECIDABLE_DISCIPLINE_NOTE } from '../../core/triad.js';
 import {
+  buildComplianceMatrix,
+  impactedPrinciples,
+  parseConstitution,
+  principlesInForce,
+  promoteAmendment,
+  renderConstitution,
+  validateConstitution,
+} from '../../core/constitution.js';
+import {
   RIGOR_LEVELS,
   assessRigor,
   rigorRequirements,
@@ -615,6 +624,83 @@ export const handleGovernCommand = async (args: string[], io: CliIO, cwd: string
     return errors.length > 0 ? 1 : 0;
   }
 
+  if (sub === 'constitution') {
+    // CSDD §3.3/§4.2: the compliance traceability matrix maps every principle to the artifacts that
+    // satisfy it, for audit support, gap detection and change impact. It was implemented but had no
+    // caller, so the artifact CSDD calls the bridge between constitution and code was unreachable.
+    const file = path.join(root, '.sdd', 'steering', 'constitution.md');
+    const raw = await readFile(file, 'utf8').catch(() => null);
+    if (raw === null) {
+      io.error(
+        colors.red(
+          'No hay constitución en .sdd/steering/constitution.md. Genérala con: open-sdd brownfield constitution . --write',
+        ),
+      );
+      return 1;
+    }
+
+    let constitution = parseConstitution(raw);
+    const issues = validateConstitution(constitution);
+
+    const promoteIdx = args.findIndex((a) => a === '--promote');
+    if (promoteIdx >= 0) {
+      const amendmentId = args[promoteIdx + 1] ?? '';
+      const planIdx = args.findIndex((a) => a === '--plan');
+      const plan = planIdx >= 0 ? (args[planIdx + 1] ?? '') : '';
+      constitution = promoteAmendment(constitution, amendmentId, plan, process.env.SDD_ACTOR ?? 'cli');
+      await writeFile(file, renderConstitution(constitution), 'utf8');
+      io.log('');
+      io.log(`  ${colors.green('✓')} enmienda ${amendmentId} en vigor; escrita en ${path.relative(root, file)}`);
+      io.log('');
+      return 0;
+    }
+
+    io.log('');
+    io.log(heading(`Constitución — ${constitution.project} (${constitution.provenance})`));
+    io.log('');
+    io.log(`  principios: ${constitution.principles.length} · en vigor: ${principlesInForce(constitution).length} · enmiendas: ${constitution.amendments.length}`);
+    for (const issue of issues) {
+      const mark = issue.severity === 'error' ? colors.red('error') : colors.yellow('aviso');
+      io.log(`  ${mark} ${issue.id}: ${issue.message}`);
+    }
+
+    if (args.includes('--matrix')) {
+      const matrix = buildComplianceMatrix(constitution, { cwd: root });
+      io.log('');
+      io.log(`  ${colors.bold('Matriz de cumplimiento (CSDD §3.3)')} — cobertura ${(matrix.coverage * 100).toFixed(0)}%`);
+      for (const entry of matrix.entries) {
+        const state = entry.covered ? colors.green('cubierto') : colors.red('hueco');
+        io.log(`    ${entry.principleId.padEnd(22)} ${entry.level.padEnd(7)} ${state}`);
+        for (const artifact of entry.artifacts) {
+          const where = artifact.file ? `${artifact.file}${artifact.line ? `:${artifact.line}` : ''}` : artifact.reference;
+          io.log(`        ${artifact.resolvable ? '' : colors.yellow('(no resoluble) ')}${where}`);
+        }
+      }
+      if (matrix.gaps.length > 0) {
+        io.log('');
+        io.log(`  ${colors.yellow('!')} principios sin artefacto resoluble: ${matrix.gaps.join(', ')}`);
+      }
+      const changed = gitLines(root, ['status', '--porcelain', '--untracked-files=all'])
+        .map((line) => line.trim())
+        .filter(Boolean);
+      if (changed.length > 0) {
+        const impacted = impactedPrinciples(matrix, changed);
+        io.log('');
+        io.log(
+          impacted.length > 0
+            ? `  ${colors.bold('Impacto sobre la constitución')}: este cambio puede afectar a ${impacted.join(', ')}`
+            : `  ${dim('Ningún principio mapea a los ficheros cambiados.')}`,
+        );
+      }
+    } else {
+      io.log('');
+      io.log(dim('  Añade --matrix para la matriz de cumplimiento (principio → fichero:línea) y el impacto sobre la constitución.'));
+      io.log(dim('  Para poner una enmienda en vigor: --promote AMD-XXX --plan "ruta de migración".'));
+    }
+    io.log('');
+    return issues.some((i) => i.severity === 'error') ? 1 : 0;
+  }
+
   if (sub === 'appeal') {
     const journal = await loadReceipts(root);
     const ledger = acceptedRiskLedger(journal);
@@ -756,7 +842,7 @@ export const handleGovernCommand = async (args: string[], io: CliIO, cwd: string
     return findings.some((f) => f.decidable && f.violated) ? 1 : 0;
   }
 
-  io.log(`Subcomando desconocido: ${sub}. Usa: invariants | conformance | hitl | rigor [--select] | appeal | meta-eval | budget | discipline`);
+  io.log(`Subcomando desconocido: ${sub}. Usa: invariants | conformance | hitl | rigor [--select] | constitution [--matrix] | appeal | meta-eval | budget | discipline`);
   return 1;
 };
 

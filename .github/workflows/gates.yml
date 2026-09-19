@@ -76,10 +76,12 @@ jobs:
 
       - name: Execution contracts — a declared contract that does not exist fails the build
         run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          if [ -z "$BASE" ]; then BASE="HEAD~1"; fi
           for spec in .sdd/specs/*/delta.md; do
             [ -f "$spec" ] || continue
             feature="$(basename "$(dirname "$spec")")"
-            node tools/cc-sdd/dist/cli.js brownfield contracts "$feature"
+            node tools/cc-sdd/dist/cli.js brownfield contracts "$feature" --base "$BASE"
           done
 
       - name: Claims registry (§9.6) — a broken claim fails the build

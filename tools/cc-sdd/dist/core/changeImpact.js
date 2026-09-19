@@ -22,7 +22,8 @@
  *
  * Los textos visibles para el usuario son español, como el resto del CLI.
  */
-import { readFile, readdir } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { scanProject } from './reverseEngineering.js';
 import { collectRepoFacts } from './reverseConstitution.js';
@@ -293,6 +294,87 @@ const targetMatchesFile = (file, target, exportsOfFile) => {
         return true;
     return false;
 };
+/**
+ * Existencia de una ruta en la revisión anterior (HEAD).
+ *
+ * `null` significa «no se pudo determinar» (git no disponible, `cwd` fuera de un repositorio o HEAD
+ * ilegible). El análisis no convierte esa ignorancia en una violación: solo exige `previous` cuando
+ * sabe que había un contrato previo que sustituir.
+ */
+const makeHeadProbe = (cwd) => {
+    const prefix = spawnSync('git', ['rev-parse', '--show-prefix'], { cwd, encoding: 'utf8' });
+    const available = !prefix.error && prefix.status === 0;
+    const repoPrefix = available ? prefix.stdout.trim() : '';
+    const cache = new Map();
+    return (relPath) => {
+        if (!available)
+            return null;
+        const key = norm(relPath);
+        const cached = cache.get(key);
+        if (cached !== undefined)
+            return cached;
+        const probe = spawnSync('git', ['cat-file', '-e', `HEAD:${repoPrefix}${key}`], { cwd, encoding: 'utf8' });
+        const value = probe.error ? null : probe.status === 0;
+        cache.set(key, value);
+        return value;
+    };
+};
+/**
+ * ¿El objetivo nombra un directorio o un fichero?
+ *
+ * Un objetivo sin extensión (`LICENSE`, `Makefile`) NO es un directorio por ese solo hecho. Se trata
+ * como directorio cuando termina en `/`, cuando `stat` confirma que lo es, o cuando algún fichero
+ * cambiado vive debajo. En cualquier otro caso es una ruta de fichero y se exige coincidencia exacta.
+ */
+const classifyTarget = async (cwd, target, changedCanon) => {
+    const t = norm(target).trim();
+    if (!t)
+        return { kind: 'file' };
+    if (t.endsWith('/'))
+        return { kind: 'directory', dir: t.replace(/\/+$/, '') };
+    try {
+        if ((await stat(path.join(cwd, t))).isDirectory())
+            return { kind: 'directory', dir: t };
+    }
+    catch {
+        // No existe en el árbol de trabajo: decide si algún fichero cambiado vive debajo.
+    }
+    const prefix = `${canon(t)}/`;
+    if (changedCanon.some((file) => file.startsWith(prefix)))
+        return { kind: 'directory', dir: t };
+    return { kind: 'file' };
+};
+/** Clasifica cada objetivo distinto de la delta una sola vez por análisis. */
+const classifyDeltaTargets = async (cwd, delta, changedFiles) => {
+    const changedCanon = changedFiles.map(canon);
+    const shapes = new Map();
+    for (const entry of delta.entries) {
+        for (const target of entry.targets) {
+            const key = norm(target).trim();
+            if (!key || shapes.has(key))
+                continue;
+            shapes.set(key, await classifyTarget(cwd, key, changedCanon));
+        }
+    }
+    return shapes;
+};
+/**
+ * ¿Este objetivo declarado cubre este fichero cambiado?
+ *
+ * Un objetivo de fichero conserva la coincidencia de ruta (`targetMatchesFile`). Un objetivo de
+ * directorio, además, cubre toda ruta por debajo: es lo que la delta declara al nombrar el
+ * directorio entero y lo que evita que cada fichero de dentro se reporte como fuera de alcance.
+ */
+const targetCoversFile = (file, target, exportsOfFile, shapes) => {
+    if (targetMatchesFile(file, target, exportsOfFile))
+        return true;
+    const shape = shapes.get(norm(target).trim());
+    if (shape?.kind !== 'directory' || !shape.dir)
+        return false;
+    const f = canon(file);
+    const d = canon(shape.dir);
+    return f === d || f.startsWith(`${d}/`);
+};
 /** Punto de integración: configuración, entorno o rutas (los que `collectRepoFacts` ya detecta). */
 const isIntegrationPoint = (file, facts) => {
     if (facts.configFiles.some((c) => norm(c) === norm(file)))
@@ -406,6 +488,13 @@ export const analyzeChangeImpact = async (input) => {
             incomplete(`No se pudo leer el fichero cambiado ${file} (${read.error ?? 'error de lectura'}): sus exportaciones no se pudieron inspeccionar y la comprobación de compatibilidad queda incompleta.`, [file]);
         }
     }
+    // ── Objetivos de la delta: forma (fichero o directorio) y revisión anterior ──────────────────
+    // La forma se resuelve una sola vez y gobierna el contraste de alcance; el sondeo de HEAD se cachea
+    // por fichero para no reabrir git en cada comprobación.
+    const headProbe = input.delta ? makeHeadProbe(cwd) : null;
+    const targetShapes = input.delta
+        ? await classifyDeltaTargets(cwd, input.delta, changedFiles)
+        : new Map();
     // ── Cambios incompatibles ───────────────────────────────────────────────────────────────────
     const breakingChanges = [];
     const declaredApiChange = new Set();
@@ -466,11 +555,31 @@ export const analyzeChangeImpact = async (input) => {
                 }
             }
             for (const file of changedFiles) {
-                const targeted = input.delta.entries.some((entry) => entry.targets.some((target) => targetMatchesFile(file, target, exportsByCanon.get(canon(file)) ?? [])));
-                if (!targeted)
+                // La exigencia de `previous` se decide por objetivo de FICHERO: los objetivos de directorio
+                // se cubren en el contraste de alcance, donde sí declaran un conjunto de rutas.
+                const targetingEntries = input.delta.entries.filter((entry) => entry.targets.some((target) => targetMatchesFile(file, target, exportsByCanon.get(canon(file)) ?? [])));
+                if (targetingEntries.length === 0)
                     continue;
                 if (declaredApiChange.has(canon(file)))
                     continue;
+                // Solo hay comportamiento que sustituir si el fichero ya existía en la revisión anterior, o
+                // si alguna entrada que lo declara es MODIFIED/REMOVED/RENAMED. Un objetivo nuevo (no
+                // rastreado o ausente en HEAD) no puede declarar `previous`: exigírselo sería un falso positivo.
+                const revisedBehaviour = targetingEntries.some((entry) => entry.kind !== 'ADDED');
+                if (!revisedBehaviour) {
+                    const existed = headProbe ? headProbe(file) : null;
+                    if (existed === false)
+                        continue;
+                    if (existed === null) {
+                        findings.push({
+                            area: 'breaking',
+                            severity: 'info',
+                            message: `No se pudo determinar si ${file} existía en la revisión anterior (git no está disponible o HEAD no se pudo leer): sin ese dato no se sabe si hay un contrato previo que sustituir, así que no se exige la declaración \`previous\` ni se emite el aviso correspondiente.`,
+                            artifacts: [file],
+                        });
+                        continue;
+                    }
+                }
                 findings.push({
                     area: 'breaking',
                     severity: 'warning',
@@ -544,18 +653,44 @@ export const analyzeChangeImpact = async (input) => {
     if (input.delta) {
         for (const entry of input.delta.entries) {
             for (const target of entry.targets) {
-                const touched = changedFiles.some((file) => targetMatchesFile(file, target, exportsByCanon.get(canon(file)) ?? []));
+                const touched = changedFiles.some((file) => targetCoversFile(file, target, exportsByCanon.get(canon(file)) ?? [], targetShapes));
                 if (!touched) {
+                    const shape = targetShapes.get(norm(target).trim());
+                    const how = shape?.kind === 'directory'
+                        ? `interpretado como directorio (cubre toda ruta bajo "${shape.dir}/")`
+                        : 'interpretado como fichero (ruta exacta)';
                     findings.push({
                         area: 'components',
                         severity: 'warning',
-                        message: `La entrada ${entry.id} (${entry.kind}) declara el objetivo "${target}", pero este cambio no toca ningún fichero que le corresponda: la delta declara un objetivo que este cambio no toca.`,
+                        message: `La entrada ${entry.id} (${entry.kind}) declara el objetivo "${target}", ${how}, pero este cambio no toca ningún fichero que le corresponda: la delta declara un objetivo que este cambio no toca.`,
                         artifacts: [entry.id, target],
                     });
                 }
             }
         }
-        const covered = (file) => input.delta.entries.some((entry) => entry.targets.some((target) => targetMatchesFile(file, target, exportsByCanon.get(canon(file)) ?? [])));
+        // Un objetivo de directorio cubre lo que hay debajo: se dice qué se dio por cubierto, para que la
+        // interpretación sea auditable en vez de invisible.
+        const described = new Set();
+        for (const entry of input.delta.entries) {
+            for (const target of entry.targets) {
+                const key = norm(target).trim();
+                const shape = targetShapes.get(key);
+                if (shape?.kind !== 'directory' || !shape.dir || described.has(key))
+                    continue;
+                const matched = changedFiles.filter((file) => targetCoversFile(file, target, exportsByCanon.get(canon(file)) ?? [], targetShapes));
+                if (matched.length === 0)
+                    continue;
+                described.add(key);
+                const sample = matched.slice(0, 5).join(', ');
+                findings.push({
+                    area: 'components',
+                    severity: 'info',
+                    message: `El objetivo "${key}" se interpretó como directorio y cubre ${matched.length} fichero(s) cambiado(s) bajo "${shape.dir}/": ${sample}${matched.length > 5 ? ` (+${matched.length - 5} más)` : ''}.`,
+                    artifacts: matched,
+                });
+            }
+        }
+        const covered = (file) => input.delta.entries.some((entry) => entry.targets.some((target) => targetCoversFile(file, target, exportsByCanon.get(canon(file)) ?? [], targetShapes)));
         for (const file of changedFiles) {
             if (covered(file))
                 continue;

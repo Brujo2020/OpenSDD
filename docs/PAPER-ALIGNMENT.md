@@ -471,45 +471,34 @@ selection from an impact graph. `govern conformance` records `I5 no cumple`. The
 paper names — a governance corpus degrading past the attention budget it is read with — is
 acknowledged and unrepaired here.
 
-### G-15 — Delta contracts are the declared regression oracle; verification exists but is not in CI
+### G-15 — CI runs the contracts oracle as an extraction, not as a test run
 
-Paper: §12, Figure 9 ("the extracted specification's first use is protecting what must not
-change"); CSDD §3.3 (regression prevention). `deltaSpec.ts` · `validateDeltaSpec` requires a
-`Contracts:` list on every REMOVED entry (error) and recommends one on every MODIFIED entry
-(warning), `rigor.ts` · `assessRigor` requires it at Spec-as-Source, and
-`reverseConstitution.ts` · `C-REGRESSION-ORACLE` calls the existing tests the regression oracle.
+Paper: §12 (the extracted specification's first use is the regression oracle). `.github/workflows/gates.yml`
+now runs `brownfield contracts <feature> --base <pr-base-sha>` for every spec that declares a delta, so
+the oracle is evaluated at the merge boundary rather than left to a reviewer: the command exits 1 when
+the delta declares a contract that does not exist, and reports the changed files no contract covers.
 
-The mechanism now exists. `executionContract.ts` · `extractContracts` walks the test directories,
-matches candidates against the changed files and against the delta's declared `Contracts:`,
-publishes a `ContractSet` (and `contracts.json` with `--write`), **reports the changed files no
-contract covers**, and sets `complete: false` when a `REMOVED` entry's declared contract does not
-exist in the repository. `verifyContracts` deliberately refuses to launder a green run:
-`satisfied = run.exitCode === 0 && missing.length === 0`, so exit code 0 with a declared contract
-absent is not a pass. The console exposes it as `brownfield contracts <feature> [--write] [--verify]`
-(`--verify` runs the derived test command and exits 1 unless the contract set is satisfied). Run on
-this repository it reports **18 contracts (10 discovered, 8 declared), 28 changed files without
-coverage** — and that honesty is the point: the uncovered files are documentation, templates and
-compiled `dist` output, which no unit test covers.
+What is deliberately NOT done in CI: re-running the suite through `contracts --verify`. CI already runs
+the full test suite as its own step, and `verifyContracts` refuses to turn an exit code into a pass when
+a declared contract is missing — so wrapping it around a second suite run would add cost without adding
+a control. The consequence is recorded honestly: an uncovered change is REPORTED at the merge boundary,
+not blocked by it. Blocking on "no test covers this file" would refuse legitimate changes to barrels,
+type-only modules and documentation, which is why it is a report.
 
-What is still **not** true: **CI does not run it.** `.github/workflows/gates.yml` runs install,
-build, test, `gates chain`, `gates run`, `govern discipline`, `assure claims --verify` and
-`floor status`; no step invokes `brownfield contracts --verify`, and no step reads a committed
-`contracts.json`. The oracle is a command a reviewer runs, not yet a boundary that blocks a merge.
+### G-16 — The compliance matrix has a caller; the amendment path is reachable
 
-### G-16 — The compliance traceability matrix is modelled but has no console surface
+Paper: CSDD §3.3/§4.2. The matrix's four stated purposes (audit support, change impact, gap detection,
+regression prevention) were implemented but importable only; `govern constitution --matrix` now reaches
+them: it prints the principle → artifact mapping with the coverage ratio, marks references that do not
+resolve to a path (a fact or a command is listed, not dropped), and — when the working tree has changes —
+answers `impactedPrinciples(matrix, changed)`, i.e. which constitutional principles the change can touch.
 
-CSDD §3.3/§4.2 names four purposes for the matrix that maps each principle to its implementation
-artifacts: audit support, change-impact analysis, gap detection and regression prevention.
-`constitution.ts` implements all four as functions — `buildComplianceMatrix` (per-principle
-artifacts resolved against the filesystem, with the uncovered principles as the gap list),
-`impactedPrinciples` (given the paths a change touches, which principles it affects) and
-`promoteAmendment` (the governed promotion path with its mandatory migration plan). None of them is
-called by the CLI or by any gate: `brownfield constitution` reports principles, evidence and
-amendments, but never the matrix, its coverage or its gaps, and `brownfield impact` answers the
-change-impact question from the *dependency graph* (`changeImpact.ts`) rather than from the
-constitution's evidence. The four answers therefore exist only to a caller that imports the module.
-The normative amendment path is likewise modelled and unexercised — no command promotes a proposed
-amendment to in-force.
+`govern constitution --promote <AMD-ID> --plan "<migration path>"` reaches `promoteAmendment`, which
+refuses to put an amendment in force without a migration plan and a named actor. Still open: nothing
+enforces the matrix automatically — no gate fails because a principle has no artifact. It is a report a
+reviewer runs, and `C-STACK-FACT` and `C-BOUNDARIES` currently show as gaps on this repository because
+their evidence is a fact and a directory list rather than a file:line, which is the honest state of a
+descriptive constitution whose evidence is not all code.
 
 ### G-17 — A delta is never merged back into the base specification
 
