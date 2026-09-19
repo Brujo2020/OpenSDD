@@ -54,24 +54,25 @@ Command run from the repository root, 2026-09-19:
 
 ```
 $ node tools/cc-sdd/dist/cli.js assure claims --verify
-50 afirmaciones | 47 verificadas | 0 declaradas | 3 no medidas | 0 rotas | 0 desactualizadas
+53 afirmaciones | 50 verificadas | 0 declaradas | 3 no medidas | 0 rotas | 0 desactualizadas
 [exit=0]
 ```
 
 | State (§9.6) | Count | Claims |
 |---|---|---|
-| `verified` | 47 | CLM-001 … CLM-027, CLM-030, CLM-032 … CLM-050 |
+| `verified` | 50 | CLM-001 … CLM-027, CLM-030, CLM-032 … CLM-053 |
 | `not-implemented` (declared gap confirmed) | 0 | — |
 | `not-measured` (absence of evidence persists) | 3 | CLM-028 (`docs/lab` absent), CLM-029 (`bin/sh-gate` absent), CLM-031 (`.steelharness/` absent) |
 | `broken` (text claims a pass the code does not deliver) | 0 | — |
 | `outdated-text` (code improved past the prose) | 0 | — |
 
-In the short vocabulary: **verified = 47, declared-gap = 0, absent/not-measured = 3, broken = 0,
-outdated-text = 0** (out of 50). CLM-045 … CLM-050 decide the brownfield capabilities by exit code:
+In the short vocabulary: **verified = 50, declared-gap = 0, absent/not-measured = 3, broken = 0,
+outdated-text = 0** (out of 53). CLM-045 … CLM-053 decide the brownfield capabilities by exit code:
 delta validation and two-way traceability, the mandatory `previous` on `MODIFIED`, the
 evidence-or-amendment rule for descriptive principles, the constitution being blocking from
-Spec-Anchored upward, absent practices travelling as proposed amendments, and workspace-aware
-reconnaissance.
+Spec-Anchored upward, absent practices travelling as proposed amendments, workspace-aware
+reconnaissance, contract extraction, the rule that exit code 0 never launders a missing declared
+contract, and the console report that publishes the oracle.
 
 Observed exit codes, from the run above: **CLM-028, CLM-029 and CLM-031 exited `1`; every other claim
 exited `0`.** Both runners print the per-claim code, so the line above can be re-derived rather than
@@ -326,8 +327,8 @@ runs the registry directly: `assure claims --verify` → `claimsRegistry.ts` · 
 `1` only on `broken`. There is exactly one runner: a second, documentation-side copy was removed
 rather than left to drift against the product command. Two declared differences from the paper's run:
 
-- The registry holds **50 claims**, not the paper's 33, because it registers this port's components
-  (including the brownfield capabilities, CLM-045 … CLM-050).
+- The registry holds **53 claims**, not the paper's 33, because it registers this port's components
+  (including the brownfield capabilities, CLM-045 … CLM-053).
 - The **three `not-measured` entries are the honest residue of the unpublished prototype** (no
   `docs/lab`, no `bin/sh-gate`, no `.steelharness/`): the paper's own instrument cannot decide them
   from here, and this report does not pretend otherwise.

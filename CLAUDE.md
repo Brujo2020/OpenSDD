@@ -42,6 +42,7 @@ Do not look for steering or memory under `.sdd/` in this checkout until a skill 
   - recon: `open-sdd brownfield survey .` — what the project already is (stack, tooling, modules, evidence)
   - constitution: `open-sdd brownfield constitution . --write` — the descriptive constitution in `.sdd/steering/constitution.md` (principles the code already obeys, each with evidence; desired-but-absent practices become proposed amendments)
   - delta: `open-sdd delta init <feature> "what changes"` then `open-sdd delta validate <feature>` — the contract of change (ADDED/MODIFIED/REMOVED/RENAMED, delta-scoped `REQ-<AREA>-<NNN>` ids)
+  - analysis: `open-sdd brownfield contracts <feature> [--verify]` — the regression oracle (which tests protect the changed files, which files no contract covers; a green run with a declared contract missing is not a pass); `brownfield impact` for the blast radius and breaking changes; `brownfield reuse` for reuse-first candidates
   - rigor: declare the level in `.sdd/settings/rigor.json`; `open-sdd govern rigor` assesses the repository against it. The constitution is the authority a blocking verdict cites, so it is **required (blocking) from Spec-Anchored upward** and only recommended at Spec-First.
 - Discovery (new work/ideas): `/sdd-discovery "idea"` — identifies action path (Greenfield or Brownfield extension), writes `brief.md` and `roadmap.md`
 - Phase 1 (Specification):

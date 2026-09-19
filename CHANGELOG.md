@@ -75,6 +75,17 @@ All notable changes to this project will be documented in this file.
   Spec-Anchored upward** and only recommended at Spec-First, because it is the authority a blocking
   verdict cites. Where a demand is not decidable from artifacts (regeneration at Spec-as-Source) it
   is reported as a declared gap instead of a fabricated pass.
+- **Analysis over the pending change: impact, contracts and reuse-first.** `core/changeImpact.ts`
+  (`analyzeChangeImpact`) reports the change's reachable set, its blast radius, the touched API
+  surface, its integration points and the breaking changes implied by the delta's targets.
+  `core/executionContract.ts` turns the delta's declared `Contracts:` into a regression oracle:
+  `extractContracts` binds covering tests to the changed files, publishes `contracts.json`, and
+  names the changed files **no** contract covers; `verifyContracts` requires exit code 0 **and** no
+  declared contract missing, so a green run never launders a promised protection that does not
+  exist. `core/reuseFirst.ts` (`findReuseCandidates`, `REUSE_FIRST_RULE`) reports the symbols a
+  reuse-first search would have found first. Console: `brownfield impact|contracts|reuse <feature>`,
+  with `--write` and `--verify` on `contracts`. Declared limit: these are reports, not gates, and no
+  workflow invokes `--verify` yet.
 - **Reconnaissance is workspace- and configuration-aware (defect fixed).** Running `brownfield
   survey` on this repository used to report **"JavaScript, no tests detected"** while the project is
   TypeScript with 500+ tests, because the code lives in `tools/cc-sdd` and the scan read only the
@@ -90,11 +101,15 @@ All notable changes to this project will be documented in this file.
   ambient-drift finding on whichever file git listed first. The fix parses the raw output line by
   line; all 29 paths in this checkout now parse exactly.
 - **Traceability updated.** Gap G-12 is rewritten from "heuristic bootstrap" to "delta specs and a
-  reverse constitution, with behaviour still declared rather than extracted"; three new gaps record
-  what remains (G-15 contracts declared but not executed, G-16 the compliance matrix has no console
-  surface, G-17 no delta merge-back); the component map gains the four modules and the brownfield
-  console; and six new claims (CLM-045 … CLM-050) decide the capabilities by exit code. Registry
-  result: 50 claims, 47 verified, 0 broken, 0 outdated.
+  reverse constitution, with behaviour still declared rather than extracted"; four new gaps record
+  what remains (G-15 contract verification is not in CI, G-16 the compliance matrix has no console
+  surface, G-17 no delta merge-back, G-18 impact/reuse consult code rather than the constitution);
+  six declared divergences between the source documents and the implemented code are recorded in
+  section 6 (six fields vs three, the undefined `SHALL NOT` modal, where Spec-Anchored starts,
+  slash-separated CWE references, the two rigor scales and their bridge, and the unenforced
+  compliance matrix); the component map gains the modules and the brownfield console; and nine new
+  claims (CLM-045 … CLM-053) decide the capabilities by exit code. Registry result: 53 claims, 50
+  verified, 0 broken, 0 outdated.
 
 ### Added — enforcement floor installed, skills taught, naming unified
 

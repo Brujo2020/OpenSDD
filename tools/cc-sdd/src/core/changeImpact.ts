@@ -23,7 +23,8 @@
  * Los textos visibles para el usuario son español, como el resto del CLI.
  */
 
-import { readFile, readdir } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import type { DeltaSpec } from './deltaSpec.js';
 import { scanProject } from './reverseEngineering.js';
