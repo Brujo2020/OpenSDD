@@ -15,12 +15,19 @@
   },
   "files": [
     "tools/cc-sdd/dist",
-    "tools/cc-sdd/templates"
+    "tools/cc-sdd/templates",
+    "scripts/postinstall.mjs"
   ],
   "scripts": {
-    "postinstall": "cd tools/cc-sdd && npm install --omit=peer --legacy-peer-deps 2>/dev/null || npm install --legacy-peer-deps",
+    "postinstall": "node ./scripts/postinstall.mjs",
     "build": "npm --prefix tools/cc-sdd run build",
     "test": "npm --prefix tools/cc-sdd test",
+    "verify": "npm --prefix tools/cc-sdd run build && npm --prefix tools/cc-sdd test",
+    "gates": "node tools/cc-sdd/dist/cli.js gates chain",
+    "gates:run": "node tools/cc-sdd/dist/cli.js gates run",
+    "crosswalk": "node tools/cc-sdd/dist/cli.js gates crosswalk",
+    "conformance": "node tools/cc-sdd/dist/cli.js govern conformance",
+    "assure": "node tools/cc-sdd/dist/cli.js assure threats",
     "install:global": "npm --prefix tools/cc-sdd run build && npm install -g ./tools/cc-sdd",
     "install:antigravity": "node tools/cc-sdd/dist/cli.js --antigravity -y",
     "install:claude": "node tools/cc-sdd/dist/cli.js -y",

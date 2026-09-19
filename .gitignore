@@ -80,10 +80,15 @@ docs/sdd/prompt/
 docs/sdd/
 # .sdd/
 # Agent configurations
+# NOTE: do not blanket-ignore `.claude/`. CLAUDE.md instructs agents to read skills from
+# `.claude/skills/`, so ignoring the whole directory made that instruction unactionable — the
+# skills could never be committed where the documentation said to look. Only local, machine
+# specific agent state is ignored here.
 .claude/agents/
 .claude/hooks/
 .claude/commands/utils/
-.claude/
+.claude/settings.local.json
+.claude/**/node_modules/
 .codex/
 .cursor/
 .gemini/

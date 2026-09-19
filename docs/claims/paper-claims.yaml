@@ -1,0 +1,270 @@
+# Claims registry — §9.6 style, for this repository.
+#
+# The paper's own registry (`./bin/sh-claims verify` against `docs/claims/paper-claims.yaml`)
+# pairs every published sentence with a command whose EXIT CODE decides the verdict. This file
+# adopts that format for the open-sdd port of the reference architecture.
+#
+# Each entry:
+#   id          stable identifier
+#   section     paper section / table the claim comes from
+#   statement_es / statement_en   the claim in both languages
+#   verifier    a shell command runnable from the repository root; its exit code decides
+#   expectation exactly one of:
+#                 pass   — the text claims the command passes
+#                 fail   — the text declares a gap and the command confirms it (non-zero)
+#                 absent — the text declares an absence of evidence (non-zero confirms it persists)
+#
+# Verdict mapping (core/claims.ts, `evaluateClaim`):
+#   pass   + exit 0 -> verified          pass   + non-zero -> broken
+#   fail   + non-zero -> not-implemented fail   + exit 0  -> outdated-text
+#   absent + non-zero -> not-measured    absent + exit 0  -> outdated-text
+#
+# IMPORTANT: no runner in this repository reads this file yet (`grep -rq paper-claims
+# tools/cc-sdd/src` exits non-zero — see CLM-030). The registry is therefore a documentation
+# artifact whose verifiers were executed by hand; the counts are recorded in
+# docs/PAPER-ALIGNMENT.md. Do not describe it as automated.
+
+- id: CLM-001
+  section: "§9.3 / Appendix A, Table 33"
+  statement_es: 'El catálogo lógico define exactamente 21 puertas Zero-Trust (G1–G21) previas a la reducción.'
+  statement_en: 'The logical catalog defines exactly 21 Zero-Trust gates (G1–G21) prior to reduction.'
+  verifier: 'test "$(node tools/cc-sdd/dist/cli.js gates list | grep -cE "^  G[0-9]+ ")" = 21'
+  expectation: pass
+
+- id: CLM-002
+  section: "§9.5 / Appendix A, Table 34"
+  statement_es: 'La cadena ejecutable enumerada tiene 14 comprobaciones: C1–C7 (núcleo) y O1–O7 (activables).'
+  statement_en: 'The enumerated executable chain has 14 checks: C1–C7 (core) and O1–O7 (activables).'
+  verifier: 'node --input-type=module -e "import {EXECUTABLE_CHAIN} from \"./tools/cc-sdd/dist/core/gateCatalog.js\"; process.exit(EXECUTABLE_CHAIN.length===14?0:1)"'
+  expectation: pass
+
+- id: CLM-003
+  section: "§9.5"
+  statement_es: 'El núcleo es constante y universal: C1–C7 en todo perfil; la parte activable se resuelve por perfil y por señales.'
+  statement_en: 'The core is constant and universal: C1–C7 in every profile; the activable part is resolved from profile and repository signals.'
+  verifier: 'test "$(node --input-type=module -e "import {resolveGateChain} from \"./tools/cc-sdd/dist/core/gateCatalog.js\"; console.log(resolveGateChain(\"regulated\").core.join(\" \"))")" = "C1 C2 C3 C4 C5 C6 C7"'
+  expectation: pass
+
+- id: CLM-004
+  section: "§9.5 / Appendix A, Table 36"
+  statement_es: 'El residuo se calcula por sustracción, nunca se cura a mano: G7, G8, G10, G11 y G17 no tienen contraparte ejecutable.'
+  statement_en: 'The residue is computed by subtraction, never curated by hand: G7, G8, G10, G11 and G17 have no executable counterpart.'
+  verifier: 'test "$(node --input-type=module -e "import {computeResidue} from \"./tools/cc-sdd/dist/core/gateCatalog.js\"; console.log(computeResidue().map(r=>r.id).join(\",\"))")" = "G7,G8,G10,G11,G17"'
+  expectation: pass
+
+- id: CLM-005
+  section: "§9.5"
+  statement_es: 'El perfil regulado declara 12 controles, ejecuta 11 y reporta 1 vacío (C7, activación sin medición).'
+  statement_en: 'The regulated profile declares 12 controls, executes 11 and reports 1 vacuous (C7, activation without measurement).'
+  verifier: 'node tools/cc-sdd/dist/cli.js gates chain --profile regulated | grep -q "Declarados: 12" && node tools/cc-sdd/dist/cli.js gates chain --profile regulated | grep -q "Ejecutables: 11" && node tools/cc-sdd/dist/cli.js gates chain --profile regulated | grep -q "Vacíos: 1"'
+  expectation: pass
+
+- id: CLM-006
+  section: "§9.5"
+  statement_es: 'El perfil de equipo declara 9 controles (7 núcleo + O1 + O5).'
+  statement_en: 'The team profile declares 9 controls (7 core + O1 + O5).'
+  verifier: 'node tools/cc-sdd/dist/cli.js gates chain --profile team | grep -q "Declarados: 9"'
+  expectation: pass
+
+- id: CLM-007
+  section: "§9.2 / Appendix A, Table 34"
+  statement_es: 'Solo C2 (Línea Base de Seguridad) tiene postura bloqueante; el resto es advisory u opt-in.'
+  statement_en: 'Only C2 (Security Baseline) has blocking posture; the rest are advisory or opt-in.'
+  verifier: 'node --input-type=module -e "import {EXECUTABLE_CHAIN} from \"./tools/cc-sdd/dist/core/gateCatalog.js\"; process.exit(EXECUTABLE_CHAIN.filter(g=>g.posture===\"blocking\").map(g=>g.id).join(\",\")===\"C2\"?0:1)"'
+  expectation: pass
+
+- id: CLM-008
+  section: "§9.7 / Table 33 (G21)"
+  statement_es: 'C7/Karpathy se declara pero es vacío: corre sin inspeccionar nada (inspects=false), y el catálogo lo distingue de un control medido.'
+  statement_en: 'C7/Karpathy is declared but vacuous: it runs without inspecting anything (inspects=false), and the catalog keeps that distinct from a measured control.'
+  verifier: 'node --input-type=module -e "import {EXECUTABLE_CHAIN} from \"./tools/cc-sdd/dist/core/gateCatalog.js\"; process.exit(EXECUTABLE_CHAIN.find(g=>g.id===\"C7\").inspects===false?0:1)"'
+  expectation: pass
+
+- id: CLM-009
+  section: "§9.7 / §8.4"
+  statement_es: 'Las tres propiedades decidibles de §9.7 (presupuesto de diff, contención de alcance, incertidumbre declarada) están implementadas como función pero ningún gate las ejecuta: la disciplina del implementador sigue sin bloqueo.'
+  statement_en: 'The three decidable properties of §9.7 (diff budget, scope containment, declared uncertainty) are implemented as a function but no gate executes them: implementer discipline still blocks nothing.'
+  verifier: 'grep -q "checkDecidableDiscipline" tools/cc-sdd/src/core/triad.ts && ! grep -rq "checkDecidableDiscipline" tools/cc-sdd/src/core/gateRunner.ts'
+  expectation: pass
+
+- id: CLM-010
+  section: "§6.3 / Table 19 / §9.2"
+  statement_es: 'La consola de enforcement publica el techo por herramienta y advierte que exit 1 deja el nivel A nominal (fail-open), no bloqueado.'
+  statement_en: 'The enforcement console publishes the per-tool ceiling and warns that exit 1 leaves level A nominal (fail-open), not blocked.'
+  verifier: 'node tools/cc-sdd/dist/cli.js gates enforcement | grep -q "A — escritura" && node tools/cc-sdd/dist/cli.js gates enforcement | grep -q "nivel A nominal, ausente en ejecución"'
+  expectation: pass
+
+- id: CLM-011
+  section: "§6.3 / §5.1 (I3)"
+  statement_es: 'Sin centinela conductual verificado, el suelo garantizado se resuelve solo a B y C, las fronteras que la organización posee; el nivel A es techo, no garantía.'
+  statement_en: 'Without a verified behavioural sentinel the guaranteed floor resolves only to B and C, the boundaries the organization owns; level A is a ceiling, not a guarantee.'
+  verifier: 'node --input-type=module -e "import {resolveFloor} from \"./tools/cc-sdd/dist/core/enforcement.js\"; process.exit(resolveFloor(\"claude-code\").floor.map(l=>l.id).join(\"\")===\"BC\"?0:1)"'
+  expectation: pass
+
+- id: CLM-012
+  section: "§9.2"
+  statement_es: 'El subconjunto duro (secretos, comandos destructivos, bloqueo por evidencia, umbral de cobertura) no admite auto-autorización en ningún régimen: un sensor ausente ahí falla.'
+  statement_en: 'The hard subset (secrets, destructive commands, evidence lock, coverage threshold) admits no self-authorization in any regime: an unavailable sensor there fails.'
+  verifier: 'node --input-type=module -e "import {applyDefaultFail} from \"./tools/cc-sdd/dist/core/enforcement.js\"; process.exit(applyDefaultFail({gateId:\"C2\",hardControl:\"secretos\",posture:\"blocking\",sensorAvailable:false,fired:false},\"flexible\").outcome===\"fail\"?0:1)"'
+  expectation: pass
+
+- id: CLM-013
+  section: "§9.2 / §5.1 (I6)"
+  statement_es: 'En el régimen flexible por defecto, un gate de proceso con sensor no disponible se auto-autoriza y exige recibo; no se lee como verificación aprobada.'
+  statement_en: 'In the default flexible regime a process gate with an unavailable sensor self-authorizes and requires a receipt; it is not read as a passed verification.'
+  verifier: 'node --input-type=module -e "import {applyDefaultFail} from \"./tools/cc-sdd/dist/core/enforcement.js\"; const v=applyDefaultFail({gateId:\"C5\",posture:\"advisory\",sensorAvailable:false,fired:false},\"flexible\"); process.exit(v.outcome===\"self-authorized\"&&v.requiresReceipt===true?0:1)"'
+  expectation: pass
+
+- id: CLM-014
+  section: "§5.1 / Table 17"
+  statement_es: 'El framework enuncia seis invariantes (I1–I6) y los expone con la inspección que los decide.'
+  statement_en: 'The framework states six invariants (I1–I6) and exposes each with the inspection that decides it.'
+  verifier: 'test "$(node tools/cc-sdd/dist/cli.js govern invariants | grep -cE "^  I[1-6] ")" = 6'
+  expectation: pass
+
+- id: CLM-015
+  section: "§5.2 / Table 18"
+  statement_es: 'El nivel de conformidad declarado es C1 (Con suelo); I4 e I5 no se cumplen y C3 queda bloqueado por exigir una tasa medida de falsos positivos.'
+  statement_en: 'The declared conformity level is C1 (With a floor); I4 and I5 are not satisfied, and C3 is blocked because it requires a measured false-positive rate.'
+  verifier: 'node tools/cc-sdd/dist/cli.js govern conformance | grep -q "Nivel declarado: C1" && node tools/cc-sdd/dist/cli.js govern conformance | grep -q "I4  no cumple"'
+  expectation: pass
+
+- id: CLM-016
+  section: "§9.9 / Table 25"
+  statement_es: 'Los umbrales HIL publicados están expuestos: 3 intentos fallidos consecutivos, complejidad ≥ 0,7 (modo-pareja), < 0,3 (Lite), κ < 0,6, 20 % de escalados inútiles, 70 % de ocupación y 30 % de techo de gobierno.'
+  statement_en: 'The published HIL thresholds are exposed: 3 consecutive failed attempts, complexity ≥ 0.7 (pair mode), < 0.3 (Lite), κ < 0.6, 20% useless escalations, 70% occupancy and 30% governance ceiling.'
+  verifier: 'node --input-type=module -e "import {HITL_DEFAULTS as h} from \"./tools/cc-sdd/dist/core/hitl.js\"; process.exit(h.maxConsecutiveRepairAttempts===3&&h.pairModeComplexity===0.7&&h.liteModeComplexity===0.3&&h.minJudgeAgreementKappa===0.6&&h.maxUselessEscalationRate===0.2&&h.contextCompactionOccupancy===0.7&&h.governanceTokenCeiling===0.3?0:1)"'
+  expectation: pass
+
+- id: CLM-017
+  section: "§9.10"
+  statement_es: 'Una tasa de anulación ≥ 20 % sostenida mueve el gate a revisión de diseño en vez de mantenerlo bloqueando.'
+  statement_en: 'A sustained override rate ≥ 20% moves the gate to design review instead of keeping it blocking.'
+  verifier: 'node --input-type=module -e "import {recalibrate} from \"./tools/cc-sdd/dist/core/receipts.js\"; process.exit(recalibrate([{gate:\"C2\",overrides:1,blocks:4}])[0].state===\"design-review\"?0:1)"'
+  expectation: pass
+
+- id: CLM-018
+  section: "§5.1 (I6) / §9.10"
+  statement_es: 'Una relajación sin motivo (ni actor ni hash) no es un evento registrado: el recibo se rechaza.'
+  statement_en: 'A relaxation without a reason (nor actor nor hash) is not a recorded event: the receipt is rejected.'
+  verifier: 'node --input-type=module -e "import {makeReceipt} from \"./tools/cc-sdd/dist/core/receipts.js\"; try{makeReceipt({gate:\"C2\",targetHash:\"h\",actor:\"a\",reason:\"\"});process.exit(1)}catch{process.exit(0)}"'
+  expectation: pass
+
+- id: CLM-019
+  section: "§7.4 / §14.2 / Table 31"
+  statement_es: 'El módulo META-EVAL reproduce la cifra piloto κ = 0,86 con n = 15 y la marca explícitamente como demasiado pequeña para concluir (tooSmallToConclude), no como validación.'
+  statement_en: 'The META-EVAL module reproduces the pilot figure κ = 0.86 with n = 15 and explicitly flags it as too small to conclude (tooSmallToConclude), not as validation.'
+  verifier: 'node --input-type=module -e "import {cohensKappa} from \"./tools/cc-sdd/dist/core/metaEval.js\"; const k=cohensKappa({truePositive:5,falseNegative:1,falsePositive:0,trueNegative:9}); process.exit(k.kappa===0.86&&k.n===15&&k.tooSmallToConclude===true?0:1)"'
+  expectation: pass
+
+- id: CLM-020
+  section: "§9.5 / Table 34 (C5)"
+  statement_es: 'Sin backend de modelo alcanzable, C5 no finge un veredicto: reporta mode=degraded y advierte que no cuenta como evidencia de alineamiento de intención.'
+  statement_en: 'Without a reachable model backend, C5 does not fake a verdict: it reports mode=degraded and warns that it does not count as intent-alignment evidence.'
+  verifier: 'node tools/cc-sdd/dist/cli.js gates run | grep -q "mode=degraded"'
+  expectation: pass
+
+- id: CLM-021
+  section: "§11 / Figure 8"
+  statement_es: 'La captura de memoria está en cuarentena y no es inyectable: una nota en la etapa capture nunca se promueve directamente.'
+  statement_en: 'Memory capture is quarantined and not injectable: a note in the capture stage is never promoted directly.'
+  verifier: 'node --input-type=module -e "import {decidePromotion} from \"./tools/cc-sdd/dist/core/memory.js\"; const d=decidePromotion({item:{id:\"n\",stage:\"capture\",text:\"t\",provenance:{source:\"s\",author:\"a\",hash:\"h\",at:\"2026\"},lastConfirmedAt:\"2026\",usageCount:0},securityScreeningPassed:true}); process.exit(d.allowed===false&&d.reason===\"quarantine-not-injectable\"?0:1)"'
+  expectation: pass
+
+- id: CLM-022
+  section: "§11.1 / §6.4 (hard rule)"
+  statement_es: 'Ninguna skill fabricada puede declarar servidores MCP: un candidato que los declare se rechaza.'
+  statement_en: 'No fabricated skill may declare MCP servers: a candidate that declares them is rejected.'
+  verifier: 'node --input-type=module -e "import {evaluateCandidate} from \"./tools/cc-sdd/dist/core/skills.js\"; const c=evaluateCandidate({id:\"x\",pattern:\"p\",observations:2,klass:\"normativa\",declaresMcpServers:[\"s\"],provenance:{blocks:[\"b\"],humanCorrections:[],files:[]},generatedBy:\"g\",evaluatedBy:\"e\",generatingModelFamily:\"A\",evaluatingModelFamily:\"B\",reviewDate:\"2026\",activationCycles:0}); process.exit(c.mountable===false?0:1)"'
+  expectation: pass
+
+- id: CLM-023
+  section: "§14.3"
+  statement_es: 'El protocolo de laboratorio enumera cinco bancos (centinelas, inyección indirecta, calibración, deriva del evaluador, economía del bucle).'
+  statement_en: 'The lab protocol enumerates five banks (enforcement sentinels, indirect injection, gate calibration, evaluator drift, loop economy).'
+  verifier: 'test "$(node tools/cc-sdd/dist/cli.js assure lab | grep -cE "^  bank-[1-5] ")" = 5'
+  expectation: pass
+
+- id: CLM-024
+  section: "§9.8 / Table 24"
+  statement_es: 'El mapa OWASP Agentic → MITRE ATLAS asigna la inyección de prompts (directa/indirecta) a AML.T0051.'
+  statement_en: 'The OWASP Agentic → MITRE ATLAS map assigns prompt injection (direct/indirect) to AML.T0051.'
+  verifier: 'node tools/cc-sdd/dist/cli.js assure threats | grep -q "AML.T0051"'
+  expectation: pass
+
+- id: CLM-025
+  section: "Appendix D / Table 39"
+  statement_es: 'El mapeo regulatorio ancla los criterios HIL en el Art. 14 (supervisión humana) del Reglamento Europeo de IA.'
+  statement_en: 'The regulatory map anchors the HIL criteria in Art. 14 (human oversight) of the EU AI Act.'
+  verifier: 'node tools/cc-sdd/dist/cli.js assure threats | grep -q "Art. 14 supervisión humana"'
+  expectation: pass
+
+- id: CLM-026
+  section: "§2.3"
+  statement_es: 'El inventario de estado sostiene que ningún componente propuesto participa en las garantías de seguridad de hoy.'
+  statement_en: 'The status inventory holds that no proposed component participates in today''s security guarantees.'
+  verifier: 'node tools/cc-sdd/dist/cli.js assure claims | grep -q "NINGÚN componente propuesto participa"'
+  expectation: pass
+
+- id: CLM-027
+  section: "§6.4"
+  statement_es: 'El repositorio envía 160 ficheros SKILL.md (8 variantes de agente × 20 skills) bajo tools/cc-sdd/templates/agents/.'
+  statement_en: 'The repository ships 160 SKILL.md files (8 agent variants × 20 skills) under tools/cc-sdd/templates/agents/.'
+  verifier: 'test "$(find tools/cc-sdd/templates/agents -name SKILL.md | wc -l | tr -d " ")" = 160'
+  expectation: pass
+
+- id: CLM-028
+  section: "§14.2 / Table 31 (c4-fpr)"
+  statement_es: 'Este repositorio no incluye el corpus etiquetado ni los artefactos de laboratorio: la FPR medida de C4 (20,0 %, 3/15) es una cifra del prototipo del artículo y aquí no es reproducible.'
+  statement_en: 'This repository does not include the labelled corpus or the lab artifacts: the measured C4 FPR (20.0%, 3/15) is a figure of the paper''s prototype and is not reproducible here.'
+  verifier: 'test -d docs/lab'
+  expectation: absent
+
+- id: CLM-029
+  section: "§9.5 / §14.1"
+  statement_es: 'El tiempo de barrido medido (2,1–2,2 s) pertenece al prototipo: este repositorio no incluye bin/sh-gate ni un barrido equivalente, de modo que ninguna latencia se restablece aquí.'
+  statement_en: 'The measured sweep time (2.1–2.2 s) belongs to the prototype: this repository ships no bin/sh-gate nor an equivalent sweep, so no latency is restated here.'
+  verifier: 'test -x bin/sh-gate'
+  expectation: absent
+
+- id: CLM-030
+  section: "§9.6"
+  statement_es: 'El CLI ejecuta el registro: `assure claims --verify` parsea docs/claims/paper-claims.yaml y decide cada afirmación por código de salida, reportando los cinco estados. Es el único runner: no hay una segunda copia que pueda desviarse.'
+  statement_en: 'The CLI executes the registry: `assure claims --verify` parses docs/claims/paper-claims.yaml and decides each claim by exit code, reporting the five states. It is the only runner: there is no second copy to drift against it.'
+  verifier: 'grep -q "runClaimsRegistry" tools/cc-sdd/src/cli/commands/paper.ts'
+  expectation: pass
+
+- id: CLM-031
+  section: "§9.5 / §9.4"
+  statement_es: 'El prototipo SteelHarness no se publica: este repositorio no contiene .steelharness/, así que sus cifras no son inspeccionables desde aquí.'
+  statement_en: 'The SteelHarness prototype is not published: this repository contains no .steelharness/, so its figures are not inspectable from here.'
+  verifier: 'test -e .steelharness'
+  expectation: absent
+
+- id: CLM-032
+  section: "§4.5 / §9.7 (I2)"
+  statement_es: 'El bloqueo por evidencia rechaza una tarea marcada como completa sin la línea _Evidence: que captura la salida de la comprobación.'
+  statement_en: 'The evidence lock rejects a task marked complete without the _Evidence: line capturing the check''s output.'
+  verifier: 'node --input-type=module -e "import {checkEvidenceLock} from \"./tools/cc-sdd/dist/core/triad.js\"; process.exit(checkEvidenceLock(\"- [x] T1 do thing\").satisfied===false?0:1)"'
+  expectation: pass
+
+- id: CLM-033
+  section: "§4.6 / Table 12"
+  statement_es: 'El validador EARS rechaza como no conforme un requisito que no encaja en ninguna de las cinco plantillas.'
+  statement_en: 'The EARS validator rejects as non-conforming a requirement that fits none of the five templates.'
+  verifier: 'node --input-type=module -e "import {validateEarsRequirement} from \"./tools/cc-sdd/dist/core/ears.js\"; process.exit(validateEarsRequirement(\"The system should be fast.\").conforms===false?0:1)"'
+  expectation: pass
+
+- id: CLM-034
+  section: "§8.4 / §9.5 (O3 / G19)"
+  statement_es: 'La frescura del índice estructural se mide contra HEAD y no contra el árbol de trabajo, para que el modo degradado no se convierta en el modo normal.'
+  statement_en: 'Structural index freshness is measured against HEAD and not against the working tree, so the degraded mode does not become the normal mode.'
+  verifier: 'grep -q "no contra el árbol de trabajo" tools/cc-sdd/src/core/gateRunner.ts'
+  expectation: pass
+
+- id: CLM-035
+  section: "§4.7"
+  statement_es: 'El daño irreversible y sin límite no se responde con un gate más estricto sino con una mano humana: hay una escalada HIL dedicada.'
+  statement_en: 'Irreversible, unbounded damage is not answered with a stricter gate but with a human hand: there is a dedicated HIL escalation.'
+  verifier: 'node --input-type=module -e "import {evaluateEscalations} from \"./tools/cc-sdd/dist/core/hitl.js\"; process.exit(evaluateEscalations({irreversibleDamage:true}).some(d=>d.trigger===\"irreversible-damage\")?0:1)"'
+  expectation: pass

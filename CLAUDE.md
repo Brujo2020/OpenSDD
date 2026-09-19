@@ -6,18 +6,30 @@ Living specifications, Zero-Trust validation, and auditable architecture.
 ## Project Context
 
 ### Paths
-- Steering: `.sdd/steering/` (persistent project memory & architecture standards)
-- Specs: `.sdd/specs/` (executable feature specifications)
-- Memory: `.sdd/memory/` (temporal session ledgers and AST knowledge graph)
+
+This repository **is the tool**, so its paths are the tool's own source and templates. The paths the
+skills *create in a target project* are listed separately, because in this checkout they may not
+exist yet.
+
+| Purpose | In this repository | In a target project (created by the skills) |
+|---|---|---|
+| Settings, rules, templates | `.sdd/settings/` | `.sdd/settings/` |
+| Steering (project memory) | templates only: `.sdd/settings/templates/steering/` | `.sdd/steering/` (`product.md`, `tech.md`, `structure.md`) |
+| Feature specs | `.sdd/specs/` | `.sdd/specs/<feature>/` |
+| Memory (session ledgers) | not present | `.sdd/memory/` |
+| CLI source + templates | `tools/cc-sdd/src/`, `tools/cc-sdd/templates/` | — |
+| Compiled CLI | `tools/cc-sdd/dist/cli.js` | — |
+
+Do not look for steering or memory under `.sdd/` in this checkout until a skill has created them.
 
 ### Steering vs Specification
 
 **Steering** (`.sdd/steering/`) - Guides AI with project-wide rules, architecture, and technology standards.
-**Specs** (`.sdd/specs/`) - Formalizes the development lifecycle for individual features into an auditable Documentary Triad (`requirements.md`, `design.md`, `tasks.md`).
+**Specs** (`.sdd/specs/`) - Formalizes the development lifecycle for individual features into an auditable Documentary Triad (`requirements.md`, `plan.md`, `tasks.md`; `design.md` is an accepted alias of `plan.md` — see `tools/cc-sdd/src/core/triad.ts`).
 
 ### Active Specifications
 - Check `.sdd/specs/` for active specifications
-- Use `/sdd-status [feature-name]` to check progress
+- Use `/sdd-spec-status [feature-name]` to check progress
 
 ## Development Guidelines
 - Think in English, generate responses in English. All Markdown content written to project files (e.g., requirements.md, design.md, tasks.md, research.md, validation reports) MUST be written in the target language configured for this specification (see spec.json.language).
@@ -44,24 +56,68 @@ Living specifications, Zero-Trust validation, and auditable architecture.
 - Progress check: `/sdd-spec-status {feature}` (use anytime)
 
 ## Skills Structure
-Skills are located under `.claude/skills/sdd-*/SKILL.md`:
-- Each skill is a directory with a `SKILL.md` file
-- Skills run inline with access to conversation context
-- Skills delegate parallel research to subagents for context efficiency
+
+The skills **shipped by this repository** are source templates; the CLI copies the selected agent's
+set into a target project.
+
+- Templates (this repository): `tools/cc-sdd/templates/agents/<agent>/skills/sdd-*/SKILL.md`
+  — 160 `SKILL.md` files across 8 skills-based agents (20 skills each).
+- Installed in a target project: the agent's layout directory, e.g. `.claude/skills/sdd-*/SKILL.md`
+  (Claude Code Skills), `.agent/skills/` (Antigravity), `.cursor/skills/` (Cursor).
+- The agent registry that defines every layout and alias flag is
+  `tools/cc-sdd/src/agents/registry.ts`.
+
+Skills in this checkout:
+- Each skill is a directory with a `SKILL.md` file.
+- This repository's own agent skills live under `.agents/skills/` (`sdd-help`, `cc-sdd-new-agent`).
+- Skills run inline with access to conversation context and delegate parallel research to subagents.
 - `sdd-review` — task-local adversarial review protocol
 - `sdd-debug` — root-cause-first debug protocol
 - `sdd-verify-completion` — fresh-evidence gate before success or completion claims
 - **If there is even a 1% chance a skill applies to the current task, invoke it.**
+
+## Zero-Trust console (reference architecture)
+
+The CLI implements the governance model of *Orquestación SDD-First Multiagente para Desarrollo
+Enterprise* (rev. 3, Sept 2026). The normative traceability report — every paper section, its
+implementing symbol, and every declared gap — is
+**[docs/PAPER-ALIGNMENT.md](docs/PAPER-ALIGNMENT.md)**. Read it before claiming the code does
+something the paper describes.
+
+```bash
+node tools/cc-sdd/dist/cli.js gates chain --profile regulated   # resolve the chain
+node tools/cc-sdd/dist/cli.js gates crosswalk                   # G1–G21 → C1–C7/O1–O7 + residue
+node tools/cc-sdd/dist/cli.js gates enforcement                 # levels A–D, ceiling vs floor
+node tools/cc-sdd/dist/cli.js gates run                         # run the chain (exit 1 if it fails)
+node tools/cc-sdd/dist/cli.js govern conformance                # C0–C3 with per-invariant evidence
+node tools/cc-sdd/dist/cli.js govern hitl                       # quantified HIL thresholds
+node tools/cc-sdd/dist/cli.js govern discipline                 # §9.7 decidable properties over the diff
+node tools/cc-sdd/dist/cli.js assure threats                    # OWASP/ATLAS + regulatory crosswalk
+node tools/cc-sdd/dist/cli.js waves <feature>                   # wave plan + git commands
+```
+
+Non-negotiables when using that model:
+
+- **Never restate the paper's prototype measurements** (κ = 0.86 n=15, C4 FPR 20.0 %, the 2.1–2.2 s
+  sweep) as measurements of this repository. See gaps G-01/G-02 in `docs/PAPER-ALIGNMENT.md`.
+- **C7/Karpathy is vacuous** (`inspects: false`): activation without measurement, reported as such.
+- **No model backend ships**, so C5 intent alignment reports `mode=degraded` and is not evidence.
+- The claims registry (`docs/claims/paper-claims.yaml`) is executed by the product CLI:
+  `node tools/cc-sdd/dist/cli.js assure claims --verify`. It exits `1` only on a `broken` claim, and
+  it must stay at `0 broken`.
 
 ## Development Rules
 - 3-phase approval workflow: Requirements → Design → Tasks → Implementation
 - Human review required each phase; use `-y` only for intentional fast-track
 - Karpathy Guidelines (Think before coding, Simplicity first, Surgical changes, Goal-driven execution) are mandatory.
 - Autonomous Quality Engineering: Agentic QE (`agentic-qe.dev`, PACTS framework) enabled for boundary-scoped metamorphic invariant testing.
-- Strict Git Mode: Specs are mandatory. Implementation without an approved specification is strictly blocked. Every phase gate corresponds to an immutable Git milestone (init seed → spec lock → verified implementation push).
-- Keep steering current and verify alignment with `/sdd-status`.
+- Strict Git Mode: specs are mandatory and implementation without an approved specification is
+  blocked **under the `team` and `enterprise` governance profiles**; the default `solo` profile runs
+  its checks and reports without blocking (`tools/cc-sdd/src/core/governance.ts`).
+- Keep steering current and verify alignment with `/sdd-spec-status`.
 
 ## Steering Configuration
-- Load entire `.sdd/steering/` as project memory
+- Load entire `.sdd/steering/` as project memory when it exists
 - Default files: `product.md`, `tech.md`, `structure.md`
 - Custom files are supported (managed via `/sdd-steering-custom`)
+- Shipped templates: `.sdd/settings/templates/steering/`
