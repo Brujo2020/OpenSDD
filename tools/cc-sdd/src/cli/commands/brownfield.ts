@@ -588,8 +588,22 @@ export const handleBrownfieldCommand = async (args: string[], io: CliIO, cwd: st
       const discoveredTests = new Set(
         set.contracts.filter((c) => c.source === 'discovered').map((c) => c.test),
       );
+      // A declared contract is missing only when it is neither DISCOVERED (a test that covers a
+      // changed file) nor present on disk. Counting only discovered ones made a clean tree — where
+      // nothing is "changed", so nothing is discovered — report every declared contract as absent,
+      // which is the mirror image of the vacuous check this replaced.
+      const declaredExists = (declared: string): boolean => {
+        const file = declared.split('::')[0] ?? declared;
+        try {
+          return statSync(path.join(root, file)).isFile();
+        } catch {
+          return false;
+        }
+      };
       const missingDeclared = (delta?.entries ?? []).flatMap((entry) =>
-        (entry.contracts ?? []).filter((declared) => !discoveredTests.has(declared)),
+        (entry.contracts ?? []).filter(
+          (declared) => !discoveredTests.has(declared) && !declaredExists(declared),
+        ),
       );
       if (missingDeclared.length > 0) {
         io.log('');
