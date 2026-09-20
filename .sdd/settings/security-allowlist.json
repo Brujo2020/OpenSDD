@@ -7,7 +7,9 @@
         "hidden-comment-instruction"
       ],
       "reason": "Spec requirements template: the HTML comment is authoring guidance to the spec writer, not an instruction addressed to a model.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": ".sdd/specs/paper-alignment/tasks.md",
@@ -15,7 +17,9 @@
         "rm-rf-root"
       ],
       "reason": "The specification quotes the destructive command as captured evidence for the C2 fix (the regex previously missed the root form).",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "CHANGELOG.md",
@@ -23,7 +27,9 @@
         "curl-pipe-shell"
       ],
       "reason": "The changelog records that the previous README advertised a curl-pipe-shell installer the script cannot serve.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "Claude outputs/",
@@ -31,7 +37,9 @@
         "curl-pipe-shell"
       ],
       "reason": "Legacy delivery documents restored from git history; they quote installer one-liners as usage examples.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "tools/cc-sdd/README.md",
@@ -39,7 +47,9 @@
         "curl-pipe-shell"
       ],
       "reason": "Documents the supported installation one-liner for the CLI.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "tools/cc-sdd/src/cli/commands/paper.ts",
@@ -47,7 +57,9 @@
         "ignore-previous"
       ],
       "reason": "The `assure memory` command demonstrates the injection scanner with a probe string.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "tools/cc-sdd/src/core/gateRunner.ts",
@@ -56,7 +68,9 @@
         "system-prompt-exfil"
       ],
       "reason": "The scanner's own pattern table: these literals ARE the detector, not an occurrence of the threat.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "tools/cc-sdd/src/core/memory.ts",
@@ -64,7 +78,9 @@
         "hidden-comment-instruction"
       ],
       "reason": "The memory poisoning scanner's pattern table.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "tools/cc-sdd/test/coreGateRunner.test.ts",
@@ -77,7 +93,9 @@
         "ignore-previous"
       ],
       "reason": "Unit-test fixtures: the scanner must be fed real-shaped credentials and commands to prove it detects them.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "tools/cc-sdd/test/coreMemory.test.ts",
@@ -86,7 +104,9 @@
         "hidden-comment-instruction"
       ],
       "reason": "Unit-test fixtures for the poisoning scanner.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "tools/cc-sdd/dist/core/gateRunner.js",
@@ -95,7 +115,9 @@
         "system-prompt-exfil"
       ],
       "reason": "Compiled twin of tools/cc-sdd/src/core/gateRunner.ts: the emitted artifact contains the same detector pattern table (dist is committed so the package ships the CLI).",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "tools/cc-sdd/dist/cli/commands/paper.js",
@@ -103,7 +125,9 @@
         "ignore-previous"
       ],
       "reason": "Compiled twin of tools/cc-sdd/src/cli/commands/paper.ts: the assure-memory demo probe string.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "tools/cc-sdd/dist/core/memory.js",
@@ -111,7 +135,9 @@
         "hidden-comment-instruction"
       ],
       "reason": "Compiled twin of tools/cc-sdd/src/core/memory.ts: the memory poisoning scanner pattern table.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "tools/cc-sdd/test/coreChangeImpact.test.ts",
@@ -119,7 +145,9 @@
         "drop-table"
       ],
       "reason": "Fixture: una sentencia DDL destructiva con la que se ejercita el analisis de impacto y de migraciones.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     },
     {
       "path": "tools/cc-sdd/test/coreConstitution.test.ts",
@@ -127,7 +155,9 @@
         "ignore-previous"
       ],
       "reason": "Fixture: las pruebas de resistencia a inyeccion deben alimentar al detector con los patrones que existen para cazar.",
-      "actor": "spec:paper-alignment"
+      "actor": "spec:paper-alignment",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     }
   ]
 }
