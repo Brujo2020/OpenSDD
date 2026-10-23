@@ -1,0 +1,13 @@
+# Tasks — simple-experience
+- [x] 1. Essential help and `help --all` — _Requirements: REQ-SX-001_ — _Boundary:_ `tools/open-sdd/src/cli/commands/help.ts`, `tools/open-sdd/src/index.ts`
+  - Done when: AC-01 passes.
+  - _Evidence: `renderEssentialHelp` (15 lines); `help --all` / `--help --all` print `renderFullHelp`; `test/simpleExperience.test.ts` AC-01 green; wiring and template-inventory tests now read `--help --all`._
+- [x] 2. Verbs `setup`, `check`, `decide` — _Requirements: REQ-SX-002, REQ-SX-003, REQ-SX-004_ — _Boundary:_ `tools/open-sdd/src/cli/commands/decide.ts`, `tools/open-sdd/src/cli/commands/help.ts`, `tools/open-sdd/src/index.ts`
+  - Done when: AC-02…AC-04 pass.
+  - _Evidence: `setup` routes to `handleInitCommand`; `check` to `gates run` (drops the global `--no-footer`; footer declares gates unmeasured); `decide` in `cli/commands/decide.ts` over `listCards`/`listRuns`/`hil`. On this repo: `check` → «La cadena pasa», exit 0; `decide` → «Nada que decidir.»._
+- [x] 3. Documentation with diagrams and colour legend — _Requirements: REQ-SX-005_ — _Boundary:_ `README.md`, `README.es.md`, `docs/MANUAL.md`, `tools/open-sdd/templates/agents/`
+  - Done when: AC-05 passes and every Mermaid block renders.
+  - _Evidence: five-verb section with 2 Mermaid diagrams, colour legend and the three rules in README.md, README.es.md and docs/MANUAL.md; the 4 diagrams rendered with `mmdc` without error; 19 quickstarts and the 9 identical `sdd-help` copies present the verbs first._
+- [x] 4. Tests, dist, claims, handoff — _Requirements: all_ — _Boundary:_ `tools/open-sdd/test/`, `tools/open-sdd/dist/`, `docs/claims/paper-claims.yaml`, `HANDOFF.md`, `.sdd/specs/simple-experience/`
+  - Done when: suite green, claims 0 broken.
+  - _Evidence: 171 files, 2482 tests green; CLM-083 added._

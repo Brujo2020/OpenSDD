@@ -27,8 +27,9 @@ import { handleUninstallCommand } from './cli/commands/uninstall.js';
 import { handleStandardsCommand } from './cli/commands/standards.js';
 import { handleRequirementsCommand } from './cli/commands/requirements.js';
 import { handleModesCommand } from './cli/commands/modes.js';
-import { EXIT, KNOWN_COMMANDS, STRICT_SUBCOMMANDS, handleHelpCommand, renderCommandHelp, renderExplain, renderFullHelp, suggestCommands, } from './cli/commands/help.js';
+import { EXIT, KNOWN_COMMANDS, STRICT_SUBCOMMANDS, handleHelpCommand, renderCommandHelp, renderExplain, renderFullHelp, renderEssentialHelp, suggestCommands, } from './cli/commands/help.js';
 import { handleImplCommand } from './cli/commands/impl.js';
+import { handleDecideCommand } from './cli/commands/decide.js';
 import { handleGatesCommand, handleGovernCommand, handleAssureCommand, handleWavesCommand, handleFloorCommand, } from './cli/commands/paper.js';
 import { handleDeltaCommand, handleBrownfieldCommand } from './cli/commands/brownfield.js';
 import { handleTourCommand, handleContextCommand } from './cli/commands/tour.js';
@@ -184,6 +185,7 @@ const runPlanExecution = async (manifestPath, resolvedConfig, io, execOpts) => {
  * que la cadena NO pasa.
  */
 const runsGateChain = (cmd, subArgv) => (cmd === 'gates' && subArgv[0] === 'run') ||
+    cmd === 'check' ||
     (cmd === 'audit' && (subArgv[0] === 'bundle' || subArgv[0] === 'sarif'));
 /**
  * La puerta: `open-sdd` sin argumentos.
@@ -198,7 +200,7 @@ const runScoreDoor = async (io, cwd) => {
         const report = await computeSddScore(cwd);
         io.log(renderScoreFooter(report));
         io.log(`Por qué: ${explainNextAction(report)}`);
-        io.log('todos los comandos: open-sdd --help');
+        io.log('los cinco verbos: open-sdd --help · todos los comandos: open-sdd help --all');
         return 0;
     }
     catch (error) {
@@ -217,9 +219,14 @@ const dispatchSubcommand = async (cmd, subArgv, io, targetCwd) => {
     if (cmd === 'status' || cmd === 'spec-status') {
         return handleStatusCommand(subArgv, io, targetCwd);
     }
-    if (cmd === 'init' || cmd === 'spec-init') {
+    if (cmd === 'init' || cmd === 'spec-init' || cmd === 'setup') {
         return handleInitCommand(subArgv, io, targetCwd);
     }
+    // The five verbs (REQ-SX-003/004): thin routes onto the existing handlers.
+    if (cmd === 'check')
+        return handleGatesCommand(['run', ...subArgv.filter((a) => a !== SCORE_FOOTER_FLAG)], io, targetCwd);
+    if (cmd === 'decide')
+        return handleDecideCommand(subArgv, io, targetCwd);
     // Adoption surface: the machine-checked integration matrix (`integrate`) and the importer that
     // absorbs spec-kit (`import`). Both live in the init command module.
     if (cmd === 'integrate' || cmd === 'import') {
@@ -501,7 +508,7 @@ export const runCli = async (rawArgv, runtime = { platform: process.platform, en
                 return EXIT.PASSED;
             }
         }
-        io.log(renderFullHelp());
+        io.log(argv.includes('--all') ? renderFullHelp() : renderEssentialHelp());
         return EXIT.PASSED;
     }
     if (argv.includes('--version') || argv.includes('-v')) {

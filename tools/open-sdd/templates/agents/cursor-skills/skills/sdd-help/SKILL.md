@@ -10,6 +10,11 @@ argument-hint: [command-name]
 ## Core Mission
 Provide an Apple-grade ("It Just Works"), crystal-clear interactive reference with copy-pasteable real-world examples for all Open-SDD commands.
 
+## Five verbs first
+Before listing skills, show the user the five terminal verbs and recommend the one that fits:
+`open-sdd` (where am I, the one next action), `open-sdd setup`, `open-sdd start "<intent>"`,
+`open-sdd check` and `open-sdd decide`. Mention `open-sdd help --all` only if they ask for more.
+
 ## Execution Steps
 
 ### Step 1: Check Arguments

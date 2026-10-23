@@ -6,6 +6,81 @@ propose**, and **named people approve**.
 
 ---
 
+## Five verbs: all you need
+
+You do not need the other 50 commands to use open-sdd. Five verbs cover the whole lifecycle; the
+tool decides everything that evidence can decide (agent, greenfield or brownfield, level, rigor,
+playbook) and asks a person only for a human decision. Every other command still works and is listed
+by `open-sdd help --all`.
+
+| | Verb | What it does | What it decides for you |
+|---|---|---|---|
+| 🟢 | `open-sdd` | Where you are: score, phase and the **one** next action | The next action |
+| 🟢 | `open-sdd setup` | Installs into the repository (same as `init`; plan first, `--write` applies) | Agent and terrain |
+| 🟢 | `open-sdd start "<what you want>"` | Starts any work, from a typo to a modernization | Level L0–L6, variant, rigor, playbook |
+| 🔴 | `open-sdd check` | One verdict: the whole gate chain (same as `gates run`) | Nothing: it only passes or blocks |
+| 🔵 | `open-sdd decide` | Lists the decisions waiting for a person, with the exact command | Nothing: a person decides |
+
+```mermaid
+flowchart LR
+  A["open-sdd setup"]:::auto --> B["open-sdd start &quot;intent&quot;"]:::auto
+  B --> C["agent works<br/>next → report"]:::advisory
+  C --> D{"open-sdd check"}:::block
+  D -- passes --> E["done ✔"]:::auto
+  D -- refused ≤ 3 times --> C
+  D -- 4th refusal --> F["open-sdd decide<br/>(HIL)"]:::human
+  F --> C
+  G["open-sdd<br/>where am I?"]:::auto -.-> B
+  classDef auto fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef advisory fill:#ffec99,stroke:#f08c00,color:#1e1e1e
+  classDef block fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  classDef human fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+```
+
+### Who decides what
+
+```mermaid
+flowchart TB
+  subgraph Engine["Engine — deterministic 🟢"]
+    E1["level, rigor, playbook"]:::auto
+    E2["next step"]:::auto
+    E3["gate chain"]:::block
+  end
+  subgraph Agent["Agent — does the work 🟡"]
+    A1["writes specs and code"]:::advisory
+    A2["applies the Karpathy guidelines"]:::advisory
+  end
+  subgraph Person["Person — decides 🔵"]
+    P1["approves gates and cards"]:::human
+    P2["reviews, or a DIFFERENT model reviews"]:::human
+  end
+  E1 --> E2 --> A1 --> E3
+  E3 -- blocked 4 times --> P1
+  A1 --> P2
+  classDef auto fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef advisory fill:#ffec99,stroke:#f08c00,color:#1e1e1e
+  classDef block fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  classDef human fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+```
+
+### Colour legend (diagrams and console)
+
+| Colour | Meaning | Examples |
+|---|---|---|
+| 🟢 Green | Automatic: the tool decides from evidence | level, rigor, playbook, next action |
+| 🟡 Amber | Advisory: reported, never blocks | standards findings, reuse candidates, missing `C-INDEPENDENT-REVIEW` |
+| 🔴 Red | Blocks: exit 1 until fixed | gates C1–C3, invalid constitution, stale review receipt |
+| 🔵 Blue | A person decides | HIL cards, phase gates, ratifying the constitution |
+
+### Three rules that always apply
+
+| Rule | How it is enforced |
+|---|---|
+| Karpathy guidelines (think, simplicity, surgical changes, goal-driven) | `karpathy-guidelines` skill installed in every project |
+| Review is human, or by a model **different** from the author | constitution `C-INDEPENDENT-REVIEW`; `review record --by-model … --author-model …` refuses the same model |
+| More than 3 failed iterations → a person decides | the engine turns the step into a human gate on the 4th refusal (`open-sdd decide`) |
+
+
 ## Contents
 
 1. [Concepts](#1-concepts)

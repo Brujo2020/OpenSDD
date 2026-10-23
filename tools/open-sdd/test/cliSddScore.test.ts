@@ -178,7 +178,7 @@ describe('cli/sddScore — el pie aparece en cada comando', () => {
     expect(ctx.logs[0]).toMatch(/^SDD \d+% · Fase 1 · Especificar/);
     expect(ctx.logs[0]).toContain('siguiente: open-sdd brownfield constitution . --write');
     expect(ctx.logs[1]).toContain('Por qué:');
-    expect(ctx.logs[2]).toBe('todos los comandos: open-sdd --help');
+    expect(ctx.logs[2]).toBe('los cinco verbos: open-sdd --help · todos los comandos: open-sdd help --all');
     const text = ctx.logs.join('\n');
     expect(text).not.toContain('Usage: open-sdd');
     expect(text).not.toContain('/sdd-');
@@ -192,7 +192,7 @@ describe('cli/sddScore — el pie aparece en cada comando', () => {
 
     expect(code).toBe(0);
     expect(ctx.logs[0]).toMatch(/^SDD \d+%/);
-    expect(ctx.logs.at(-1)).toBe('todos los comandos: open-sdd --help');
+    expect(ctx.logs.at(-1)).toBe('los cinco verbos: open-sdd --help · todos los comandos: open-sdd help --all');
   });
 });
 

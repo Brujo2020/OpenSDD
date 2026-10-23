@@ -116,7 +116,7 @@ export const suggestCommands = (
 // Una tabla, tres proyecciones
 // ---------------------------------------------------------------------------------------------
 
-export type HelpGroup = 'templates' | 'skills' | 'console' | 'brownfield' | 'experience' | 'adoption' | 'daily' | 'reversibility' | 'score';
+export type HelpGroup = 'essential' | 'templates' | 'skills' | 'console' | 'brownfield' | 'experience' | 'adoption' | 'daily' | 'reversibility' | 'score';
 
 export interface CommandDoc {
   name: string;
@@ -136,6 +136,30 @@ export interface CommandDoc {
 const SUB = (name: string, summary?: string) => (summary ? { name, summary } : { name });
 
 export const COMMANDS: CommandDoc[] = [
+  {
+    name: 'setup',
+    group: 'essential',
+    summary: 'Install open-sdd into this repository (same as `init`): detects the agent and the terrain; plan first, --write applies',
+    usage: 'open-sdd setup [target] [--agent <id>] [--write] [--json]',
+    indexLines: ['  setup [--write]                              Install into this repo (same as init); plan first, --write applies'],
+    examples: ['open-sdd setup', 'open-sdd setup --write'],
+  },
+  {
+    name: 'check',
+    group: 'essential',
+    summary: 'One verdict: run the whole gate chain (same as `gates run`); exit 1 when it fails',
+    usage: 'open-sdd check [--profile <solo|team|regulated>] [--staged|--base <ref>] [--strict]',
+    indexLines: ['  check                                        One verdict: the whole gate chain (same as gates run)'],
+    examples: ['open-sdd check', 'open-sdd check --staged', 'open-sdd check --base main'],
+  },
+  {
+    name: 'decide',
+    group: 'essential',
+    summary: 'Human decisions waiting for you (cards and human gates), each with the exact command to resolve it',
+    usage: 'open-sdd decide [feature] [card option --by "<name>"] [--json]',
+    indexLines: ['  decide [feature] [card option --by <name>]   Human decisions waiting, with the exact command; answers a card'],
+    examples: ['open-sdd decide', 'open-sdd decide payments', 'open-sdd decide payments HIL-001 a --by "Ana"'],
+  },
   {
     name: 'templates',
     group: 'templates',
@@ -206,7 +230,7 @@ export const COMMANDS: CommandDoc[] = [
   },
   {
     name: 'start',
-    group: 'console',
+    group: 'essential',
     summary: 'One command for any size of work: level L0 tiny … L6 modernization → playbook → run → first directive',
     usage: 'open-sdd start "<intent>" [--feature f] [--level L0…L6] [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-code] [--dry-run] [--json]',
     indexLines: ['  start "<intent>"                             Level (tiny→modernization), playbook, run and first step in one command'],
@@ -833,6 +857,7 @@ const SKILLS_LINES = [
 ];
 
 const HELP_SECTIONS: { group: HelpGroup; heading: string; staticLines?: string[]; after?: string[] }[] = [
+  { group: 'essential', heading: 'The five verbs (start here; `open-sdd` alone is the first one):' },
   { group: 'templates', heading: 'Command templates (the DEFAULT integration: 22 workflows, no MCP and no network):' },
   { group: 'skills', heading: 'In-Chat Skills (The Apple-grade Experience):', staticLines: SKILLS_LINES },
   { group: 'console', heading: 'Zero-Trust console (reference architecture):' },
@@ -891,6 +916,29 @@ const LEARN_MORE: string[] = [
   '  · open-sdd explain C1          what a gate code checks, offline',
   '  · docs/PAPER-ALIGNMENT.md      the normative traceability report',
 ];
+
+/**
+ * La ayuda por defecto (REQ-SX-001): cinco verbos, la instalación y la puerta a `help --all`. El
+ * catálogo completo sigue intacto detrás de `--all`; ningún comando deja de existir.
+ */
+export const renderEssentialHelp = (): string =>
+  [
+    'Usage: open-sdd [verb] — Spec-Driven Development in five verbs',
+    '',
+    '  open-sdd                     Where you are and the ONE next action',
+    '  open-sdd setup [--write]     Install into this repo (detects agent and terrain; plan first)',
+    '  open-sdd start "<intent>"    Start any work: level, rigor and playbook are chosen for you',
+    '  open-sdd check               One verdict: the whole gate chain (exit 1 when it fails)',
+    '  open-sdd decide              Human decisions waiting for you, with the exact command',
+    '',
+    `Install:  ${INSTALL_COMMAND}   (Claude Code; --cursor-skills, --copilot-skills, --codex-skills…)`,
+    'In chat:  /sdd-help · /sdd-spec-quick <feature> · /sdd-impl <feature> · /sdd-spec-status <feature>',
+    '',
+    'Colours:  green = automatic · amber = advisory · red = blocks · blue = a person decides',
+    '',
+    'Everything else (all commands still work):  open-sdd help --all',
+    'One command in detail:                      open-sdd help <command>',
+  ].join('\n');
 
 /** El índice completo. Es la proyección de `COMMANDS`: no hay una segunda lista escrita a mano. */
 export const renderFullHelp = (): string => {
@@ -1040,7 +1088,7 @@ export const handleHelpCommand = async (argv: string[], io: CliIO): Promise<numb
   const topic = argv.find((arg) => !arg.startsWith('-'))?.toLowerCase();
 
   if (!topic) {
-    io.log(renderFullHelp());
+    io.log(argv.includes('--all') ? renderFullHelp() : renderEssentialHelp());
     return EXIT.PASSED;
   }
 

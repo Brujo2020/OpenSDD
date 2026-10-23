@@ -20,6 +20,15 @@ SDD-style Spec-Driven Development on an agentic SDLC
 ## Development Guidelines
 {{DEV_GUIDELINES}}
 
+## Five verbs (terminal)
+- `open-sdd` — where you are and the one next action
+- `open-sdd setup` — install into this repo (plan first, `--write` applies)
+- `open-sdd start "<intent>"` — start any work; level, rigor and playbook are chosen for you
+- `open-sdd check` — one verdict: the whole gate chain
+- `open-sdd decide` — human decisions waiting, with the exact command
+
+Everything else still works: `open-sdd help --all`.
+
 ## Minimal Workflow
 - Phase 0 (optional): `/sdd/steering`, `/sdd/steering-custom`
 - Phase 1 (Specification):

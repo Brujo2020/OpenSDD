@@ -15,6 +15,7 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
   - **Karpathy siempre**: skill `karpathy-guidelines` (copia literal de github.com/multica-ai/andrej-karpathy-skills, MIT, con `NOTICE.md`) en los 9 árboles de skills + workflow Axet; regla en `settings/rules/karpathy-guidelines.md`; las 3 reglas en los 19 quickstarts (CLAUDE/AGENTS/GEMINI/QWEN.md).
   - REQ-STD-012 cerrada: `delta validate` reporta como **consultivo** el símbolo nuevo sin `reuse:` y su candidato `fichero:línea`; nunca cambia el exit.
   - Spec `multi-unit-playbooks`: ejemplo del plan §4 pasado de YAML a JSON.
+  - **Experiencia simple «una puerta, cinco verbos»** (spec `simple-experience`, REQ-SX-001…005): `--help`/`help` = 5 verbos en 15 líneas; `help --all` = catálogo completo; `setup` = `init`; `check` = `gates run`; `decide` = decisiones humanas pendientes (tarjetas HIL y gates escalados) con el comando exacto. Nada eliminado. README/README.es/MANUAL abren con los 5 verbos, 2 diagramas Mermaid, leyenda de colores 🟢🟡🔴🔵 y las 3 reglas; 19 quickstarts y `sdd-help` presentan los verbos primero.
 
 ## Contexto y decisiones
 - **Playbooks en JSON** (`.playbook.json`), no YAML: el repo no tiene librería YAML y `C-STACK-FACT` prohíbe añadir dependencias. **Pendiente actualizar la spec** (plan §4 y requirements muestran YAML).
@@ -50,6 +51,7 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 
 ## Evidencia
 - 2026-10-23 (post-3.9.0), en copia Linux del repo (el `node_modules` local es de macOS): `tsc` OK; `vitest run` → **170 ficheros, 2477 tests en verde, 1 skipped**; `assure claims --verify` → 82 claims, 0 rotas (nuevas CLM-081 revisión independiente, CLM-082 escalado HIL; CLM-049 excluye la enmienda invariante); `gates run` → la cadena pasa.
+- simple-experience: `vitest run` → **171 ficheros, 2483 tests en verde**; claims 83, 0 rotas (CLM-083); en este repo `check` → «La cadena pasa» exit 0, `decide` → «Nada que decidir.»; los 4 diagramas nuevos renderizados con `mmdc` sin error; revisión independiente (Sonnet) aplicada (error de uso en `decide f card`, pruebas de pie de `check`, ruta de respuesta y gate escalado).
 - `delta validate` manual: `getUsers` → candidato `getUser` en `src/session.ts:1`, exit 0.
 - `npx -y @brujo2020/open-sdd@3.9.0 --version` → `open-sdd v3.9.0`. `npm view … dist.attestations` vacío: 3.9.0 **sin provenance**.
 - Revisión independiente del diff por otro modelo (Sonnet): hallazgos aplicados (retorno temprano + try/catch del aviso de reutilización, prueba de frescura de recibos, reinicio del contador al completar).
@@ -65,6 +67,7 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 2. RQC tarea 5 (calibración): bloqueada hasta tener un corpus etiquetado de defectos; no inventar etiquetas.
 3. MAT tarea 11: publicar vía `publish.yml` para obtener provenance y construir la imagen Docker.
 4. Publicar una versión nueva (p. ej. 3.10.0) con los cambios post-3.9.0 si Mario lo decide.
+4b. Subir el tag `v3.8.0` desde el Mac: `git push origin v3.8.0` (creado en local → `9ff144e`; el proxy de la nube bloquea tags).
 5. `status variants-reverse --check --strict`: 1 aviso `BOUNDARY_VIOLATION` (archivos nuevos fuera de los límites de la spec: plugin, `rigor.ts` o playbooks base).
 6. `README.es.md` no tiene los diagramas nuevos.
 7. Informativo: umbrales SLA/canary son valores por defecto (`.sdd/settings/dynamic-rules.json`).

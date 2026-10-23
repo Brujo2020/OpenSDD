@@ -8,6 +8,81 @@ specs delta para el código que ya existe y una constitución que valida cada sp
 
 [English](README.md) · **Español**
 
+## Cinco verbos: todo lo que necesitas
+
+No necesitas los otros 50 comandos para usar open-sdd. Cinco verbos cubren todo el ciclo; la
+herramienta decide todo lo que la evidencia permite decidir (agente, greenfield o brownfield, nivel,
+rigor, playbook) y solo pregunta a una persona cuando la decisión es humana. Todos los demás comandos
+siguen funcionando y se listan con `open-sdd help --all`.
+
+| | Verbo | Qué hace | Qué decide por ti |
+|---|---|---|---|
+| 🟢 | `open-sdd` | Dónde estás: puntuación, fase y **la** siguiente acción | La siguiente acción |
+| 🟢 | `open-sdd setup` | Instala en el repositorio (igual que `init`; primero el plan, `--write` aplica) | Agente y terreno |
+| 🟢 | `open-sdd start "<lo que quieres>"` | Inicia cualquier trabajo, de una errata a una modernización | Nivel L0–L6, variante, rigor, playbook |
+| 🔴 | `open-sdd check` | Un veredicto: toda la cadena de gates (igual que `gates run`) | Nada: solo pasa o bloquea |
+| 🔵 | `open-sdd decide` | Lista las decisiones que esperan a una persona, con el comando exacto | Nada: decide una persona |
+
+```mermaid
+flowchart LR
+  A["open-sdd setup"]:::auto --> B["open-sdd start &quot;intención&quot;"]:::auto
+  B --> C["el agente trabaja<br/>next → report"]:::advisory
+  C --> D{"open-sdd check"}:::block
+  D -- pasa --> E["hecho ✔"]:::auto
+  D -- rechazo ≤ 3 veces --> C
+  D -- 4.º rechazo --> F["open-sdd decide<br/>(HIL)"]:::human
+  F --> C
+  G["open-sdd<br/>¿dónde estoy?"]:::auto -.-> B
+  classDef auto fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef advisory fill:#ffec99,stroke:#f08c00,color:#1e1e1e
+  classDef block fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  classDef human fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+```
+
+### Quién decide qué
+
+```mermaid
+flowchart TB
+  subgraph Motor["Motor — determinista 🟢"]
+    E1["nivel, rigor, playbook"]:::auto
+    E2["siguiente paso"]:::auto
+    E3["cadena de gates"]:::block
+  end
+  subgraph Agente["Agente — hace el trabajo 🟡"]
+    A1["escribe specs y código"]:::advisory
+    A2["aplica las guías Karpathy"]:::advisory
+  end
+  subgraph Persona["Persona — decide 🔵"]
+    P1["aprueba gates y tarjetas"]:::human
+    P2["revisa, o revisa un modelo DISTINTO"]:::human
+  end
+  E1 --> E2 --> A1 --> E3
+  E3 -- bloqueado 4 veces --> P1
+  A1 --> P2
+  classDef auto fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef advisory fill:#ffec99,stroke:#f08c00,color:#1e1e1e
+  classDef block fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  classDef human fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+```
+
+### Leyenda de colores (diagramas y consola)
+
+| Color | Significado | Ejemplos |
+|---|---|---|
+| 🟢 Verde | Automático: la herramienta decide con evidencia | nivel, rigor, playbook, siguiente acción |
+| 🟡 Ámbar | Consultivo: se informa, nunca bloquea | hallazgos de estándares, candidatos de reutilización, falta `C-INDEPENDENT-REVIEW` |
+| 🔴 Rojo | Bloquea: exit 1 hasta corregirlo | gates C1–C3, constitución inválida, recibo de revisión caducado |
+| 🔵 Azul | Decide una persona | tarjetas HIL, gates de fase, ratificar la constitución |
+
+### Tres reglas que se aplican siempre
+
+| Regla | Cómo se hace cumplir |
+|---|---|
+| Guías Karpathy (pensar, simplicidad, cambios quirúrgicos, objetivos verificables) | skill `karpathy-guidelines` instalada en cada proyecto |
+| La revisión es humana, o la hace un modelo **distinto** al autor | constitución `C-INDEPENDENT-REVIEW`; `review record --by-model … --author-model …` rechaza el mismo modelo |
+| Más de 3 iteraciones fallidas → decide una persona | el motor convierte el paso en gate humano al 4.º rechazo (`open-sdd decide`) |
+
+
 ## El problema
 
 Los agentes de IA escriben código rápido, y su «ya está» es una afirmación que nadie comprueba.

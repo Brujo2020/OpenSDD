@@ -596,3 +596,10 @@
   statement_en: 'A step whose gate refuses more than 3 iterations leaves the loop and becomes a human (HIL) gate.'
   verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/escalateToHil.test.ts >/dev/null 2>&1'
   expectation: pass
+
+- id: CLM-083
+  section: "v3.9.x / REQ-SX-001…005 (one door, five verbs)"
+  statement_es: 'La ayuda por defecto son cinco verbos en ≤ 40 líneas; setup = init, check = gates run, decide lista las decisiones humanas; el catálogo completo sigue en help --all.'
+  statement_en: 'The default help is five verbs in ≤ 40 lines; setup = init, check = gates run, decide lists the human decisions; the full catalogue stays behind help --all.'
+  verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/simpleExperience.test.ts >/dev/null 2>&1'
+  expectation: pass
