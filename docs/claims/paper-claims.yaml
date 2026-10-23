@@ -491,3 +491,31 @@
   statement_en: 'The two checks the QA horde exposed are implemented and pinned by tests: AMB-006 (superlative without a baseline) and the multi-slash CHAIN of AMB-009; the deterministic check count is derived from the code, not from prose.'
   verifier: 'node scripts/assert-coach-checks.mjs'
   expectation: pass
+
+- id: CLM-068
+  section: "v3.6.0 / REQ-PB-012 (approval only from a named answer)"
+  statement_es: 'El motor nunca acepta `approved` desde `report`: una aprobación solo sale de `hil answer --by`.'
+  statement_en: 'The engine never accepts `approved` from `report`: an approval only comes from `hil answer --by`.'
+  verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && echo "{}" > package.json && node "$C" engine start x --playbook bug --no-footer >/dev/null && ! node "$C" report x --step sdd-bugfix --result approved --no-footer >/dev/null 2>&1'
+  expectation: pass
+
+- id: CLM-069
+  section: "v3.6.0 / REQ-PB-006 (playbook checker)"
+  statement_es: 'Un playbook con una clave desconocida no pasa el checker (exit 1).'
+  statement_en: 'A playbook with an unknown key fails the checker (exit 1).'
+  verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && echo "{\"name\":\"b\",\"colour\":1,\"phases\":[]}" > b.playbook.json && node "$C" playbook check ./b.playbook.json --no-footer >/dev/null; test $? -eq 1'
+  expectation: pass
+
+- id: CLM-070
+  section: "v3.6.0 / REQ-PB-002 (one directive contract)"
+  statement_es: '`next --json` devuelve una única directiva con un `kind` del esquema.'
+  statement_en: '`next --json` returns a single directive whose `kind` belongs to the schema.'
+  verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && echo "{}" > package.json && node "$C" engine start x --playbook bug --no-footer >/dev/null && node "$C" next x --json | grep -q "\"kind\":\"handoff\""'
+  expectation: pass
+
+- id: CLM-071
+  section: "v3.6.0 / REQ-PB-011 (AI-DLC sensors fail closed)"
+  statement_es: 'El runner de sensores del plugin AI-DLC `opensdd` falla cuando el CLI de open-sdd no está instalado.'
+  statement_en: 'The sensor runner of the `opensdd` AI-DLC plugin fails when the open-sdd CLI is not installed.'
+  verifier: 'env -i PATH=/nonexistent /bin/sh tools/open-sdd/templates/integrations/aidlc-plugin/opensdd/bin/opensdd-sensor gates 2>/dev/null; test $? -eq 1'
+  expectation: pass

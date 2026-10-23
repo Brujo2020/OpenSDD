@@ -216,3 +216,23 @@ skills cost 5.3 points on average, scripts 3.7, the always-on prompt group 1.5).
 Unit tests per module and one fixture per acceptance criterion; each offline AC becomes a claim in
 `docs/claims/paper-claims.yaml`. AC-10 runs only with the AI-DLC runtime and checkout and is reported
 as not run otherwise.
+
+## Decisions recorded during implementation (2026-10-23)
+
+These change the plan explicitly; they are not retroactive edits of what was planned.
+
+- **D-1 Playbooks are JSON** (`.playbook.json`), not YAML: the repository has no YAML parser and
+  `C-STACK-FACT` forbids new dependencies. The YAML example above is illustrative of the shape only.
+- **D-2 Module boundaries:** review receipts live in `core/reviewReceipts.ts` (not `receipts.ts`), the
+  artifact guard and phase trace in `core/engine.ts` (not `gateRunner.ts`), the wave referee in
+  `core/waveReferee.ts` (not `waves.ts`) and HIL statistics in `core/hilCards.ts` (not `hitlStats.ts`).
+  `tasks.md` boundaries were updated to match.
+- **D-3 CLI names that already existed:** `report` and `review` were already commands. The engine
+  report is routed when `--step` is present; review receipts when the first argument is `record` or
+  `freeze-check`. Existing forms are unchanged.
+- **D-4 AI-DLC plugin schema not verified:** the template in `templates/integrations/aidlc-plugin/opensdd/`
+  follows the plan; AC-10 is reported as not run until the AI-DLC validator is available.
+- **D-5 Task 19 added:** the CLI handlers were planned inside per-module files
+  (`cli/commands/engine.ts`, `memory.ts`, `hil.ts`); they live in one `cli/commands/playbook.ts`
+  routed from `src/index.ts`, plus `open_sdd_next`/`open_sdd_report` in `mcp/tools.ts`. Task 19 declares
+  that boundary instead of widening older tasks.

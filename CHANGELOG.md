@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.6.0] — 2026-10-23
+
+### Playbooks and the engine contract (spec `multi-unit-playbooks`)
+- `playbook profile|check|plan|build|improve|save|list`: case-specific playbooks (13 in the library), a checker that refuses unknown keys, unknown step types, bad `when` and starved steps, a model-free planner (uncalibrated composite score), multi-host build and propose‑probe‑compose improvement.
+- `engine start|status`, `next <feature> --json`, `report <feature> --step <id> --result <r>`: one directive contract for every host; `approved` is always refused from `report`. MCP tools `open_sdd_next` and `open_sdd_report`.
+- `handoff write|recall|check`, `questions check|confirm`: bounded context packs, recall check, stale inputs, named confirmation.
+- `hil prepare|answer|list|stats`: decision cards; the default can only park or reject; approvals only from `--by <name>`; override refused in autonomous mode.
+- `memory capture|reflect|promote|withdraw|list`: lessons with provenance; confounded-only evidence is quarantined; promotion needs a name.
+- `review record|freeze-check` and the pre-commit freeze: a reviewed artifact that changed after review blocks the commit.
+- `waves <feature> --baseline|--verify`: wave referee; merge refused on a failed unit or a tampered protected file.
+- Skill `sdd-playbook` in every skills tree (28 skills). AI-DLC plugin template `opensdd` (sensors fail closed; schema not yet run through the AI-DLC validator). Project type `multi-unit`; `import` accepts `aidlc`.
+- Docs: `docs/guides/playbooks.md`. Claims CLM-068…071.
+
 ## [3.5.0] — 2026-10-22
 
 ### Hosts

@@ -22,7 +22,7 @@ any change to gates, constitution or playbooks; editing AI-DLC `core/`.
 ## Glossary
 
 - **Project profile:** deterministic fingerprint of a workspace and an intent, each signal with its source.
-- **Playbook:** `.sdd/playbooks/<name>.playbook.yaml`; phases of steps, each step a registered step type.
+- **Playbook:** `.sdd/playbooks/<name>.playbook.json` (JSON, see plan § Decisions); phases of steps, each step a registered step type.
 - **Step type:** an open-sdd flow, module, skill, command or gate, or an AI-DLC stage slug, declared with
   `consumes` and `produces`.
 - **Directive:** one JSON object the engine emits to tell any host what to do next.
