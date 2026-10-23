@@ -4,7 +4,7 @@
 Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001…018, 17 criterios AC-01…AC-17, 18 tareas en 6 olas) y publicar **v3.6.0**: un ciclo planificar → ejecutar → comprobar → decidir → aprender → mejorar, con playbooks a medida por caso, un contrato `next`/`report` común a todos los hosts, revisión humana (HIL) preparada, memoria con procedencia y mejora por propose‑probe‑compose. Fuentes: AWS AI-DLC (método), Google Harness² (método), open-sdd.
 
 ## Estado actual
-**v3.6.0 completa a nivel de repositorio; publicada en GitHub (rama y `main`, tag `v3.6.0`). npm NO publicado.**
+**v3.6.0 completa a nivel de repositorio; publicada en GitHub (rama `feat/multi-unit-playbooks` y `main`). Tag `v3.6.0` solo local: el proxy de la sesión rechazó el push del tag (HTTP 403). npm NO publicado.**
 
 - CLI conectada: `playbook`, `engine`, `next`, `report --step`, `handoff`, `questions`, `hil`, `memory`, `review record|freeze-check`, `waves --baseline|--verify` (`src/cli/commands/playbook.ts`, routing en `src/index.ts`, help en `help.ts`).
 - MCP: `open_sdd_next`, `open_sdd_report`.
