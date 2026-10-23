@@ -37,6 +37,7 @@ import { handleProgressCommand } from './cli/commands/progress.js';
 import { handleBackupCommand } from './cli/commands/backup.js';
 import { handleBiographyCommand } from './cli/commands/biography.js';
 import { handleTemplatesCommand } from './cli/commands/templates.js';
+import { handleEngineCommand, handleHandoffCommand, handleHilCommand, handleMemoryCommand, handleNextCommand, handlePlaybookCommand, handleQuestionsCommand, handleReviewReceiptCommand, handleStepReportCommand, handleWaveRefereeCommand, } from './cli/commands/playbook.js';
 import { SCORE_FOOTER_FLAG, emitScoreFooter } from './cli/jsonOut.js';
 import { PACKAGE_NAME, VERSION, INSTALL_COMMAND } from './cli/packageIdentity.js';
 import { localeRefusal, normalizeLocale, parseLangFlag } from './cli/i18n.js';
@@ -262,6 +263,24 @@ const dispatchSubcommand = async (cmd, subArgv, io, targetCwd) => {
         // call the engine's checks and read the constitution as a resource without per-host code.
         return runMcpServer({ cwd: targetCwd });
     }
+    // Ciclo multi-unit (v3.6.0): playbooks, motor next/report, traspaso, HIL, memoria y recibos.
+    if (cmd === 'playbook')
+        return handlePlaybookCommand(subArgv, io, targetCwd);
+    if (cmd === 'engine')
+        return handleEngineCommand(subArgv, io, targetCwd);
+    if (cmd === 'next')
+        return handleNextCommand(subArgv, io, targetCwd);
+    if (cmd === 'handoff')
+        return handleHandoffCommand(subArgv, io, targetCwd);
+    if (cmd === 'questions')
+        return handleQuestionsCommand(subArgv, io, targetCwd);
+    if (cmd === 'hil')
+        return handleHilCommand(subArgv, io, targetCwd);
+    if (cmd === 'memory')
+        return handleMemoryCommand(subArgv, io, targetCwd);
+    if (cmd === 'waves' && subArgv.some((a) => a.startsWith('--baseline') || a.startsWith('--verify'))) {
+        return handleWaveRefereeCommand(subArgv, io, targetCwd);
+    }
     if (cmd === 'waves') {
         return handleWavesCommand(subArgv, io, targetCwd);
     }
@@ -312,6 +331,12 @@ const dispatchSubcommand = async (cmd, subArgv, io, targetCwd) => {
     // Modos SDD y módulos deterministas traídos de SteelForge: la matriz de módulos por nivel, la guía de
     // etapas, EARS → Gherkin, el archivo de specs terminadas, el gate del brief de discovery y el del steering.
     // wave-2: read-only traceability views (trace, report, `explain REQ-…`) and the score badge.
+    if (cmd === 'report' && subArgv.some((a) => a.startsWith('--step'))) {
+        return handleStepReportCommand(subArgv, io, targetCwd);
+    }
+    if (cmd === 'review' && ['record', 'freeze-check'].includes(subArgv[0] ?? '')) {
+        return handleReviewReceiptCommand(subArgv, io, targetCwd);
+    }
     if (['trace', 'badge', 'report'].includes(cmd) || (cmd === 'explain' && /^REQ-/i.test(subArgv[0] ?? ''))) {
         return handleInsightCommand(cmd, subArgv, io, targetCwd);
     }
