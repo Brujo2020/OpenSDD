@@ -288,7 +288,7 @@ the six invariants, transactional waves and the constitution as the pivot.
 ## Documentation
 
 [Install](docs/INSTALL.md) · [Quickstart (60 s)](docs/guides/quickstart-60s.md) ·
-[Integrations](docs/guides/integrations.md) · [Playbooks](docs/guides/playbooks.md) · [Modernize Kit](docs/guides/modernize-kit.md) · [Flavours, reverse engineering and assistants](docs/guides/flavours.md) · [Existing projects](docs/guides/existing-projects.md) ·
+[Integrations](docs/guides/integrations.md) · [Playbooks](docs/guides/playbooks.md) · [Manual](docs/MANUAL.md) · [Modernize Kit](docs/guides/modernize-kit.md) · [Flavours, reverse engineering and assistants](docs/guides/flavours.md) · [Existing projects](docs/guides/existing-projects.md) ·
 [Migrate from spec-kit](docs/guides/migrate-from.md) ·
 [Every flow](docs/diagrams/open-sdd-flows.excalidraw) · [Measurements](docs/MEASUREMENTS.md) ·
 [Paper alignment and gaps](docs/PAPER-ALIGNMENT.md) · [Preprint](docs/papers/open-sdd-preprint.pdf) ·

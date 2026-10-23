@@ -1,0 +1,682 @@
+# open-sdd — User Manual (v3.9.0)
+
+Model-agnostic Spec-Driven Development: one CLI that scales the process to the work — from a typo to
+the modernization of a banking portfolio — where a **deterministic engine decides**, **agents
+propose**, and **named people approve**.
+
+---
+
+## Contents
+
+1. [Concepts](#1-concepts)
+2. [Install and set up](#2-install-and-set-up)
+3. [Quick start by size of work](#3-quick-start-by-size-of-work)
+4. [Levels, variants and rigor](#4-levels-variants-and-rigor)
+5. [The run: `next` / `report`](#5-the-run-next--report)
+6. [Human in the loop (HIL)](#6-human-in-the-loop-hil)
+7. [Assistants: discovery, EARS, steering, constitution](#7-assistants)
+8. [Reverse engineering mode](#8-reverse-engineering-mode)
+9. [Modernize Kit](#9-modernize-kit)
+10. [Dynamic workflows (events and rules)](#10-dynamic-workflows-events-and-rules)
+11. [Playbooks: plan, check, build, improve, author](#11-playbooks)
+12. [Memory and continuous improvement](#12-memory-and-continuous-improvement)
+13. [Progress and checkpoints: `where`](#13-progress-and-checkpoints-where)
+14. [Multi-unit work and waves](#14-multi-unit-work-and-waves)
+15. [Agent hosts, skills and MCP](#15-agent-hosts-skills-and-mcp)
+16. [Governance: gates, constitution, claims](#16-governance)
+17. [Files and folders](#17-files-and-folders)
+18. [Command reference](#18-command-reference)
+19. [Worked scenarios](#19-worked-scenarios)
+20. [Troubleshooting and FAQ](#20-troubleshooting-and-faq)
+21. [Limits and what is not verified](#21-limits-and-what-is-not-verified)
+
+---
+
+## 1. Concepts
+
+| Term | Meaning |
+|---|---|
+| **Spec** | `.sdd/specs/<feature>/`: `requirements.md` (EARS), `plan.md` (or `design.md`), `tasks.md`. |
+| **Steering** | `.sdd/steering/`: project memory — `product.md`, `tech.md`, `structure.md`, `constitution.md`. |
+| **Constitution** | Principles every spec is checked against; the authority a blocking verdict cites. |
+| **Level** | Size of the work: L0 tiny … L6 modernization. Decides playbook and ceremony. |
+| **Variant** | `greenfield` (new) or `brownfield` (existing code). |
+| **Rigor** | Strictness: `tiny-spec` → `spec-first` → `spec-anchored` → `spec-as-source` (alias `spec-as-code`). |
+| **Playbook** | Ordered phases of steps for one kind of case (`.playbook.json`). |
+| **Run** | One playbook executing for one feature (`.sdd/engine/<feature>.state.json`). |
+| **Directive** | What the engine tells the agent to do next (`run-step`, `ask`, `present-gate`, `handoff`, `parked`, `done`). |
+| **Ceremony** | `minimal` (L0–L1), `standard` (L2–L4), `strict` (L5–L6: approvers list required). |
+| **HIL card** | A prepared decision for a person: one question, 2–4 options with consequences, evidence, a default that never approves. |
+| **Event** | Something unplanned (security advisory, incident, regulatory change, signal) or a wave start. |
+| **Rule** | Deterministic `on / when / priority / actions` that turns an event into workflow changes. |
+
+**Who decides what**
+
+| Decision | Engine (deterministic) | Agent (model) | Named person |
+|---|---|---|---|
+| Level, variant, rigor, playbook | ✓ | — | may override (`--level`, `--variant`, `--rigor`) |
+| Which step runs; gate verdicts | ✓ | — | — |
+| Doing the step, drafting artifacts | — | ✓ | reviews |
+| More risk on an event | validates | proposes with evidence | — |
+| Approvals, "not affected", cut-over, decommission | prepares the card | — | ✓ |
+| Confirming inferred rules, adopting learned rules, promoting lessons | proposes | — | ✓ |
+
+---
+
+## 2. Install and set up
+
+```bash
+npm install -g @brujo2020/open-sdd      # or: npx @brujo2020/open-sdd …
+open-sdd --version
+open-sdd init . --write                 # installs the command templates for your host
+open-sdd integrate claude-code --write  # skills for a host (cursor, codex, gemini-cli, windsurf, …)
+open-sdd doctor                         # self-diagnosis: Node, CLI, commit gate, constitution, specs
+```
+
+From a checkout: `npm install && npm run build`, then `node tools/open-sdd/dist/cli.js …`.
+`npm install` also installs the pre-commit gate (C1/C2/C3 on the staged index).
+
+**Approvers** (required for strict ceremony, recommended always):
+
+```json
+// .sdd/settings/approvers.json
+{ "approvers": [ { "name": "Ana Rojas", "email": "ana.rojas@bank.example" } ] }
+```
+
+An answer's `--by` must name a listed approver **and** match the git identity of the shell in use.
+
+---
+
+## 3. Quick start by size of work
+
+Always start by asking the engine what it thinks:
+
+```bash
+open-sdd start "<what you want to do>" --dry-run
+```
+
+| You want to… | Command | What happens |
+|---|---|---|
+| fix a typo | `open-sdd start "fix typo in README"` | L0, playbook `tiny`, 2 steps, no pack, no recall |
+| try an idea | `open-sdd start "prototype voice search"` | L1 PoC, minimal ceremony |
+| add a feature | `open-sdd start "add CSV export to reports"` | L2, spec-first (brownfield variant if code exists) |
+| build a small app | `open-sdd start "new service for document signing from scratch"` | L3 `greenfield` |
+| deliver several features | `open-sdd start "platform with onboarding, billing and notifications"` | L4 `multi-feature` |
+| change several services | `open-sdd start "split billing into 3 microservices"` | L5 `multi-unit`, strict |
+| understand legacy code | `open-sdd start "reverse engineer the billing system"` | `reverse-engineering`, see §8 |
+| modernize a portfolio | `open-sdd modernize init --example banking` | see §9 |
+| not sure | `open-sdd assist` | recommends assistants from the repo state |
+
+Then loop: `open-sdd next <feature>` → do the step → `open-sdd report …` (see §5). Check progress any
+time with `open-sdd where`.
+
+---
+
+## 4. Levels, variants and rigor
+
+### 4.1 Levels
+
+| Level | Recognised by (examples) | Ceremony |
+|---|---|---|
+| L0 tiny | typo, rename, bump, readme, docs, format, lint | minimal |
+| L1 PoC | poc, prototype, spike, experiment, demo, hackathon, mvp | minimal |
+| L2 feature | default for a change; bug/refactor words pick `bug`/`refactor` | standard |
+| L3 small project | from scratch, new app/service/project, build an app | standard |
+| L4 medium | platform, roadmap, several features, ≥ 3 features listed | standard |
+| L5 large | ≥ 2 services/repos/units named, or several repos in the workspace | strict |
+| L6 modernization | modernize, mainframe, COBOL, monolith to microservices, strangler, portfolio migration | strict |
+
+Rules that never bend:
+- **Risk only raises the level.** Payments, auth, PII, migration, infra or data in a "tiny" change make it L2. A PoC with personal data is L2.
+- **An explicit PoC stays a PoC** even about a big subject ("PoC of mainframe modernization"); scale becomes a warning.
+- **Adding a risk or scale word never lowers the level** (tested as a metamorphic invariant).
+- `--level Lx` forces a level; the output records what the classifier said.
+
+### 4.2 Variants
+
+From the intent ("existing", "legacy", "current system" → brownfield; "from scratch", "new app" →
+greenfield), else from the workspace (source code present → brownfield). Override with `--variant`.
+
+| Level | Greenfield | Brownfield |
+|---|---|---|
+| L0 | `tiny` | `tiny` |
+| L1 | `spike` / `poc-to-feature` | `poc-brownfield` |
+| L2 | `base/spec-first`, `bug`, `refactor` | `brownfield-extension`, `legacy-untested` (no tests) |
+| L3 | `greenfield` | `project-brownfield` |
+| L4 | `multi-feature` | `multi-feature-brownfield` |
+| L5 | `multi-unit-greenfield` | `multi-unit` |
+| L6 | `modernize` | `modernize` |
+
+### 4.3 Rigor
+
+| Rigor | Adds | Floor for |
+|---|---|---|
+| `tiny-spec` | three-line spec (goal · done when · out of scope), the change, fresh evidence | L0–L1 |
+| `spec-first` | EARS requirements, constitution, design, tasks; gates C1+C2 | L2–L4 |
+| `spec-anchored` | design validation, Gherkin, waves, validation, audit bundle, archive; C3, C6 | L5–L6 |
+| `spec-as-source` (`spec-as-code`) | discovery, contracts, audit; full chain | — |
+
+```bash
+open-sdd start "add CSV export" --rigor spec-anchored
+```
+
+The stricter steps are composed onto the variant playbook into
+`.sdd/playbooks/<feature>-<rigor>.playbook.json`. A request below the level floor, or below a declared
+`.sdd/settings/rigor.json` (for L2+), is raised with a warning. Steps the variant cannot feed are
+skipped and the reason is printed. All 48 combinations L0–L5 × 2 variants × 4 rigors are tested.
+
+---
+
+## 5. The run: `next` / `report`
+
+The engine is the same for every host. The agent asks what to do and says what happened:
+
+```bash
+open-sdd next <feature> [--json] [--auto-handoff]
+open-sdd report <feature> --step <id> --result <started|awaiting-approval|completed|rejected|revised|skipped|park|unpark> \
+  [--produced a,b] [--reason r] [--by name] [--tokens n] [--model id] [--duration s]
+```
+
+| Directive | Agent does |
+|---|---|
+| `handoff` | writes the bounded context pack (`open-sdd handoff write <f> <step>`), or use `--auto-handoff` |
+| `ask` | puts the open questions in the question file to the user; user confirms (`open-sdd questions confirm <f> <step> --by …`) |
+| `run-step` | reads the pack, restates goal and acceptance ids (`open-sdd handoff recall <f> <step> --text "…"`), reports `started`, does the step, reports `completed` (auto) or `awaiting-approval` (human gate) |
+| `present-gate` | prepares a card if none exists and **stops** for the person |
+| `parked` | explains the reason and stops |
+| `done` | nothing left |
+
+**Gates on `completed` / `awaiting-approval`**: declared outputs exist (`ARTIFACT_MISSING`), recall
+done (`RECALL_MISSING`/`RECALL_MISMATCH`), questions confirmed and unchanged, artifacts stamped, review
+receipts fresh, reverse-engineering stage criteria met (`REVERSE_STAGE_OPEN`), and at the end of a phase
+the traceability gate (orphan requirement or phantom id blocks). `approved` is never accepted from
+`report`.
+
+Minimal ceremony (L0–L1) skips the pack and the recall. Other commands:
+`engine start|status|list`, `engine status <f> --mermaid`, `engine event <f> --file e.json`.
+
+---
+
+## 6. Human in the loop (HIL)
+
+```bash
+open-sdd hil prepare <feature> --card card.json      # validated: one question, 2–4 options, evidence lines
+open-sdd hil review <feature> --html                 # offline page with every open card and the exact answer command
+open-sdd hil answer <feature> <card-id> <option> --by "<name>" [--confirm <card-id>]
+open-sdd hil list <feature> [--overdue]
+open-sdd hil stats <feature>                         # useless escalations per trigger → threshold proposals
+```
+
+Card rules: the default (applied when the deadline passes) may only **park** or **reject**;
+`irreversible-damage` cards default to park; `accept-as-is` only from the third revision; overrides are
+refused in autonomous mode.
+
+Identity rules: answers record the git identity; with `approvers.json`, `--by` must be a listed person
+whose email matches the shell's git email; from an agent session (no TTY, `CLAUDECODE=1`,
+`OPEN_SDD_AGENT=1`) an approval needs `--confirm <card-id>` typed by the person. A person working in a
+non-interactive shell sets `OPEN_SDD_HUMAN=1`. Strict ceremony requires `approvers.json`.
+
+Evidence line format: `kept|revised|dropped -> <change> -> <evidence with a number>`.
+
+---
+
+## 7. Assistants
+
+```bash
+open-sdd assist                                   # which assistant helps now (by repository state)
+```
+
+### 7.1 Discovery by roles (BMAD-style)
+
+```bash
+open-sdd assist discover "invoice export for customers" --feature invoices
+# answer .sdd/questions/invoices/discovery.md
+open-sdd assist brief invoices --write            # composes and lints .sdd/specs/invoices/brief.md
+```
+
+Questions come from roles — analyst, PM, architect, UX, QA, security — chosen deterministically by
+level, variant, UI signals and risk. Answer with a letter and the detail after a colon
+(`C: customers cannot export invoices (40 tickets/month)`). An agent may only write
+`ASSUMPTION: …`; the brief then carries `[ASSUMPTION A1]` and **does not pass lint** until a person
+confirms or discards it. L0 work needs no discovery.
+
+### 7.2 EARS conversion and review
+
+```bash
+open-sdd assist ears "When a payment fails the system must notify the customer. The export should be fast."
+open-sdd assist ears "<text>" --feature invoices --write --area INV   # append to requirements.md
+open-sdd assist ears review invoices                                    # suggestions over requirements.md
+```
+
+The five patterns (keywords and `shall` stay in English; your clauses keep your language):
+
+| Pattern | Template |
+|---|---|
+| Ubiquitous | `The <system> shall <response>.` |
+| Event | `WHEN <trigger>, the <system> shall <response>.` |
+| State | `WHILE <state>, the <system> shall <response>.` |
+| Optional | `WHERE <feature>, the <system> shall <response>.` |
+| Unwanted | `IF <condition>, THEN the <system> shall <response>.` |
+
+The converter **never guesses**: a vague response ("fast", "rápido"), a capability ("users can…"), a
+missing actor or response, or two requirements in one become a **question**. Every proposal is
+re-validated by the EARS checker before it is shown.
+
+### 7.3 Steering drafts
+
+```bash
+open-sdd assist steering --write     # or: open-sdd steering draft --write
+open-sdd steering check              # ready only when no (inferred) / [NEEDS CLARIFICATION] remain
+```
+
+Drafts `product.md`, `tech.md`, `structure.md` from the workspace (README, manifests, languages,
+modules, tests). Every guess is marked `(inferred)`; every unknown is `[NEEDS CLARIFICATION]`. Existing
+files are never overwritten without `--force`.
+
+### 7.4 Constitution
+
+```bash
+open-sdd assist constitution --draft       # from what the code already obeys (evidence per principle)
+open-sdd assist constitution --interview   # questions for what evidence cannot answer
+open-sdd govern constitution …             # matrix, evidence pack, ratification by a named person
+```
+
+A draft is never authority until a named person ratifies it.
+
+---
+
+## 8. Reverse engineering mode
+
+For existing systems nobody fully understands. Multi-stage and incremental (slice by slice).
+
+```bash
+open-sdd start "reverse engineer the billing system" --feature billing-baseline
+open-sdd reverse init --scope payments --critical payments
+open-sdd reverse next
+open-sdd reverse status [--feature billing-baseline] [--mermaid] [--json]
+open-sdd reverse confirm RULE-PAY-001 --by "Ana Rojas" [--confirm RULE-PAY-001]
+open-sdd reverse init --scope accounts     # next slice: adds modules, keeps flags and work
+```
+
+| Stage | Done when | Who works |
+|---|---|---|
+| RE-1 inventory | `.sdd/reverse/inventory.json` lists ≥ 1 module | engine (`reverse init`) |
+| RE-2 architecture | `.sdd/reverse/architecture.md` names every module | agent drafts, person reviews |
+| RE-3 characterization | `.sdd/reverse/characterization.json` maps ≥ 60 % of modules (all critical) to existing tests | agent writes tests |
+| RE-4 rules | `.sdd/reverse/rules.md` has a RULE or NONE line per module | agent infers |
+| RE-5 confirmation | ≥ 80 % rules confirmed, none inferred on critical modules | **person** (`reverse confirm`) |
+| RE-6 spec baseline | every confirmed RULE id cited in `.sdd/specs/<feature>/requirements.md` | agent + EARS assistant |
+
+A stage is never done while an earlier one is open. Under the `reverse-engineering` playbook the engine
+refuses to complete a stage step whose criteria are unmet. Thresholds: `.sdd/settings/reverse.json`
+(`{"minCharacterized": 0.6, "minConfirmed": 0.8}`).
+
+Rules format:
+
+```
+- RULE-PAY-001 [payments] refunds are allowed within 30 days of capture — inferred
+- RULE-PAY-002 [payments] no refund above the captured amount — confirmed by Ana Rojas (2026-10-23)
+- NONE [notify] no business rules — confirmed by Ana Rojas
+```
+
+---
+
+## 9. Modernize Kit
+
+```bash
+open-sdd modernize init [--example banking]   # .sdd/modernize/portfolio.json
+open-sdd modernize assess                     # risk score + AWS 7 Rs per component, with rule and reason
+open-sdd modernize override <id> <r> --by "<name>" --reason "<why>"
+open-sdd modernize waves [--max 3]            # retire first → pilot → dependency-ordered waves
+open-sdd modernize plan <feature>             # L6 run, strict ceremony, units and waves
+open-sdd modernize wave <feature> <n>         # rules insert each component's steps
+open-sdd modernize advance <id> --to <stage> [--metrics m.json]
+open-sdd modernize status [--json|--mermaid|--html]
+```
+
+**Portfolio fields** per component: `id`, `criticality` (1–5), `businessValue` (1–5), `techFit`
+(1–5), `businessDemand` (high|normal|low), `usage` (active|low|none), `sensitivity`
+(public|internal|confidential|regulated), `testCoverage` (0–1), `eol`, `saasAvailable`,
+`differentiating`, `recentlyUpgraded`, `residencyHold`, `platform`, `dependsOn`, `owner`.
+
+**Risk score (0–100)**: criticality 35 %, sensitivity 25 %, missing tests 20 %, coupling 10 %, end of life 10 %.
+
+**7 Rs decision table** (first match wins; AWS Prescriptive Guidance):
+
+| Rule | R | When |
+|---|---|---|
+| D-RETIRE | retire | no inbound use |
+| D-RETAIN-RESIDENCY | retain | residency hold |
+| D-RETAIN-RECENT | retain | recently upgraded |
+| D-REPURCHASE | repurchase | SaaS equivalent, not differentiating |
+| D-MAINFRAME-REFACTOR | refactor | mainframe/mid-range with high demand |
+| D-MAINFRAME-RETAIN | retain | mainframe/mid-range otherwise |
+| D-REFACTOR / D-REFACTOR-LARGE | refactor | high demand with poor fit or low coverage |
+| D-REPLATFORM | replatform | end of life or poor fit (large migrations: move first, modernize after) |
+| D-RELOCATE | relocate | VMware |
+| D-REHOST | rehost | otherwise |
+
+**Waves**: retire what nobody calls; one pilot (not regulated, criticality < 4, lowest risk); then
+dependency levels, lowest risk first, ≤ `max` per wave, ≤ 1 criticality-5 component per wave; retained
+components stay out and hybrid dependencies are listed.
+
+**Lifecycle** (refactor): planned → characterized → facade → parallel-run → canary-5 → canary-25 →
+canary-50 → cut-over → decommissioned. Other dispositions have shorter sequences. Backward moves are
+rollbacks (allowed until decommission). Frozen components cannot move forward.
+
+**Canary decision** from `m.json` (`sampleSize`, `errorRate`, `errorBudget`, `mismatchRate`, `p95Ms`,
+`baselineP95Ms`): `rollback` if error rate > 2× budget or mismatch > 10× threshold; `hold` if any
+criterion or the sample size is unmet; else `advance`.
+
+**Approvals**: cut-over of regulated or criticality ≥ 4 components and every decommission create a card;
+decommission is `irreversible-damage` (default park). Run `advance` again after the answer.
+
+---
+
+## 10. Dynamic workflows (events and rules)
+
+No model involved: rules turn events into workflow changes.
+
+```bash
+open-sdd modernize event <feature> --file event.json      # or: open-sdd engine event <feature> --file …
+open-sdd modernize propose <feature> --file proposal.json # agent evidence: may only raise risk
+open-sdd modernize resolve <feature> --event <id>
+open-sdd modernize learn <feature> --event <id> [--reflect]
+open-sdd modernize rules [list | adopt <id> --by "<name>" [--confirm <id>]]
+```
+
+**Event** (`source` must be human|scanner|monitor|pipeline — an agent cannot raise events):
+
+```json
+{ "id": "CVE-2026-4242", "type": "security-advisory", "at": "2026-10-24T08:00:00Z", "source": "scanner",
+  "title": "RCE in logging library", "components": ["auth-service", "card-processing"], "env": "prod",
+  "cvss": 10, "exploited": true, "evidence": ["https://nvd.nist.gov/vuln/detail/CVE-2026-4242"] }
+```
+
+Types: `security-advisory`, `incident`, `wave-start`, `signal`, `regulatory-change`, `scope-change`.
+Severity: CVSS ≥ 9 critical, ≥ 7 high, ≥ 4 medium, else low; exploited → critical.
+
+**Rule**:
+
+```json
+{ "id": "SEC-CRITICAL-LANE", "on": "security-advisory", "when": "severity == critical | exploited == true",
+  "priority": 10, "rationale": "…",
+  "actions": [ { "type": "freeze", "reason": "…" }, { "type": "set-deadline", "sla": "critical" },
+               { "type": "require-hil", "trigger": "emergency-change", "step": "emergency-change",
+                 "use": "opensdd:modernize/emergency-change", "question": "Approve the emergency change for {event} on {component} now?" } ] }
+```
+
+- `when` signals: `type`, `severity`, `sev` (0–3), `cvss`, `exploited`, `env`, `stage`, `disposition`,
+  `criticality`, `sensitivity`, `regulated`, `sbom`, `frozen`, `dual` (parallel run/canary), `level`
+  (0–6), `wave`, `risk`, `signal`, `component`. Operators `== != >= <= > <`, `&` and `|`.
+- Actions: `insert-steps`, `patch-both` (legacy and new during dual run), `freeze`, `require-hil`,
+  `set-deadline`, `raise-level`.
+- Rules live in `templates/modernize/rules.default.json` and `.sdd/settings/dynamic-rules.json` (a
+  project rule with a default id replaces it). Policy defaults (SLA hours 24/72/336/720, canary
+  thresholds) are **defaults to replace with your policy**.
+- Behaviour: evaluated per affected component (most critical first) in priority-then-id order; the
+  decision carries a digest; the same event twice is a no-op; urgent lanes jump the queue in the order
+  understand → approve → change → verify; wave lanes queue in order.
+
+**Agent proposals**: rejected if they name an unknown component, lack evidence, lower CVSS/severity/
+exploitation, or claim "not affected" (a person's decision). Admitted proposals re-evaluate the rules and
+only add.
+
+**Learning**: one resolved event of a type → reflection is confounded (quarantined hypothesis); two →
+evidence. A structural gap (e.g., exposure assessment needed for lack of an SBOM) produces a **rule
+candidate** that only a named, confirmed person can adopt.
+
+---
+
+## 11. Playbooks
+
+```bash
+open-sdd playbook profile                 # detected signals and project type
+open-sdd playbook plan "<intent>" [--save name]   # model-free plan: bands, kept/skipped steps, risk review
+open-sdd playbook check <name|file>       # unknown keys/steps, bad `when`, starved steps → exit 1
+open-sdd playbook build <name> --target <host|prompt|mcp|aidlc> [--write]
+open-sdd playbook improve <name> [--k 3]  # propose–probe–compose over recorded runs
+open-sdd playbook new <name> --from <base> [--add phase:use[:human]] [--skip id]
+open-sdd playbook diff <a> <b>
+open-sdd playbook list | save
+```
+
+Format (JSON, schema `templates/playbooks/playbook.schema.json`):
+
+```json
+{ "$schema": "./playbook.schema.json", "name": "mine", "extends": "bug",
+  "phases": [ { "id": "fix", "steps": [ { "use": "opensdd:skill/sdd-review", "review": "human", "when": "tests == false" } ] } ],
+  "customize": [ { "when": "governance == enterprise", "add": [ { "phase": "close", "use": "opensdd:command/audit-bundle" } ] } ] }
+```
+
+Step type families: `opensdd:skill/*`, `flow/*`, `module/*`, `command/*`, `gate/C1…C8`,
+`modernize/*`, `reverse/*`, `aidlc:stage/*`. Library: `tiny`, `spike`, `poc-to-feature`,
+`poc-brownfield`, `bug`, `refactor`, `greenfield`, `project-brownfield`, `brownfield-extension`,
+`legacy-untested`, `multi-feature`, `multi-feature-brownfield`, `multi-unit`, `multi-unit-greenfield`,
+`brownfield-aidlc-inception`, `reverse-engineering`, `modernize`, `fuzzy-idea`, `base/*`.
+
+`improve` never keeps a candidate that removes a human gate or a security check; rejections a removed
+step caught count as unobserved risk.
+
+---
+
+## 12. Memory and continuous improvement
+
+```bash
+open-sdd memory capture --kind <gate-block|hil-answer|human-edit|recall-mismatch> --text "…"
+open-sdd memory reflect --file reflection.json
+open-sdd memory promote <id> --by "<name>"
+open-sdd memory withdraw --origin <id>
+open-sdd memory list
+```
+
+Captured automatically: refused gates, HIL answers, edits of reviewed files, recall mismatches.
+Admission rules: a lesson resting only on confounded evidence is quarantined; secrets and grader text
+are refused; only promoted lessons reach context packs, as hypotheses.
+
+---
+
+## 13. Progress and checkpoints: `where`
+
+```bash
+open-sdd where                         # every run: phase, progress bar, pending, waiting decisions
+open-sdd where <feature> --json
+open-sdd where --line                  # one line for a prompt: "csv 40% sdd-spec-design ⚑1"
+open-sdd where --save --note "before CAB"   # .sdd/state/checkpoint.md and .json
+```
+
+Progress is weighted by step cost (count also shown). A remaining-time estimate appears after three
+timed steps and is labelled uncalibrated. Resume in any session by reading
+`.sdd/state/checkpoint.md` and running the `next` command it lists. Also: `engine list`,
+`engine status <f> --mermaid`, `modernize status --html`, `reverse status`.
+
+---
+
+## 14. Multi-unit work and waves
+
+```bash
+open-sdd engine start <feature> --playbook multi-unit --units api,web:api,ui:api+web
+open-sdd waves <feature> --baseline 1 --protect tests/oracle.test.ts
+open-sdd waves <feature> --verify 1 --check "npm test" --units api,web
+```
+
+Units with dependencies (`id:dep+dep`) become waves; cycles are refused; one writer per feature (lock).
+The wave referee refuses a merge when a unit's check fails or a protected file changed.
+
+---
+
+## 15. Agent hosts, skills and MCP
+
+- Skills (29, every skills host): highlights `sdd-playbook` (drive a run), `sdd-modernize` (levels,
+  modernization, events), `sdd-discovery`, `sdd-tiny`, `sdd-spec-*`, `sdd-impl`, `sdd-review`,
+  `sdd-verify-completion`, `sdd-characterize`, `sdd-getspecs`.
+- Hard rules for agents: never report `approved`, never answer cards, never add `--confirm`, never adopt
+  rules or promote lessons, never raise events, propose only with evidence.
+- MCP (`open-sdd mcp`): tools include `open_sdd_next`, `open_sdd_report` (with tokens/model),
+  `open_sdd_status`, `open_sdd_context_pack`, `open_sdd_gates_run` and the constitution resources.
+- AI-DLC: `aidlc:stage/*` step types, `import aidlc`, plugin template
+  `templates/integrations/aidlc-plugin/opensdd/` (sensors fail closed).
+
+---
+
+## 16. Governance
+
+```bash
+open-sdd gates chain --profile regulated     # resolve the Zero-Trust chain
+open-sdd gates run [C1 C2 C3] [--staged] [--strict]
+open-sdd govern rigor | conformance | hitl | discipline | constitution
+open-sdd status <feature> --check [--strict] # spec against the constitution
+open-sdd review record <feature> <step> --by "<name>" --artifact <path>   # review receipt; pre-commit freeze
+open-sdd assure claims --verify              # claims registry: must stay at 0 broken
+open-sdd audit <feature> | audit bundle | audit sarif
+```
+
+Never bypass the commit gate with `--no-verify`; declare a genuine false positive with a reason in
+`.sdd/settings/security-allowlist.json`.
+
+---
+
+## 17. Files and folders
+
+| Path | Content |
+|---|---|
+| `.sdd/specs/<f>/` | `requirements.md`, `plan.md`/`design.md`, `tasks.md`, `brief.md`, `delta.md` |
+| `.sdd/steering/` | `product.md`, `tech.md`, `structure.md`, `constitution.md` |
+| `.sdd/settings/` | `approvers.json`, `rigor.json`, `dynamic-rules.json`, `reverse.json`, `hitl.json`, `security-allowlist.json` |
+| `.sdd/playbooks/` | project and generated playbooks |
+| `.sdd/engine/` | `<f>.state.json`, `<f>.audit.jsonl`, `<f>.lock` |
+| `.sdd/handoff/<f>/` | context packs, recall records |
+| `.sdd/questions/<f>/` | question files (including `discovery.md`) |
+| `.sdd/hil/<f>/` | cards, answers, `review.html` |
+| `.sdd/events/<f>/` | event records with decisions and proposals |
+| `.sdd/modernize/` | `portfolio.json`, `assessment.json`, `dispositions.json`, `waves.json`, `state.json`, `sbom/`, `rule-candidates/`, `status.html` |
+| `.sdd/reverse/` | `inventory.json`, `architecture.md`, `characterization.json`, `rules.md` |
+| `.sdd/memory/` | inbox, candidates, quarantine, lessons |
+| `.sdd/reviews/` | review receipts |
+| `.sdd/state/` | `checkpoint.md`, `checkpoint.json`, progress ledger |
+
+---
+
+## 18. Command reference
+
+| Command | Purpose |
+|---|---|
+| `start "<intent>"` | level/variant/rigor → playbook → run → first step |
+| `next <f>` | next directive |
+| `report <f> --step --result` | report a step |
+| `where [f]` | progress, pending, checkpoint |
+| `engine start\|status\|list\|event` | runs |
+| `handoff write\|recall\|check` | context packs |
+| `questions check\|confirm` | question files |
+| `hil prepare\|answer\|list\|stats\|review` | decisions for people |
+| `assist [discover\|brief\|ears\|steering\|constitution]` | assistants |
+| `steering check\|draft` | steering readiness / drafts |
+| `reverse init\|status\|next\|confirm` | reverse engineering |
+| `modernize init\|assess\|override\|waves\|plan\|wave\|advance\|event\|propose\|resolve\|learn\|rules\|status` | Modernize Kit |
+| `playbook profile\|check\|plan\|build\|improve\|save\|list\|new\|diff` | playbooks |
+| `memory capture\|reflect\|promote\|withdraw\|list` | memory |
+| `review <f> --base` / `review record\|freeze-check` | requirement diffs / receipts |
+| `waves <f> [--baseline\|--verify]` | wave plan / referee |
+| `brownfield …`, `delta …` | brownfield console and deltas |
+| `gates`, `govern`, `assure`, `audit`, `status --check`, `doctor` | governance |
+
+Every command answers `--help`; `open-sdd help <command>` shows usage and examples;
+`open-sdd help exit-codes` documents exit codes (0 ok, 1 refused by a gate, 2 usage).
+
+---
+
+## 19. Worked scenarios
+
+### 19.1 Tiny change (3 commands)
+
+```bash
+open-sdd start "fix typo in README"
+open-sdd report fix-typo-readme --step sdd-tiny --result started
+open-sdd report fix-typo-readme --step sdd-tiny --result completed   # then sdd-verify-completion
+```
+
+### 19.2 Tiny change that turns risky
+
+```bash
+echo '{"id":"sig-1","type":"signal","at":"2026-10-24T09:00:00Z","source":"human","title":"typo is in the auth error path","components":[],"signal":{"name":"touches-auth","risk":true},"evidence":["review comment #12"]}' > sig.json
+open-sdd engine event fix-typo-readme --file sig.json   # → L2, standard ceremony, requirements + human design review
+```
+
+### 19.3 PoC that becomes a feature
+
+```bash
+open-sdd start "prototype voice search then turn into a feature if it works"   # poc-to-feature
+```
+
+### 19.4 Brownfield feature at higher rigor
+
+```bash
+open-sdd start "add CSV export to the existing reports" --rigor spec-anchored
+open-sdd assist ears "When the export completes the reporting service must email the link to the requester."
+```
+
+### 19.5 Reverse engineering a legacy module, then changing it
+
+```bash
+open-sdd start "reverse engineer the billing system" --feature billing-baseline
+open-sdd reverse init --scope payments --critical payments
+open-sdd reverse next          # repeat until RE-6
+open-sdd start "add partial refunds to the existing payments module"
+```
+
+### 19.6 Banking modernization with an unplanned critical CVE on go-live day
+
+1. `modernize init --example banking` → `assess` → `waves` → `plan bank-mod` → `wave bank-mod 1..3`.
+2. `auth-service` advances to parallel run.
+3. A scanner event (CVSS 10, exploited) on `auth-service` and `card-processing`:
+   critical, 24 h deadline, both frozen, lane first in the queue, legacy **and** new `auth-service`
+   patched, C2 gate for regulated `card-processing`, emergency-change cards (default park).
+4. Agent proposals: "not affected" rejected; unknown component rejected; "crm also bundles the library"
+   with a vendor bulletin admitted → crm lane added.
+5. A listed person approves with `--confirm`; the agent works the lane; `resolve` unfreezes; canary and
+   cut-over (own approval) proceed.
+6. `learn --reflect`: lesson quarantined (one event) + rule candidate "SBOM at wave start"; a person
+   adopts it; the next wave inserts dependency scans; the next advisory is a cheaper lookup; with two
+   events the lesson is evidence and a person promotes it.
+
+The whole story runs in `tools/open-sdd/test/mkBankingScenario.test.ts` (20 ordered steps).
+
+---
+
+## 20. Troubleshooting and FAQ
+
+| Message | Meaning / fix |
+|---|---|
+| `AGENT_SESSION` | approval from an agent shell: the person adds `--confirm <id>` or uses an interactive shell / `OPEN_SDD_HUMAN=1` |
+| `APPROVER_NOT_LISTED` | `--by` not in `approvers.json`, or the git email of this shell belongs to someone else |
+| `APPROVERS_REQUIRED` | strict ceremony: create `.sdd/settings/approvers.json` |
+| `RECALL_MISSING` / `RECALL_MISMATCH` | restate the step name and acceptance ids with `handoff recall` |
+| `ARTIFACT_MISSING` | the step's declared output is not on disk |
+| `REVERSE_STAGE_OPEN` | the reverse stage's exit criteria are unmet; `reverse next` lists them |
+| `FROZEN` | an open event froze the component; resolve it first |
+| `CANARY_HOLD` / `CANARY_ROLLBACK` | metrics below criteria / beyond rollback thresholds |
+| `AWAITING_APPROVAL` | a card was created; answer it and run `advance` again |
+| `LOCK_HELD` | another writer is updating the run; retry |
+| `STARVED_STEP` | a step needs an output whose producer is skipped or later |
+| `cannot report «x» while it is y` | follow the step lifecycle: pending → started → completed/awaiting-approval |
+
+**Why did my tiny change become L2?** It names a risk (auth, payments, personal data…). Use `--level`
+only if you accept the recorded override.
+**Can an agent approve if I tell it to?** No: approvals need the person's identity, and `--confirm` must
+be typed by the person.
+**Are the SLA hours regulatory?** No. They are defaults; set your policy in `dynamic-rules.json`.
+
+---
+
+## 21. Limits and what is not verified
+
+- No model backend ships: assistants are deterministic and agents run in your host.
+- Agent-session detection is a speed bump, not authentication; git identity and `approvers.json` are
+  the record. For cryptographic approval, use signed commits/answers (not built in).
+- Planner composite scores, improvement metrics and remaining-time estimates are uncalibrated.
+- The 7 Rs table encodes AWS guidance as rules; it does not replace an assessment with the owners.
+- The AI-DLC plugin template has not been run through the AI-DLC validator.
+- EARS disciplines the statement of a requirement, not its correctness.
+
+Sources: AWS Prescriptive Guidance — *About the migration strategies* (7 Rs);
+AWS DevOps Blog — *AI-Driven Development Life Cycle*.
