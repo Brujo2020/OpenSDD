@@ -1,9 +1,9 @@
 # Install
 
 Every way to get `open-sdd` onto a machine and into a repository, least friction first. The version
-this documentation describes is **v3.9.0** (`package.json` at the repository root). It is **not on the
-npm registry yet**; each path below says plainly whether it installs this version or the older one
-that is published.
+this documentation describes is **v3.9.0** (`package.json` at the repository root). The package is
+published on npm as `@brujo2020/open-sdd` (v3.7.0 onward); check what the registry serves with
+`npm view @brujo2020/open-sdd version`.
 
 ## Prerequisites
 
@@ -23,29 +23,20 @@ that is published.
 The scoped package name is `@brujo2020/open-sdd`. The **unscoped** `open-sdd` does **not exist** on
 the registry, so `npx open-sdd@latest` is never this project.
 
-This release (**v3.9.0**) is not published yet. The registry currently carries **v2.0.0** under the
-same scoped name — an older toolkit with different commands. The command below therefore runs today,
-but it gives you the old binary, not the one this documentation describes:
-
 ```bash
-npx --yes @brujo2020/open-sdd@latest --version   # runs the published v2.0.0 toolkit
+npx --yes @brujo2020/open-sdd@latest --version     # prints the published version
+npx @brujo2020/open-sdd@latest --claude-skills -y  # install the skills into the current directory
+npx @brujo2020/open-sdd@3.9.0 --cursor-skills -y   # pin a version
 ```
 
-Once v3.9.0 is published, the same entry point installs the skills into the current directory with no
-clone. **These two commands do not work yet** — they are the shape the release will have:
-
-```bash
-npx @brujo2020/open-sdd@latest --claude-skills -y    # pending publication
-npx @brujo2020/open-sdd@3.9.0 --cursor-skills -y     # pending publication
-```
-
-Until then, use the global install, the container, or a clone below.
+If `--version` prints an older number than this document, the newest release has not reached the
+registry yet: use the clone path below.
 
 ---
 
 ## 2. Global npm install
 
-**From a checkout (recommended until v3.9.0 is published).** This builds the CLI from source and puts
+**From a checkout (the newest code, before it reaches the registry).** This builds the CLI from source and puts
 it on your `PATH`:
 
 ```bash

@@ -508,7 +508,8 @@ export const resolveRigorSettings = (
   parsed: Partial<RigorSettings> | undefined,
   fallbackLevel: SddRigorLevel = DEFAULT_RIGOR_LEVEL,
 ): RigorSettings => {
-  const declared = parsed ?? {};
+  // `spec-as-code` is the public name of the top rung; `spec-as-source` stays accepted (legacy id).
+  const declared = parsed && (parsed.level as string) === 'spec-as-code' ? { ...parsed, level: 'spec-as-source' as SddRigorLevel } : (parsed ?? {});
 
   if (!isRigorLevel(fallbackLevel)) {
     throw new Error(

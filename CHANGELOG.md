@@ -8,10 +8,14 @@ All notable changes to this project will be documented in this file.
 
 ### Every flavour (spec `variants-reverse`)
 - Variants: greenfield/brownfield per level from intent words or the workspace (`start --variant`). New playbooks `poc-brownfield`, `project-brownfield`, `multi-feature-brownfield`, `multi-unit-greenfield`.
-- Rigor ladder per run: `start --rigor tiny-spec|spec-first|spec-anchored|spec-as-source` (alias `spec-as-code`), composed onto the variant, never below the level floor or the declared `rigor.json`. All 48 level × variant × rigor combinations are tested.
+- Rigor ladder per run: `start --rigor tiny-spec|spec-first|spec-anchored|spec-as-code` (legacy name `spec-as-source` accepted), composed onto the variant, never below the level floor or the declared `rigor.json`. All 48 level × variant × rigor combinations are tested.
 - Reverse engineering mode: `open-sdd reverse init|status|next|confirm` and playbook `reverse-engineering` — RE-1 inventory → RE-2 architecture → RE-3 characterization → RE-4 rules → RE-5 confirmation by people → RE-6 spec baseline, slice by slice; the engine refuses to close a stage step before its exit criteria hold.
 - Assistants: `open-sdd assist` (what helps now), `assist discover` (BMAD-style questions by role, chosen by level, variant, UI and risk) and `assist brief` (composed and linted), `assist ears` (deterministic EN/ES conversion to the five EARS patterns, questions instead of guesses), `assist steering` / `steering draft` (inferred-marked drafts), `assist constitution`.
 - `open-sdd where [--line] [--save]`: phase, progress bar weighted by step cost, pending steps, waiting decisions, resumable checkpoint.
+- EARS converter v2: negative requirements (`shall not`), passive with an agent rewritten as active, trailing conditions moved to the front, user capabilities as "the system shall allow…", several actions split into several requirements, vague terms answered with the measure to use, `--system`, `--file`, confidence and notes per statement, `--write` appends `REQ-<AREA>-NNN` with its source (`--accept` for rows needing confirmation).
+- The top rigor rung is named `spec-as-code` (`spec-as-source` stays accepted, including in `rigor.json`).
+- AI-DLC plugin rebuilt to the AI-DLC plugin layout (`.aidlc-plugin/plugin.json`, `sensors/aidlc-*.md`, `tools/aidlc-sensor-*.ts`, `contributions/`); the EARS sensor uses the converter. Not yet run through the AI-DLC validator.
+- Docs: `docs/INSTALL.md` no longer says the package is unpublished; complete manual `docs/MANUAL.md`.
 
 ## [3.8.0] — 2026-10-23
 

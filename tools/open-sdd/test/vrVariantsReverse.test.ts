@@ -68,9 +68,9 @@ describe('AC-01 variants', () => {
   });
 });
 
-describe('rigor ladder (tiny-spec → spec-first → spec-anchored → spec-as-source)', () => {
+describe('rigor ladder (tiny-spec → spec-first → spec-anchored → spec-as-code)', () => {
   it('floors by level', () => expect(['L0', 'L1', 'L2', 'L4', 'L5', 'L6'].map((l) => rigorFloor(l as never))).toEqual(['tiny-spec', 'tiny-spec', 'spec-first', 'spec-first', 'spec-anchored', 'spec-anchored']));
-  it('spec-as-code is a synonym', () => expect(normalizeRigor('spec-as-code')).toBe('spec-as-source'));
+  it('spec-as-source is the legacy synonym of spec-as-code', () => expect(normalizeRigor('spec-as-source')).toBe('spec-as-code'));
   it('a request below the floor is raised with a warning', () => {
     const r = effectiveRigor('L5', 'tiny-spec');
     expect(r.rigor).toBe('spec-anchored');
@@ -86,7 +86,8 @@ describe('rigor ladder (tiny-spec → spec-first → spec-anchored → spec-as-s
     expect(r.overlay.added).toEqual(expect.arrayContaining(['gherkin', 'audit-bundle']));
     expect((await readState(cwd, 'csv'))?.playbook).toBe('csv-spec-anchored');
   });
-  it('spec-as-source adds discovery and contracts', async () => {
+  it('spec-as-code adds discovery and contracts (and the legacy name still works)', async () => {
+    expect(JSON.parse((await run('start', 'add CSV export', '--rigor', 'spec-as-source', '--dry-run', '--json')).out).rigor).toBe('spec-as-code');
     const r = JSON.parse((await run('start', 'add CSV export', '--rigor', 'spec-as-code', '--feature', 'csv2', '--json')).out);
     expect(r.overlay.added).toEqual(expect.arrayContaining(['sdd-discovery', 'brownfield-contracts']));
   });
@@ -193,13 +194,13 @@ describe('every flavour starts: level × variant × rigor', () => {
     L4: 'platform with onboarding, billing and notifications',
     L5: 'split billing into 3 microservices',
   };
-  const combos = Object.keys(INTENTS).flatMap((l) => ['greenfield', 'brownfield'].flatMap((v) => ['tiny-spec', 'spec-first', 'spec-anchored', 'spec-as-source'].map((r) => [l, v, r])));
+  const combos = Object.keys(INTENTS).flatMap((l) => ['greenfield', 'brownfield'].flatMap((v) => ['tiny-spec', 'spec-first', 'spec-anchored', 'spec-as-code'].map((r) => [l, v, r])));
   it.each(combos)('%s · %s · %s starts a run whose playbook passes the checker', async (level, variant, rigor) => {
     const r = await run('start', INTENTS[level], '--variant', variant, '--rigor', rigor, '--feature', 'f', '--json');
     expect(r.code, r.out).toBe(0);
     const j = JSON.parse(r.out);
     expect(j.level).toBe(level);
-    const order = ['tiny-spec', 'spec-first', 'spec-anchored', 'spec-as-source'];
+    const order = ['tiny-spec', 'spec-first', 'spec-anchored', 'spec-as-code'];
     expect(order.indexOf(j.rigor)).toBeGreaterThanOrEqual(order.indexOf(rigor === 'tiny-spec' ? j.rigor : rigor));
     expect((await readState(cwd, 'f'))?.steps.length).toBeGreaterThan(0);
   });

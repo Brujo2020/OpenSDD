@@ -517,7 +517,7 @@
   section: "v3.6.0 / REQ-PB-011 (AI-DLC sensors fail closed)"
   statement_es: 'El runner de sensores del plugin AI-DLC `opensdd` falla cuando el CLI de open-sdd no está instalado.'
   statement_en: 'The sensor runner of the `opensdd` AI-DLC plugin fails when the open-sdd CLI is not installed.'
-  verifier: 'env -i PATH=/nonexistent /bin/sh tools/open-sdd/templates/integrations/aidlc-plugin/opensdd/bin/opensdd-sensor gates 2>/dev/null; test $? -eq 1'
+  verifier: 'env -i PATH=/nonexistent "$(command -v node)" --experimental-strip-types --no-warnings tools/open-sdd/templates/integrations/aidlc-plugin/opensdd/tools/aidlc-sensor-opensdd-gates.ts --output-path x | grep -q "\"pass\":false"'
   expectation: pass
 
 - id: CLM-072

@@ -1,14 +1,14 @@
 /**
  * Rigor overlay (REQ-VR-005): the strictness ladder tiny-spec → spec-first → spec-anchored →
- * spec-as-source (a.k.a. spec-as-code) composed on top of the variant playbook. Spec-anchored adds the
+ * spec-as-code (legacy name spec-as-source) composed on top of the variant playbook. Spec-anchored adds the
  * steps of `base/spec-anchored` (design validation, Gherkin, waves, validation, audit bundle, archive);
- * spec-as-source adds those of `base/spec-as-source` too (discovery, contracts, audit). Steps the variant
+ * spec-as-code adds those of `base/spec-as-code` too (discovery, contracts, audit). Steps the variant
  * cannot feed (a delta-based brownfield flow has no requirements for Gherkin) are skipped with the reason.
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { checkPlaybook, findPlaybook } from './playbook.js';
-const OVERLAYS = { 'tiny-spec': [], 'spec-first': [], 'spec-anchored': ['base/spec-anchored'], 'spec-as-source': ['base/spec-anchored', 'base/spec-as-source'] };
+const OVERLAYS = { 'tiny-spec': [], 'spec-first': [], 'spec-anchored': ['base/spec-anchored'], 'spec-as-code': ['base/spec-anchored', 'base/spec-as-code'] };
 export const applyRigor = async (cwd, feature, base, rigor, values) => {
     if (!OVERLAYS[rigor].length)
         return { playbook: base, added: [], skipped: [], file: null };

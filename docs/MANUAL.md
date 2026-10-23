@@ -12,7 +12,7 @@ propose**, and **named people approve**.
 2. [Install and set up](#2-install-and-set-up)
 3. [Quick start by size of work](#3-quick-start-by-size-of-work)
 4. [Levels, variants and rigor](#4-levels-variants-and-rigor)
-5. [The run: `next` / `report`](#5-the-run-next--report)
+5. [The run: next and report](#5-the-run-next-and-report)
 6. [Human in the loop (HIL)](#6-human-in-the-loop-hil)
 7. [Assistants: discovery, EARS, steering, constitution](#7-assistants)
 8. [Reverse engineering mode](#8-reverse-engineering-mode)
@@ -41,7 +41,7 @@ propose**, and **named people approve**.
 | **Constitution** | Principles every spec is checked against; the authority a blocking verdict cites. |
 | **Level** | Size of the work: L0 tiny … L6 modernization. Decides playbook and ceremony. |
 | **Variant** | `greenfield` (new) or `brownfield` (existing code). |
-| **Rigor** | Strictness: `tiny-spec` → `spec-first` → `spec-anchored` → `spec-as-source` (alias `spec-as-code`). |
+| **Rigor** | Strictness: `tiny-spec` → `spec-first` → `spec-anchored` → `spec-as-code` (legacy name `spec-as-source` accepted). |
 | **Playbook** | Ordered phases of steps for one kind of case (`.playbook.json`). |
 | **Run** | One playbook executing for one feature (`.sdd/engine/<feature>.state.json`). |
 | **Directive** | What the engine tells the agent to do next (`run-step`, `ask`, `present-gate`, `handoff`, `parked`, `done`). |
@@ -154,7 +154,7 @@ greenfield), else from the workspace (source code present → brownfield). Overr
 | `tiny-spec` | three-line spec (goal · done when · out of scope), the change, fresh evidence | L0–L1 |
 | `spec-first` | EARS requirements, constitution, design, tasks; gates C1+C2 | L2–L4 |
 | `spec-anchored` | design validation, Gherkin, waves, validation, audit bundle, archive; C3, C6 | L5–L6 |
-| `spec-as-source` (`spec-as-code`) | discovery, contracts, audit; full chain | — |
+| `spec-as-code` (legacy name `spec-as-source`) | discovery, contracts, audit; full chain | — |
 
 ```bash
 open-sdd start "add CSV export" --rigor spec-anchored
@@ -167,7 +167,7 @@ skipped and the reason is printed. All 48 combinations L0–L5 × 2 variants × 
 
 ---
 
-## 5. The run: `next` / `report`
+## 5. The run: next and report
 
 The engine is the same for every host. The agent asks what to do and says what happened:
 

@@ -63,7 +63,7 @@ export const handleStartCommand = async (args, io, cwd) => {
     const json = args.includes('--json');
     const intent = positionals(args).join(' ').trim();
     if (!intent)
-        return usage(io, 'start "<intent>" [--feature f] [--level L0…L6] [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-source] [--dry-run] [--json]');
+        return usage(io, 'start "<intent>" [--feature f] [--level L0…L6] [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-code] [--dry-run] [--json]');
     const profile = await detectProfile(cwd);
     const decision = classifyLevel(intent, profile, cwd);
     const forced = flag(args, 'level');

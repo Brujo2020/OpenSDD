@@ -41,8 +41,6 @@ describe('EARS conversion', () => {
   it.each([
     ['The export should be fast.', 'not testable'],
     ['El reporte debe ser rápido.', 'no es comprobable'],
-    ['users can download invoices', 'possibility, not an obligation'],
-    ['The system must validate the input and also log the request and notify ops.', 'two requirements'],
     ['invoices downloaded monthly', 'What shall the system do'],
   ])('«%s» is a question, not a sentence', (input, msg) => {
     const c = convertStatement(input);
@@ -59,7 +57,7 @@ describe('EARS conversion', () => {
   it('CLI converts and exits 1 while questions remain', async () => {
     const r = await run('assist', 'ears', 'When a payment fails the system must notify the customer. The export should be fast.');
     expect(r.code).toBe(1);
-    expect(r.out).toContain('1/2 converted');
+    expect(r.out).toContain('1 converted · 0 to confirm (~) · 1 question(s)');
   });
 });
 

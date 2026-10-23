@@ -64,7 +64,7 @@ const readJsonFile = async <T>(cwd: string, file: string): Promise<T> => JSON.pa
 export const handleStartCommand = async (args: string[], io: CliIO, cwd: string): Promise<number> => {
   const json = args.includes('--json');
   const intent = positionals(args).join(' ').trim();
-  if (!intent) return usage(io, 'start "<intent>" [--feature f] [--level L0…L6] [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-source] [--dry-run] [--json]');
+  if (!intent) return usage(io, 'start "<intent>" [--feature f] [--level L0…L6] [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-code] [--dry-run] [--json]');
   const profile = await detectProfile(cwd);
   const decision = classifyLevel(intent, profile, cwd);
   const forced = flag(args, 'level');

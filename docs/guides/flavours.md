@@ -1,7 +1,7 @@
 # Every flavour: levels × variants × rigor, reverse engineering, assistants, progress (v3.9.0)
 
 ```bash
-open-sdd start "<intent>" [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-source] --dry-run
+open-sdd start "<intent>" [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-code] --dry-run
 ```
 
 ## Levels × variants
@@ -26,7 +26,7 @@ The variant comes from the intent ("existing", "legacy", "current system" → br
 | tiny-spec | three-line spec, the change, fresh evidence | L0–L1 |
 | spec-first | EARS requirements, constitution, design, tasks, C1+C2 | L2–L4 |
 | spec-anchored | design validation, Gherkin, waves, validation, audit bundle, archive (C3, C6) | L5–L6 |
-| spec-as-source (spec-as-code) | discovery, contracts, audit | — |
+| spec-as-code (legacy: spec-as-source) | discovery, contracts, audit | — |
 
 Rigor is composed onto the variant playbook (`.sdd/playbooks/<feature>-<rigor>.playbook.json`). A request below the floor — or below a declared `.sdd/settings/rigor.json` — is raised with a warning; steps the variant cannot feed are skipped with the reason.
 

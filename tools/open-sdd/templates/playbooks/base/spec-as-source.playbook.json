@@ -1,35 +1,7 @@
 {
   "name": "base/spec-as-source",
-  "extends": "base/spec-anchored",
-  "description": "Adds discovery, contracts and the full chain.",
+  "extends": "base/spec-as-code",
+  "description": "Legacy name of base/spec-as-code.",
   "lead": "opensdd",
-  "phases": [
-    {
-      "id": "discover",
-      "steps": [
-        {
-          "use": "opensdd:skill/sdd-discovery"
-        },
-        {
-          "use": "opensdd:command/discovery-lint"
-        }
-      ]
-    },
-    {
-      "id": "build",
-      "steps": [
-        {
-          "use": "opensdd:command/brownfield-contracts"
-        }
-      ]
-    },
-    {
-      "id": "close",
-      "steps": [
-        {
-          "use": "opensdd:skill/sdd-audit"
-        }
-      ]
-    }
-  ]
+  "phases": []
 }

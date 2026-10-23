@@ -43,10 +43,10 @@ const RULES: { level: Level; id: string; re: RegExp }[] = [
 ];
 
 export type Variant = 'greenfield' | 'brownfield';
-export const RIGORS = ['tiny-spec', 'spec-first', 'spec-anchored', 'spec-as-source'] as const;
+export const RIGORS = ['tiny-spec', 'spec-first', 'spec-anchored', 'spec-as-code'] as const;
 export type Rigor = (typeof RIGORS)[number];
-/** `spec-as-code` is accepted as a synonym of `spec-as-source`. */
-export const normalizeRigor = (r: string): Rigor | null => (r === 'spec-as-code' ? 'spec-as-source' : (RIGORS as readonly string[]).includes(r) ? (r as Rigor) : null);
+/** `spec-as-source` (the legacy name of the top rung) is accepted as a synonym of `spec-as-code`. */
+export const normalizeRigor = (r: string): Rigor | null => (r === 'spec-as-source' ? 'spec-as-code' : (RIGORS as readonly string[]).includes(r) ? (r as Rigor) : null);
 /** The least rigor a level accepts (REQ-VR-005): risk and scale only raise it. */
 export const rigorFloor = (l: Level): Rigor => (rank(l) <= 1 ? 'tiny-spec' : rank(l) <= 4 ? 'spec-first' : 'spec-anchored');
 
@@ -184,7 +184,7 @@ export const effectiveRigor = (level: Level, requested?: string | null, declared
   if (d && rank(level) >= 2 && order(d) > order(rigor)) rigor = d;
   if (requested) {
     const r = normalizeRigor(requested);
-    if (!r) warnings.push(`unknown rigor «${requested}»: ${RIGORS.join(', ')} (or spec-as-code)`);
+    if (!r) warnings.push(`unknown rigor «${requested}»: ${RIGORS.join(', ')} (spec-as-source is accepted as spec-as-code)`);
     else if (order(r) < order(rigor)) warnings.push(`rigor ${r} is below the floor for ${level}${d ? ` and the declared ${d}` : ''}: using ${rigor}`);
     else rigor = r;
   }

@@ -10,11 +10,12 @@ import path from 'node:path';
 import type { CliIO } from '../io.js';
 import { EXIT } from './help.js';
 import { handleBrownfieldCommand } from './brownfield.js';
-import { convertStatement } from '../../core/earsConvert.js';
+import { convertText, nextRequirementIds } from '../../core/earsConvert.js';
+import { readFile as rf } from 'node:fs/promises';
 import { composeBrief, draftSteering, planDiscovery, suggestAssistants, writeDiscovery } from '../../core/guidedAssistants.js';
 import { slugFromIntent } from '../../core/levels.js';
 
-const BOOL = new Set(['--json', '--write', '--force', '--draft', '--interview']);
+const BOOL = new Set(['--json', '--write', '--force', '--draft', '--interview', '--accept']);
 const flag = (args: string[], name: string): string | undefined => {
   const at = args.indexOf(`--${name}`);
   if (at < 0) return args.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
@@ -82,17 +83,41 @@ export const handleAssistCommand = async (args: string[], io: CliIO, cwd: string
       if (!rest[1]) return (io.error('error[usage]: assist ears review <feature>'), EXIT.USAGE);
       return handleBrownfieldCommand(['requirements', rest[1], '--suggest', ...(json ? ['--json'] : [])], io, cwd);
     }
-    const text = rest.join(' ').trim();
-    if (!text) return (io.error('error[usage]: assist ears "<free text>" [--feature f --area A --write] | assist ears review <feature>'), EXIT.USAGE);
+    const file = flag(args, 'file');
+    const text = file ? await rf(path.resolve(cwd, file), 'utf8').catch(() => '') : rest.join(' ').trim();
+    if (!text) return (io.error('error[usage]: assist ears "<free text>" | --file notes.md [--system "<name>"] [--feature f --area A --write [--accept]] | assist ears review <feature>'), EXIT.USAGE);
+    const report = convertText(splitStatements(text), { system: flag(args, 'system') || undefined });
     const feature = flag(args, 'feature');
-    if (feature && args.includes('--write')) return handleBrownfieldCommand(['specify', feature, text, '--write', ...(flag(args, 'area') ? ['--area', flag(args, 'area') as string] : []), ...(json ? ['--json'] : [])], io, cwd);
-    const rows = splitStatements(text).map((s) => convertStatement(s, { system: flag(args, 'system') || undefined }));
-    const ok = rows.filter((r) => r.proposal).length;
-    show({ converted: ok, total: rows.length, rows }, [
-      ...rows.flatMap((r) => [`• ${r.input}`, ...(r.proposal ? [`    → ${r.proposal}  [${r.pattern}]`] : r.questions.map((q) => `    ? ${q}`))]),
-      `  ${ok}/${rows.length} converted; answer the questions and run again${feature ? ` · write: open-sdd assist ears "<text>" --feature ${feature} --write` : ''}`,
-    ]);
-    return ok === rows.length ? EXIT.PASSED : EXIT.GATE_FAILED;
+    const lines: string[] = [];
+    for (const r of report.rows) {
+      const tag = r.status === 'converted' ? '✓' : r.status === 'needs-confirmation' ? '~' : '?';
+      lines.push(`${tag} ${r.input}`);
+      for (const p of r.proposals) lines.push(`    → ${p}  [${r.pattern}, confidence ${r.confidence}]`);
+      for (const q of r.questions) lines.push(`    ? ${q}`);
+      for (const n of r.notes) lines.push(`    ~ ${n}`);
+    }
+    let written: string[] = [];
+    if (feature && args.includes('--write')) {
+      const area = (flag(args, 'area') || feature.split('-')[0]).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) || 'REQ';
+      const accepted = report.rows.filter((r) => r.status === 'converted' || (r.status === 'needs-confirmation' && args.includes('--accept')));
+      const reqFile = path.join(cwd, '.sdd', 'specs', feature, 'requirements.md');
+      const existing = (await rf(reqFile, 'utf8').catch(() => '')) as string;
+      const sentences = accepted.flatMap((r) => r.proposals.map((p) => ({ p, src: r.input })));
+      const ids = nextRequirementIds(existing, area, sentences.length);
+      const today = new Date().toISOString().slice(0, 10);
+      const block = sentences.map((x, i) => `### ${ids[i]} — ${(x.p.split(/\bshall (?:not )?/)[1] ?? x.p).split(/\s+/).slice(0, 7).join(' ').replace(/\.$/, '')}\n- Statement: ${x.p}\n- Source: "${x.src}" (open-sdd assist ears, ${today})\n`).join('\n');
+      if (sentences.length) {
+        await mkdir(path.dirname(reqFile), { recursive: true });
+        await writeFile(reqFile, `${existing ? `${existing.replace(/\s*$/, '')}\n\n` : `# Requirements — ${feature}\n\n`}${block}`, 'utf8');
+      }
+      written = ids;
+    }
+    lines.push(`  ${report.converted} converted · ${report.needsConfirmation} to confirm (~) · ${report.questions} question(s) (?) → ${report.requirements.length} EARS requirement(s)`);
+    if (written.length) lines.push(`  appended ${written.join(', ')} to .sdd/specs/${feature}/requirements.md`);
+    else if (feature && args.includes('--write')) lines.push('  nothing written: answer the questions (and use --accept for the ~ rows you confirm)');
+    else if (report.requirements.length) lines.push('  write them: --feature <f> --write [--area A] [--accept]');
+    show({ ...report, written }, lines);
+    return report.questions === 0 ? EXIT.PASSED : EXIT.GATE_FAILED;
   }
 
   if (sub === 'steering') {

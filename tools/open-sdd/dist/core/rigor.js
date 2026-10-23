@@ -396,7 +396,8 @@ const originRationale = (level, origin) => {
  * desconocido convertiría un error de escritura en un nivel de exigencia distinto.
  */
 export const resolveRigorSettings = (parsed, fallbackLevel = DEFAULT_RIGOR_LEVEL) => {
-    const declared = parsed ?? {};
+    // `spec-as-code` is the public name of the top rung; `spec-as-source` stays accepted (legacy id).
+    const declared = parsed && parsed.level === 'spec-as-code' ? { ...parsed, level: 'spec-as-source' } : (parsed ?? {});
     if (!isRigorLevel(fallbackLevel)) {
         throw new Error(`Nivel de rigor de reserva inválido: "${String(fallbackLevel)}". Admitidos: ${RIGOR_LEVELS.map((l) => l.level).join(', ')}.`);
     }

@@ -1,0 +1,35 @@
+{
+  "name": "base/spec-as-code",
+  "extends": "base/spec-anchored",
+  "description": "Spec as code: adds discovery, contracts and the full chain (C1\u2026C6). Legacy name: base/spec-as-source.",
+  "lead": "opensdd",
+  "phases": [
+    {
+      "id": "discover",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-discovery"
+        },
+        {
+          "use": "opensdd:command/discovery-lint"
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "steps": [
+        {
+          "use": "opensdd:command/brownfield-contracts"
+        }
+      ]
+    },
+    {
+      "id": "close",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-audit"
+        }
+      ]
+    }
+  ]
+}

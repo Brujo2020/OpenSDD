@@ -36,9 +36,9 @@ const RULES = [
     { level: 'L3', id: 'new-project-words', re: /\b(from scratch|new (?:app|application|service|project|product|api)|greenfield|build an? (?:app|service|tool|api)|bootstrap a)\b/i },
     { level: 'L4', id: 'several-features-words', re: /\b(platform|several features|multiple features|roadmap|release with|epic)\b/i },
 ];
-export const RIGORS = ['tiny-spec', 'spec-first', 'spec-anchored', 'spec-as-source'];
-/** `spec-as-code` is accepted as a synonym of `spec-as-source`. */
-export const normalizeRigor = (r) => (r === 'spec-as-code' ? 'spec-as-source' : RIGORS.includes(r) ? r : null);
+export const RIGORS = ['tiny-spec', 'spec-first', 'spec-anchored', 'spec-as-code'];
+/** `spec-as-source` (the legacy name of the top rung) is accepted as a synonym of `spec-as-code`. */
+export const normalizeRigor = (r) => (r === 'spec-as-source' ? 'spec-as-code' : RIGORS.includes(r) ? r : null);
 /** The least rigor a level accepts (REQ-VR-005): risk and scale only raise it. */
 export const rigorFloor = (l) => (rank(l) <= 1 ? 'tiny-spec' : rank(l) <= 4 ? 'spec-first' : 'spec-anchored');
 const BROWN_WORDS = /\b(existing|legacy|current (?:system|code|app)|in production|brownfield|our (?:app|system|codebase))\b/i;
@@ -170,7 +170,7 @@ export const effectiveRigor = (level, requested, declared) => {
     if (requested) {
         const r = normalizeRigor(requested);
         if (!r)
-            warnings.push(`unknown rigor «${requested}»: ${RIGORS.join(', ')} (or spec-as-code)`);
+            warnings.push(`unknown rigor «${requested}»: ${RIGORS.join(', ')} (spec-as-source is accepted as spec-as-code)`);
         else if (order(r) < order(rigor))
             warnings.push(`rigor ${r} is below the floor for ${level}${d ? ` and the declared ${d}` : ''}: using ${rigor}`);
         else

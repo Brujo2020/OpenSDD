@@ -208,7 +208,7 @@ export const COMMANDS: CommandDoc[] = [
     name: 'start',
     group: 'console',
     summary: 'One command for any size of work: level L0 tiny … L6 modernization → playbook → run → first directive',
-    usage: 'open-sdd start "<intent>" [--feature f] [--level L0…L6] [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-source] [--dry-run] [--json]',
+    usage: 'open-sdd start "<intent>" [--feature f] [--level L0…L6] [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-code] [--dry-run] [--json]',
     indexLines: ['  start "<intent>"                             Level (tiny→modernization), playbook, run and first step in one command'],
     details: ['L0–L1 run with minimal ceremony (no context pack, no recall); L5–L6 with strict ceremony (approvers required). Risk words only ever raise the level.'],
     examples: ['open-sdd start "fix typo in README"', 'open-sdd start "prototype voice search" --dry-run', 'open-sdd start "add refunds to payments"'],
