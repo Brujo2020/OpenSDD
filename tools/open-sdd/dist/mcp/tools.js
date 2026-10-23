@@ -584,6 +584,47 @@ const TOOL_DEFINITIONS = [
             return { data: pack, isError, detail };
         },
     },
+    {
+        name: 'open_sdd_next',
+        title: 'Siguiente directiva del motor (next)',
+        description: 'Devuelve la ÚNICA directiva siguiente de una ejecución de playbook (`run-step`, `ask`, `present-gate`, `handoff`, `parked`, `done` o `error`), con exactamente las claves de su esquema. Solo lee. Mismo contrato que `open-sdd next <feature> --json`.',
+        inputSchema: {
+            type: 'object',
+            properties: { feature: { type: 'string', description: 'Feature con una ejecución iniciada por `open-sdd engine start`.' } },
+            required: ['feature'],
+            additionalProperties: false,
+        },
+        handler: async (args, context) => {
+            const { nextDirective } = await import('../core/engine.js');
+            const d = await nextDirective(context.cwd, String(args.feature ?? ''));
+            return { data: d, isError: d.kind === 'error', detail: `directiva ${d.kind}` };
+        },
+    },
+    {
+        name: 'open_sdd_report',
+        title: 'Informar del resultado de un paso (report)',
+        description: 'Informa al motor de lo que pasó con un paso: started, awaiting-approval, rejected, revised, completed, skipped, park o unpark. `approved` se rechaza siempre: una aprobación solo sale de `open-sdd hil answer --by "<nombre>"`. Mismo contrato que `open-sdd report <feature> --step <id> --result <r>`.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                feature: { type: 'string', description: 'Feature de la ejecución.' },
+                step: { type: 'string', description: 'Id del paso.' },
+                result: { type: 'string', enum: ['started', 'awaiting-approval', 'rejected', 'revised', 'completed', 'skipped', 'park', 'unpark', 'approved'], description: 'Resultado del paso.' },
+                produced: { type: 'array', items: { type: 'string' }, description: 'Artefactos producidos (rutas).' },
+                reason: { type: 'string', description: 'Motivo (skip/park).' },
+            },
+            required: ['feature', 'step', 'result'],
+            additionalProperties: false,
+        },
+        handler: async (args, context) => {
+            const { report } = await import('../core/engine.js');
+            const r = await report(context.cwd, String(args.feature ?? ''), String(args.step ?? ''), String(args.result ?? ''), {
+                produced: Array.isArray(args.produced) ? args.produced.map(String) : [],
+                reason: typeof args.reason === 'string' ? args.reason : undefined,
+            });
+            return { data: r, isError: !r.ok, detail: r.message };
+        },
+    },
 ];
 /**
  * `assessRigor` con el import perezoso del módulo ya hecho: se aísla aquí para que el handler de

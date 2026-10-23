@@ -176,6 +176,8 @@ const REQUIRED_TOOLS = [
   'open_sdd_rigor',
   'open_sdd_gates_run',
   'open_sdd_context_pack',
+  'open_sdd_next',
+  'open_sdd_report',
 ];
 
 // ---------------------------------------------------------------------------------------------

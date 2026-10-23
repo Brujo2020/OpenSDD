@@ -278,6 +278,25 @@ const main = (fs, path, cp) => {
     return statusOf(gates);
   }
 
+  /*
+   * Review freeze (multi-unit-playbooks, REQ-PB-011): a staged file that a review receipt covers and
+   * that changed after the review is refused until it is re-reviewed. Only when receipts exist, so a
+   * project that never recorded a review is unaffected.
+   */
+  if (isFile(fs, path.join(root, '.sdd', 'reviews')) || fs.existsSync(path.join(root, '.sdd', 'reviews'))) {
+    const staged = cp.spawnSync('git', ['diff', '--cached', '--name-only', '--diff-filter=ACMR'], { cwd: root, encoding: 'utf8' });
+    const files = String(staged.stdout || '').split('\n').filter(Boolean);
+    if (files.length > 0) {
+      const freeze = spawnCli(cp, cli, ['review', 'freeze-check'].concat(files), root);
+      if (statusOf(freeze) !== 0) {
+        reportDetail(freeze);
+        emit(process.stderr, 'open-sdd: COMMIT BLOQUEADO — un artefacto revisado cambió después de su revisión.');
+        emit(process.stderr, '  Vuelve a revisarlo: open-sdd review record <feature> <step> --by "<nombre>" --artifact <ruta>');
+        return statusOf(freeze);
+      }
+    }
+  }
+
   return 0;
 };
 
