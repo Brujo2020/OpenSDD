@@ -1,0 +1,58 @@
+{
+  "$schema": "./playbook.schema.json",
+  "name": "poc-to-feature",
+  "description": "Recipe: a time-boxed PoC whose verdict decides whether it becomes a spec-first feature.",
+  "lead": "opensdd",
+  "phases": [
+    {
+      "id": "explore",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-discovery"
+        },
+        {
+          "id": "poc-build",
+          "use": "opensdd:skill/sdd-tiny"
+        },
+        {
+          "id": "poc-verdict",
+          "use": "opensdd:skill/sdd-verify-completion",
+          "review": "human"
+        }
+      ]
+    },
+    {
+      "id": "specify",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-spec-requirements"
+        },
+        {
+          "use": "opensdd:command/requirements-review"
+        },
+        {
+          "use": "opensdd:skill/sdd-spec-design",
+          "review": "human"
+        },
+        {
+          "use": "opensdd:skill/sdd-spec-tasks"
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-impl",
+          "checks": [
+            "opensdd:gates-c1-c3"
+          ]
+        },
+        {
+          "use": "opensdd:skill/sdd-validate-impl",
+          "review": "human"
+        }
+      ]
+    }
+  ]
+}

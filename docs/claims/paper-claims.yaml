@@ -519,3 +519,17 @@
   statement_en: 'The sensor runner of the `opensdd` AI-DLC plugin fails when the open-sdd CLI is not installed.'
   verifier: 'env -i PATH=/nonexistent /bin/sh tools/open-sdd/templates/integrations/aidlc-plugin/opensdd/bin/opensdd-sensor gates 2>/dev/null; test $? -eq 1'
   expectation: pass
+
+- id: CLM-072
+  section: "v3.7.0 / REQ-V37-001 (agent sessions cannot approve alone)"
+  statement_es: 'Desde una sesión de agente, `hil answer` rechaza una aprobación sin `--confirm <card-id>`.'
+  statement_en: 'From an agent session, `hil answer` refuses an approval without `--confirm <card-id>`.'
+  verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && echo "{}" > package.json && printf "%s" "{\"feature\":\"f\",\"step\":\"s\",\"trigger\":\"t\",\"question\":\"Ok?\",\"options\":[{\"key\":\"A\",\"label\":\"a\",\"consequence\":\"c\",\"effect\":\"approve\"},{\"key\":\"B\",\"label\":\"b\",\"consequence\":\"c\",\"effect\":\"park\"}],\"recommend\":\"A\",\"default\":\"B\",\"evidence\":[\"kept -> x -> 1 run\"],\"deadlineHours\":24}" > c.json && node "$C" hil prepare f --card c.json --no-footer >/dev/null && OPEN_SDD_AGENT=1 node "$C" hil answer f HIL-0001 A --by Ana --no-footer 2>&1 | grep -q AGENT_SESSION'
+  expectation: pass
+
+- id: CLM-073
+  section: "v3.7.0 / REQ-V37-007 (scale from the intent)"
+  statement_es: 'Una intención que nombra varios servicios se planifica como `multi-unit`.'
+  statement_en: 'An intent that names several services is planned as `multi-unit`.'
+  verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && echo "{}" > package.json && node "$C" playbook plan "split billing into 3 microservices" --json --no-footer | grep -q "\"type\": \"multi-unit\""'
+  expectation: pass

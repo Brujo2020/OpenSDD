@@ -36,6 +36,8 @@ export interface Metrics {
   rework: number;
   escalations: number;
   uselessShare: number;
+  /** Rejections caught by steps a candidate removes: risk nobody will observe any more (REQ-V37-004). */
+  unobservedRisk: number;
 }
 
 export interface ProbeResult {
@@ -97,8 +99,13 @@ const metrics = (runs: RunRecord[], drop: { steps: Set<string>; trigger?: string
   let rework = 0;
   let escalations = 0;
   let useless = 0;
+  let unobservedRisk = 0;
   for (const r of runs) {
-    for (const [step, s] of r.stepEvents) if (!drop.steps.has(step)) {
+    for (const [step, s] of r.stepEvents) {
+      if (drop.steps.has(step)) {
+        unobservedRisk += s.rework;
+        continue;
+      }
       gatesPassed += s.passed;
       rework += s.rework;
     }
@@ -109,7 +116,7 @@ const metrics = (runs: RunRecord[], drop: { steps: Set<string>; trigger?: string
       if (e.useless) useless += 1;
     }
   }
-  return { gatesPassed, rework, escalations, uselessShare: escalations ? useless / escalations : 0 };
+  return { gatesPassed, rework, escalations, uselessShare: escalations ? useless / escalations : 0, unobservedRisk };
 };
 
 const better = (b: Metrics, a: Metrics): { improved: string[]; degraded: string[] } => {
@@ -121,6 +128,7 @@ const better = (b: Metrics, a: Metrics): { improved: string[]; degraded: string[
   };
   cmp('rework', b.rework, a.rework, false);
   cmp('escalations', b.escalations, a.escalations, false);
+  cmp('unobserved risk', b.unobservedRisk, a.unobservedRisk, false);
   cmp('useless share', Number(b.uselessShare.toFixed(2)), Number(a.uselessShare.toFixed(2)), false);
   // Removing a step removes its passed gates too; that is not a degradation of quality.
   return { improved, degraded };
@@ -138,6 +146,8 @@ export const proposeCandidates = async (cwd: string): Promise<Candidate[]> => {
   }
   return out.sort((a, b) => a.id.localeCompare(b.id));
 };
+
+const CONTROL = /security|gate|verify|review|audit/i;
 
 export const improvePlaybook = async (
   cwd: string,
@@ -159,7 +169,10 @@ export const improvePlaybook = async (
     const after = metrics(runs, { steps: dropped, trigger: relax });
     const { improved, degraded } = better(before, after);
     const valid = checked.ok;
-    const keep = valid && improved.length > 0 && degraded.length === 0;
+    // A removed human gate or check is never a free improvement (REQ-V37-004).
+    const controls = checkedBase.steps.filter((b) => dropped.has(b.id) && (b.review === 'human' || CONTROL.test(b.use) || (b.type?.kind === 'gate' || b.type?.kind === 'check')));
+    const removesControl = controls.length > 0;
+    const keep = valid && !removesControl && improved.length > 0 && degraded.length === 0;
     probes.push({
       candidate,
       valid,
@@ -167,7 +180,7 @@ export const improvePlaybook = async (
       before,
       after,
       verdict: keep ? 'kept' : 'dropped',
-      evidence: `${keep ? 'kept' : 'dropped'} -> ${candidate.id} -> ${!valid ? `fails playbook check (${checked.issues.length} issue(s))` : improved.length ? `improves ${improved.join(', ')}${degraded.length ? `; degrades ${degraded.join(', ')}` : ''}` : 'no metric moved'} over ${runs.length} recorded run(s)`,
+      evidence: `${keep ? 'kept' : 'dropped'} -> ${candidate.id} -> ${removesControl ? `removes a human/security control (${controls.map((c) => c.id).join(', ')}); needs a person, not a probe` : !valid ? `fails playbook check (${checked.issues.length} issue(s))` : improved.length ? `improves ${improved.join(', ')}${degraded.length ? `; degrades ${degraded.join(', ')}` : ''}` : 'no metric moved'} over ${runs.length} recorded run(s)`,
     });
   }
   const kept = probes.filter((p) => p.verdict === 'kept');

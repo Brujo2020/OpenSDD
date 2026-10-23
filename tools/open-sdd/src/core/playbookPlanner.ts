@@ -27,6 +27,53 @@ const KEYWORDS: { re: RegExp; type: string }[] = [
   { re: /\b(idea|explore|brainstorm)\b/i, type: 'fuzzy-idea' },
   { re: /\b(roadmap|several features|multiple features)\b/i, type: 'multi-feature' },
 ];
+const NUM: Record<string, number> = { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, dos: 2, tres: 3, cuatro: 4, cinco: 5 };
+const RISKS: { tag: string; re: RegExp }[] = [
+  { tag: 'payments', re: /\b(payments?|billing|checkout|invoic\w*|pagos?|cobros?|facturaci\w*)\b/i },
+  { tag: 'auth', re: /\b(auth\w*|login|sso|oauth|permissions?|rbac|identity)\b/i },
+  { tag: 'pii', re: /\b(pii|personal data|gdpr|health|medical|datos personales)\b/i },
+  { tag: 'migration', re: /\b(migrat\w*|monolith|cut ?over|legacy)\b/i },
+  { tag: 'infra', re: /\b(infra\w*|terraform|kubernetes|k8s|network|landing zone)\b/i },
+  { tag: 'data', re: /\b(database|schema change|data model|etl|warehouse)\b/i },
+];
+
+export interface IntentSignals {
+  /** Services, repositories or units named in the intent. */
+  units: number;
+  /** Features listed in the intent. */
+  features: number;
+  risks: { tag: string; evidence: string }[];
+  evidence: string[];
+}
+
+/** Scale and risk read from the intent text, each with the words that matched (REQ-V37-007). */
+export const intentSignals = (intent: string): IntentSignals => {
+  const evidence: string[] = [];
+  let units = 0;
+  const counted = intent.match(/\b(\d+|two|three|four|five|six|seven|eight|nine|ten|dos|tres|cuatro|cinco)\s+(micro-?services?|services?|repos?(?:itories)?|apps?|units?|servicios|microservicios|repositorios)\b/i);
+  if (counted) {
+    units = Number(counted[1]) || NUM[counted[1].toLowerCase()] || 0;
+    evidence.push(`«${counted[0]}»`);
+  }
+  const named = intent.match(/\b(?:across|in|en|entre)\s+((?:[\w-]+(?:,\s*|\s+(?:and|y)\s+))+[\w-]+)\s+(?:repos?(?:itories)?|services?|servicios|repositorios)\b/i);
+  if (named) {
+    const n = named[1].split(/,\s*|\s+(?:and|y)\s+/).filter(Boolean).length;
+    if (n > units) units = n;
+    evidence.push(`«${named[0]}»`);
+  }
+  let features = 0;
+  const list = intent.match(/\b(?:with|con|including|incluyendo)\s+(.+)$/i);
+  if (list) {
+    features = list[1].split(/,\s*|\s+(?:and|y)\s+/).filter((x) => x.trim()).length;
+    if (features >= 2) evidence.push(`${features} features: «${list[1]}»`);
+  }
+  const risks = RISKS.flatMap((r) => {
+    const m = intent.match(r.re);
+    return m ? [{ tag: r.tag, evidence: m[0] }] : [];
+  });
+  return { units, features, risks, evidence };
+};
+
 const VAGUE = /\b(maybe|something|somehow|improve|better|etc|various|stuff|nice)\b/i;
 
 export interface ComponentScore {
@@ -59,6 +106,7 @@ export interface PlanResult {
   proposal: Playbook;
   questions: string[];
   issues: string[];
+  intent: IntentSignals;
 }
 
 export const scoreComponents = (intent: string, profile: ProjectProfile, overrides: Partial<Record<Component, Band>> = {}): ComponentScore[] => {
@@ -91,7 +139,14 @@ export const planPlaybook = async (
   const values = profileValues(profile);
   let type = profile.type;
   let typeReason = `profile: ${profile.typeReason}`;
-  if (type !== 'multi-unit') {
+  const signals = intentSignals(intent);
+  if (signals.units >= 2 && type !== 'multi-unit') {
+    type = 'multi-unit';
+    typeReason = `intent names ${signals.units} units: ${signals.evidence.join(', ')}`;
+  } else if (signals.features >= 3 && type !== 'multi-unit') {
+    type = 'multi-feature';
+    typeReason = `intent lists ${signals.features} features`;
+  } else if (type !== 'multi-unit') {
     const hit = KEYWORDS.find((k) => k.re.test(intent));
     if (hit) {
       type = hit.type;
@@ -100,7 +155,11 @@ export const planPlaybook = async (
   }
   const found = await findPlaybook(cwd, type);
   const base = found ? type : 'base/spec-first';
-  const scores = scoreComponents(intent, profile, opts.overrides);
+  const autoBands: Partial<Record<Component, Band>> = {};
+  if (signals.risks.length) autoBands.R = 'HIGH';
+  if (signals.units >= 2) autoBands.CSU = 'HIGH';
+  const scores = scoreComponents(intent, profile, { ...autoBands, ...opts.overrides });
+  for (const sc of scores) if (autoBands[sc.component] && !opts.overrides?.[sc.component]) sc.evidence = sc.component === 'R' ? `intent risk: ${signals.risks.map((r) => `${r.tag} («${r.evidence}»)`).join(', ')}` : `intent scale: ${signals.evidence.join(', ')}`;
   const score = Object.fromEntries(scores.map((s) => [s.component, s.value])) as Record<Component, number>;
   const composite = Math.round(100 * COMPONENTS.reduce((acc, c) => acc + WEIGHTS[c] * score[c], 0));
 
@@ -141,6 +200,18 @@ export const planPlaybook = async (
   const proposal: Playbook = adopted
     ? { name: opts.name ?? base, extends: base, phases: [] }
     : { name: opts.name ?? `${type}-tailored`, extends: base, phases: [], customize: [{ skip: [...skip].sort() }] };
+  // A risky intent gets a human design review (REQ-V37-007).
+  if (signals.risks.length && !finalRows.some((r) => r.id === 'risk-review')) {
+    const exec = finalRows.filter((r) => r.decision === 'EXECUTE');
+    const anchor = exec.find((r) => /design|contract/.test(r.use)) ?? exec.find((r) => /requirements|spec-batch|steering|discovery/.test(r.use)) ?? exec[0];
+    if (anchor) {
+      const reason = `human design review: intent risk ${signals.risks.map((r) => r.tag).join(', ')}`;
+      const add = { phase: anchor.phase, use: 'opensdd:skill/sdd-validate-design', id: 'risk-review', review: 'human' as const, after: anchor.id };
+      proposal.customize = [...(proposal.customize ?? []), { add: [add] }];
+      if (proposal.name === base) proposal.name = opts.name ?? `${type}-tailored`;
+      finalRows.splice(finalRows.indexOf(anchor) + 1, 0, { id: 'risk-review', phase: anchor.phase, use: add.use, decision: 'EXECUTE', reason, review: 'human' });
+    }
+  }
   const executed = finalRows.filter((r) => r.decision === 'EXECUTE');
   return {
     ok: (adopted ? baseline : result).issues.length === 0,
@@ -156,5 +227,6 @@ export const planPlaybook = async (
     proposal,
     questions: profile.signals.filter((s) => s.value === 'unknown' && s.question).map((s) => s.question as string).slice(0, 3),
     issues: (adopted ? baseline : result).issues.map((i) => `${i.code}: ${i.message}`),
+    intent: signals,
   };
 };

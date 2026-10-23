@@ -6,18 +6,19 @@
  * Toda la lógica vive en `src/core`; aquí solo se leen flags, se llama al core y se traduce el
  * resultado a texto o JSON y a un código de salida (0 ok, 1 refusado por un gate, 2 uso).
  */
-import { copyFile, mkdir, readFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { EXIT } from './help.js';
 import { detectProfile, profileValues } from '../../core/profile.js';
-import { checkPlaybook, findPlaybook, libraryNames, loadPlaybookFile, stepCatalogue } from '../../core/playbook.js';
+import { checkPlaybook, diffPlaybooks, findPlaybook, libraryNames, loadPlaybookFile, stepCatalogue } from '../../core/playbook.js';
 import { planPlaybook } from '../../core/playbookPlanner.js';
 import { BUILD_TARGETS, buildFor, writeBuilt } from '../../core/playbookBuild.js';
 import { improvePlaybook } from '../../core/playbookImprove.js';
-import { nextDirective, readState, report, startRun, applyDecision } from '../../core/engine.js';
+import { nextDirective, readState, report, startRun, applyDecision, listRuns, runMermaid, stepMetrics } from '../../core/engine.js';
 import { checkRecall, readPack, recordRecall, staleItems, writePack } from '../../core/handoff.js';
 import { checkQuestions, confirmQuestions, parseQuestions, questionFile } from '../../core/questions.js';
-import { listCards, prepareCard, recordAnswer, thresholdProposals, triggerStats } from '../../core/hilCards.js';
+import { listCards, overdueCards, prepareCard, recordAnswer, renderReviewHtml, thresholdProposals, triggerStats } from '../../core/hilCards.js';
+import { gitIdentity, isAgentSession, readApprovers } from '../../core/hilIdentity.js';
 import { capture, listCandidates, listLessons, promote, readInbox, reflect, withdrawByOrigin } from '../../core/memoryStore.js';
 import { freezeViolations, recordReview } from '../../core/reviewReceipts.js';
 import { finalizeWave, recordBaseline } from '../../core/waveReferee.js';
@@ -55,7 +56,7 @@ const positionals = (args) => {
     }
     return out;
 };
-const BOOLEAN = new Set(['--json', '--write', '--autonomous', '--changed', '--strict']);
+const BOOLEAN = new Set(['--json', '--write', '--autonomous', '--changed', '--strict', '--mermaid', '--overdue', '--html', '--auto-handoff']);
 const usage = (io, msg) => {
     io.error(`error[usage]: ${msg}`);
     return EXIT.USAGE;
@@ -127,6 +128,42 @@ export const handlePlaybookCommand = async (args, io, cwd) => {
         out(io, json, r, [`Decision: ${r.decision} · probes ${r.budget.used}/${r.budget.max} · runs ${r.runs}`, ...r.probes.map((p) => `  ${p.verdict} ${p.candidate.id} — ${p.evidence}`), ...r.thresholds.map((t) => `  threshold: ${t}`)]);
         return EXIT.PASSED;
     }
+    if (sub === 'new') {
+        const from = flag(args, 'from');
+        if (!target || !from)
+            return usage(io, 'playbook new <name> --from <base> [--add <phase>:<use>[:human]] [--skip <id>]');
+        const add = flags(args, 'add').map((a) => {
+            const [phase, ...rest] = a.split(':');
+            const human = rest[rest.length - 1] === 'human';
+            const use = (human ? rest.slice(0, -1) : rest).join(':');
+            return { phase, use, ...(human ? { review: 'human' } : {}) };
+        });
+        const skip = flags(args, 'skip');
+        const pb = { name: target, extends: from, phases: [], ...(add.length || skip.length ? { customize: [{ ...(add.length ? { add } : {}), ...(skip.length ? { skip } : {}) }] } : {}) };
+        const checked = await checkPlaybook(cwd, pb, await values(cwd));
+        if (!checked.ok) {
+            io.error(checked.issues.map((i) => `${i.code}: ${i.message}`).join('\n'));
+            return EXIT.GATE_FAILED;
+        }
+        const dest = path.join(cwd, '.sdd', 'playbooks', `${target}.playbook.json`);
+        await mkdir(path.dirname(dest), { recursive: true });
+        await writeFile(dest, `${JSON.stringify(pb, null, 2)}\n`, 'utf8');
+        out(io, json, { written: path.relative(cwd, dest), steps: checked.steps.filter((x) => x.decision === 'EXECUTE').length }, `wrote ${path.relative(cwd, dest)} (checked: ${checked.steps.filter((x) => x.decision === 'EXECUTE').length} steps)`);
+        return EXIT.PASSED;
+    }
+    if (sub === 'diff') {
+        const other = positionals(args)[2];
+        if (!target || !other)
+            return usage(io, 'playbook diff <a> <b>');
+        const fa = await findPlaybook(cwd, target);
+        const fb = await findPlaybook(cwd, other);
+        if (!fa || !fb)
+            return usage(io, `playbook «${fa ? other : target}» not found`);
+        const vals = await values(cwd);
+        const d = diffPlaybooks(await checkPlaybook(cwd, fa.playbook, vals), await checkPlaybook(cwd, fb.playbook, vals));
+        out(io, json, d, [...d.added.map((x) => `+ ${x}`), ...d.removed.map((x) => `- ${x}`), ...d.changed.map((c) => `~ ${c.id}: ${c.from} → ${c.to}`), d.added.length + d.removed.length + d.changed.length ? '' : 'no differences'].filter(Boolean));
+        return EXIT.PASSED;
+    }
     if (sub === 'plan') {
         const intent = flag(args, 'intent') ?? target;
         if (!intent)
@@ -141,6 +178,7 @@ export const handlePlaybookCommand = async (args, io, cwd) => {
         }
         out(io, json, r, [
             `Type: ${r.type} (${r.typeReason}) · base ${r.base} · composite ${r.composite}/100 (uncalibrated)`,
+            ...(r.intent.risks.length ? [`Risk: ${r.intent.risks.map((x) => `${x.tag} («${x.evidence}»)`).join(', ')}`] : []),
             ...r.scores.map((s) => `  ${s.component.padEnd(3)} ${s.band.padEnd(4)} ${s.value} — ${s.evidence}`),
             ...r.rows.map((x) => `  ${x.decision.padEnd(7)} ${x.phase}/${x.id} — ${x.reason}`),
             `Steps ${r.steps} · human gates ${r.humanGates} · nearest ${r.nearest.name} (distance ${r.nearest.distance}${r.nearest.adopted ? ', adopted' : ''})`,
@@ -149,19 +187,36 @@ export const handlePlaybookCommand = async (args, io, cwd) => {
         ]);
         return r.ok ? EXIT.PASSED : EXIT.GATE_FAILED;
     }
-    return usage(io, 'playbook <profile|check|plan|build|improve|save|list>');
+    return usage(io, 'playbook <profile|check|plan|build|improve|save|list|new|diff>');
 };
 // ── engine / next / report ───────────────────────────────────────────────────────────────────
 export const handleEngineCommand = async (args, io, cwd) => {
     const json = args.includes('--json');
     const [sub, feature] = positionals(args);
+    if (sub === 'list') {
+        const runs = await listRuns(cwd);
+        out(io, json, runs, runs.length ? runs.map((r) => `  ${r.feature.padEnd(24)} ${r.playbook.padEnd(24)} ${r.done}/${r.total}${r.parked ? ` PARKED: ${r.parked}` : r.current ? ` → ${r.current}` : ' done'}`) : 'no runs');
+        return EXIT.PASSED;
+    }
     if (!feature)
-        return usage(io, 'engine <start|status> <feature>');
+        return usage(io, 'engine <start|status|list> <feature>');
     if (sub === 'start') {
         const pb = flag(args, 'playbook');
         if (!pb)
             return usage(io, 'engine start needs --playbook <name>');
-        const r = await startRun(cwd, feature, pb, await values(cwd), { autonomous: args.includes('--autonomous') });
+        // --units api,web:api,ui:api+web — "id:dep+dep"; without it, sibling repositories from the profile.
+        const rawUnits = flags(args, 'units');
+        let units = rawUnits.map((u) => {
+            const [id, deps] = u.split(':');
+            return { id, deps: deps ? deps.split('+').filter(Boolean) : [] };
+        });
+        if (!units.length) {
+            const repos = (await detectProfile(cwd)).signals.find((x) => x.id === 'repos');
+            const m = repos?.source.match(/^sibling repositories: (.+)$/);
+            if (m)
+                units = m[1].split(', ').map((id) => ({ id, deps: [] }));
+        }
+        const r = await startRun(cwd, feature, pb, await values(cwd), { autonomous: args.includes('--autonomous'), units });
         out(io, json, r, r.message);
         return r.ok ? EXIT.PASSED : EXIT.GATE_FAILED;
     }
@@ -171,21 +226,61 @@ export const handleEngineCommand = async (args, io, cwd) => {
             io.error(`no run for ${feature}`);
             return EXIT.GATE_FAILED;
         }
-        out(io, json, s, [`${s.feature} · ${s.playbook} · lead ${s.lead}${s.parked ? ` · PARKED: ${s.parked}` : ''}`, ...s.steps.map((x) => `  ${x.status.padEnd(11)} ${x.phase}/${x.id} (${x.review})`)]);
+        if (args.includes('--mermaid')) {
+            io.log(runMermaid(s));
+            return EXIT.PASSED;
+        }
+        const metrics = new Map((await stepMetrics(cwd, feature)).map((m) => [m.step, m]));
+        const fmt = (id) => {
+            const m = metrics.get(id);
+            if (!m)
+                return '';
+            return [m.elapsedS !== null ? `${m.elapsedS}s` : '', m.tokens ? `${m.tokens} tok` : '', m.models.join('/')].filter(Boolean).join(' · ');
+        };
+        out(io, json, { ...s, metrics: [...metrics.values()] }, [
+            `${s.feature} · ${s.playbook} · lead ${s.lead}${s.parked ? ` · PARKED: ${s.parked}` : ''}`,
+            ...s.steps.map((x) => `  ${x.status.padEnd(11)} ${x.phase}/${x.id} (${x.review})${fmt(x.id) ? `  ${fmt(x.id)}` : ''}`),
+            ...(s.waves?.length ? ['  units · waves:', ...s.waves.map((w, i) => `    wave ${i + 1}: ${w.join(', ')}`)] : []),
+        ]);
         return EXIT.PASSED;
     }
-    return usage(io, 'engine <start|status> <feature>');
+    return usage(io, 'engine <start|status|list> <feature>');
 };
 export const handleNextCommand = async (args, io, cwd) => {
     const [feature] = positionals(args);
     if (!feature)
         return usage(io, 'next <feature> [--json]');
-    const d = await nextDirective(cwd, feature);
+    let d = await nextDirective(cwd, feature);
+    if (d.kind === 'handoff' && args.includes('--auto-handoff')) {
+        const code = await handleHandoffCommand(['write', feature, d.step, '--json'], { ...io, log: () => { } }, cwd);
+        if (code !== EXIT.PASSED)
+            return code;
+        d = await nextDirective(cwd, feature);
+    }
     if (args.includes('--json'))
         io.log(JSON.stringify(d));
     else
-        io.log(`${d.kind}: ${JSON.stringify(d)}`);
+        io.log(humanDirective(d));
     return d.kind === 'error' ? EXIT.GATE_FAILED : EXIT.PASSED;
+};
+/** One sentence and the command to run (REQ-V37-009). */
+export const humanDirective = (d) => {
+    switch (d.kind) {
+        case 'run-step':
+            return `Run step ${d.step} (${d.use}, phase ${d.phase}${d.gate ? ', human gate' : ''})${d.stale.length ? ` — inputs changed: ${d.stale.join(', ')}` : ''}.\n  Read ${d.pack}, then: open-sdd handoff recall ${d.feature} ${d.step} --text "<goal and ids>"`;
+        case 'ask':
+            return `Step ${d.step} has open questions in ${d.file}:\n${d.open.map((q) => `  - ${q}`).join('\n')}`;
+        case 'present-gate':
+            return `Step ${d.step} waits for a person${d.card ? `: show ${d.card}` : ''} (revision ${d.revisions}).\n  ${d.card ? `open-sdd hil review ${d.feature} --html` : d.prepare}`;
+        case 'handoff':
+            return `Step ${d.step} needs its context pack.\n  ${d.command}   (or: open-sdd next ${d.feature} --auto-handoff)`;
+        case 'parked':
+            return `Run parked: ${d.reason}.\n  open-sdd report ${d.feature} --step - --result unpark`;
+        case 'done':
+            return `Done: ${d.summary.done} step(s) completed, ${d.summary.skipped} skipped.`;
+        default:
+            return `Error: ${d.message}`;
+    }
 };
 const RESULTS = ['started', 'awaiting-approval', 'rejected', 'revised', 'completed', 'skipped', 'park', 'unpark', 'approved'];
 export const handleStepReportCommand = async (args, io, cwd) => {
@@ -194,7 +289,8 @@ export const handleStepReportCommand = async (args, io, cwd) => {
     const result = flag(args, 'result');
     if (!feature || !result || !RESULTS.includes(result))
         return usage(io, `report <feature> --step <id> --result <${RESULTS.join('|')}>`);
-    const r = await report(cwd, feature, step, result, { produced: flags(args, 'produced'), reason: flag(args, 'reason'), by: flag(args, 'by') });
+    const num = (n) => (flag(args, n) ? Number(flag(args, n)) : undefined);
+    const r = await report(cwd, feature, step, result, { produced: flags(args, 'produced'), reason: flag(args, 'reason'), by: flag(args, 'by'), tokens: num('tokens'), model: flag(args, 'model') || undefined, durationS: num('duration') });
     out(io, args.includes('--json'), r, r.message);
     return r.ok ? EXIT.PASSED : EXIT.GATE_FAILED;
 };
@@ -294,7 +390,14 @@ export const handleHilCommand = async (args, io, cwd) => {
         if (!id || !option)
             return usage(io, 'hil answer <feature> <card-id> <option> --by "<name>"');
         const state = await readState(cwd, feature);
-        const r = await recordAnswer(cwd, feature, id, option, flag(args, 'by') ?? '', { autonomous: state?.autonomous, changed: args.includes('--changed') });
+        const r = await recordAnswer(cwd, feature, id, option, flag(args, 'by') ?? '', {
+            autonomous: state?.autonomous,
+            changed: args.includes('--changed'),
+            identity: gitIdentity(cwd),
+            approvers: await readApprovers(cwd),
+            agent: isAgentSession(),
+            confirm: flag(args, 'confirm'),
+        });
         if (!r.ok || !r.card || !r.answer) {
             io.error(r.message);
             return EXIT.GATE_FAILED;
@@ -303,6 +406,20 @@ export const handleHilCommand = async (args, io, cwd) => {
         const applied = await applyDecision(cwd, r.card, r.answer);
         out(io, json, { answer: r.answer, applied }, [r.message, applied.message]);
         return applied.ok ? EXIT.PASSED : EXIT.GATE_FAILED;
+    }
+    if (sub === 'review') {
+        const open = (await listCards(cwd, feature)).filter((r) => !r.answer).map((r) => r.card);
+        const html = renderReviewHtml(feature, open);
+        const dest = flag(args, 'out') || path.join('.sdd', 'hil', feature, 'review.html');
+        await mkdir(path.dirname(path.resolve(cwd, dest)), { recursive: true });
+        await writeFile(path.resolve(cwd, dest), html, 'utf8');
+        out(io, json, { file: dest, cards: open.length }, `wrote ${dest} (${open.length} open card(s))`);
+        return EXIT.PASSED;
+    }
+    if (sub === 'list' && args.includes('--overdue')) {
+        const overdue = await overdueCards(cwd, feature);
+        out(io, json, overdue, overdue.length ? overdue.map((c) => `  OVERDUE ${c.id} ${c.step} — default ${c.default} applies on the next \`open-sdd next\``) : 'no overdue cards');
+        return EXIT.PASSED;
     }
     const records = await listCards(cwd, feature);
     if (sub === 'list') {
@@ -315,7 +432,7 @@ export const handleHilCommand = async (args, io, cwd) => {
         out(io, json, { stats, proposals }, [...stats.map((s) => `  ${JSON.stringify(s)}`), ...proposals.map((p) => `  proposal: ${JSON.stringify(p)}`)]);
         return EXIT.PASSED;
     }
-    return usage(io, 'hil <prepare|answer|list|stats> <feature>');
+    return usage(io, 'hil <prepare|answer|list|stats|review> <feature>');
 };
 // ── memory ───────────────────────────────────────────────────────────────────────────────────
 const KINDS = ['gate-block', 'hil-answer', 'human-edit', 'recall-mismatch'];
@@ -374,6 +491,8 @@ export const handleReviewReceiptCommand = async (args, io, cwd) => {
     }
     const staged = [feature, step, ...positionals(args).slice(3)].filter(Boolean);
     const v = await freezeViolations(cwd, staged);
+    for (const x of v)
+        await capture(cwd, { kind: 'human-edit', origin: `review:${x.feature}/${x.step}`, author: gitIdentity(cwd).email || 'unknown', feature: x.feature, step: x.step, text: `${x.file} edited after review` });
     out(io, json, v, v.length ? v.map((x) => `FROZEN: ${x.file} was reviewed in ${x.feature}/${x.step}; re-review before committing`) : 'no frozen files changed');
     return v.length ? EXIT.GATE_FAILED : EXIT.PASSED;
 };

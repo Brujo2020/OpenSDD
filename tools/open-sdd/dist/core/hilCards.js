@@ -14,6 +14,7 @@
  * action is never the default. Alternatives produced by agents are shown under ids shuffled by a
  * seed derived from feature and step, so the reviewer judges content, not origin.
  */
+import { approverAllowed } from './hilIdentity.js';
 import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -122,6 +123,12 @@ export const recordAnswer = async (cwd, feature, id, option, by, opts = {}) => {
         return { ok: false, message: `option ${option} is not one of ${card.options.map((o) => o.key).join(', ')}` };
     if (picked.effect === 'override' && opts.autonomous)
         return { ok: false, message: 'an override of a blocking gate is refused in autonomous mode' };
+    const identity = opts.identity ?? { name: '', email: '' };
+    if (opts.channel !== 'deadline' && !approverAllowed(opts.approvers ?? null, by, identity))
+        return { ok: false, message: `APPROVER_NOT_LISTED: «${by}» (${identity.email || 'no git email'}) is not in .sdd/settings/approvers.json` };
+    const grants = picked.effect === 'approve' || picked.effect === 'override' || picked.effect === 'accept-as-is';
+    if (grants && opts.agent && opts.confirm !== id)
+        return { ok: false, message: `AGENT_SESSION: an approval from an agent session needs \`--confirm ${id}\` typed by the person (set OPEN_SDD_HUMAN=1 in a human shell without TTY)` };
     const answer = {
         id,
         option: picked.key,
@@ -130,6 +137,8 @@ export const recordAnswer = async (cwd, feature, id, option, by, opts = {}) => {
         at: (opts.now ?? new Date()).toISOString(),
         recommended: picked.key === card.recommend,
         changed: Boolean(opts.changed),
+        ...(opts.identity ? { identity: opts.identity } : {}),
+        channel: opts.channel ?? (opts.agent ? 'agent-confirmed' : 'human'),
     };
     await writeFile(path.join(hilDir(cwd, feature), `${id}.answer.json`), `${JSON.stringify(answer, null, 2)}\n`, 'utf8');
     return { ok: true, message: `${id}: ${picked.key} (${picked.effect}) by ${by}`, answer, card };
@@ -164,3 +173,34 @@ export const thresholdProposals = (stats, maxUseless, minDecisions = 10) => stat
     evidence: `kept -> raise the ${s.trigger} threshold -> ${s.useless}/${s.decisions} escalations answered with the recommendation and no change (${(s.share * 100).toFixed(0)}% > ${(maxUseless * 100).toFixed(0)}%)`,
     proposal: `relax the ${s.trigger} trigger one step (or mark its steps review: auto)`,
 }));
+/** Unanswered cards whose deadline has passed (REQ-V37-002). */
+export const overdueCards = async (cwd, feature, now = new Date()) => (await listCards(cwd, feature))
+    .filter((r) => !r.answer && Date.parse(r.card.createdAt) + r.card.deadlineHours * 3_600_000 <= now.getTime())
+    .map((r) => r.card);
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+/**
+ * One self-contained review page for the open cards of a feature (REQ-V37-003): no script, no
+ * network. Each card shows its question, options with consequences, evidence, an optional diff and
+ * the exact command a person types to answer.
+ */
+export const renderReviewHtml = (feature, cards, diffs = {}) => {
+    const body = cards
+        .map((c) => {
+        const opts = c.options
+            .map((o) => `<tr${o.key === c.recommend ? ' class="rec"' : ''}><td><b>${o.key}</b></td><td>${esc(o.label)}</td><td>${esc(o.consequence)}</td><td><code>${o.effect}</code></td><td><code>open-sdd hil answer ${esc(feature)} ${c.id} ${o.key} --by "&lt;name&gt;"${o.effect === 'approve' || o.effect === 'override' || o.effect === 'accept-as-is' ? ` --confirm ${c.id}` : ''}</code></td></tr>`)
+            .join('');
+        const diff = diffs[c.id] ?? c.diff;
+        return `<section><h2>${c.id} · ${esc(c.step)} <small>${esc(c.trigger)}</small></h2><p class="q">${esc(c.question)}</p>
+<table><thead><tr><th></th><th>Option</th><th>Consequence</th><th>Effect</th><th>Answer with</th></tr></thead><tbody>${opts}</tbody></table>
+<p><b>Recommended:</b> ${c.recommend} · <b>Default after ${c.deadlineHours} h:</b> ${c.default} (never approves)</p>
+<h3>Evidence</h3><ul>${c.evidence.map((e) => `<li>${esc(e)}</li>`).join('')}</ul>${diff ? `<h3>Diff</h3><pre>${esc(diff)}</pre>` : ''}</section>`;
+    })
+        .join('\n');
+    return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HIL review · ${esc(feature)}</title>
+<style>:root{color-scheme:light dark;--bg:#fff;--fg:#1e293b;--mut:#64748b;--line:#e2e8f0;--rec:#dcfce7}@media (prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#e2e8f0;--mut:#94a3b8;--line:#334155;--rec:#14532d}}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif;max-width:960px;margin:0 auto;padding:16px}section{border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:16px 0}
+h2 small{color:var(--mut);font-weight:400}.q{font-size:1.1em}table{border-collapse:collapse;width:100%;display:block;overflow-x:auto}td,th{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}tr.rec{background:var(--rec)}pre{overflow-x:auto;border:1px solid var(--line);padding:8px}</style></head>
+<body><h1>Decisions waiting for a person · ${esc(feature)}</h1><p>${cards.length} open card(s). Nothing is approved by silence; an approval from an agent session needs <code>--confirm &lt;id&gt;</code> typed by you.</p>
+${body || '<p>No open cards.</p>'}</body></html>
+`;
+};

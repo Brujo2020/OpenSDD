@@ -41,7 +41,7 @@ clear the shell's command cache, which still points at the old binary:
 rm -f "$(npm prefix -g)/bin/sdd" "$(npm prefix -g)/bin/sdd-open"   # left behind, both dangling
 npm install -g @brujo2020/open-sdd@latest
 hash -r                       # zsh: rehash — or open a new terminal
-open-sdd --version            # must print v3.6.0, not the 2.x banner
+open-sdd --version            # must print v3.7.0, not the 2.x banner
 ```
 
 A stale global is not cosmetic: the installed commit hook resolves its CLI through `PATH`, so an old

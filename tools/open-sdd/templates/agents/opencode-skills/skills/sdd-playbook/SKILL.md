@@ -21,17 +21,18 @@ open-sdd decides the process; the agent executes one step at a time. Every verdi
 
 Repeat until the directive is `done` or `parked`:
 
-1. `open-sdd next <feature> --json` and act on `kind`:
+1. `open-sdd next <feature> --json --auto-handoff` and act on `kind`:
    - `handoff` → run the given `command` (writes the bounded context pack).
    - `ask` → put the open questions in `file` to the user; record the answers there; the user confirms with `open-sdd questions confirm <feature> <step> --by "<name>"`.
-   - `run-step` → read `pack`; restate the goal and acceptance ids with `open-sdd handoff recall <feature> <step> --text "<restatement>"`; `open-sdd report <feature> --step <step> --result started`; do the step with the skill named in `use`; then report `completed` (auto review) or `awaiting-approval` (human gate) with `--produced <paths>`.
+   - `run-step` → read `pack`; restate the goal and acceptance ids with `open-sdd handoff recall <feature> <step> --text "<restatement>"`; `open-sdd report <feature> --step <step> --result started`; do the step with the skill named in `use`; then report (add `--tokens <n> --model <id>` when known) `completed` (auto review) or `awaiting-approval` (human gate) with `--produced <paths>`.
    - `present-gate` → if `card` is null, write a card JSON (one question, 2–4 options with consequences, evidence lines `kept|revised|dropped -> change -> evidence with counts`, a default that only parks or rejects) and run the `prepare` command. Then STOP and show the card to the user.
    - `parked` → explain `reason` to the user and stop.
 2. A refused report lists codes (`RECALL_MISSING`, `ARTIFACT_MISSING`, `QUESTIONS_UNCONFIRMED`, `RECEIPT_STALE`, phase trace errors): fix the cause, do not retry blindly.
 
 ## 3. Hard rules
 
-- Never report `approved`; never run `open-sdd hil answer` on the user's behalf.
+- Never report `approved`; never run `open-sdd hil answer` on the user's behalf, and never add `--confirm` yourself: that flag is the person's typed confirmation.
+- Show open cards with `open-sdd hil review <feature> --html`; an unanswered card past its deadline takes its default (park or reject) on the next `next`.
 - Never override a gate in autonomous mode.
 - Lessons are hypotheses: `open-sdd memory promote` needs a named person (`--by`).
 - A reviewed artifact is frozen: after changing it, ask for a new `open-sdd review record`.

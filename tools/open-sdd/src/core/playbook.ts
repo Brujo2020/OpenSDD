@@ -190,7 +190,7 @@ export interface Playbook {
 }
 
 const KEYS = {
-  playbook: ['name', 'description', 'extends', 'lead', 'profile', 'budget', 'phases', 'customize'],
+  playbook: ['$schema', 'name', 'description', 'extends', 'lead', 'profile', 'budget', 'phases', 'customize'],
   budget: ['handoff_tokens', 'improve_probes', 'always_on_chars'],
   phase: ['id', 'steps'],
   step: ['id', 'use', 'checks', 'when', 'review'],
@@ -392,5 +392,26 @@ export const checkPlaybook = async (cwd: string, input: Playbook, values: Record
     steps,
     issues,
     extendsChain: chain,
+  };
+};
+
+export interface PlaybookDiff {
+  added: string[];
+  removed: string[];
+  changed: { id: string; from: string; to: string }[];
+}
+
+/** Steps added, removed, and changed in decision or review between two checked playbooks (REQ-V37-010). */
+export const diffPlaybooks = (a: CheckResult, b: CheckResult): PlaybookDiff => {
+  const key = (s: ResolvedStep) => `${s.decision}${s.decision === 'EXECUTE' ? `/${s.review}` : ''}`;
+  const am = new Map(a.steps.map((s) => [s.id, s]));
+  const bm = new Map(b.steps.map((s) => [s.id, s]));
+  const live = (m: Map<string, ResolvedStep>, id: string) => m.get(id)?.decision === 'EXECUTE';
+  return {
+    added: b.steps.filter((s) => s.decision === 'EXECUTE' && !am.has(s.id)).map((s) => s.id),
+    removed: a.steps.filter((s) => s.decision === 'EXECUTE' && !bm.has(s.id)).map((s) => s.id),
+    changed: a.steps
+      .filter((s) => bm.has(s.id) && key(s) !== key(bm.get(s.id) as ResolvedStep) && (live(am, s.id) || live(bm, s.id)))
+      .map((s) => ({ id: s.id, from: key(s), to: key(bm.get(s.id) as ResolvedStep) })),
   };
 };

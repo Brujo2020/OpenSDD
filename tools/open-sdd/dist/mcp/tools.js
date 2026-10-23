@@ -612,6 +612,8 @@ const TOOL_DEFINITIONS = [
                 result: { type: 'string', enum: ['started', 'awaiting-approval', 'rejected', 'revised', 'completed', 'skipped', 'park', 'unpark', 'approved'], description: 'Resultado del paso.' },
                 produced: { type: 'array', items: { type: 'string' }, description: 'Artefactos producidos (rutas).' },
                 reason: { type: 'string', description: 'Motivo (skip/park).' },
+                tokens: { type: 'number', description: 'Tokens consumidos por el paso.' },
+                model: { type: 'string', description: 'Modelo usado.' },
             },
             required: ['feature', 'step', 'result'],
             additionalProperties: false,
@@ -621,6 +623,8 @@ const TOOL_DEFINITIONS = [
             const r = await report(context.cwd, String(args.feature ?? ''), String(args.step ?? ''), String(args.result ?? ''), {
                 produced: Array.isArray(args.produced) ? args.produced.map(String) : [],
                 reason: typeof args.reason === 'string' ? args.reason : undefined,
+                tokens: typeof args.tokens === 'number' ? args.tokens : undefined,
+                model: typeof args.model === 'string' ? args.model : undefined,
             });
             return { data: r, isError: !r.ok, detail: r.message };
         },

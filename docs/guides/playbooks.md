@@ -1,4 +1,4 @@
-# Playbooks: plan → run → check → decide → learn → improve (v3.6.0)
+# Playbooks: plan → run → check → decide → learn → improve (v3.7.0)
 
 A **playbook** is the process for one case (a bug, a brownfield extension, a multi-unit change, a spike…).
 open-sdd plans it, checks it, and then drives the agent one step at a time through a host-agnostic
@@ -77,6 +77,31 @@ sequenceDiagram
   P->>C: hil answer HIL-0001 A --by "Ana"
   C-->>C: applyDecision → step done (audit: GATE_APPROVED by Ana)
 ```
+
+## v3.7.0 — trust, scale and visibility
+
+| Area | What changed |
+|---|---|
+| Human in the loop | `hil answer` records the git identity; `.sdd/settings/approvers.json` restricts who may answer; from an agent session (no TTY, `CLAUDECODE=1`, `OPEN_SDD_AGENT=1`) an approval needs `--confirm <card-id>` typed by the person. Overdue cards take their default (park/reject) on the next `next` (`DEADLINE_APPLIED`); `hil list --overdue`; `hil review --html` writes one offline review page. |
+| Continuous improvement | `playbook improve` counts the rejections a removed step caught as `unobservedRisk` and never keeps a candidate that removes a human or security control. Refused reports and edits of reviewed files reach the memory inbox automatically. |
+| Efficiency | `report --tokens --model --duration`; `engine status` shows time and tokens per step. |
+| Planning | The planner reads scale ("3 microservices", "across api and web repos", feature lists) and risk (payments, auth, PII, migration, infra, data) from the intent: `multi-unit`/`multi-feature` when it fits, and a human `risk-review` after design when a risk is named. |
+| Multi-unit | `engine start --units api,web:api` (or sibling repos) computes waves; one writer per feature (lock). |
+| Experience | `next` speaks in sentences; `next --auto-handoff`; `engine list`; `engine status --mermaid`. |
+| Authoring | `playbook.schema.json` for editors; `playbook new --from <base> --add phase:use[:human] --skip id`; `playbook diff a b`; recipes `poc-to-feature` and `brownfield-aidlc-inception`. |
+
+### Which playbook for which case
+
+| Case | Start with |
+|---|---|
+| PoC / spike | `spike`, or `poc-to-feature` when a positive verdict should become a feature |
+| One feature, existing code with tests | `brownfield-extension` |
+| Small greenfield project | `greenfield` |
+| Several features | `multi-feature` (the planner picks it for ≥3 listed features) |
+| Several services or repositories, end to end | `multi-unit` (AI-DLC stages + waves) |
+| Legacy without tests | `legacy-untested` |
+| AI-DLC inception on existing code | `brownfield-aidlc-inception` |
+| Tune any of them from evidence | `playbook improve` (Harness² propose‑probe‑compose; reductions of control always go to a person) |
 
 ## What is not verified
 

@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.7.0] — 2026-10-23
+
+### Trust, scale and visibility (spec `playbooks-v3-7`)
+- HIL: answers record the git identity; `approvers.json` restricts approvers; agent sessions need `--confirm <card-id>` to approve; deadlines apply the card default (`DEADLINE_APPLIED`); `hil list --overdue`; `hil review --html` offline page.
+- Improvement: `unobservedRisk` metric; candidates that remove a human or security control are always dropped.
+- Memory: refused reports (`gate-block`) and edits of reviewed files (`human-edit`) are captured automatically.
+- Telemetry: `report --tokens --model --duration`; time and tokens per step in `engine status`; MCP `open_sdd_report` accepts tokens and model.
+- Planner: scale and risk from the intent (multi-unit / multi-feature, human `risk-review` for payments, auth, PII, migration, infra, data).
+- Multi-unit: `engine start --units` with waves; per-feature lock.
+- Experience: human `next`, `next --auto-handoff`, `engine list`, `engine status --mermaid`.
+- Authoring: `playbook.schema.json`, `playbook new`, `playbook diff`, recipes `poc-to-feature` and `brownfield-aidlc-inception`.
+
 ## [3.6.0] — 2026-10-23
 
 ### Playbooks and the engine contract (spec `multi-unit-playbooks`)

@@ -98,7 +98,9 @@ describe('engine next/report and the HIL gate', () => {
     expect(prep.code).toBe(0);
     const id = JSON.parse(prep.out).card.id as string;
     expect((await run('hil', 'answer', 'fix1', id, 'A')).code).toBe(1);
-    expect((await run('hil', 'answer', 'fix1', id, 'A', '--by', 'Ana')).code).toBe(0);
+    // No TTY under vitest → agent session: an approval needs the card id repeated (REQ-V37-001).
+    expect((await run('hil', 'answer', 'fix1', id, 'A', '--by', 'Ana')).out + '').not.toContain('approved');
+    expect((await run('hil', 'answer', 'fix1', id, 'A', '--by', 'Ana', '--confirm', id)).code).toBe(0);
     expect(JSON.parse((await run('next', 'fix1', '--json')).out).kind).toBe('done');
     expect((await run('hil', 'list', 'fix1')).out).toContain('by Ana');
     expect((await run('memory', 'list', '--json')).out).toContain('hil-answer');

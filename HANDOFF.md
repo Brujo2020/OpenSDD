@@ -4,16 +4,10 @@
 Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001…018, 17 criterios AC-01…AC-17, 18 tareas en 6 olas) y publicar **v3.6.0**: un ciclo planificar → ejecutar → comprobar → decidir → aprender → mejorar, con playbooks a medida por caso, un contrato `next`/`report` común a todos los hosts, revisión humana (HIL) preparada, memoria con procedencia y mejora por propose‑probe‑compose. Fuentes: AWS AI-DLC (método), Google Harness² (método), open-sdd.
 
 ## Estado actual
-**v3.6.0 completa a nivel de repositorio; publicada en GitHub (rama `feat/multi-unit-playbooks` y `main`). Tag `v3.6.0` solo local: el proxy de la sesión rechazó el push del tag (HTTP 403). npm NO publicado.**
+**v3.7.0 (spec `playbooks-v3-7`, 10 mejoras de la revisión) implementada, verificada y subida a GitHub (`feat/playbooks-v3.7` y `main`). npm y tags NO publicados.**
 
-- CLI conectada: `playbook`, `engine`, `next`, `report --step`, `handoff`, `questions`, `hil`, `memory`, `review record|freeze-check`, `waves --baseline|--verify` (`src/cli/commands/playbook.ts`, routing en `src/index.ts`, help en `help.ts`).
-- MCP: `open_sdd_next`, `open_sdd_report`.
-- Freeze de artefactos revisados en `templates/hooks/pre-commit.mjs`.
-- Skill `sdd-playbook` en `_shared` + 8 árboles + workflow Axet (28 skills).
-- Plantilla del plugin AI-DLC `templates/integrations/aidlc-plugin/opensdd/` (sensores fallan cerrados).
-- Spec actualizada con decisiones D-1…D-6 (plan.md) y tarea 19; tareas 1–19 marcadas con evidencia (15 con AC-10 declarado no ejecutado); 0 avisos `BOUNDARY_VIOLATION`.
-- `docs/INSTALL.md` actualizado a v3.6.0.
-- Docs `docs/guides/playbooks.md` (Mermaid), enlaces en README EN/ES, CHANGELOG 3.6.0, claims CLM-068…071, versión 3.6.0 en ambos `package.json`.
+- v3.6.0: ciclo multi-unit completo (ver CHANGELOG).
+- v3.7.0: identidad verificable en HIL + `--confirm` en sesiones de agente; plazos aplicados; página `hil review --html`; `improve` sin sesgo (`unobservedRisk`, nunca quita controles humanos/seguridad); captura automática `gate-block`/`human-edit`; telemetría tokens/modelo/duración; planner con escala y riesgo; unidades→olas + lock; `next` legible, `--auto-handoff`, `engine list`, `--mermaid`; `playbook.schema.json`, `playbook new|diff`, recetas `poc-to-feature` y `brownfield-aidlc-inception`.
 
 ## Contexto y decisiones
 - **Playbooks en JSON** (`.playbook.json`), no YAML: el repo no tiene librería YAML y `C-STACK-FACT` prohíbe añadir dependencias. **Pendiente actualizar la spec** (plan §4 y requirements muestran YAML).
@@ -48,12 +42,11 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - Sin migraciones, flags ni cambios de contrato en comandos existentes, salvo `import` aceptando `aidlc`.
 
 ## Evidencia
-- `npx tsc --noEmit -p tools/open-sdd` → sin errores; `npm run build` → exit 0; `open-sdd --version` → v3.6.0.
-- `npx vitest run` → **158 ficheros, 2057 tests en verde** (nuevos: `test/playbookCli.test.ts` 7, `test/aidlcPlugin.test.ts` 3).
-- `assure claims --verify` → 71 claims, 68 verificadas, 3 no medidas, **0 rotas**.
-- `status multi-unit-playbooks --check` → 0 errores, 0 `BOUNDARY_VIOLATION`.
-- Hook pre-commit ejecutado en el commit de release → pasó.
-- No ejecutado: AC-10 (validador AI-DLC, requiere bun + checkout); `npm publish`.
+- `npx tsc --noEmit`, `npm run build` OK; `open-sdd --version` → v3.7.0.
+- `npx vitest run` → **160 ficheros, 2083 tests en verde, 1 skipped (AC-10 de v3.6)**; nuevos `test/playbooksV37Ac.test.ts` (AC-01…AC-10 de v3.7).
+- `assure claims --verify` → 73 claims, 70 verificadas, 3 no medidas, **0 rotas** (nuevas CLM-072, CLM-073).
+- `status playbooks-v3-7 --check` y `status multi-unit-playbooks --check` → 0 errores, 0 avisos de frontera.
+- No ejecutado: AC-10 de v3.6 (validador AI-DLC); `npm publish`; push de tags (el proxy de la sesión los rechaza).
 
 ## Fallos e intentos
 - `test/steelforgePort.test.ts` falló al añadir `multi-unit` (lista cerrada de tipos) → se actualizó la lista.
@@ -61,9 +54,10 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - `git status` sobre la carpeta montada dejó `.git/index.lock` vacíos dos veces → todo git se hace en la copia del sandbox; si ves un `index.lock` vacío, bórralo.
 
 ## Pendiente
-1. `npm publish` de `@brujo2020/open-sdd@3.6.0` (lo hace Mario).
-2. AC-10: pasar `templates/integrations/aidlc-plugin/opensdd/` por el validador de AI-DLC y ajustar el esquema de `plugin.json`.
-3. Subir el tag: `git push origin v3.6.0` (el proxy de la sesión lo rechaza).
+1. `npm publish` de 3.7.0 (Mario).
+2. Tags: `git tag v3.6.0 <commit release 3.6> && git tag v3.7.0 origin/main && git push origin --tags` desde el Mac.
+3. AC-10 v3.6: validar `templates/integrations/aidlc-plugin/opensdd/` con el validador de AI-DLC.
+4. La detección de sesión de agente es un freno, no autenticación (plan v3.7 D-3); para firma real, evaluar commits/respuestas firmados con GPG/SSH.
 
 ## Reanudación exacta
 ```bash

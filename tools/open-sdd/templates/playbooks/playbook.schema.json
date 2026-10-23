@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Brujo2020/OpenSDD/tools/open-sdd/templates/playbooks/playbook.schema.json",
+  "title": "open-sdd playbook",
+  "description": "A case-specific SDD process. Checked by `open-sdd playbook check`; the checker is the authority, this schema helps editors.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "phases"],
+  "$defs": {
+    "use": { "type": "string", "pattern": "^(opensdd:(skill|flow|module|command|gate)/[a-z0-9-]+|aidlc:stage/[a-z0-9-]+)$", "description": "A registered step type." },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["use"],
+      "properties": {
+        "id": { "type": "string" },
+        "use": { "$ref": "#/$defs/use" },
+        "checks": { "type": "array", "items": { "type": "string" } },
+        "when": { "type": "string", "description": "Expression over profile signals, e.g. `tests == false && size != S`." },
+        "review": { "enum": ["human", "auto"] }
+      }
+    }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "extends": { "type": "string" },
+    "lead": { "enum": ["opensdd", "aidlc"] },
+    "profile": { "type": "object", "additionalProperties": { "type": "string" } },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "handoff_tokens": { "type": "integer" }, "improve_probes": { "type": "integer" }, "always_on_chars": { "type": "integer" } }
+    },
+    "phases": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "steps"], "properties": { "id": { "type": "string" }, "steps": { "type": "array", "items": { "$ref": "#/$defs/step" } } } }
+    },
+    "customize": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "when": { "type": "string" },
+          "skip": { "type": "array", "items": { "type": "string" } },
+          "add": {
+            "type": "array",
+            "items": {
+              "allOf": [{ "$ref": "#/$defs/step" }],
+              "type": "object",
+              "required": ["use", "phase"],
+              "properties": { "id": {}, "use": {}, "checks": {}, "when": {}, "review": {}, "phase": { "type": "string" }, "after": { "type": "string" } },
+              "additionalProperties": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -16,11 +16,13 @@
  *   - `approved` never comes from `report`: only a named answer to a prepared card approves;
  *   - the last step of a phase runs the traceability gate, which blocks on an orphan requirement.
  */
-import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, open, readFile, readdir, stat, unlink, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { checkConsistency } from './consistency.js';
-import { listCards } from './hilCards.js';
+import { listCards, overdueCards, recordAnswer } from './hilCards.js';
+import { capture } from './memoryStore.js';
+import { topologicalWaves } from './waveReferee.js';
 import { readPack, readRecall, resolveArtifact, staleItems } from './handoff.js';
 import { checkPlaybook, findPlaybook, stepCatalogue } from './playbook.js';
 import { checkQuestions, parseQuestions, questionFile, readConfirmation, unstampedArtifacts } from './questions.js';
@@ -57,13 +59,45 @@ export const readState = async (cwd, feature) => {
     const raw = await readFile(stateFile(cwd, feature), 'utf8').catch(() => null);
     return raw ? JSON.parse(raw) : null;
 };
-const writeState = async (cwd, state) => {
+export const lockFile = (cwd, feature) => path.join(engineDir(cwd), `${feature}.lock`);
+const LOCK_WAIT_MS = 5_000;
+const LOCK_STALE_MS = 60_000;
+/** One writer per feature (REQ-V37-008): a held lock refuses a concurrent writer after 5 s. */
+const withLock = async (cwd, feature, fn) => {
     await mkdir(engineDir(cwd), { recursive: true });
+    const file = lockFile(cwd, feature);
+    const deadline = Date.now() + LOCK_WAIT_MS;
+    for (;;) {
+        try {
+            const h = await open(file, 'wx');
+            await h.writeFile(`${process.pid}\n`);
+            await h.close();
+            break;
+        }
+        catch {
+            const st = await stat(file).catch(() => null);
+            if (st && Date.now() - st.mtimeMs > LOCK_STALE_MS) {
+                await unlink(file).catch(() => { });
+                continue;
+            }
+            if (Date.now() > deadline)
+                throw new Error(`LOCK_HELD: another writer holds ${path.relative(cwd, file)}; retry when it finishes`);
+            await new Promise((r) => setTimeout(r, 50));
+        }
+    }
+    try {
+        return await fn();
+    }
+    finally {
+        await unlink(file).catch(() => { });
+    }
+};
+const writeState = async (cwd, state) => withLock(cwd, state.feature, async () => {
     const tmp = `${stateFile(cwd, state.feature)}.tmp`;
     await writeFile(tmp, `${JSON.stringify(state, null, 2)}\n`, 'utf8');
     const { rename } = await import('node:fs/promises');
     await rename(tmp, stateFile(cwd, state.feature));
-};
+});
 export const appendAudit = async (cwd, feature, event) => {
     await mkdir(engineDir(cwd), { recursive: true });
     await appendFile(auditFile(cwd, feature), `${JSON.stringify({ at: new Date().toISOString(), ...event })}\n`, 'utf8');
@@ -73,6 +107,13 @@ export const readAudit = async (cwd, feature) => (await readFile(auditFile(cwd, 
     .filter(Boolean)
     .map((l) => JSON.parse(l));
 export const startRun = async (cwd, feature, playbookName, values, opts = {}) => {
+    let waves;
+    if (opts.units && opts.units.length) {
+        const t = topologicalWaves(opts.units.map((u) => ({ id: u.id, depends: u.deps, done: false })));
+        if (t.error)
+            return { ok: false, message: `units: ${t.error}` };
+        waves = t.waves;
+    }
     if (await readState(cwd, feature))
         return { ok: false, message: `a run for ${feature} already exists (.sdd/engine/${feature}.state.json)` };
     const found = await findPlaybook(cwd, playbookName);
@@ -91,6 +132,7 @@ export const startRun = async (cwd, feature, playbookName, values, opts = {}) =>
         parked: null,
         budget: checked.budget,
         steps: checked.steps.map((s) => ({ id: s.id, phase: s.phase, use: s.use, checks: s.checks, review: s.review, status: s.decision === 'SKIP' ? 'skipped' : 'pending', revisions: 0, reason: s.reason })),
+        ...(opts.units && opts.units.length ? { units: opts.units, waves } : {}),
     };
     await writeState(cwd, state);
     await appendAudit(cwd, feature, { event: 'RUN_STARTED', detail: `${checked.name} · ${state.steps.filter((s) => s.status === 'pending').length} steps · ${state.steps.filter((s) => s.review === 'human' && s.status !== 'skipped').length} human gates` });
@@ -114,6 +156,18 @@ export const nextDirective = async (cwd, feature) => {
     const state = await readState(cwd, feature);
     if (!state)
         return { kind: 'error', message: `no run for ${feature}: run \`open-sdd engine start ${feature} --playbook <name>\`` };
+    // Deadlines (REQ-V37-002): an unanswered card past its deadline takes its default (park/reject only).
+    const overdue = await overdueCards(cwd, feature);
+    if (overdue.length) {
+        for (const card of overdue) {
+            const r = await recordAnswer(cwd, feature, card.id, card.default, 'deadline', { channel: 'deadline' });
+            if (!r.ok || !r.answer)
+                continue;
+            await appendAudit(cwd, feature, { event: 'DEADLINE_APPLIED', step: card.step, detail: `${card.id} ${card.default} ${r.answer.effect}`, by: 'deadline' });
+            await applyDecision(cwd, card, r.answer);
+        }
+        return nextDirective(cwd, feature);
+    }
     if (state.parked)
         return { kind: 'parked', feature, reason: state.parked };
     const rel = (p) => path.relative(cwd, p).split(path.sep).join('/');
@@ -199,7 +253,7 @@ export const phaseTrace = async (cwd, feature) => {
     return { inspected: true, problems };
 };
 const isLastOfPhase = (state, step) => state.steps.filter((s) => s.phase === step.phase && s.status !== 'skipped').every((s) => s.id === step.id || s.status === 'done');
-const complete = async (cwd, state, step, event, by) => {
+const complete = async (cwd, state, step, event, by, extra = {}) => {
     if (isLastOfPhase(state, step)) {
         const trace = await phaseTrace(cwd, state.feature);
         if (trace.problems.length) {
@@ -210,10 +264,15 @@ const complete = async (cwd, state, step, event, by) => {
     }
     step.status = 'done';
     await writeState(cwd, state);
-    await appendAudit(cwd, state.feature, { event, step: step.id, by });
+    await appendAudit(cwd, state.feature, { event, step: step.id, by, ...extra });
     return { ok: true, message: `${step.id} → done` };
 };
 export const report = async (cwd, feature, stepId, result, opts = {}) => {
+    const telemetry = {
+        ...(opts.tokens !== undefined ? { tokens: opts.tokens } : {}),
+        ...(opts.model ? { model: opts.model } : {}),
+        ...(opts.durationS !== undefined ? { durationS: opts.durationS } : {}),
+    };
     const state = await readState(cwd, feature);
     if (!state)
         return { ok: false, message: `no run for ${feature}` };
@@ -248,11 +307,13 @@ export const report = async (cwd, feature, stepId, result, opts = {}) => {
             return { ok: false, message: `${step.id} is a human gate: report awaiting-approval and answer its card` };
         const problems = await gateGuards(cwd, state, step, opts.produced ?? []);
         if (problems.length) {
-            await appendAudit(cwd, feature, { event: 'GATE_REFUSED', step: step.id, detail: problems.join(' | ') });
+            await appendAudit(cwd, feature, { event: 'GATE_REFUSED', step: step.id, detail: problems.join(' | '), ...telemetry });
+            // Learning without being asked (REQ-V37-005): every refusal reaches the memory inbox.
+            await capture(cwd, { kind: 'gate-block', origin: `gate:${feature}/${step.id}`, author: opts.by || 'open-sdd', feature, step: step.id, text: problems.map((p) => p.split(':')[0]).join(', ') });
             return { ok: false, message: `gate refused for ${step.id}:\n  ${problems.join('\n  ')}` };
         }
         if (result === 'completed')
-            return complete(cwd, state, step, 'STEP_COMPLETED', opts.by);
+            return complete(cwd, state, step, 'STEP_COMPLETED', opts.by, telemetry);
         step.status = 'awaiting';
     }
     else if (result === 'rejected') {
@@ -267,7 +328,7 @@ export const report = async (cwd, feature, stepId, result, opts = {}) => {
         step.reason = opts.reason ?? 'skipped by report';
     }
     await writeState(cwd, state);
-    await appendAudit(cwd, feature, { event: `STEP_${result.toUpperCase().replace(/-/g, '_')}`, step: step.id, detail: opts.reason, by: opts.by });
+    await appendAudit(cwd, feature, { event: `STEP_${result.toUpperCase().replace(/-/g, '_')}`, step: step.id, detail: opts.reason, by: opts.by, ...telemetry });
     return { ok: true, message: `${step.id} → ${step.status}` };
 };
 /** Apply a recorded answer to a prepared card. The only path to an approval. */
@@ -291,4 +352,69 @@ export const applyDecision = async (cwd, card, answer) => {
     if (answer.effect === 'override' && state.autonomous)
         return { ok: false, message: 'override refused in autonomous mode' };
     return complete(cwd, state, step, answer.effect === 'approve' ? 'GATE_APPROVED' : answer.effect === 'override' ? 'GATE_OVERRIDDEN' : 'GATE_ACCEPTED_AS_IS', answer.by);
+};
+/** Per step: seconds from the first STEP_STARTED to the last event, and the reported tokens. */
+export const stepMetrics = async (cwd, feature) => {
+    const by = new Map();
+    for (const e of await readAudit(cwd, feature)) {
+        if (!e.step)
+            continue;
+        const m = by.get(e.step) ?? { tokens: 0, models: new Set() };
+        const t = Date.parse(e.at);
+        if (e.event === 'STEP_STARTED' && m.start === undefined)
+            m.start = t;
+        if (m.start !== undefined)
+            m.end = t;
+        m.tokens += e.tokens ?? 0;
+        if (e.model)
+            m.models.add(e.model);
+        by.set(e.step, m);
+    }
+    return [...by.entries()].map(([step, m]) => ({
+        step,
+        elapsedS: m.start !== undefined && m.end !== undefined ? Math.round((m.end - m.start) / 1000) : null,
+        tokens: m.tokens,
+        models: [...m.models],
+    }));
+};
+export const listRuns = async (cwd) => {
+    const names = (await readdir(engineDir(cwd)).catch(() => [])).filter((n) => n.endsWith('.state.json')).sort();
+    const out = [];
+    for (const n of names) {
+        const st = await readState(cwd, n.replace(/\.state\.json$/, ''));
+        if (!st)
+            continue;
+        const active = st.steps.filter((x) => x.status !== 'skipped');
+        out.push({ feature: st.feature, playbook: st.playbook, done: active.filter((x) => x.status === 'done').length, total: active.length, parked: st.parked, current: active.find((x) => x.status !== 'done')?.id ?? null });
+    }
+    return out;
+};
+const MERMAID_CLASS = { pending: 'pending', 'in-progress': 'running', awaiting: 'awaiting', revising: 'awaiting', done: 'done', skipped: 'skipped' };
+/** Phases as subgraphs, steps coloured by status, human gates marked. */
+export const runMermaid = (state) => {
+    const id = (s) => s.replace(/[^A-Za-z0-9_]/g, '_');
+    const lines = [
+        'flowchart LR',
+        '  classDef done fill:#dcfce7,stroke:#15803d,color:#0b3a1c',
+        '  classDef running fill:#dbeafe,stroke:#1d4ed8,color:#0b2559',
+        '  classDef awaiting fill:#fef3c7,stroke:#b45309,color:#4a2a00',
+        '  classDef pending fill:#f1f5f9,stroke:#64748b,color:#1e293b',
+        '  classDef skipped fill:#f8fafc,stroke:#cbd5e1,color:#94a3b8,stroke-dasharray:4 3',
+    ];
+    const phases = [...new Set(state.steps.map((s) => s.phase))];
+    for (const ph of phases) {
+        lines.push(`  subgraph ${id(`ph_${ph}`)}["${ph}"]`);
+        for (const s of state.steps.filter((x) => x.phase === ph))
+            lines.push(`    ${id(s.id)}["${s.review === 'human' ? '👤 ' : ''}${s.id}<br/>${s.status}"]:::${MERMAID_CLASS[s.status]}`);
+        lines.push('  end');
+    }
+    const order = state.steps.filter((s) => s.status !== 'skipped');
+    for (let i = 1; i < order.length; i += 1)
+        lines.push(`  ${id(order[i - 1].id)} --> ${id(order[i].id)}`);
+    if (state.waves?.length) {
+        lines.push('  subgraph waves["units · waves"]');
+        state.waves.forEach((w, i) => lines.push(`    ${id(`wave_${i + 1}`)}["wave ${i + 1}: ${w.join(', ')}"]`));
+        lines.push('  end');
+    }
+    return lines.join('\n');
 };
