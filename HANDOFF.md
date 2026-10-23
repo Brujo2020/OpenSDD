@@ -4,29 +4,15 @@
 Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001…018, 17 criterios AC-01…AC-17, 18 tareas en 6 olas) y publicar **v3.6.0**: un ciclo planificar → ejecutar → comprobar → decidir → aprender → mejorar, con playbooks a medida por caso, un contrato `next`/`report` común a todos los hosts, revisión humana (HIL) preparada, memoria con procedencia y mejora por propose‑probe‑compose. Fuentes: AWS AI-DLC (método), Google Harness² (método), open-sdd.
 
 ## Estado actual
-**Parcial. Escrito ≠ verificado.** El núcleo (`src/core`) de casi todas las tareas está escrito y compila; **no hay tests nuevos, no hay comandos CLI conectados, ni help, skill, plugin, docs, claims ni release.** La suite existente sigue en verde.
+**v3.6.0 completa a nivel de repositorio; publicada en GitHub (rama y `main`, tag `v3.6.0`). npm NO publicado.**
 
-| Tarea (tasks.md) | Estado | Fichero(s) |
-|---|---|---|
-| 1 Perfil | escrito, sin test | `src/core/profile.ts` |
-| 2 Directivas `next`/`report` | escrito, sin test, sin CLI | `src/core/engine.ts` |
-| 3 Ficheros de preguntas | escrito, sin test, sin CLI | `src/core/questions.ts` |
-| 4 Memoria: captura, reflector, gate de admisión | escrito, sin test, sin CLI | `src/core/memoryStore.ts` |
-| 5 Tipo `multi-unit` | **hecho y verificado** (test actualizado) | `src/core/sddModes.ts`, `test/steelforgePort.test.ts` |
-| 6 Playbook: catálogo, checker, `when` | escrito, sin test | `src/core/playbook.ts`, `templates/playbooks/aidlc-stages.json` |
-| 7 Promoción, índice, dedupe, retirada | escrito, sin test, sin CLI | `src/core/memoryStore.ts` |
-| 8 Tarjetas HIL, ids con semilla, escalera de aprobación | escrito, sin test, sin CLI | `src/core/hilCards.ts`, `engine.ts` (`applyDecision`) |
-| 9 Biblioteca de playbooks y planner | escrito, sin test | `templates/playbooks/**/*.playbook.json` (13), `src/core/playbookPlanner.ts` |
-| 10 Paquete de traspaso, recall, stale | escrito, sin test, sin CLI | `src/core/handoff.ts` |
-| 11 Guard de artefactos, recibos de revisión, freeze, traza de fase | escrito, sin test; **freeze no conectado al pre-commit** | `src/core/reviewReceipts.ts`, `engine.ts` |
-| 12 Árbitro de olas | escrito, sin test; **no conectado a `waves`** | `src/core/waveReferee.ts` |
-| 13 Skill `sdd-playbook` | **no iniciado** | — |
-| 14 Build multi-host | escrito, sin test, sin CLI | `src/core/playbookBuild.ts` |
-| 15 Plugin AI-DLC, importador, status | importador y status **escritos**; plantilla del plugin **no iniciada** | `src/core/aidlc.ts`, `importers.ts`, `cli/commands/status.ts` |
-| 16 Estadísticas HIL y propuestas de umbral | escrito, sin test (vive en `hilCards.ts`, no en `hitlStats.ts`) | `src/core/hilCards.ts` |
-| 17 `playbook improve` | escrito, sin test, sin CLI | `src/core/playbookImprove.ts` |
-| 18 Docs, help, claims | **no iniciado** | — |
-| Release v3.6.0 | **no iniciado** | — |
+- CLI conectada: `playbook`, `engine`, `next`, `report --step`, `handoff`, `questions`, `hil`, `memory`, `review record|freeze-check`, `waves --baseline|--verify` (`src/cli/commands/playbook.ts`, routing en `src/index.ts`, help en `help.ts`).
+- MCP: `open_sdd_next`, `open_sdd_report`.
+- Freeze de artefactos revisados en `templates/hooks/pre-commit.mjs`.
+- Skill `sdd-playbook` en `_shared` + 8 árboles + workflow Axet (28 skills).
+- Plantilla del plugin AI-DLC `templates/integrations/aidlc-plugin/opensdd/` (sensores fallan cerrados).
+- Spec actualizada con decisiones D-1…D-5 (plan.md) y tarea 19; 0 avisos `BOUNDARY_VIOLATION`.
+- Docs `docs/guides/playbooks.md` (Mermaid), enlaces en README EN/ES, CHANGELOG 3.6.0, claims CLM-068…071, versión 3.6.0 en ambos `package.json`.
 
 ## Contexto y decisiones
 - **Playbooks en JSON** (`.playbook.json`), no YAML: el repo no tiene librería YAML y `C-STACK-FACT` prohíbe añadir dependencias. **Pendiente actualizar la spec** (plan §4 y requirements muestran YAML).
@@ -61,11 +47,12 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - Sin migraciones, flags ni cambios de contrato en comandos existentes, salvo `import` aceptando `aidlc`.
 
 ## Evidencia
-- `npx tsc --noEmit -p tools/open-sdd` → sin errores.
-- `npm run build` → exit 0.
-- `npx vitest run` en `tools/open-sdd` → **156 ficheros, 2047 tests en verde**. Ninguno cubre los módulos nuevos.
-- Sobre la spec (copia): constitución 0 errores, adhesión 97/100, 1 aviso `BOUNDARY_VIOLATION`; `open-sdd waves multi-unit-playbooks` → 6 olas.
-- No ejecutado: ningún comando nuevo de punta a punta, AC-01…AC-17, `assure claims --verify` con claims nuevos, validador de plugins de AI-DLC.
+- `npx tsc --noEmit -p tools/open-sdd` → sin errores; `npm run build` → exit 0; `open-sdd --version` → v3.6.0.
+- `npx vitest run` → **158 ficheros, 2057 tests en verde** (nuevos: `test/playbookCli.test.ts` 7, `test/aidlcPlugin.test.ts` 3).
+- `assure claims --verify` → 71 claims, 68 verificadas, 3 no medidas, **0 rotas**.
+- `status multi-unit-playbooks --check` → 0 errores, 0 `BOUNDARY_VIOLATION`.
+- Hook pre-commit ejecutado en el commit de release → pasó.
+- No ejecutado: AC-10 (validador AI-DLC, requiere bun + checkout); fixtures uno-a-uno para AC-01…AC-17 (los tests cubren el flujo de punta a punta, no cada AC por separado); `npm publish`.
 
 ## Fallos e intentos
 - `test/steelforgePort.test.ts` falló al añadir `multi-unit` (lista cerrada de tipos) → se actualizó la lista.
@@ -73,34 +60,18 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - `git status` sobre la carpeta montada dejó `.git/index.lock` vacíos dos veces → todo git se hace en la copia del sandbox; si ves un `index.lock` vacío, bórralo.
 
 ## Pendiente
-1. **CLI** (`src/cli/commands/playbook.ts` nuevo + routing en `src/index.ts` + entradas en `help.ts`, que `cliHelpContract.test.ts` exige):
-   - `playbook profile|check|plan|build|improve|save|list`
-   - `engine start|status`, `next <feature> --json`, `report <feature> --step --result`
-   - `handoff write|recall|check`, `questions check|confirm`
-   - `hil prepare|answer|list|stats`, `memory capture|reflect|promote|withdraw|list`
-   - `review record|freeze-check`; `waves <feature> --baseline <n> --protect …` y `--verify <n> --check "<cmd>"`
-2. **Tests** por módulo, con un fixture por criterio AC-01…AC-17.
-3. **Freeze** en el hook pre-commit (`templates/hooks/pre-commit`) y en el MCP server (`next`/`report` como herramientas).
-4. **Skill `sdd-playbook`** en `_shared` y en cada árbol de skills (CLM-027 exige que sean iguales); actualizar los conteos "27 skills" → 28 en docs.
-5. **Plugin AI-DLC** en `templates/integrations/aidlc-plugin/opensdd/`: `plugin.json`, sensores `aidlc-opensdd-*.md`, adaptador `tools/aidlc-sensor-opensdd.ts`, contributions, scope, doctor. Comprobar que el test "no orphan template trees" lo tolera. AC-10 con el validador de AI-DLC (necesita bun y el checkout) o informarlo como no ejecutado.
-6. **Spec al día:** YAML → JSON; boundary de la tarea 16 → `hilCards.ts`; resolver el aviso `BOUNDARY_VIOLATION`.
-7. **Docs** `docs/guides/playbooks.md` con diagramas Mermaid a color (ciclo, quién decide qué, flujo HIL, memoria, multi-host). README EN/ES. Claims en `docs/claims/paper-claims.yaml`.
-8. **Release v3.6.0:** versión en ambos `package.json`, CHANGELOG, `assure claims --verify` 0 broken, suite completa, commit. Push y publicación npm los hace Mario.
+1. `npm publish` de `@brujo2020/open-sdd@3.6.0` (lo hace Mario).
+2. AC-10: pasar `templates/integrations/aidlc-plugin/opensdd/` por el validador de AI-DLC y ajustar el esquema de `plugin.json`.
+3. Un fixture por AC (AC-01…AC-17) y marcar las casillas de `tasks.md` solo con esa evidencia.
+4. `docs/INSTALL.md` sigue citando v3.0.2 (preexistente, no tocado).
 
 ## Reanudación exacta
-1. Traer la rama:
-   ```bash
-   cd /Users/mramospe/Proyectos/Development/open-sdd
-   rm -f .git/index.lock
-   git fetch ./feat-multi-unit-playbooks.bundle feat/multi-unit-playbooks:feat/multi-unit-playbooks
-   # the working tree already holds exactly these files: point HEAD at the branch without touching them
-   git symbolic-ref HEAD refs/heads/feat/multi-unit-playbooks
-   git reset
-   git status --short        # expected: only the .bundle file, untracked
-   rm feat-multi-unit-playbooks.bundle
-   ```
-2. Verificar: `cd tools/open-sdd && npm ci && npx tsc --noEmit -p . && npx vitest run` → 2047 en verde.
-3. Primera acción: crear `src/cli/commands/playbook.ts` con `playbook profile|check|plan` y sus entradas en `help.ts`, más un test para AC-02, AC-03 y AC-04.
+```bash
+cd /Users/mramospe/Proyectos/Development/open-sdd
+git fetch origin && git checkout main && git reset --hard origin/main   # solo si no hay cambios locales propios
+cd tools/open-sdd && npm ci && npm run build && npx vitest run
+```
+Primera acción: AC-10 con el checkout de AI-DLC, o `npm publish` desde la raíz.
 
 ## Prompt de continuación
 "Abre el repositorio en /Users/mramospe/Proyectos/Development/open-sdd. Lee las instrucciones del proyecto (CLAUDE.md), la spec .sdd/specs/multi-unit-playbooks/ y HANDOFF.md. Verifica primero rama, HEAD, working tree y remote sin modificar nada. Continúa desde 'Reanudación exacta'; no repitas el trabajo ya verificado ni asumas que un commit local fue publicado."
