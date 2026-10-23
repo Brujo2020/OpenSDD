@@ -48,7 +48,17 @@ Generated: 2026-09-19T21:32:42.247Z
 - Provenance: descriptive
 - Evidence: Vitest; tools/open-sdd/test
 
+### C-INDEPENDENT-REVIEW — La revisión es humana o la hace un modelo distinto al que generó el código
+- Level: MUST
+- Threat: autoevaluación sesgada
+- Restriction: Ninguna validación ni revisión que no sea humana la realiza el mismo modelo que generó el código o el artefacto revisado.
+- Pattern: Registrar la revisión con `review record --by "<revisor>"`; si el revisor es un modelo, declarar `--by-model <id>` y `--author-model <id>`, que deben ser distintos.
+- Justification: Un modelo que valida su propia salida repite sus mismos errores y puntos ciegos; la independencia del revisor es lo que da valor a la revisión.
+- Provenance: normative
+- Amendment: AMD-INDEPENDENT-REVIEW (in-force)
+
 ## Amendments
 
 - AMD-REUSE-FIRST — Política de reutilización primero al crear símbolos nuevos [proposed] · by: sdd-getspecs
 - AMD-INCREMENTAL-DOCS — Cobertura de especificación creciente en el punto de cambio [proposed] · by: sdd-getspecs
+- AMD-INDEPENDENT-REVIEW — Revisión independiente: humana o de un modelo distinto al autor [in-force] · plan: Los recibos de revisión registran el modelo autor y el revisor; las revisiones previas sin esos campos se tratan como humanas declaradas. · by: open-sdd (invariante del harness)

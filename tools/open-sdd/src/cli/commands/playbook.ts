@@ -472,8 +472,8 @@ export const handleReviewReceiptCommand = async (args: string[], io: CliIO, cwd:
   const json = args.includes('--json');
   const [sub, feature, step] = positionals(args);
   if (sub === 'record') {
-    if (!feature || !step) return usage(io, 'review record <feature> <step> --by "<name>" --artifact <path> [--root <dir>]');
-    const r = await recordReview(cwd, { feature, step, reviewer: flag(args, 'by') ?? '', artifacts: flags(args, 'artifact'), roots: flags(args, 'root') });
+    if (!feature || !step) return usage(io, 'review record <feature> <step> --by "<name>" [--by-model <id> --author-model <id>] --artifact <path> [--root <dir>]');
+    const r = await recordReview(cwd, { feature, step, reviewer: flag(args, 'by') ?? '', reviewerModel: flag(args, 'by-model'), authorModel: flag(args, 'author-model'), artifacts: flags(args, 'artifact'), roots: flags(args, 'root') });
     out(io, json, r, r.message);
     return r.ok ? EXIT.PASSED : EXIT.GATE_FAILED;
   }

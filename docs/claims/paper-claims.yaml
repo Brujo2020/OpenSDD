@@ -363,7 +363,7 @@
   section: "§12 (reverse constitution: absent practices travel as amendments)"
   statement_es: 'Una práctica deseada pero ausente se emite como enmienda propuesta, nunca como hecho: sin tests detectados, el oráculo de regresión es AMD-REGRESSION-ORACLE y no un principio descriptivo.'
   statement_en: 'A desired-but-absent practice is emitted as a proposed amendment, never as a fact: with no tests detected, the regression oracle is AMD-REGRESSION-ORACLE and not a descriptive principle.'
-  verifier: 'node --input-type=module -e "import {buildDescriptiveConstitution} from ''./tools/open-sdd/dist/core/reverseConstitution.js''; const project={name:''p'',language:''TypeScript'',frameworks:[],packageManager:''npm'',buildTool:''tsc'',sourceDirs:[''src''],testDirs:[],modules:[''core'']}; const facts={project,migrationDirs:[],rollbackMigrations:[],ciWorkflows:[],publicApiFiles:[],configFiles:[]}; const r=buildDescriptiveConstitution(facts); process.exit(r.constitution.amendments.every(a=>a.status===''proposed'')&&r.constitution.amendments.some(a=>a.id===''AMD-REGRESSION-ORACLE'')&&!r.constitution.principles.some(p=>p.id===''C-REGRESSION-ORACLE'')?0:1)"'
+  verifier: 'node --input-type=module -e "import {buildDescriptiveConstitution} from ''./tools/open-sdd/dist/core/reverseConstitution.js''; const project={name:''p'',language:''TypeScript'',frameworks:[],packageManager:''npm'',buildTool:''tsc'',sourceDirs:[''src''],testDirs:[],modules:[''core'']}; const facts={project,migrationDirs:[],rollbackMigrations:[],ciWorkflows:[],publicApiFiles:[],configFiles:[]}; const r=buildDescriptiveConstitution(facts); process.exit(r.constitution.amendments.filter(a=>a.id!==''AMD-INDEPENDENT-REVIEW'').every(a=>a.status===''proposed'')&&r.constitution.amendments.some(a=>a.id===''AMD-REGRESSION-ORACLE'')&&!r.constitution.principles.some(p=>p.id===''C-REGRESSION-ORACLE'')?0:1)"'
   expectation: pass
 
 - id: CLM-050
@@ -581,4 +581,18 @@
   statement_es: 'Pedir tiny-spec para un trabajo L5 se eleva a spec-anchored.'
   statement_en: 'Asking tiny-spec for L5 work is raised to spec-anchored.'
   verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && echo "{}" > package.json && node "$C" start "split billing into 3 microservices" --rigor tiny-spec --dry-run --json --no-footer | grep -q "\"rigor\": \"spec-anchored\""'
+  expectation: pass
+
+- id: CLM-081
+  section: "v3.9.x / C-INDEPENDENT-REVIEW (harness invariant)"
+  statement_es: 'Toda constitución generada incluye C-INDEPENDENT-REVIEW en vigor, y un recibo de revisión hecho por el mismo modelo que generó el código se rechaza.'
+  statement_en: 'Every generated constitution carries C-INDEPENDENT-REVIEW in force, and a review receipt by the same model that generated the code is refused.'
+  verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/independentReview.test.ts test/coreBrownfield.test.ts >/dev/null 2>&1'
+  expectation: pass
+
+- id: CLM-082
+  section: "v3.9.x / HIL after more than 3 failed iterations"
+  statement_es: 'Un paso cuyo gate rechaza más de 3 iteraciones sale del bucle y pasa a puerta humana (HIL).'
+  statement_en: 'A step whose gate refuses more than 3 iterations leaves the loop and becomes a human (HIL) gate.'
+  verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/escalateToHil.test.ts >/dev/null 2>&1'
   expectation: pass

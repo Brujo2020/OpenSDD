@@ -176,3 +176,35 @@ describe('findReuseCandidates — el gate', () => {
     expect(noDirs.detail).toContain('NO se ejecutó');
   });
 });
+
+describe('reuseFirst — REQ-STD-012 en la delta (consultivo)', () => {
+  const entries = [
+    { id: 'REQ-AUTH-001', kind: 'ADDED', targets: ['getUsers', 'src/auth/session.ts'] },
+    { id: 'REQ-AUTH-002', kind: 'ADDED', targets: ['brandNewThing()', 'reuse: none — no existe'] },
+    { id: 'REQ-AUTH-003', kind: 'MODIFIED', targets: ['getUser'] },
+  ];
+
+  it('solo un símbolo ADDED sin evidencia `reuse:` cuenta; rutas y otras secciones no', async () => {
+    const { newSymbolsWithoutReuseEvidence } = await import('../src/core/reuseFirst.js');
+    expect(newSymbolsWithoutReuseEvidence(entries)).toEqual([{ entryId: 'REQ-AUTH-001', symbol: 'getUsers' }]);
+  });
+
+  it('indexa el repositorio y da el candidato con su ubicación, siempre como consultivo', async () => {
+    const { deltaReuseAdvisory } = await import('../src/core/reuseFirst.js');
+    const root = await fixture();
+    const advisory = await deltaReuseAdvisory(root, entries);
+    expect(advisory.severity).toBe('advisory');
+    expect(advisory.report.complete).toBe(true);
+    const hit = advisory.report.candidates.find((c) => c.symbol === 'getUser');
+    expect(hit).toMatchObject({ file: expect.stringContaining('session.ts'), line: 2, kind: 'name-variant' });
+  });
+});
+
+describe('reuseFirst — el aviso nunca falla la validación', () => {
+  it('sin símbolos nuevos no indexa nada y devuelve un informe vacío completo', async () => {
+    const { deltaReuseAdvisory } = await import('../src/core/reuseFirst.js');
+    const advisory = await deltaReuseAdvisory('/nonexistent-dir-open-sdd', [{ id: 'REQ-A-001', kind: 'ADDED', targets: ['src/x.ts', 'reuse: none — n/a'] }]);
+    expect(advisory.missingEvidence).toEqual([]);
+    expect(advisory.report).toMatchObject({ complete: true, candidates: [] });
+  });
+});

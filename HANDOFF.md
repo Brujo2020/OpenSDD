@@ -4,17 +4,17 @@
 Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001…018, 17 criterios AC-01…AC-17, 18 tareas en 6 olas) y publicar **v3.6.0**: un ciclo planificar → ejecutar → comprobar → decidir → aprender → mejorar, con playbooks a medida por caso, un contrato `next`/`report` común a todos los hosts, revisión humana (HIL) preparada, memoria con procedencia y mejora por propose‑probe‑compose. Fuentes: AWS AI-DLC (método), Google Harness² (método), open-sdd.
 
 ## Estado actual
-**v3.9.0 publicada** (2026-10-23): npm `@brujo2020/open-sdd@3.9.0` = `latest` (shasum `8eecdbe3…`), tag `v3.9.0` → `7c13697` en GitHub, `open-sdd --version` = v3.9.0 en el Mac.
+**v3.9.0 publicada** (2026-10-23): npm `@brujo2020/open-sdd@3.9.0` = `latest` (shasum `8eecdbe3…`), tag `v3.9.0` → `7c13697` en GitHub. Tras ella, sin versión nueva: pendientes cerrados y tres reglas nuevas del usuario (en `main`, sin publicar en npm).
 
 - v3.8.0: escalera L0–L6, reglas dinámicas deterministas, Modernize Kit.
-- v3.9.0: variantes greenfield/brownfield; escalera de rigor tiny-spec → spec-first → spec-anchored → **spec-as-code** (`spec-as-source` aceptado como sinónimo); reverse engineering RE-1…RE-6; asistentes (`assist`); `where`; **conversor EARS v2** (`converted` / `needs-confirmation` / `question`, `--file`, `--system`, `--write --area`, `--accept`); **plugin AI-DLC** en el formato real (`.aidlc-plugin/plugin.json`, sensores `aidlc-opensdd-*`, fail closed).
-- Post-release (este commit): `docs/MANUAL.md` §7.2 EARS v2 y sección AI-DLC; README con diagramas Mermaid a color (decisión agente/motor/persona, escaleras nivel/rigor, greenfield vs brownfield, RE-1…RE-6, EARS, reglas dinámicas, Modernize Kit, `where`, plugin AI-DLC), los 10 bloques renderizados con mmdc sin error.
-
-## Pendiente
-1. Ejecutar el validador AI-DLC (no se pudo en el sandbox): `bun core/tools/aidlc-plugin-validate.ts <repo>/tools/open-sdd/templates/integrations/aidlc-plugin/opensdd` en un checkout de aidlc-workflows.
-2. `status variants-reverse --check --strict`: 1 aviso `BOUNDARY_VIOLATION` (archivos nuevos fuera de los límites de la spec: plugin, `rigor.ts` o playbooks base).
-3. Spec `multi-unit-playbooks` muestra YAML; los playbooks son JSON.
-4. `README.es.md` no tiene los diagramas nuevos.
+- v3.9.0: variantes greenfield/brownfield; escalera de rigor tiny-spec → spec-first → spec-anchored → **spec-as-code** (`spec-as-source` aceptado como sinónimo); reverse engineering RE-1…RE-6; asistentes (`assist`); `where`; **conversor EARS v2**; **plugin AI-DLC** en el formato real (`.aidlc-plugin/plugin.json`, sensores `aidlc-opensdd-*`, fail closed).
+- Post-release (`70ea828`): `docs/MANUAL.md` §7.2 EARS v2 y sección AI-DLC; README con diagramas Mermaid.
+- Post-3.9.0 (2026-10-23):
+  - **C-INDEPENDENT-REVIEW** (invariante MUST, enmienda en vigor `AMD-INDEPENDENT-REVIEW`): toda constitución generada lo incluye; `validateConstitution` avisa si falta; `review record --by-model <id> --author-model <id>` rechaza que revise el mismo modelo que generó.
+  - **HIL tras >3 iteraciones fallidas**: `engine.report` escala el paso a puerta humana en el 4.º `GATE_REFUSED` (`ESCALATED_TO_HIL`); el contador se reinicia con decisión humana, escalado o compleción.
+  - **Karpathy siempre**: skill `karpathy-guidelines` (copia literal de github.com/multica-ai/andrej-karpathy-skills, MIT, con `NOTICE.md`) en los 9 árboles de skills + workflow Axet; regla en `settings/rules/karpathy-guidelines.md`; las 3 reglas en los 19 quickstarts (CLAUDE/AGENTS/GEMINI/QWEN.md).
+  - REQ-STD-012 cerrada: `delta validate` reporta como **consultivo** el símbolo nuevo sin `reuse:` y su candidato `fichero:línea`; nunca cambia el exit.
+  - Spec `multi-unit-playbooks`: ejemplo del plan §4 pasado de YAML a JSON.
 
 ## Contexto y decisiones
 - **Playbooks en JSON** (`.playbook.json`), no YAML: el repo no tiene librería YAML y `C-STACK-FACT` prohíbe añadir dependencias. **Pendiente actualizar la spec** (plan §4 y requirements muestran YAML).
@@ -49,11 +49,11 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - Sin migraciones, flags ni cambios de contrato en comandos existentes, salvo `import` aceptando `aidlc`.
 
 ## Evidencia
-- Build OK; versión 3.9.0.
-- `npx vitest run` → **167 ficheros, 2408 tests en verde, 1 skipped**; nuevos v3.9: `vrVariantsReverse` (79, incluye las 48 combinaciones nivel × variante × rigor) y `vrAssistWhere` (adicionales).
-- `assure claims --verify` → 80 claims, 0 rotas.
-- `status variants-reverse --check` → 0 errores, 0 avisos.
-- No ejecutado: validador AI-DLC; `npm publish` 3.8/3.9; tags.
+- 2026-10-23 (post-3.9.0), en copia Linux del repo (el `node_modules` local es de macOS): `tsc` OK; `vitest run` → **170 ficheros, 2477 tests en verde, 1 skipped**; `assure claims --verify` → 82 claims, 0 rotas (nuevas CLM-081 revisión independiente, CLM-082 escalado HIL; CLM-049 excluye la enmienda invariante); `gates run` → la cadena pasa.
+- `delta validate` manual: `getUsers` → candidato `getUser` en `src/session.ts:1`, exit 0.
+- `npx -y @brujo2020/open-sdd@3.9.0 --version` → `open-sdd v3.9.0`. `npm view … dist.attestations` vacío: 3.9.0 **sin provenance**.
+- Revisión independiente del diff por otro modelo (Sonnet): hallazgos aplicados (retorno temprano + try/catch del aviso de reutilización, prueba de frescura de recibos, reinicio del contador al completar).
+- v3.9.0: 167 ficheros / 2408 tests; 80 claims, 0 rotas.
 
 ## Fallos e intentos
 - `test/steelforgePort.test.ts` falló al añadir `multi-unit` (lista cerrada de tipos) → se actualizó la lista.
@@ -61,18 +61,21 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - `git status` sobre la carpeta montada dejó `.git/index.lock` vacíos dos veces → todo git se hace en la copia del sandbox; si ves un `index.lock` vacío, bórralo.
 
 ## Pendiente
-1. `npm publish --access public` de 3.9.0 desde la raíz (Mario).
-2. Tags: `git tag v3.6.0 a72c690 && git tag v3.7.0 7551170 && git tag v3.8.0 9ff144e && git tag v3.9.0 origin/main && git push origin --tags`.
-3. AC-10 v3.6: validar el plugin AI-DLC con su validador.
-4. Umbrales (SLA, canary) son valores por defecto: cada cliente define su política en `.sdd/settings/dynamic-rules.json`.
+1. AC-10 (v3.6): validar el plugin AI-DLC con su validador — requiere checkout de AI-DLC + `bun` (no accesibles en esta sesión). Esquema de dependencias de unidades AI-DLC sigue sin verificar.
+2. RQC tarea 5 (calibración): bloqueada hasta tener un corpus etiquetado de defectos; no inventar etiquetas.
+3. MAT tarea 11: publicar vía `publish.yml` para obtener provenance y construir la imagen Docker.
+4. Publicar una versión nueva (p. ej. 3.10.0) con los cambios post-3.9.0 si Mario lo decide.
+5. `status variants-reverse --check --strict`: 1 aviso `BOUNDARY_VIOLATION` (archivos nuevos fuera de los límites de la spec: plugin, `rigor.ts` o playbooks base).
+6. `README.es.md` no tiene los diagramas nuevos.
+7. Informativo: umbrales SLA/canary son valores por defecto (`.sdd/settings/dynamic-rules.json`).
 
 ## Reanudación exacta
 ```bash
 cd /Users/mramospe/Proyectos/Development/open-sdd
-git fetch origin && git checkout main && git reset --hard origin/main   # solo si no hay cambios locales propios
+git fetch origin && git status --short --branch
 cd tools/open-sdd && npm ci && npm run build && npx vitest run
 ```
-Primera acción: AC-10 con el checkout de AI-DLC, o `npm publish` desde la raíz.
+Primera acción: AC-10 con el checkout de AI-DLC, o decidir la publicación 3.10.0.
 
 ## Prompt de continuación
 "Abre el repositorio en /Users/mramospe/Proyectos/Development/open-sdd. Lee las instrucciones del proyecto (CLAUDE.md), la spec .sdd/specs/multi-unit-playbooks/ y HANDOFF.md. Verifica primero rama, HEAD, working tree y remote sin modificar nada. Continúa desde 'Reanudación exacta'; no repitas el trabajo ya verificado ni asumas que un commit local fue publicado."

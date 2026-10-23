@@ -124,7 +124,9 @@ describe('core/brownfield', () => {
 
     // (a) nothing aspirational is emitted as a descriptive fact: every principle cites evidence.
     expect(result.constitution.principles.length).toBeGreaterThan(0);
-    for (const principle of result.constitution.principles) {
+    // C-INDEPENDENT-REVIEW is the one normative harness invariant, present in every constitution.
+    expect(result.constitution.principles.map((p) => p.id)).toContain('C-INDEPENDENT-REVIEW');
+    for (const principle of result.constitution.principles.filter((p) => p.id !== 'C-INDEPENDENT-REVIEW')) {
       expect(principle.provenance).toBe('descriptive');
       expect(principle.evidence).toBeDefined();
       expect((principle.evidence ?? []).length).toBeGreaterThan(0);

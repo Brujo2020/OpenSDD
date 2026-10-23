@@ -117,6 +117,8 @@ Non-negotiables when using that model:
 - 3-phase approval workflow: Requirements → Design → Tasks → Implementation
 - Human review required each phase; use `-y` only for intentional fast-track
 - Karpathy Guidelines (Think before coding, Simplicity first, Surgical changes, Goal-driven execution) are mandatory.
+- Validation and review are done by a human or, if not, by a model different from the one that generated the code (constitution `C-INDEPENDENT-REVIEW`; `review record --by-model <id> --author-model <id>` refuses the same model).
+- A task or implementation that fails more than 3 iterations stops and goes to HIL (the engine escalates the step to a human gate on the 4th gate refusal).
 - Autonomous Quality Engineering: Agentic QE (`agentic-qe.dev`, PACTS framework) enabled for boundary-scoped metamorphic invariant testing.
 - Strict Git Mode: specs are mandatory and implementation without an approved specification is
   blocked **under the `team` and `enterprise` governance profiles**; the default `solo` profile runs

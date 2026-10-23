@@ -212,7 +212,13 @@ export const buildConstitutionDraft = async (
   const droppedEvidence: string[] = [];
   const proposedIds = new Set<string>();
 
+  const invariants: ConstitutionPrinciple[] = [];
   for (const principle of constitution.principles) {
+    // Un invariante normativo ya en vigor (C-INDEPENDENT-REVIEW) no es una propuesta: rige siempre.
+    if (principle.provenance === 'normative' && principle.amendment?.status === 'in-force') {
+      invariants.push({ ...principle, draft: false });
+      continue;
+    }
     const { kept, dropped } = verifiableEvidence(principle.evidence ?? [], root);
     for (const entry of dropped) droppedEvidence.push(`${principle.id}: ${entry}`);
     if (kept.length === 0) {
@@ -248,7 +254,8 @@ export const buildConstitutionDraft = async (
     // `buildDescriptiveConstitution` emits `deferred[i]` for `amendments[i]`; the pairing is only
     // trusted when the two lists still line up, so a future change degrades to the generic question
     // instead of attributing the wrong reason.
-    const reason = deferred.length === constitution.amendments.length ? deferred[index] : undefined;
+    const reason =
+      deferred.length === constitution.amendments.filter((a) => a.status !== 'in-force').length ? deferred[index] : undefined;
     const question =
       `¿Se adopta "${amendment.title}"? El código NO muestra la práctica` +
       `${reason ? ` (${reason})` : ''}: entra como enmienda propuesta ${amendment.id} y solo gobierna ` +
@@ -274,9 +281,10 @@ export const buildConstitutionDraft = async (
     });
   });
 
-  const evidencedPrinciples = proposals
-    .filter((proposal) => !proposal.needsHumanDecision)
-    .map((proposal) => proposal.principle);
+  const evidencedPrinciples = [
+    ...proposals.filter((proposal) => !proposal.needsHumanDecision).map((proposal) => proposal.principle),
+    ...invariants,
+  ];
 
   const document: Constitution = {
     project: constitution.project,
@@ -298,6 +306,7 @@ export const buildConstitutionDraft = async (
     '',
     DRAFT_MARKER,
     'Este documento NO está en vigor: es un borrador y ninguno de sus principios puede citarse como autoridad.',
+    ...invariants.map((p) => `Excepción: ${p.id} es un invariante del harness y rige siempre, también en este borrador.`),
     RATIFY_INSTRUCTION,
     '',
   ];

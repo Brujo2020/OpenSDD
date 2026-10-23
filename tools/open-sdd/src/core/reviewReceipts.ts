@@ -16,6 +16,9 @@ export interface ReviewReceipt {
   feature: string;
   step: string;
   reviewer: string;
+  /** C-INDEPENDENT-REVIEW: present only when the reviewer is a model (absent = declared human). */
+  reviewerModel?: string;
+  authorModel?: string;
   at: string;
   artifacts: { path: string; sha256: string }[];
   roots: string[];
@@ -51,11 +54,39 @@ const snapshotOf = async (cwd: string, roots: string[]): Promise<Record<string, 
   return snap;
 };
 
+/** Model ids compared without case or a trailing date snapshot (`-20261001`). */
+const modelKey = (id: string): string => id.trim().toLowerCase().replace(/[-@]\d{8}$/, '');
+
+/**
+ * C-INDEPENDENT-REVIEW: a non-human review must come from a model other than the author. Returns
+ * the refusal message, or null when the review is independent (or declared human).
+ */
+export const independentReviewViolation = (reviewerModel?: string, authorModel?: string): string | null => {
+  if (reviewerModel === undefined) return null;
+  if (!reviewerModel.trim()) return 'C-INDEPENDENT-REVIEW: --by-model needs the reviewer model id';
+  if (!authorModel?.trim())
+    return 'C-INDEPENDENT-REVIEW: a model review needs --author-model "<id>" so independence can be checked';
+  if (modelKey(reviewerModel) === modelKey(authorModel))
+    return `C-INDEPENDENT-REVIEW: ${reviewerModel} generated this work and cannot review it; use a human or a different model`;
+  return null;
+};
+
 export const recordReview = async (
   cwd: string,
-  input: { feature: string; step: string; reviewer: string; artifacts: string[]; roots: string[]; now?: Date },
+  input: {
+    feature: string;
+    step: string;
+    reviewer: string;
+    reviewerModel?: string;
+    authorModel?: string;
+    artifacts: string[];
+    roots: string[];
+    now?: Date;
+  },
 ): Promise<{ ok: boolean; message: string; receipt?: ReviewReceipt }> => {
   if (!input.reviewer.trim()) return { ok: false, message: 'a review receipt needs --by "<reviewer>"' };
+  const violation = independentReviewViolation(input.reviewerModel, input.authorModel);
+  if (violation) return { ok: false, message: violation };
   const artifacts: ReviewReceipt['artifacts'] = [];
   for (const a of input.artifacts) {
     const h = await hashFile(cwd, a);
@@ -63,7 +94,10 @@ export const recordReview = async (
     artifacts.push({ path: posix(a), sha256: h });
   }
   const snapshot = await snapshotOf(cwd, input.roots);
-  const body = { schema: 'open-sdd.review/1' as const, feature: input.feature, step: input.step, reviewer: input.reviewer, at: (input.now ?? new Date()).toISOString(), artifacts, roots: input.roots.map(posix), snapshot };
+  const models = input.reviewerModel?.trim()
+    ? { reviewerModel: input.reviewerModel.trim(), authorModel: (input.authorModel ?? '').trim() }
+    : {};
+  const body = { schema: 'open-sdd.review/1' as const, feature: input.feature, step: input.step, reviewer: input.reviewer, ...models, at: (input.now ?? new Date()).toISOString(), artifacts, roots: input.roots.map(posix), snapshot };
   const receipt: ReviewReceipt = { ...body, digest: sha256(JSON.stringify(body)) };
   await mkdir(receiptDir(cwd, input.feature), { recursive: true });
   await writeFile(path.join(receiptDir(cwd, input.feature), `${input.step}.json`), `${JSON.stringify(receipt, null, 2)}\n`, 'utf8');

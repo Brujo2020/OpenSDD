@@ -162,10 +162,12 @@ describe('core/constitutionDraft — el día uno no es una página en blanco', (
 
     const reloaded = parseConstitution(draft.text);
     expect(reloaded.principles.length).toBeGreaterThan(0);
-    expect(reloaded.principles.every((principle) => principle.draft === true)).toBe(true);
+    // C-INDEPENDENT-REVIEW is a harness invariant: in force even inside a draft. Everything else is draft.
+    const proposals = reloaded.principles.filter((principle) => principle.id !== 'C-INDEPENDENT-REVIEW');
+    expect(proposals.every((principle) => principle.draft === true)).toBe(true);
     // The mechanism, not a convention: no draft reaches the in-force list.
-    expect(principlesInForce(reloaded)).toEqual([]);
-    expect(draftPrincipleIds(reloaded).length).toBe(reloaded.principles.length);
+    expect(principlesInForce(reloaded).map((principle) => principle.id)).toEqual(['C-INDEPENDENT-REVIEW']);
+    expect(draftPrincipleIds(reloaded).length).toBe(proposals.length);
 
     // And the flag survives a render/parse cycle: a reloaded draft stays a draft.
     const again = parseConstitution(renderConstitution(reloaded));

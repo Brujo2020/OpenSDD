@@ -289,3 +289,36 @@ export const findReuseCandidates = async (input) => {
         detail,
     };
 };
+// ---------------------------------------------------------------------------------------------
+// REQ-STD-012 — la delta declara símbolos nuevos: ¿hay evidencia de reutilización?
+// ---------------------------------------------------------------------------------------------
+/**
+ * Evidencia de reutilización en `- Targets:` de una entrada ADDED: `reuse: <fichero#símbolo>` o
+ * `reuse: none — <motivo>`. Mientras el estándar no esté calibrado, su ausencia es solo un aviso.
+ */
+export const REUSE_EVIDENCE_PATTERN = /^reuse:/i;
+/** Un objetivo que es un identificador desnudo (no una ruta, endpoint ni esquema) declara un símbolo. */
+const SYMBOL_TARGET_PATTERN = /^[A-Za-z_$][\w$]*(?:\(\))?$/;
+export const newSymbolsWithoutReuseEvidence = (entries) => entries
+    .filter((entry) => entry.kind === 'ADDED' && !entry.targets.some((t) => REUSE_EVIDENCE_PATTERN.test(t)))
+    .flatMap((entry) => entry.targets
+    .filter((t) => SYMBOL_TARGET_PATTERN.test(t))
+    .map((t) => ({ entryId: entry.id, symbol: t.replace(/\(\)$/, '') })));
+/** Construye el índice de símbolos y lista candidatos para los símbolos nuevos sin evidencia. */
+export const deltaReuseAdvisory = async (cwd, entries) => {
+    const missingEvidence = newSymbolsWithoutReuseEvidence(entries);
+    const empty = (detail, complete) => ({ requested: [], candidates: [], violations: [], complete, detail });
+    if (missingEvidence.length === 0)
+        return { severity: 'advisory', missingEvidence, report: empty('No new symbol without reuse evidence.', true) };
+    try {
+        const report = await findReuseCandidates({
+            cwd,
+            requests: missingEvidence.map((d) => ({ symbol: d.symbol, reason: d.entryId })),
+        });
+        return { severity: 'advisory', missingEvidence, report };
+    }
+    catch (error) {
+        // Advisory only: a failed index must never turn into a failed validation.
+        return { severity: 'advisory', missingEvidence, report: empty(`La búsqueda de reutilización falló: ${error.message}`, false) };
+    }
+};

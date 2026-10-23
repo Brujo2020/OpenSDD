@@ -91,8 +91,9 @@ describe('cli/constitutionDraft — brownfield constitution --draft', () => {
     expect(written).toContain('--ratify');
     const reloaded = parseConstitution(written);
     expect(reloaded.principles.length).toBeGreaterThan(0);
-    expect(reloaded.principles.every((principle) => principle.draft === true)).toBe(true);
-    expect(draftPrincipleIds(reloaded).length).toBe(reloaded.principles.length);
+    const proposals = reloaded.principles.filter((principle) => principle.id !== 'C-INDEPENDENT-REVIEW');
+    expect(proposals.every((principle) => principle.draft === true)).toBe(true);
+    expect(draftPrincipleIds(reloaded).length).toBe(proposals.length);
 
     // The in-force constitution is byte-for-byte untouched.
     expect(await readFile(inForcePathOf(dir), 'utf8')).toBe(inForce);

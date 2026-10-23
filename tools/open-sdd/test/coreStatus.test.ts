@@ -12,7 +12,7 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { buildStatus, renderStatus } from '../src/core/status.js';
-import { renderConstitution, type Constitution } from '../src/core/constitution.js';
+import { INDEPENDENT_REVIEW_AMENDMENT, independentReviewPrinciple, renderConstitution, type Constitution } from '../src/core/constitution.js';
 import { handleStatusCommand } from '../src/cli/commands/status.js';
 
 const dirs: string[] = [];
@@ -73,8 +73,9 @@ const CONSTITUTION: Constitution = {
       provenance: 'descriptive',
       evidence: ['package.json'],
     },
+    independentReviewPrinciple(),
   ],
-  amendments: [],
+  amendments: [{ ...INDEPENDENT_REVIEW_AMENDMENT }],
 };
 
 const REQUIREMENTS = [
@@ -203,7 +204,7 @@ describe('core/status — panel único', () => {
 
     const constitution = dataLine(report, 'Constitución');
     expect(constitution?.tone).toBe('ok');
-    expect(constitution?.value).toContain('1 principio(s) en vigor');
+    expect(constitution?.value).toContain('2 principio(s) en vigor');
 
     const alignment = dataLine(report, 'Constitucional');
     expect(alignment?.tone).toBe('ok');

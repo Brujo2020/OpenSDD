@@ -28,6 +28,30 @@
  */
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+/**
+ * Invariante del harness, en vigor en TODA constitución (no depende de lo que el código muestre):
+ * la validación y la revisión las hace una persona o, si no, un modelo distinto del que generó el
+ * artefacto. Un modelo que se revisa a sí mismo comparte sus puntos ciegos.
+ */
+export const INDEPENDENT_REVIEW_ID = 'C-INDEPENDENT-REVIEW';
+export const INDEPENDENT_REVIEW_AMENDMENT = {
+    id: 'AMD-INDEPENDENT-REVIEW',
+    title: 'Revisión independiente: humana o de un modelo distinto al autor',
+    proposedBy: 'open-sdd (invariante del harness)',
+    status: 'in-force',
+    migrationPlan: 'Los recibos de revisión registran el modelo autor y el revisor; las revisiones previas sin esos campos se tratan como humanas declaradas.',
+};
+export const independentReviewPrinciple = () => ({
+    id: INDEPENDENT_REVIEW_ID,
+    title: 'La revisión es humana o la hace un modelo distinto al que generó el código',
+    threatReference: 'autoevaluación sesgada',
+    level: 'MUST',
+    restriction: 'Ninguna validación ni revisión que no sea humana la realiza el mismo modelo que generó el código o el artefacto revisado.',
+    pattern: 'Registrar la revisión con `review record --by "<revisor>"`; si el revisor es un modelo, declarar `--by-model <id>` y `--author-model <id>`, que deben ser distintos.',
+    justification: 'Un modelo que valida su propia salida repite sus mismos errores y puntos ciegos; la independencia del revisor es lo que da valor a la revisión.',
+    provenance: 'normative',
+    amendment: { ...INDEPENDENT_REVIEW_AMENDMENT },
+});
 const ID_PATTERN = /^[A-Z][A-Z0-9-]{2,}$/;
 /** Canonical CWE reference form fixed by CSDD §3.2: `CWE-<número>`, case-insensitive on input. */
 export const CWE_REFERENCE_PATTERN = /^CWE-\d+$/i;
@@ -312,6 +336,14 @@ export const validateConstitution = (constitution) => {
                 message: `La enmienda ${amendment.id} no figura en el registro de enmiendas.`,
             });
         }
+    }
+    if (constitution.principles.length > 0 && !constitution.principles.some((p) => p.id === INDEPENDENT_REVIEW_ID)) {
+        issues.push({
+            severity: 'warning',
+            code: 'INDEPENDENT-REVIEW-MISSING',
+            id: constitution.project,
+            message: `Falta ${INDEPENDENT_REVIEW_ID}: la revisión no humana debe hacerla un modelo distinto al que generó el código. Regenera la constitución o añade el principio con su enmienda ${INDEPENDENT_REVIEW_AMENDMENT.id}.`,
+        });
     }
     // A constitution where everything is MUST imposes nothing: the level stops meaning anything.
     const levels = new Set(constitution.principles.map((p) => p.level));

@@ -68,29 +68,68 @@ host behaviour, never part of a verdict.
 
 ### Playbook format
 
-```yaml
-name: multi-unit
-extends: base/spec-anchored
-lead: aidlc                         # or opensdd
-profile: { repos: ">=2 | units>=2" }
-budget: { handoff_tokens: 8000, improve_probes: 6, always_on_chars: 6000 }
-phases:
-  - id: inception
-    steps:
-      - use: aidlc:stage/requirements-analysis
-        checks: [opensdd:ears, opensdd:constitution]
-      - use: aidlc:stage/units-generation
-      - use: aidlc:stage/contract-design
-        when: units >= 2
-  - id: construction
-    steps:
-      - use: opensdd:command/waves
-      - use: aidlc:stage/code-generation
-        checks: [opensdd:gates-c1-c3]
-        review: human
-customize:
-  - when: governance == enterprise
-    add: [{ phase: inception, after: requirements-analysis, use: aidlc:stage/practices-discovery }]
+```json
+{
+  "name": "multi-unit",
+  "extends": "base/spec-anchored",
+  "lead": "aidlc",
+  "profile": {
+    "repos": ">=2 | units>=2"
+  },
+  "budget": {
+    "handoff_tokens": 8000,
+    "improve_probes": 6,
+    "always_on_chars": 6000
+  },
+  "phases": [
+    {
+      "id": "inception",
+      "steps": [
+        {
+          "use": "aidlc:stage/requirements-analysis",
+          "checks": [
+            "opensdd:ears",
+            "opensdd:constitution"
+          ]
+        },
+        {
+          "use": "aidlc:stage/units-generation"
+        },
+        {
+          "use": "aidlc:stage/contract-design",
+          "when": "units >= 2"
+        }
+      ]
+    },
+    {
+      "id": "construction",
+      "steps": [
+        {
+          "use": "opensdd:command/waves"
+        },
+        {
+          "use": "aidlc:stage/code-generation",
+          "checks": [
+            "opensdd:gates-c1-c3"
+          ],
+          "review": "human"
+        }
+      ]
+    }
+  ],
+  "customize": [
+    {
+      "when": "governance == enterprise",
+      "add": [
+        {
+          "phase": "inception",
+          "after": "requirements-analysis",
+          "use": "aidlc:stage/practices-discovery"
+        }
+      ]
+    }
+  ]
+}
 ```
 
 `when` is evaluated by open-sdd at plan and build time. Customizations are additive (`add`, `skip`),
@@ -222,7 +261,8 @@ as not run otherwise.
 These change the plan explicitly; they are not retroactive edits of what was planned.
 
 - **D-1 Playbooks are JSON** (`.playbook.json`), not YAML: the repository has no YAML parser and
-  `C-STACK-FACT` forbids new dependencies. The YAML example above is illustrative of the shape only.
+  `C-STACK-FACT` forbids new dependencies. The example above is in that JSON format
+  (`templates/playbooks/playbook.schema.json`); `lead` accepts `aidlc` or `opensdd`.
 - **D-2 Module boundaries:** review receipts live in `core/reviewReceipts.ts` (not `receipts.ts`), the
   artifact guard and phase trace in `core/engine.ts` (not `gateRunner.ts`), the wave referee in
   `core/waveReferee.ts` (not `waves.ts`) and HIL statistics in `core/hilCards.ts` (not `hitlStats.ts`).

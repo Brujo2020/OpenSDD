@@ -18,6 +18,7 @@
 - [-] 9. Audit evidence bundle with per-artifact hashes — _Requirements: REQ-MAT-006_ — _Boundary:_ `tools/open-sdd/src/cli/commands/audit.ts`, `tools/open-sdd/test/auditBundle.test.ts`
 - [-] 10. GitHub Action, GitLab template and SARIF output — _Requirements: REQ-MAT-007_ — _Boundary:_ `action.yml`, `.github/workflows/gates.yml`, `docs/guides/ci-integration.md`
 - [ ] 11. Distribution: `npx` path, registry publish with provenance, container image — _Requirements: REQ-MAT-008_ — _Boundary:_ `package.json`, `.github/workflows/publish.yml`, `Dockerfile`
+  - _Partial (2026-10-23): `npx -y @brujo2020/open-sdd@3.9.0 --version` → `open-sdd v3.9.0` (verified); `publish.yml` runs `npm publish --provenance` with `id-token: write`, but 3.9.0 was published by hand and `npm view … dist.attestations` is empty, so provenance is NOT verified; the `Dockerfile` exists and has not been built here. Open until a workflow publish carries an attestation and the image builds._
 - [-] 12. Guided tour and bilingual output — _Requirements: REQ-MAT-009_ — _Boundary:_ `tools/open-sdd/src/cli/commands/tour.ts`, `tools/open-sdd/src/cli/i18n.ts`
 - [-] 13. One boundary vocabulary and manifest-aware API surface — _Requirements: REQ-MAT-010_ — _Boundary:_ `tools/open-sdd/src/core/bootstrap.ts`, `tools/open-sdd/src/core/reverseConstitution.ts`
 - [-] 14. Delta merge-back into the base specification — _Requirements: REQ-MAT-010_ — _Boundary:_ `tools/open-sdd/src/core/deltaSpec.ts`, `tools/open-sdd/src/cli/commands/brownfield.ts`

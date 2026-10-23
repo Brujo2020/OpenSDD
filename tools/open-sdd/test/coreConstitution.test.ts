@@ -63,7 +63,8 @@ const codesFor = (c: Constitution, id: string): string[] =>
 
 describe('core/constitution — anatomía de seis campos (CSDD §3.2)', () => {
   it('acepta un principio completo con los seis campos', () => {
-    expect(validateConstitution(constitution([principle()]))).toEqual([]);
+    // Solo el aviso del invariante C-INDEPENDENT-REVIEW, que este documento mínimo no declara.
+    expect(validateConstitution(constitution([principle()])).map((i) => i.code)).toEqual(['INDEPENDENT-REVIEW-MISSING']);
   });
 
   it('informa un error por cada campo de la anatomía ausente', () => {

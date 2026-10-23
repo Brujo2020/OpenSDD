@@ -35,7 +35,7 @@ import { parseTasksMarkdown, resolveSddDir } from '../../core/specManager.js';
 import { analyzeChangeImpact, forecastImpact, type ChangeImpactReport } from '../../core/changeImpact.js';
 import { repairFromSpec } from '../../core/regeneration.js';
 import { contractsFileName, extractContracts, testCommandFor, verifyContracts } from '../../core/executionContract.js';
-import { REUSE_FIRST_RULE, findReuseCandidates } from '../../core/reuseFirst.js';
+import { REUSE_FIRST_RULE, deltaReuseAdvisory, findReuseCandidates } from '../../core/reuseFirst.js';
 import { planBootstrap, writeCodeIntelligence } from '../../core/bootstrap.js';
 import { adaptTemplates } from '../../core/templateAdaptation.js';
 import { checkConsistency } from '../../core/consistency.js';
@@ -319,6 +319,20 @@ export const handleDeltaCommand = async (args: string[], io: CliIO, cwd: string)
           `  ${colors.yellow('!')} Tareas que citan ids inexistentes: ${trace.phantomTasks.map((p) => `${p.taskId}→${p.cited}`).join(', ')}`,
         );
       }
+    }
+    // REQ-STD-012: reutilización primero, consultiva mientras el estándar no esté calibrado.
+    // Nunca cambia el código de salida.
+    const reuse = await deltaReuseAdvisory(root, delta.entries);
+    if (reuse.missingEvidence.length > 0) {
+      io.log(
+        `  ${colors.yellow('consultivo')} Símbolos nuevos sin evidencia \`reuse:\`: ${reuse.missingEvidence
+          .map((d) => `${d.entryId}→${d.symbol}`)
+          .join(', ')}`,
+      );
+      for (const c of reuse.report.candidates) {
+        io.log(`      ${dim(`candidato ${c.symbol} (${c.kind}, ${c.similarity}) en ${c.file}:${c.line}`)}`);
+      }
+      if (!reuse.report.complete) io.log(`      ${dim(reuse.report.detail)}`);
     }
     // El asistente APARECE donde ya está la ambigüedad: junto a los hallazgos que este comando
     // acaba de imprimir. No cambia el veredicto (abajo) y solo propone; nunca reescribe la delta.

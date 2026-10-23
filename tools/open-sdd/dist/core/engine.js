@@ -288,6 +288,24 @@ const complete = async (cwd, state, step, event, by, extra = {}) => {
     await appendAudit(cwd, state.feature, { event, step: step.id, by, ...extra });
     return { ok: true, message: `${step.id} → done` };
 };
+/**
+ * Failed iterations a step may accumulate before a human must decide (user rule): on the next
+ * failure the step leaves the loop and becomes a HIL gate. The budget resets after that decision.
+ */
+export const MAX_FAILED_ITERATIONS = 3;
+/** Gate refusals for a step since its last human decision, escalation or completion. */
+export const failedIterations = (audit, stepId) => {
+    let n = 0;
+    for (const e of audit) {
+        if (e.step !== stepId)
+            continue;
+        if (e.event === 'GATE_REFUSED')
+            n += 1;
+        else if (e.event === 'ESCALATED_TO_HIL' || e.event === 'DECISION_RECORDED' || e.event === 'STEP_COMPLETED')
+            n = 0;
+    }
+    return n;
+};
 export const report = async (cwd, feature, stepId, result, opts = {}) => {
     const telemetry = {
         ...(opts.tokens !== undefined ? { tokens: opts.tokens } : {}),
@@ -331,7 +349,17 @@ export const report = async (cwd, feature, stepId, result, opts = {}) => {
             await appendAudit(cwd, feature, { event: 'GATE_REFUSED', step: step.id, detail: problems.join(' | '), ...telemetry });
             // Learning without being asked (REQ-V37-005): every refusal reaches the memory inbox.
             await capture(cwd, { kind: 'gate-block', origin: `gate:${feature}/${step.id}`, author: opts.by || 'open-sdd', feature, step: step.id, text: problems.map((p) => p.split(':')[0]).join(', ') });
-            return { ok: false, message: `gate refused for ${step.id}:\n  ${problems.join('\n  ')}` };
+            const failures = failedIterations(await readAudit(cwd, feature), step.id);
+            if (failures > MAX_FAILED_ITERATIONS) {
+                // More than MAX_FAILED_ITERATIONS failed iterations: stop iterating, a human decides.
+                step.status = 'awaiting';
+                step.review = 'human';
+                step.reason = `escalated to HIL after ${failures} failed iterations`;
+                await writeState(cwd, state);
+                await appendAudit(cwd, feature, { event: 'ESCALATED_TO_HIL', step: step.id, detail: step.reason });
+                return { ok: false, message: `gate refused for ${step.id} (${failures} failed iterations > ${MAX_FAILED_ITERATIONS}): escalated to HIL — answer its card with \`open-sdd hil\`:\n  ${problems.join('\n  ')}` };
+            }
+            return { ok: false, message: `gate refused for ${step.id} (failed iteration ${failures}/${MAX_FAILED_ITERATIONS}):\n  ${problems.join('\n  ')}` };
         }
         if (result === 'completed')
             return complete(cwd, state, step, 'STEP_COMPLETED', opts.by, telemetry);

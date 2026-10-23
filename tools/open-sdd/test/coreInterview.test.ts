@@ -160,9 +160,10 @@ describe('core/interview — applyConstitutionAnswers produce un borrador VALIDA
 
     const reloaded = parseConstitution(result.text);
     expect(reloaded.principles.length).toBeGreaterThan(0);
-    expect(reloaded.principles.every((principle) => principle.draft === true)).toBe(true);
+    // C-INDEPENDENT-REVIEW es un invariante del harness: rige también dentro del borrador.
+    expect(reloaded.principles.filter((principle) => principle.id !== 'C-INDEPENDENT-REVIEW').every((principle) => principle.draft === true)).toBe(true);
     // El mecanismo, no una convención: un borrador no llega nunca a la lista en vigor.
-    expect(principlesInForce(reloaded)).toEqual([]);
+    expect(principlesInForce(reloaded).map((principle) => principle.id)).toEqual(['C-INDEPENDENT-REVIEW']);
 
     const firstLines = result.text.split('\n').slice(0, 6).join('\n');
     expect(firstLines).toContain(DRAFT_MARKER);
@@ -224,7 +225,7 @@ describe('core/interview — applyConstitutionAnswers produce un borrador VALIDA
     const interview = await planConstitutionInterview(dir);
     const result = await applyConstitutionAnswers({ answers: answersFromTemplate(interview), interview, cwd: dir });
     const reloaded = parseConstitution(result.text);
-    expect(principlesInForce(reloaded)).toEqual([]);
+    expect(principlesInForce(reloaded).map((principle) => principle.id)).toEqual(['C-INDEPENDENT-REVIEW']);
     expect(reloaded.principles.some((principle) => principle.id === 'C-API-DEPRECATION')).toBe(true);
   });
 

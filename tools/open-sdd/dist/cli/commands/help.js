@@ -434,7 +434,7 @@ export const COMMANDS = [
         name: 'review',
         group: 'console',
         summary: 'One review surface for a change: requirements as word-level diffs',
-        usage: 'open-sdd review <feature> --base <ref> [--json] | open-sdd review record <feature> <step> --by <name> --artifact <path> [--root <dir>] | open-sdd review freeze-check <staged files…>',
+        usage: 'open-sdd review <feature> --base <ref> [--json] | open-sdd review record <feature> <step> --by <name> [--by-model <id> --author-model <id>] --artifact <path> [--root <dir>] | open-sdd review freeze-check <staged files…>',
         indexLines: ['  review <feature> --base <ref>                One page: added/modified/removed requirements as word-level diffs', '  review <record|freeze-check>                 Review receipts and the pre-commit freeze of reviewed artifacts'],
         details: ['Each row carries its tasks, the tests that would fail if it changed, and a risk score; an unapproved requirement change exits non-zero.'],
         examples: ['open-sdd review stripe-billing --base main', 'open-sdd review stripe-billing --base HEAD~1 --json'],

@@ -249,7 +249,7 @@ export const planConstitutionInterview = async (cwd, opts = {}) => {
             return;
         // `buildDescriptiveConstitution` emite `deferred[i]` para `amendments[i]`; el emparejamiento solo
         // se usa si las dos listas siguen alineadas (mismo guard que `buildConstitutionDraft`).
-        const reason = deferred.length === constitution.amendments.length ? deferred[index] : undefined;
+        const reason = deferred.length === constitution.amendments.filter((a) => a.status !== 'in-force').length ? deferred[index] : undefined;
         questions.push({
             id: `Q-ADOPT-${amendment.id}`,
             question: `¿Se adopta "${amendment.title}"? El código NO muestra la práctica${reason ? ` (${reason})` : ''}.`,

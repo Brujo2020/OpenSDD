@@ -274,8 +274,9 @@ describe('cli/interview — brownfield constitution --interview', () => {
     expect(draft).toMatch(/NO está en vigor/);
     const reloaded = parseConstitution(draft);
     expect(reloaded.principles.length).toBeGreaterThan(0);
-    expect(reloaded.principles.every((principle) => principle.draft === true)).toBe(true);
-    expect(principlesInForce(reloaded)).toEqual([]);
+    // C-INDEPENDENT-REVIEW es un invariante del harness: rige también dentro del borrador.
+    expect(reloaded.principles.filter((principle) => principle.id !== 'C-INDEPENDENT-REVIEW').every((principle) => principle.draft === true)).toBe(true);
+    expect(principlesInForce(reloaded).map((principle) => principle.id)).toEqual(['C-INDEPENDENT-REVIEW']);
     expect(reloaded.principles.some((principle) => principle.id === 'C-API-DEPRECATION')).toBe(true);
   });
 

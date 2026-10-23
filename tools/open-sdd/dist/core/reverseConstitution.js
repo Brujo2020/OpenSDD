@@ -17,6 +17,7 @@
  */
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { INDEPENDENT_REVIEW_AMENDMENT, independentReviewPrinciple } from './constitution.js';
 import { resolveBoundaries, tomlArrayTables, tomlSections } from './reverseEngineering.js';
 const exists = async (p) => (await stat(p).catch(() => null)) !== null;
 const firstExisting = async (cwd, candidates) => {
@@ -473,6 +474,10 @@ export const buildDescriptiveConstitution = (facts, options = {}) => {
     amendments.push(amendment('AMD-REUSE-FIRST', 'Política de reutilización primero al crear símbolos nuevos', proposedBy));
     deferred.push('documentación incremental: la cobertura crece donde se toca el código');
     amendments.push(amendment('AMD-INCREMENTAL-DOCS', 'Cobertura de especificación creciente en el punto de cambio', proposedBy));
+    // Invariante del harness: siempre presente, sea cual sea el código observado. Va al final para que
+    // `deferred[i]` siga emparejado con la i-ésima enmienda propuesta.
+    principles.push(independentReviewPrinciple());
+    amendments.push({ ...INDEPENDENT_REVIEW_AMENDMENT });
     const constitution = {
         project: project.name,
         provenance: 'descriptive',

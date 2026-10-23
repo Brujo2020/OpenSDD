@@ -20,6 +20,7 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import type { DiscoveredProject } from './types.js';
 import type { AmendmentRecord, Constitution, ConstitutionPrinciple } from './constitution.js';
+import { INDEPENDENT_REVIEW_AMENDMENT, independentReviewPrinciple } from './constitution.js';
 import { resolveBoundaries, tomlArrayTables, tomlSections } from './reverseEngineering.js';
 
 /** One declared element of the public API surface, with the source that declared it. */
@@ -591,6 +592,11 @@ export const buildDescriptiveConstitution = (
 
   deferred.push('documentación incremental: la cobertura crece donde se toca el código');
   amendments.push(amendment('AMD-INCREMENTAL-DOCS', 'Cobertura de especificación creciente en el punto de cambio', proposedBy));
+
+  // Invariante del harness: siempre presente, sea cual sea el código observado. Va al final para que
+  // `deferred[i]` siga emparejado con la i-ésima enmienda propuesta.
+  principles.push(independentReviewPrinciple());
+  amendments.push({ ...INDEPENDENT_REVIEW_AMENDMENT });
 
   const constitution: Constitution = {
     project: project.name,
