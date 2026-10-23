@@ -11,7 +11,8 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - Freeze de artefactos revisados en `templates/hooks/pre-commit.mjs`.
 - Skill `sdd-playbook` en `_shared` + 8 árboles + workflow Axet (28 skills).
 - Plantilla del plugin AI-DLC `templates/integrations/aidlc-plugin/opensdd/` (sensores fallan cerrados).
-- Spec actualizada con decisiones D-1…D-5 (plan.md) y tarea 19; 0 avisos `BOUNDARY_VIOLATION`.
+- Spec actualizada con decisiones D-1…D-6 (plan.md) y tarea 19; tareas 1–19 marcadas con evidencia (15 con AC-10 declarado no ejecutado); 0 avisos `BOUNDARY_VIOLATION`.
+- `docs/INSTALL.md` actualizado a v3.6.0.
 - Docs `docs/guides/playbooks.md` (Mermaid), enlaces en README EN/ES, CHANGELOG 3.6.0, claims CLM-068…071, versión 3.6.0 en ambos `package.json`.
 
 ## Contexto y decisiones
@@ -52,7 +53,7 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - `assure claims --verify` → 71 claims, 68 verificadas, 3 no medidas, **0 rotas**.
 - `status multi-unit-playbooks --check` → 0 errores, 0 `BOUNDARY_VIOLATION`.
 - Hook pre-commit ejecutado en el commit de release → pasó.
-- No ejecutado: AC-10 (validador AI-DLC, requiere bun + checkout); fixtures uno-a-uno para AC-01…AC-17 (los tests cubren el flujo de punta a punta, no cada AC por separado); `npm publish`.
+- No ejecutado: AC-10 (validador AI-DLC, requiere bun + checkout); `npm publish`.
 
 ## Fallos e intentos
 - `test/steelforgePort.test.ts` falló al añadir `multi-unit` (lista cerrada de tipos) → se actualizó la lista.
@@ -62,8 +63,7 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 ## Pendiente
 1. `npm publish` de `@brujo2020/open-sdd@3.6.0` (lo hace Mario).
 2. AC-10: pasar `templates/integrations/aidlc-plugin/opensdd/` por el validador de AI-DLC y ajustar el esquema de `plugin.json`.
-3. Un fixture por AC (AC-01…AC-17) y marcar las casillas de `tasks.md` solo con esa evidencia.
-4. `docs/INSTALL.md` sigue citando v3.0.2 (preexistente, no tocado).
+3. Subir el tag: `git push origin v3.6.0` (el proxy de la sesión lo rechaza).
 
 ## Reanudación exacta
 ```bash

@@ -236,3 +236,4 @@ These change the plan explicitly; they are not retroactive edits of what was pla
   (`cli/commands/engine.ts`, `memory.ts`, `hil.ts`); they live in one `cli/commands/playbook.ts`
   routed from `src/index.ts`, plus `open_sdd_next`/`open_sdd_report` in `mcp/tools.ts`. Task 19 declares
   that boundary instead of widening older tasks.
+- **D-6 Release docs:** `docs/INSTALL.md` carries the release version, so task 18 now names it.
