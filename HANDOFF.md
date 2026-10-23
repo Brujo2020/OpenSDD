@@ -4,10 +4,17 @@
 Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001…018, 17 criterios AC-01…AC-17, 18 tareas en 6 olas) y publicar **v3.6.0**: un ciclo planificar → ejecutar → comprobar → decidir → aprender → mejorar, con playbooks a medida por caso, un contrato `next`/`report` común a todos los hosts, revisión humana (HIL) preparada, memoria con procedencia y mejora por propose‑probe‑compose. Fuentes: AWS AI-DLC (método), Google Harness² (método), open-sdd.
 
 ## Estado actual
-**v3.9.0 (spec `variants-reverse`) implementada, verificada y subida a GitHub (`feat/variants-reverse` y `main`). npm 3.7.0 publicado; 3.8.0 y 3.9.0 NO publicados. Tags no subidos.**
+**v3.9.0 publicada** (2026-10-23): npm `@brujo2020/open-sdd@3.9.0` = `latest` (shasum `8eecdbe3…`), tag `v3.9.0` → `7c13697` en GitHub, `open-sdd --version` = v3.9.0 en el Mac.
 
 - v3.8.0: escalera L0–L6, reglas dinámicas deterministas, Modernize Kit.
-- v3.9.0: variantes greenfield/brownfield por nivel; escalera de rigor por run (tiny-spec → spec-first → spec-anchored → spec-as-source/spec-as-code); modo reverse engineering por etapas (RE-1…RE-6) con gates; asistentes (`assist`: menú, discovery por roles estilo BMAD, brief, conversión EARS EN/ES, borradores de steering, constitución); `where` (fase, % por coste, pendientes, checkpoint `.sdd/state/checkpoint.md`).
+- v3.9.0: variantes greenfield/brownfield; escalera de rigor tiny-spec → spec-first → spec-anchored → **spec-as-code** (`spec-as-source` aceptado como sinónimo); reverse engineering RE-1…RE-6; asistentes (`assist`); `where`; **conversor EARS v2** (`converted` / `needs-confirmation` / `question`, `--file`, `--system`, `--write --area`, `--accept`); **plugin AI-DLC** en el formato real (`.aidlc-plugin/plugin.json`, sensores `aidlc-opensdd-*`, fail closed).
+- Post-release (este commit): `docs/MANUAL.md` §7.2 EARS v2 y sección AI-DLC; README con diagramas Mermaid a color (decisión agente/motor/persona, escaleras nivel/rigor, greenfield vs brownfield, RE-1…RE-6, EARS, reglas dinámicas, Modernize Kit, `where`, plugin AI-DLC), los 10 bloques renderizados con mmdc sin error.
+
+## Pendiente
+1. Ejecutar el validador AI-DLC (no se pudo en el sandbox): `bun core/tools/aidlc-plugin-validate.ts <repo>/tools/open-sdd/templates/integrations/aidlc-plugin/opensdd` en un checkout de aidlc-workflows.
+2. `status variants-reverse --check --strict`: 1 aviso `BOUNDARY_VIOLATION` (archivos nuevos fuera de los límites de la spec: plugin, `rigor.ts` o playbooks base).
+3. Spec `multi-unit-playbooks` muestra YAML; los playbooks son JSON.
+4. `README.es.md` no tiene los diagramas nuevos.
 
 ## Contexto y decisiones
 - **Playbooks en JSON** (`.playbook.json`), no YAML: el repo no tiene librería YAML y `C-STACK-FACT` prohíbe añadir dependencias. **Pendiente actualizar la spec** (plan §4 y requirements muestran YAML).

@@ -244,7 +244,9 @@ confirms or discards it. L0 work needs no discovery.
 
 ```bash
 open-sdd assist ears "When a payment fails the system must notify the customer. The export should be fast."
-open-sdd assist ears "<text>" --feature invoices --write --area INV   # append to requirements.md
+open-sdd assist ears --file notes.md                                    # one statement per line/bullet
+open-sdd assist ears "Users can export the report." --system "the reporting service"
+open-sdd assist ears --file notes.md --feature invoices --write --area INV [--accept]
 open-sdd assist ears review invoices                                    # suggestions over requirements.md
 ```
 
@@ -258,9 +260,23 @@ The five patterns (keywords and `shall` stay in English; your clauses keep your 
 | Optional | `WHERE <feature>, the <system> shall <response>.` |
 | Unwanted | `IF <condition>, THEN the <system> shall <response>.` |
 
-The converter **never guesses**: a vague response ("fast", "rápido"), a capability ("users can…"), a
-missing actor or response, or two requirements in one become a **question**. Every proposal is
-re-validated by the EARS checker before it is shown.
+Each statement gets one status, a confidence and notes:
+
+| Status | Meaning | Written by `--write` |
+|---|---|---|
+| `converted` | unambiguous rewrite | yes |
+| `needs-confirmation` (`~`) | rewrite that changes wording a person should check | only with `--accept` |
+| `question` | cannot be stated without guessing | never |
+
+Repairs the converter makes: `must`/`should`/`debe` → `shall` (weak `should` is noted); negatives →
+`shall not`; a trailing `when/if/while` clause moves to the front; passive with an agent ("is sent by
+the mailer") becomes active; a user capability ("users can…") becomes `the <system> shall allow …`
+(to confirm); several actions in one sentence become several requirements; `after/once/upon` openers
+become `WHEN` with a note. It asks a question for a vague term ("fast", "secure", "rápido" — the
+question names the measure to use), a person as the actor without `--system`, or a missing response.
+Every proposal is re-validated by the EARS checker before it is shown. `--write` appends
+`### REQ-<AREA>-NNN` with the statement and its source text; the command exits `0` only when no
+question remains.
 
 ### 7.3 Steering drafts
 
@@ -515,7 +531,12 @@ The wave referee refuses a merge when a unit's check fails or a protected file c
 - MCP (`open-sdd mcp`): tools include `open_sdd_next`, `open_sdd_report` (with tokens/model),
   `open_sdd_status`, `open_sdd_context_pack`, `open_sdd_gates_run` and the constitution resources.
 - AI-DLC: `aidlc:stage/*` step types, `import aidlc`, plugin template
-  `templates/integrations/aidlc-plugin/opensdd/` (sensors fail closed).
+  `templates/integrations/aidlc-plugin/opensdd/` in the AI-DLC plugin layout:
+  `.aidlc-plugin/plugin.json`, sensors `aidlc-opensdd-{ears,gates,steering}` (deterministic,
+  advisory), runners `tools/aidlc-sensor-*.ts` (Node built-ins only; CLI from `OPEN_SDD_CLI` or
+  `PATH`, fail closed when absent), contributions on `inception/requirements-analysis` and
+  `construction/code-generation`. Check it with
+  `bun core/tools/aidlc-plugin-validate.ts <path>/opensdd` in an aidlc-workflows checkout.
 
 ---
 

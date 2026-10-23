@@ -163,6 +163,219 @@ flowchart LR
 
 </details>
 
+## How it works, in pictures
+
+All diagrams below render on GitHub. Colors mean the same thing everywhere:
+🟦 engine (deterministic) · 🟨 agent (proposes) · 🟪 person (decides) · 🟩 artifact · 🟥 stop / blocked.
+
+### Who decides what
+
+The agent proposes, the deterministic engine checks, a named person approves. `approved` never
+comes from an agent.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant A as 🟨 Agent
+  participant E as 🟦 Engine (open-sdd)
+  participant G as 🟦 Gates C1–C6
+  participant H as 🟪 Person
+  A->>E: open-sdd next
+  E-->>A: one step + contract (inputs, outputs, done-when)
+  A->>A: does the work
+  A->>E: open-sdd report (evidence, tokens, model)
+  E->>G: run the gates for the declared rigor
+  alt gates fail
+    G-->>E: ❌ blocked (reason + file)
+    E-->>A: fix and report again
+  else gates pass and step needs HIL
+    E->>H: HIL card (default: park / reject)
+    H->>E: hil answer --by <name> (git identity + approvers.json)
+  end
+  E-->>A: next step or done
+```
+
+### The two ladders: level and rigor
+
+Pick **how big** the work is (L0–L6) and **how strict** it is (rigor). Each rung only adds checks.
+
+```mermaid
+flowchart LR
+  subgraph LEVEL["Level · how big"]
+    direction LR
+    L0["L0<br/>tiny"] --> L1["L1<br/>PoC / spike"] --> L2["L2<br/>feature · bug"] --> L3["L3<br/>small project"] --> L4["L4<br/>multi-feature"] --> L5["L5<br/>multi-unit"] --> L6["L6<br/>modernization"]
+  end
+  subgraph RIGOR["Rigor · how strict"]
+    direction LR
+    R1["tiny-spec<br/>goal · done-when · out of scope"] --> R2["spec-first<br/>EARS + constitution<br/>C1 + C2"] --> R3["spec-anchored<br/>+ delta · traceability · drift<br/>C1 C2 C3 C6"] --> R4["spec-as-code<br/>+ contracts · regeneration<br/>C1 … C6"]
+  end
+  LEVEL ~~~ RIGOR
+  classDef lv fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+  classDef r1 fill:#e9ecef,stroke:#868e96,color:#1e1e1e
+  classDef r2 fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef r3 fill:#ffec99,stroke:#f08c00,color:#1e1e1e
+  classDef r4 fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  class L0,L1,L2,L3,L4,L5,L6 lv
+  class R1 r1
+  class R2 r2
+  class R3 r3
+  class R4 r4
+```
+
+Ceremony (`minimal` · `standard` · `strict`) and variant (`greenfield` · `brownfield`) are chosen
+per run: `open-sdd start "<intent>" --level L2 --variant brownfield --rigor spec-anchored`.
+
+### Greenfield vs brownfield
+
+```mermaid
+flowchart TB
+  S{"Is there code<br/>already?"}
+  S -- no --> G1["🟨 discovery (BMAD roles)<br/>brief · non-goals · outcome"]
+  G1 --> G2["🟩 constitution draft"] --> G3["🟩 requirements (EARS)"] --> G4["design → tasks"] --> IMPL
+  S -- yes --> B1["🟦 brownfield survey<br/>stack · modules · evidence"]
+  B1 --> B2["🟩 descriptive constitution<br/>what the code already obeys"]
+  B2 --> B3["🟩 delta spec<br/>ADDED · MODIFIED · REMOVED · RENAMED"]
+  B3 --> B4["🟦 contracts + impact<br/>regression oracle · blast radius"] --> IMPL
+  IMPL["🟨 implement"] --> V["🟦 gates + 🟪 approval"]
+  classDef q fill:#fff3bf,stroke:#f08c00,color:#1e1e1e
+  classDef g fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef b fill:#ffd8a8,stroke:#e8590c,color:#1e1e1e
+  classDef e fill:#d0bfff,stroke:#7048e8,color:#1e1e1e
+  class S q
+  class G1,G2,G3,G4 g
+  class B1,B2,B3,B4 b
+  class IMPL,V e
+```
+
+### Reverse engineering mode (brownfield, by stages)
+
+Each stage has a gate; only rules a person confirmed reach the spec baseline.
+
+```mermaid
+flowchart LR
+  RE1["RE-1<br/>inventory"] --> RE2["RE-2<br/>architecture"]
+  RE2 --> RE3["RE-3<br/>characterization<br/>tests freeze behaviour"]
+  RE3 --> RE4["RE-4<br/>rules<br/>candidates with evidence"]
+  RE4 --> H{{"🟪 RE-5 confirmation"}}
+  H -- confirmed --> RE6
+  H -- rejected --> RE4
+  RE6["RE-6<br/>spec baseline<br/>REQ cites RULE ids"]
+  classDef st fill:#ffd8a8,stroke:#e8590c,color:#1e1e1e
+  classDef hp fill:#d0bfff,stroke:#7048e8,color:#1e1e1e
+  classDef ok fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  class RE1,RE2,RE3,RE4 st
+  class H hp
+  class RE6 ok
+```
+
+### EARS converter
+
+Free text in, testable requirements out — or a precise question. It never guesses.
+
+```mermaid
+flowchart LR
+  T["free text<br/>notes · tickets · --file"] --> SPLIT["split statements<br/>and multi-actions"]
+  SPLIT --> REP["repairs<br/>must/should → shall · negatives → shall not<br/>trailing when/if → front · passive → active"]
+  REP --> CHK{"🟦 EARS checker<br/>re-validates"}
+  CHK -- clean --> C["✅ converted"]
+  CHK -- wording changed --> N["~ needs-confirmation<br/>(--accept to write)"]
+  CHK -- vague / no actor / no response --> Q["❓ question<br/>names the measure to use"]
+  C --> W["🟩 requirements.md<br/>### REQ-AREA-NNN + source"]
+  N -. --accept .-> W
+  classDef ok fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef warn fill:#ffec99,stroke:#f08c00,color:#1e1e1e
+  classDef bad fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  classDef eng fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+  class C,W ok
+  class N warn
+  class Q bad
+  class SPLIT,REP,CHK eng
+```
+
+### Dynamic rules (no LLM)
+
+Events (raised by a person, scanner, monitor or pipeline — never by the agent) change the plan deterministically; a repeated event is a no-op.
+
+```mermaid
+flowchart LR
+  EV["event<br/>security-advisory · incident · wave-start<br/>signal · regulatory-change · scope-change"] --> RULE{"🟦 rule match"}
+  RULE --> A1["insert-steps"]
+  RULE --> A2["patch-both"]
+  RULE --> A3["freeze"]
+  RULE --> A4["require-hil"]
+  RULE --> A5["set-deadline"]
+  RULE --> A6["raise-level"]
+  A1 & A2 & A3 & A4 & A5 & A6 --> PLAN["🟩 updated plan<br/>+ audit log"]
+  classDef ev fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  classDef r fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+  classDef act fill:#e9ecef,stroke:#868e96,color:#1e1e1e
+  classDef p fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  class EV ev
+  class RULE r
+  class A1,A2,A3,A4,A5,A6 act
+  class PLAN p
+```
+
+### Modernize Kit
+
+```mermaid
+flowchart TB
+  P["🟩 portfolio<br/>apps · owners · risk"] --> R{"7 Rs (AWS)<br/>retire · retain · rehost · relocate<br/>replatform · repurchase · refactor"}
+  R --> W1["wave 1<br/>low risk"] --> W2["wave 2"] --> W3["wave N<br/>core / banking"]
+  W3 --> SF["strangler lifecycle (refactor)<br/>characterized → facade → parallel-run<br/>→ canary 5/25/50 → cut-over → decommissioned"]
+  SF --> D{"🟦 canary decision<br/>error budget · mismatch · p95 · sample"}
+  D -- advance --> OK["✅ next stage"]
+  D -- hold --> SF
+  D -- rollback --> RB["🟥 rollback"]
+  classDef a fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef r fill:#fff3bf,stroke:#f08c00,color:#1e1e1e
+  classDef w fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+  classDef bad fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  classDef d fill:#d0bfff,stroke:#7048e8,color:#1e1e1e
+  class P,OK a
+  class R r
+  class W1,W2,W3,SF w
+  class RB bad
+  class D d
+```
+
+### Where am I?
+
+`open-sdd where` shows phase, progress weighted by step cost, pending steps and waiting decisions;
+`--save` writes a resumable checkpoint to `.sdd/state/checkpoint.md`.
+
+```mermaid
+pie showData title Progress weighted by step cost (example)
+  "done" : 11
+  "in progress" : 3
+  "pending" : 5
+  "waiting for a person" : 2
+```
+
+### AI-DLC plugin
+
+```mermaid
+flowchart LR
+  subgraph AIDLC["AWS AI-DLC"]
+    IN["inception /<br/>requirements-analysis"]
+    CO["construction /<br/>code-generation"]
+  end
+  IN -- sensor --> S1["aidlc-opensdd-ears"]
+  CO -- sensor --> S2["aidlc-opensdd-gates"]
+  CO -- sensor --> S3["aidlc-opensdd-steering"]
+  S1 & S2 & S3 --> CLI{"open-sdd CLI<br/>OPEN_SDD_CLI or PATH"}
+  CLI -- found --> RES["pass · findings"]
+  CLI -- missing --> FC["🟥 fail closed"]
+  classDef aw fill:#ffd8a8,stroke:#e8590c,color:#1e1e1e
+  classDef s fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+  classDef ok fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef bad fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  class IN,CO aw
+  class S1,S2,S3,CLI s
+  class RES ok
+  class FC bad
+```
+
 ## The constitution
 
 The constitution is the authority every spec answers to. It lives in `.sdd/steering/constitution.md`
