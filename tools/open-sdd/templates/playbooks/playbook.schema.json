@@ -7,7 +7,7 @@
   "additionalProperties": false,
   "required": ["name", "phases"],
   "$defs": {
-    "use": { "type": "string", "pattern": "^(opensdd:(skill|flow|module|command|gate|modernize)/[a-z0-9-]+|aidlc:stage/[a-z0-9-]+)$", "description": "A registered step type." },
+    "use": { "type": "string", "pattern": "^(opensdd:(skill|flow|module|command|gate|modernize|reverse)/[a-z0-9-]+|aidlc:stage/[a-z0-9-]+)$", "description": "A registered step type." },
     "step": {
       "type": "object",
       "additionalProperties": false,

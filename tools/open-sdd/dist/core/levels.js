@@ -36,30 +36,52 @@ const RULES = [
     { level: 'L3', id: 'new-project-words', re: /\b(from scratch|new (?:app|application|service|project|product|api)|greenfield|build an? (?:app|service|tool|api)|bootstrap a)\b/i },
     { level: 'L4', id: 'several-features-words', re: /\b(platform|several features|multiple features|roadmap|release with|epic)\b/i },
 ];
+export const RIGORS = ['tiny-spec', 'spec-first', 'spec-anchored', 'spec-as-source'];
+/** `spec-as-code` is accepted as a synonym of `spec-as-source`. */
+export const normalizeRigor = (r) => (r === 'spec-as-code' ? 'spec-as-source' : RIGORS.includes(r) ? r : null);
+/** The least rigor a level accepts (REQ-VR-005): risk and scale only raise it. */
+export const rigorFloor = (l) => (rank(l) <= 1 ? 'tiny-spec' : rank(l) <= 4 ? 'spec-first' : 'spec-anchored');
+const BROWN_WORDS = /\b(existing|legacy|current (?:system|code|app)|in production|brownfield|our (?:app|system|codebase))\b/i;
+const GREEN_WORDS = /\b(from scratch|greenfield|brand[- ]new|new (?:app|application|service|project|product))\b/i;
+export const REVERSE_WORDS = /\b(reverse[- ]engineer\w*|recover (?:the )?(?:architecture|specs?|rules)|document (?:the )?(?:legacy|existing)|understand (?:the )?(?:legacy|existing) (?:system|code))\b/i;
+/** Intent words first, then the workspace (REQ-VR-001). */
+export const variantOf = (intent, profile) => {
+    const b = intent.match(BROWN_WORDS);
+    if (b)
+        return { variant: 'brownfield', reason: `intent «${b[0]}»` };
+    const g = intent.match(GREEN_WORDS);
+    if (g)
+        return { variant: 'greenfield', reason: `intent «${g[0]}»` };
+    const v = profile ? profileValues(profile) : {};
+    return v.terrain === 'brownfield' ? { variant: 'brownfield', reason: 'workspace has source code' } : { variant: 'greenfield', reason: profile ? 'workspace has no source yet' : 'no workspace signal' };
+};
 const BUG = /\b(fix|bug|broken|regression|defect|crash)\b/i;
 const REFACTOR = /\b(refactor|clean ?up|simplify|restructure)\b/i;
 const THEN_FEATURE = /\b(then|if it works|graduate|promote|turn into)\b/i;
-export const playbookFor = (level, intent, profile) => {
+export const playbookFor = (level, intent, profile, variant = variantOf(intent, profile).variant) => {
     const v = profile ? profileValues(profile) : {};
+    const brown = variant === 'brownfield';
+    if (REVERSE_WORDS.test(intent) && rank(level) >= 2 && level !== 'L6')
+        return 'reverse-engineering';
     switch (level) {
         case 'L0':
             return 'tiny';
         case 'L1':
-            return THEN_FEATURE.test(intent) ? 'poc-to-feature' : 'spike';
+            return THEN_FEATURE.test(intent) ? 'poc-to-feature' : brown ? 'poc-brownfield' : 'spike';
         case 'L2':
             if (BUG.test(intent))
                 return 'bug';
             if (REFACTOR.test(intent))
                 return 'refactor';
-            if (v.terrain === 'brownfield')
-                return v.tests ? 'brownfield-extension' : 'legacy-untested';
+            if (brown)
+                return v.tests === false ? 'legacy-untested' : 'brownfield-extension';
             return 'base/spec-first';
         case 'L3':
-            return 'greenfield';
+            return brown ? 'project-brownfield' : 'greenfield';
         case 'L4':
-            return 'multi-feature';
+            return brown ? 'multi-feature-brownfield' : 'multi-feature';
         case 'L5':
-            return 'multi-unit';
+            return brown ? 'multi-unit' : 'multi-unit-greenfield';
         default:
             return 'modernize';
     }
@@ -118,7 +140,13 @@ export const classifyLevel = (intent, profile, cwd) => {
         else if (level === 'L1')
             warnings.push(`PoC touches ${r.tag} («${r.evidence}»): use synthetic data and keep it out of production`);
     }
-    return { level, label: LEVEL_LABEL[level], ceremony: ceremonyFor(level), playbook: playbookFor(level, intent, profile), evidence, raisedBy, warnings };
+    if (REVERSE_WORDS.test(intent) && rank(level) < 3 && !isPoc) {
+        raisedBy.push(`reverse engineering («${intent.match(REVERSE_WORDS)[0]}») is a multi-stage project`);
+        level = 'L3';
+    }
+    const vr = variantOf(intent, profile);
+    const variant = REVERSE_WORDS.test(intent) ? 'brownfield' : vr.variant;
+    return { level, label: LEVEL_LABEL[level], ceremony: ceremonyFor(level), variant, variantReason: REVERSE_WORDS.test(intent) ? 'reverse engineering is brownfield by definition' : vr.reason, rigor: rigorFloor(level), playbook: playbookFor(level, intent, profile, variant), evidence, raisedBy, warnings };
 };
 /** Feature id from an intent: lowercase words, at most 5, hyphenated. */
 export const slugFromIntent = (intent) => intent
@@ -131,3 +159,22 @@ export const slugFromIntent = (intent) => intent
     .filter((w) => !['the', 'a', 'an', 'to', 'of', 'in', 'for', 'and', 'el', 'la', 'de', 'en', 'y', 'un', 'una'].includes(w))
     .slice(0, 5)
     .join('-') || 'work';
+/** Requested rigor against the level floor and a declared `.sdd/settings/rigor.json` (never lowers). */
+export const effectiveRigor = (level, requested, declared) => {
+    const order = (r) => RIGORS.indexOf(r);
+    const warnings = [];
+    let rigor = rigorFloor(level);
+    const d = declared ? normalizeRigor(declared) : null;
+    if (d && rank(level) >= 2 && order(d) > order(rigor))
+        rigor = d;
+    if (requested) {
+        const r = normalizeRigor(requested);
+        if (!r)
+            warnings.push(`unknown rigor «${requested}»: ${RIGORS.join(', ')} (or spec-as-code)`);
+        else if (order(r) < order(rigor))
+            warnings.push(`rigor ${r} is below the floor for ${level}${d ? ` and the declared ${d}` : ''}: using ${rigor}`);
+        else
+            rigor = r;
+    }
+    return { rigor, warnings };
+};

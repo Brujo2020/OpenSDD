@@ -29,7 +29,11 @@ Repeat until the directive is `done` or `parked`:
    - `parked` → explain `reason` to the user and stop.
 2. A refused report lists codes (`RECALL_MISSING`, `ARTIFACT_MISSING`, `QUESTIONS_UNCONFIRMED`, `RECEIPT_STALE`, phase trace errors): fix the cause, do not retry blindly.
 
-## 3. Hard rules
+## 3. Progress
+
+- `open-sdd where <feature>` shows phase, progress bar, pending steps and decisions waiting; `open-sdd where --save --note "…"` writes `.sdd/state/checkpoint.md` to resume in any session.
+
+## 4. Hard rules
 
 - Never report `approved`; never run `open-sdd hil answer` on the user's behalf, and never add `--confirm` yourself: that flag is the person's typed confirmation.
 - Show open cards with `open-sdd hil review <feature> --html`; an unanswered card past its deadline takes its default (park or reject) on the next `next`.

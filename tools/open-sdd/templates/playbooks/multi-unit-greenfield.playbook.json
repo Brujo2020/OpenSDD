@@ -1,0 +1,8 @@
+{
+  "$schema": "./playbook.schema.json",
+  "name": "multi-unit-greenfield",
+  "extends": "multi-unit",
+  "description": "L5 greenfield: several new units — AI-DLC inception without reverse engineering, no regression contracts to protect yet.",
+  "customize": [{ "skip": ["reverse-engineering", "brownfield-contracts"] }],
+  "phases": []
+}

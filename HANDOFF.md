@@ -4,10 +4,10 @@
 Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001…018, 17 criterios AC-01…AC-17, 18 tareas en 6 olas) y publicar **v3.6.0**: un ciclo planificar → ejecutar → comprobar → decidir → aprender → mejorar, con playbooks a medida por caso, un contrato `next`/`report` común a todos los hosts, revisión humana (HIL) preparada, memoria con procedencia y mejora por propose‑probe‑compose. Fuentes: AWS AI-DLC (método), Google Harness² (método), open-sdd.
 
 ## Estado actual
-**v3.8.0 (spec `modernize-kit`) implementada, verificada y subida a GitHub (`feat/modernize-kit` y `main`). npm 3.7.0 publicado por Mario; 3.8.0 NO publicado. Tags no subidos.**
+**v3.9.0 (spec `variants-reverse`) implementada, verificada y subida a GitHub (`feat/variants-reverse` y `main`). npm 3.7.0 publicado; 3.8.0 y 3.9.0 NO publicados. Tags no subidos.**
 
-- v3.6.0: ciclo multi-unit. v3.7.0: HIL verificable, improve sin sesgo, planner escala/riesgo, unidades/olas, visibilidad.
-- v3.8.0: escalera L0 tiny…L6 modernización (`open-sdd start`), ceremonia minimal/standard/strict, motor de reglas dinámicas determinista (eventos → carriles), Modernize Kit (`open-sdd modernize …`: portafolio, 7 Rs AWS, olas, ciclo strangler, canary, aprobaciones, propuestas de agente que solo suben riesgo, aprendizaje y adopción de reglas), skill `sdd-modernize` (29 skills), guía `docs/guides/modernize-kit.md`, ejemplo bancario.
+- v3.8.0: escalera L0–L6, reglas dinámicas deterministas, Modernize Kit.
+- v3.9.0: variantes greenfield/brownfield por nivel; escalera de rigor por run (tiny-spec → spec-first → spec-anchored → spec-as-source/spec-as-code); modo reverse engineering por etapas (RE-1…RE-6) con gates; asistentes (`assist`: menú, discovery por roles estilo BMAD, brief, conversión EARS EN/ES, borradores de steering, constitución); `where` (fase, % por coste, pendientes, checkpoint `.sdd/state/checkpoint.md`).
 
 ## Contexto y decisiones
 - **Playbooks en JSON** (`.playbook.json`), no YAML: el repo no tiene librería YAML y `C-STACK-FACT` prohíbe añadir dependencias. **Pendiente actualizar la spec** (plan §4 y requirements muestran YAML).
@@ -42,12 +42,11 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - Sin migraciones, flags ni cambios de contrato en comandos existentes, salvo `import` aceptando `aidlc`.
 
 ## Evidencia
-- `npx tsc --noEmit`, `npm run build` OK; versión 3.8.0 en ambos `package.json`.
-- `npx vitest run` → **165 ficheros, 2304 tests en verde, 1 skipped (AC-10 v3.6)**. Nuevos en v3.8: 221 (`mkLevels` 88, `mkPortfolioWaves` 38, `mkLifecycleRules` 56, `mkBankingScenario` 20 pasos E2E, `mkLearnCli` 19).
-- `assure claims --verify` → 77 claims, 74 verificadas, 3 no medidas, **0 rotas** (nuevas CLM-074…077).
-- `status modernize-kit --check` → 0 errores, 0 avisos de frontera.
-- Inspección visual (Chromium headless) de `modernize status --html` y `hil review --html` del escenario bancario.
-- No ejecutado: validador AI-DLC (AC-10 v3.6); `npm publish` 3.8.0; push de tags.
+- Build OK; versión 3.9.0.
+- `npx vitest run` → **167 ficheros, 2408 tests en verde, 1 skipped**; nuevos v3.9: `vrVariantsReverse` (79, incluye las 48 combinaciones nivel × variante × rigor) y `vrAssistWhere` (adicionales).
+- `assure claims --verify` → 80 claims, 0 rotas.
+- `status variants-reverse --check` → 0 errores, 0 avisos.
+- No ejecutado: validador AI-DLC; `npm publish` 3.8/3.9; tags.
 
 ## Fallos e intentos
 - `test/steelforgePort.test.ts` falló al añadir `multi-unit` (lista cerrada de tipos) → se actualizó la lista.
@@ -55,8 +54,8 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - `git status` sobre la carpeta montada dejó `.git/index.lock` vacíos dos veces → todo git se hace en la copia del sandbox; si ves un `index.lock` vacío, bórralo.
 
 ## Pendiente
-1. `npm publish --access public` de 3.8.0 desde la raíz (Mario).
-2. Tags: `git tag v3.6.0 a72c690 && git tag v3.7.0 7551170 && git tag v3.8.0 origin/main && git push origin --tags`.
+1. `npm publish --access public` de 3.9.0 desde la raíz (Mario).
+2. Tags: `git tag v3.6.0 a72c690 && git tag v3.7.0 7551170 && git tag v3.8.0 9ff144e && git tag v3.9.0 origin/main && git push origin --tags`.
 3. AC-10 v3.6: validar el plugin AI-DLC con su validador.
 4. Umbrales (SLA, canary) son valores por defecto: cada cliente define su política en `.sdd/settings/dynamic-rules.json`.
 

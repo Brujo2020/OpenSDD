@@ -561,3 +561,24 @@
   statement_en: 'During parallel run, a security advisory inserts one patch for the legacy system and one for the new one.'
   verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/mkLifecycleRules.test.ts -t "both systems are patched" >/dev/null 2>&1'
   expectation: pass
+
+- id: CLM-078
+  section: "v3.9.0 / REQ-VR-007 (EARS conversion never guesses)"
+  statement_es: 'El conversor EARS devuelve una pregunta, no una frase, cuando la respuesta es vaga ("fast").'
+  statement_en: 'The EARS converter returns a question, not a sentence, when the response is vague ("fast").'
+  verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && node "$C" assist ears "The export should be fast." --no-footer | grep -q "not testable"'
+  expectation: pass
+
+- id: CLM-079
+  section: "v3.9.0 / REQ-VR-003 (reverse stages are ordered)"
+  statement_es: 'En modo ingeniería inversa, sin inventario la etapa abierta es RE-1.'
+  statement_en: 'In reverse engineering mode, without an inventory the open stage is RE-1.'
+  verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && node "$C" reverse next --no-footer | grep -q "RE-1 inventory"'
+  expectation: pass
+
+- id: CLM-080
+  section: "v3.9.0 / REQ-VR-005 (rigor never below the floor)"
+  statement_es: 'Pedir tiny-spec para un trabajo L5 se eleva a spec-anchored.'
+  statement_en: 'Asking tiny-spec for L5 work is raised to spec-anchored.'
+  verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && echo "{}" > package.json && node "$C" start "split billing into 3 microservices" --rigor tiny-spec --dry-run --json --no-footer | grep -q "\"rigor\": \"spec-anchored\""'
+  expectation: pass

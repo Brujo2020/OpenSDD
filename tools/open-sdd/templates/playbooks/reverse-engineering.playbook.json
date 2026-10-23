@@ -1,0 +1,12 @@
+{
+  "$schema": "./playbook.schema.json",
+  "name": "reverse-engineering",
+  "description": "Reverse engineering mode: inventory → architecture → characterization → business rules → human confirmation → spec baseline, slice by slice. Each step closes only when its stage's exit criteria hold.",
+  "lead": "opensdd",
+  "phases": [
+    { "id": "inventory", "steps": [{ "use": "opensdd:reverse/inventory" }] },
+    { "id": "recover", "steps": [{ "use": "opensdd:reverse/architecture" }, { "use": "opensdd:reverse/characterize" }, { "use": "opensdd:reverse/rules" }] },
+    { "id": "confirm", "steps": [{ "use": "opensdd:reverse/confirm", "review": "human" }] },
+    { "id": "baseline", "steps": [{ "use": "opensdd:reverse/spec-baseline" }, { "use": "opensdd:command/brownfield-constitution", "review": "human" }] }
+  ]
+}

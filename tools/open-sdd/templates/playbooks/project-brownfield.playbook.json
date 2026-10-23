@@ -1,0 +1,11 @@
+{
+  "$schema": "./playbook.schema.json",
+  "name": "project-brownfield",
+  "description": "L3 brownfield: a new capability inside an existing system — recover what exists, describe the change as a delta, protect it with contracts.",
+  "lead": "opensdd",
+  "phases": [
+    { "id": "understand", "steps": [{ "use": "opensdd:skill/sdd-getspecs" }, { "use": "opensdd:command/brownfield-constitution", "review": "human" }, { "use": "opensdd:skill/sdd-characterize" }] },
+    { "id": "specify", "steps": [{ "use": "opensdd:command/delta-init" }, { "use": "opensdd:skill/sdd-spec-design", "review": "human" }, { "use": "opensdd:skill/sdd-spec-tasks", "review": "human" }] },
+    { "id": "build", "steps": [{ "use": "opensdd:skill/sdd-impl", "checks": ["opensdd:gates-c1-c3"] }, { "use": "opensdd:command/brownfield-contracts" }, { "use": "opensdd:skill/sdd-validate-impl", "review": "human" }] }
+  ]
+}

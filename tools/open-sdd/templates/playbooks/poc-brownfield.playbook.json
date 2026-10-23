@@ -1,0 +1,9 @@
+{
+  "$schema": "./playbook.schema.json",
+  "name": "poc-brownfield",
+  "description": "L1 brownfield: a PoC inside existing code — characterize the touched area first so the experiment cannot silently break what runs.",
+  "lead": "opensdd",
+  "phases": [
+    { "id": "build", "steps": [{ "use": "opensdd:skill/sdd-characterize" }, { "use": "opensdd:skill/sdd-tiny" }, { "use": "opensdd:skill/sdd-verify-completion" }] }
+  ]
+}

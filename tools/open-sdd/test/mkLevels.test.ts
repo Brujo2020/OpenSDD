@@ -96,7 +96,8 @@ describe('AC-01 metamorphic invariants', () => {
     expect(playbookFor('L1', 'prototype then turn into a feature if it works')).toBe('poc-to-feature');
     expect(playbookFor('L2', 'fix the crash')).toBe('bug');
     expect(playbookFor('L2', 'refactor x')).toBe('refactor');
-    expect(playbookFor('L5', 'x')).toBe('multi-unit');
+    expect(playbookFor('L5', 'x')).toBe('multi-unit-greenfield');
+    expect(playbookFor('L5', 'extend the existing x')).toBe('multi-unit');
     expect(playbookFor('L6', 'x')).toBe('modernize');
   });
   it('slug from intent drops stop words and accents', () => {

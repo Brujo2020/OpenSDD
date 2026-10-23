@@ -16,6 +16,10 @@ open-sdd decides strategy deterministically: the level of the work, the 7 Rs dis
 - L0 tiny / L1 PoC: minimal ceremony — report `started` and `completed`; no pack, no recall.
 - L2–L4: standard ceremony — follow `open-sdd next <feature> --json --auto-handoff` (skill `sdd-playbook`).
 - If a tiny change or PoC turns out to touch auth, payments, personal data, a migration, infra or data: raise a `signal` event with `risk: true` (`open-sdd engine event <feature> --file signal.json`); the rules raise the level.
+- Variants and rigor: `--variant greenfield|brownfield` and `--rigor tiny-spec|spec-first|spec-anchored|spec-as-source` (alias spec-as-code) adjust the playbook; rigor never goes below the level's floor.
+- Existing system you do not understand yet: reverse engineering mode — `open-sdd reverse init`, then `open-sdd reverse next` until RE-6 (architecture, characterization tests, inferred rules for people to confirm with `open-sdd reverse confirm`).
+- Not sure what to do first: `open-sdd assist` (steering draft, constitution, discovery by roles, EARS conversion).
+- Always: `open-sdd where` shows phase, % and pending; `open-sdd where --save --note "…"` before stopping.
 - L6 modernization: continue below.
 
 ## 1. Portfolio (with the user)

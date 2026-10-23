@@ -1,0 +1,11 @@
+{
+  "$schema": "./playbook.schema.json",
+  "name": "multi-feature-brownfield",
+  "description": "L4 brownfield: several features on an existing system — recover steering and constitution once, then specs by wave with regression contracts.",
+  "lead": "opensdd",
+  "phases": [
+    { "id": "understand", "steps": [{ "use": "opensdd:skill/sdd-getspecs" }, { "use": "opensdd:command/brownfield-constitution", "review": "human" }] },
+    { "id": "specify", "steps": [{ "use": "opensdd:skill/sdd-spec-batch", "checks": ["opensdd:ears", "opensdd:constitution"], "review": "human" }] },
+    { "id": "build", "steps": [{ "use": "opensdd:command/waves" }, { "use": "opensdd:skill/sdd-impl", "checks": ["opensdd:gates-c1-c3"] }, { "use": "opensdd:command/brownfield-contracts" }, { "use": "opensdd:skill/sdd-validate-impl", "review": "human" }] }
+  ]
+}

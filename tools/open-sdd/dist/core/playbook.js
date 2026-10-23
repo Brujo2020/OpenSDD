@@ -86,6 +86,14 @@ const COMMANDS = [
     { use: 'opensdd:modernize/regression-check', kind: 'command', consumes: [], produces: [], cost: 1, component: 'VE' },
     { use: 'opensdd:modernize/emergency-change', kind: 'gate', consumes: [], produces: [], cost: 1, component: 'R' },
     { use: 'opensdd:modernize/compliance-review', kind: 'gate', consumes: [], produces: [], cost: 2, component: 'R' },
+    // Reverse engineering mode (REQ-VR-002/003): one step per stage; the engine closes a step only when
+    // its stage's exit criteria hold (core/reverse.ts).
+    { use: 'opensdd:reverse/inventory', kind: 'command', consumes: [], produces: ['sdd:re-inventory'], cost: 1, component: 'CSU' },
+    { use: 'opensdd:reverse/architecture', kind: 'command', consumes: [c('sdd:re-inventory')], produces: ['sdd:re-architecture'], cost: 2, component: 'CSU' },
+    { use: 'opensdd:reverse/characterize', kind: 'command', consumes: [c('sdd:re-inventory')], produces: ['sdd:re-characterization'], cost: 3, component: 'VE' },
+    { use: 'opensdd:reverse/rules', kind: 'command', consumes: [c('sdd:re-inventory')], produces: ['sdd:re-rules'], cost: 2, component: 'IAE' },
+    { use: 'opensdd:reverse/confirm', kind: 'gate', consumes: [c('sdd:re-rules')], produces: [], cost: 1, component: 'IAE' },
+    { use: 'opensdd:reverse/spec-baseline', kind: 'command', consumes: [c('sdd:re-rules')], produces: ['sdd:requirements'], cost: 2, component: 'IAE' },
 ];
 /** Checks a step can carry (`checks: [...]`); they map to executable open-sdd commands. */
 export const CHECKS = {

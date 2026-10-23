@@ -251,6 +251,10 @@ Suggest the next command and stop. Do NOT automatically run downstream spec gene
 
 If the decomposition contains only existing-spec updates plus direct implementation candidates, do NOT use Path E. Prefer Path A when one existing spec is the clear home, or recommend the existing-spec update plus direct implementation work without creating roadmap entries.
 
+
+## Deterministic helper
+
+`open-sdd assist discover "<idea>" --feature <f>` writes role-based questions (analyst, PM, architect, UX, QA, security) chosen by level, variant and risk; the user answers them, then `open-sdd assist brief <f> --write` composes and lints `brief.md`. Propose answers only as `ASSUMPTION: …`.
 </instructions>
 
 ## Critical Constraints

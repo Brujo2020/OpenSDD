@@ -298,6 +298,13 @@ const gateGuards = async (cwd: string, state: EngineState, step: EngineStep, pro
       for (const u of unstamped) problems.push(`UNSTAMPED_ARTIFACT: ${u} lacks "Confirmation: ${confirmation.id}"`);
     }
   }
+  // Reverse engineering: a stage step closes only when the stage's exit criteria hold (REQ-VR-003).
+  if (step.use.startsWith('opensdd:reverse/')) {
+    const { reverseStages, STAGE_OF_STEP } = await import('./reverse.js');
+    const { stages } = await reverseStages(cwd, state.feature);
+    const st = stages.find((x) => x.id === STAGE_OF_STEP[step.use]);
+    if (st && !st.done) problems.push(`REVERSE_STAGE_OPEN: ${st.id} ${st.name} (${st.metric}): ${st.unmet.join('; ')}`);
+  }
   const receipt = await readReceipt(cwd, state.feature, step.id);
   if (receipt) {
     const f = await receiptFreshness(cwd, receipt);

@@ -13,7 +13,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EXIT } from './help.js';
 import { humanDirective, handleHandoffCommand } from './playbook.js';
-import { classifyLevel, LEVELS, ceremonyFor, playbookFor, slugFromIntent, LEVEL_LABEL } from '../../core/levels.js';
+import { classifyLevel, LEVELS, ceremonyFor, playbookFor, slugFromIntent, LEVEL_LABEL, effectiveRigor, rigorFloor } from '../../core/levels.js';
+import { applyRigor } from '../../core/rigorOverlay.js';
 import { detectProfile, profileValues } from '../../core/profile.js';
 import { nextDirective, startRun } from '../../core/engine.js';
 import { applyEvent, loadRules, readEventRecord, resolveEvent } from '../../core/dynamicRules.js';
@@ -62,30 +63,47 @@ export const handleStartCommand = async (args, io, cwd) => {
     const json = args.includes('--json');
     const intent = positionals(args).join(' ').trim();
     if (!intent)
-        return usage(io, 'start "<intent>" [--feature f] [--level L0…L6] [--dry-run] [--json]');
+        return usage(io, 'start "<intent>" [--feature f] [--level L0…L6] [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-source] [--dry-run] [--json]');
     const profile = await detectProfile(cwd);
     const decision = classifyLevel(intent, profile, cwd);
     const forced = flag(args, 'level');
     if (forced && !LEVELS.includes(forced))
         return usage(io, `--level must be one of ${LEVELS.join(', ')}`);
     const level = forced || decision.level;
-    const playbook = forced ? playbookFor(level, intent, profile) : decision.playbook;
+    const forcedVariant = flag(args, 'variant');
+    if (forcedVariant && !['greenfield', 'brownfield'].includes(forcedVariant))
+        return usage(io, '--variant must be greenfield or brownfield');
+    const variant = forcedVariant || decision.variant;
+    const basePlaybook = forced || forcedVariant ? playbookFor(level, intent, profile, variant) : decision.playbook;
+    const declared = JSON.parse((await readFile(path.join(cwd, '.sdd', 'settings', 'rigor.json'), 'utf8').catch(() => '{}'))).level;
+    const rig = effectiveRigor(level, flag(args, 'rigor'), declared);
+    if (flag(args, 'rigor') && rig.warnings.some((w) => w.startsWith('unknown rigor')))
+        return usage(io, rig.warnings[0]);
     const ceremony = ceremonyFor(level);
     const feature = flag(args, 'feature') || slugFromIntent(intent);
     const head = [
-        `Level ${level} · ${LEVEL_LABEL[level]}${forced ? ` (forced; classifier said ${decision.level})` : ''} → playbook ${playbook} · ceremony ${ceremony}`,
+        `Level ${level} · ${LEVEL_LABEL[level]}${forced ? ` (forced; classifier said ${decision.level})` : ''} · ${variant}${forcedVariant ? ' (forced)' : ` (${decision.variantReason})`} · rigor ${rig.rigor}${rig.rigor !== rigorFloor(level) ? ` (floor ${rigorFloor(level)})` : ''} → playbook ${basePlaybook} · ceremony ${ceremony}`,
         ...decision.evidence.map((e) => `  because ${e}`),
         ...decision.raisedBy.map((e) => `  raised: ${e}`),
-        ...decision.warnings.map((e) => `  ! ${e}`),
+        ...[...decision.warnings, ...rig.warnings].map((e) => `  ! ${e}`),
     ];
+    let playbook = basePlaybook;
     if (args.includes('--dry-run')) {
-        out(io, json, { ...decision, level, playbook, ceremony, feature }, [...head, `  dry run: open-sdd start "${intent}" --feature ${feature}`]);
+        out(io, json, { ...decision, level, variant, rigor: rig.rigor, playbook, ceremony, feature }, [...head, `  dry run: open-sdd start "${intent}" --feature ${feature}`]);
         return EXIT.PASSED;
     }
     if (playbook === 'modernize' && !existsSync(portfolioFile(cwd))) {
         out(io, json, { ...decision, level, playbook, next: 'open-sdd modernize init' }, [...head, '  A modernization starts from the portfolio: open-sdd modernize init  (then assess → waves → plan)']);
         return EXIT.PASSED;
     }
+    const overlay = await applyRigor(cwd, feature, basePlaybook, rig.rigor, profileValues(profile));
+    playbook = overlay.playbook;
+    if (overlay.added.length)
+        head.push(`  rigor ${rig.rigor} adds: ${overlay.added.join(', ')}`);
+    for (const sk of overlay.skipped)
+        head.push(`  rigor skip ${sk.id}: ${sk.reason}`);
+    if (basePlaybook === 'reverse-engineering')
+        head.push('  reverse engineering: open-sdd reverse init, then open-sdd reverse status');
     const r = await startRun(cwd, feature, playbook, profileValues(profile), { level, ceremony });
     if (!r.ok) {
         io.error(r.message);
@@ -96,7 +114,7 @@ export const handleStartCommand = async (args, io, cwd) => {
         await handleHandoffCommand(['write', feature, d.step, '--json'], { ...io, log: () => { } }, cwd);
         d = await nextDirective(cwd, feature);
     }
-    out(io, json, { ...decision, level, playbook, ceremony, feature, directive: d }, [...head, `Run ${feature} started.`, humanDirective(d)]);
+    out(io, json, { ...decision, level, variant, rigor: rig.rigor, playbook, basePlaybook, ceremony, feature, overlay, directive: d }, [...head, `Run ${feature} started.`, humanDirective(d)]);
     return EXIT.PASSED;
 };
 // ── modernize ───────────────────────────────────────────────────────────────────────────────

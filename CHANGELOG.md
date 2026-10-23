@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.9.0] — 2026-10-23
+
+### Every flavour (spec `variants-reverse`)
+- Variants: greenfield/brownfield per level from intent words or the workspace (`start --variant`). New playbooks `poc-brownfield`, `project-brownfield`, `multi-feature-brownfield`, `multi-unit-greenfield`.
+- Rigor ladder per run: `start --rigor tiny-spec|spec-first|spec-anchored|spec-as-source` (alias `spec-as-code`), composed onto the variant, never below the level floor or the declared `rigor.json`. All 48 level × variant × rigor combinations are tested.
+- Reverse engineering mode: `open-sdd reverse init|status|next|confirm` and playbook `reverse-engineering` — RE-1 inventory → RE-2 architecture → RE-3 characterization → RE-4 rules → RE-5 confirmation by people → RE-6 spec baseline, slice by slice; the engine refuses to close a stage step before its exit criteria hold.
+- Assistants: `open-sdd assist` (what helps now), `assist discover` (BMAD-style questions by role, chosen by level, variant, UI and risk) and `assist brief` (composed and linted), `assist ears` (deterministic EN/ES conversion to the five EARS patterns, questions instead of guesses), `assist steering` / `steering draft` (inferred-marked drafts), `assist constitution`.
+- `open-sdd where [--line] [--save]`: phase, progress bar weighted by step cost, pending steps, waiting decisions, resumable checkpoint.
+
 ## [3.8.0] — 2026-10-23
 
 ### Level ladder and Modernize Kit (spec `modernize-kit`)
