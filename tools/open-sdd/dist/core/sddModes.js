@@ -33,6 +33,9 @@ export const PROJECT_TYPES = [
     { id: 'refactor', label: 'Refactor', when: 'structure changes, behaviour must not', level: 'spec-first', terrain: 'brownfield',
         sequence: ['/sdd-characterize (if the area has no tests)', '/sdd-refactor (spec_impact: none, same tests before and after)', 'open-sdd brownfield impact <feature>'],
         avoid: ['/sdd-spec-requirements — no new behaviour means no new requirements', '/sdd-bugfix — fixing while refactoring mixes two claims that need different evidence'] },
+    { id: 'multi-unit', label: 'Multi-unit or multi-repo work', when: 'the change spans two or more units of work or two or more repositories', level: 'spec-anchored', terrain: 'greenfield',
+        sequence: ['open-sdd playbook profile', 'open-sdd playbook plan "<intent>" --write', 'open-sdd next <feature> / open-sdd report … (any host)', 'open-sdd import aidlc (when AI-DLC drives inception)', 'open-sdd waves <feature> --verify <wave> --check "<cmd>"', 'open-sdd hil answer … at each prepared decision', 'open-sdd playbook improve <playbook>'],
+        avoid: ['/sdd-spec-quick per unit — loses the unit dependency graph and the wave referee', '/sdd-tiny — a programme is never throwaway'] },
 ];
 /**
  * The project types, or the one that matches an id.
@@ -61,6 +64,8 @@ const MODULES = [
     { id: 'approvals', label: 'Approvals', origin: 'SDD', run: 'spec.json approvals', levels: ['off', 'off', 'opt', 'on'], why: 'when the spec is the source, an unapproved phase is unreviewed code' },
     { id: 'archive', label: 'Archive', origin: 'OpenSpec', run: 'open-sdd archive <feature>', levels: ['off', 'off', 'opt', 'on'], why: 'finished specs out of `.sdd/specs/` keep status and waves about live work only' },
 ];
+/** Module ids, the registered `opensdd:module/<id>` step types of a playbook. */
+export const MODULE_IDS = MODULES.map((m) => m.id);
 /**
  * Resolves the module matrix for a configuration.
  * @param cfg - rigor level, terrain and governance.

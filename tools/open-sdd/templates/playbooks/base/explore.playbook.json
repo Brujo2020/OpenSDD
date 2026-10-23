@@ -1,0 +1,18 @@
+{
+  "name": "base/explore",
+  "description": "Throwaway spike: a three-line spec and code.",
+  "lead": "opensdd",
+  "phases": [
+    {
+      "id": "build",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-tiny"
+        },
+        {
+          "use": "opensdd:skill/sdd-verify-completion"
+        }
+      ]
+    }
+  ]
+}

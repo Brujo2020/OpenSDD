@@ -1,0 +1,47 @@
+{
+  "name": "base/spec-first",
+  "description": "Requirements in checkable EARS, constitution valid, gates C1+C2.",
+  "lead": "opensdd",
+  "phases": [
+    {
+      "id": "specify",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-spec-init"
+        },
+        {
+          "use": "opensdd:skill/sdd-spec-requirements",
+          "checks": [
+            "opensdd:ears",
+            "opensdd:constitution"
+          ]
+        },
+        {
+          "use": "opensdd:command/requirements-review"
+        },
+        {
+          "use": "opensdd:skill/sdd-spec-design"
+        },
+        {
+          "use": "opensdd:skill/sdd-spec-tasks",
+          "review": "human"
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-impl",
+          "checks": [
+            "opensdd:gate/C1",
+            "opensdd:gate/C2"
+          ]
+        },
+        {
+          "use": "opensdd:skill/sdd-verify-completion"
+        }
+      ]
+    }
+  ]
+}

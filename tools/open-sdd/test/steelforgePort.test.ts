@@ -244,7 +244,7 @@ describe('skills by project type', () => {
     const { PROJECT_TYPES, projectTypes } = await import('../src/core/sddModes.js');
     const { readdir } = await import('node:fs/promises');
     const shipped = new Set(await readdir(path.join(__dirname, '..', 'templates', 'agents', '_shared', 'skills')));
-    expect(PROJECT_TYPES.map((p) => p.id)).toEqual(['fuzzy-idea', 'spike', 'greenfield', 'multi-feature', 'brownfield-extension', 'legacy-untested', 'bug', 'refactor']);
+    expect(PROJECT_TYPES.map((p) => p.id)).toEqual(['fuzzy-idea', 'spike', 'greenfield', 'multi-feature', 'brownfield-extension', 'legacy-untested', 'bug', 'refactor', 'multi-unit']);
     for (const p of PROJECT_TYPES) {
       expect(p.sequence.length, p.id).toBeGreaterThan(1);
       expect(p.avoid.length, p.id).toBeGreaterThan(0);

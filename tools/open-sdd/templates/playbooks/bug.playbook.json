@@ -1,0 +1,22 @@
+{
+  "name": "bug",
+  "description": "actual \u00b7 expected \u00b7 must not change; failing test first.",
+  "lead": "opensdd",
+  "phases": [
+    {
+      "id": "fix",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-bugfix",
+          "checks": [
+            "opensdd:gate/C1"
+          ]
+        },
+        {
+          "use": "opensdd:skill/sdd-verify-completion",
+          "review": "human"
+        }
+      ]
+    }
+  ]
+}

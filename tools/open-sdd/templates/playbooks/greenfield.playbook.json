@@ -1,0 +1,28 @@
+{
+  "name": "greenfield",
+  "extends": "base/spec-first",
+  "description": "New product or feature.",
+  "lead": "opensdd",
+  "phases": [
+    {
+      "id": "specify",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-steering",
+          "when": "governance != solo"
+        }
+      ]
+    }
+  ],
+  "customize": [
+    {
+      "when": "governance == enterprise",
+      "add": [
+        {
+          "phase": "close",
+          "use": "opensdd:command/audit-bundle"
+        }
+      ]
+    }
+  ]
+}

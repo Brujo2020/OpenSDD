@@ -1,0 +1,26 @@
+{
+  "name": "refactor",
+  "description": "Structure changes, behaviour must not.",
+  "lead": "opensdd",
+  "phases": [
+    {
+      "id": "fix",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-characterize",
+          "when": "tests == false"
+        },
+        {
+          "use": "opensdd:skill/sdd-refactor",
+          "checks": [
+            "opensdd:gate/C1"
+          ]
+        },
+        {
+          "use": "opensdd:skill/sdd-verify-completion",
+          "review": "human"
+        }
+      ]
+    }
+  ]
+}

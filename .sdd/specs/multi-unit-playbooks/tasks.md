@@ -1,0 +1,51 @@
+# Implementation Plan — multi-unit-playbooks
+
+## Tasks
+
+- [ ] 1. Profile detector — _Requirements: REQ-PB-002_ — _Boundary:_ `tools/open-sdd/src/core/profile.ts`
+  - Done when: AC-02 passes.
+- [ ] 2. (P) Directive schemas, `next` and `report` — _Requirements: REQ-PB-006_ — _Boundary:_ `tools/open-sdd/src/core/engine.ts`, `tools/open-sdd/src/cli/commands/engine.ts`
+  - Done when: AC-05 passes.
+- [ ] 3. (P) Question files and answer checker — _Requirements: REQ-PB-013_ — _Boundary:_ `tools/open-sdd/src/core/questions.ts`
+  - Done when: empty `[Answer]:` exits 1; confirmation id recorded.
+- [ ] 4. (P) Memory capture, reflector schema, admission gate — _Requirements: REQ-PB-014_ — _Boundary:_ `tools/open-sdd/src/core/memory.ts`
+  - Done when: AC-13 passes.
+- [ ] 5. `multi-unit` project type — _Requirements: REQ-PB-001_ — _Depends:_ `1`_ — _Boundary:_ `tools/open-sdd/src/core/sddModes.ts`
+  - Done when: AC-01 passes.
+- [ ] 6. Playbook loader, step catalogue and checker — _Requirements: REQ-PB-003_ — _Depends:_ `1`_ — _Boundary:_ `tools/open-sdd/src/core/playbook.ts`, `tools/open-sdd/templates/playbooks/aidlc-stages.json`
+  - Done when: AC-03 passes; unknown keys exit 1.
+- [ ] 7. Promotion, injection index, dedupe, withdraw — _Requirements: REQ-PB-015_ — _Depends:_ `4`_ — _Boundary:_ `tools/open-sdd/src/cli/commands/memory.ts`
+  - Done when: AC-14 passes.
+- [ ] 8. HIL cards, seeded ids, `hil answer`, approval ladder — _Requirements: REQ-PB-012, REQ-PB-013_ — _Depends:_ `2`, `3`_ — _Boundary:_ `tools/open-sdd/src/core/hitl.ts`, `tools/open-sdd/src/cli/commands/hil.ts`
+  - Done when: AC-11 and AC-12 pass.
+- [ ] 9. Library playbooks and planner — _Requirements: REQ-PB-004_ — _Depends:_ `6`_ — _Boundary:_ `tools/open-sdd/src/core/playbookPlanner.ts`, `tools/open-sdd/templates/playbooks/`
+  - Done when: AC-04 passes.
+- [ ] 10. Handoff pack, recall check, stale propagation — _Requirements: REQ-PB-008_ — _Depends:_ `2`, `6`, `7`_ — _Boundary:_ `tools/open-sdd/src/core/handoff.ts`
+  - Done when: AC-07 passes.
+- [ ] 11. Artifact guard, review receipts, freeze, phase trace — _Requirements: REQ-PB-009, REQ-PB-010_ — _Depends:_ `2`_ — _Boundary:_ `tools/open-sdd/src/core/gateRunner.ts`, `tools/open-sdd/src/core/receipts.ts`, `tools/open-sdd/templates/hooks/`
+  - Done when: AC-08 and AC-09 pass.
+- [ ] 12. Wave referee — _Requirements: REQ-PB-007_ — _Depends:_ `2`_ — _Boundary:_ `tools/open-sdd/src/core/waves.ts`
+  - Done when: AC-06 passes.
+- [ ] 13. `sdd-playbook` skill — _Requirements: REQ-PB-005_ — _Depends:_ `9`_ — _Boundary:_ `tools/open-sdd/templates/agents/_shared/skills/sdd-playbook/`
+  - Done when: present in every skills tree; CLM-027 green.
+- [ ] 14. Playbook build for every host — _Requirements: REQ-PB-018_ — _Depends:_ `9`, `2`_ — _Boundary:_ `tools/open-sdd/src/core/playbookBuild.ts`
+  - Done when: AC-17 passes.
+- [ ] 15. AI-DLC plugin, importer, read-only status — _Requirements: REQ-PB-011_ — _Depends:_ `14`_ — _Boundary:_ `tools/open-sdd/templates/integrations/aidlc-plugin/opensdd/`, `tools/open-sdd/src/core/importers.ts`, `tools/open-sdd/src/core/status.ts`
+  - Done when: AC-10 passes (or reported not run without the AI-DLC runtime).
+- [ ] 16. HIL statistics and threshold proposals — _Requirements: REQ-PB-016_ — _Depends:_ `8`_ — _Boundary:_ `tools/open-sdd/src/core/hitlStats.ts`
+  - Done when: AC-15 passes.
+- [ ] 17. `playbook improve` — _Requirements: REQ-PB-017_ — _Depends:_ `7`, `9`, `16`_ — _Boundary:_ `tools/open-sdd/src/core/playbookImprove.ts`
+  - Done when: AC-16 passes.
+- [ ] 18. Docs, help, claims — _Requirements: REQ-PB-001…018_ — _Depends:_ `5`, `10`, `11`, `12`, `13`, `15`, `17`_ — _Boundary:_ `docs/guides/playbooks.md`, `tools/open-sdd/src/cli/commands/help.ts`, `docs/claims/paper-claims.yaml`
+  - Done when: one claim per offline AC; `assure claims --verify` 0 broken.
+
+## Waves (computed by `open-sdd waves`)
+
+| Wave | Tasks |
+|---|---|
+| 1 | 1, 2, 3, 4 |
+| 2 | 5, 6, 7, 8 |
+| 3 | 9, 10, 11, 12 |
+| 4 | 13, 14, 16 |
+| 5 | 15, 17 |
+| 6 | 18 |

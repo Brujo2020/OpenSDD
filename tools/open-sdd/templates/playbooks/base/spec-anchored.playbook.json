@@ -1,0 +1,48 @@
+{
+  "name": "base/spec-anchored",
+  "extends": "base/spec-first",
+  "description": "Adds traceability, evidence and drift: gates C1+C2+C3+C6.",
+  "lead": "opensdd",
+  "phases": [
+    {
+      "id": "specify",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-validate-design",
+          "checks": [
+            "opensdd:constitution"
+          ]
+        },
+        {
+          "use": "opensdd:command/gherkin"
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "steps": [
+        {
+          "use": "opensdd:command/waves"
+        },
+        {
+          "use": "opensdd:skill/sdd-validate-impl",
+          "checks": [
+            "opensdd:gates-c1-c3"
+          ],
+          "review": "human"
+        }
+      ]
+    },
+    {
+      "id": "close",
+      "steps": [
+        {
+          "use": "opensdd:command/audit-bundle"
+        },
+        {
+          "use": "opensdd:command/archive"
+        }
+      ]
+    }
+  ]
+}

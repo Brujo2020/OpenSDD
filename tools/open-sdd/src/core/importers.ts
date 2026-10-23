@@ -8,10 +8,11 @@
 
 import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { planAidlcImport } from './aidlc.js';
 import { parseConstitution, validateConstitution } from './constitution.js';
 import { TRIAD } from './triad.js';
 
-export type ImportSource = 'spec-kit';
+export type ImportSource = 'spec-kit' | 'aidlc';
 
 export interface ImportFound {
   kind: string;
@@ -23,6 +24,8 @@ export interface ImportConversion {
   to: string;
   action: 'copy' | 'convert' | 'skip';
   reason: string;
+  /** Pre-rendered payload for conversions that are generated, not copied (AI-DLC). */
+  content?: string;
 }
 
 export interface ImportPlan {
@@ -43,7 +46,7 @@ export interface ImportOutcome {
 /** Where an import lands. */
 export const IMPORT_TARGET_SDD_DIR = '.sdd';
 
-export const IMPORT_SOURCES: ImportSource[] = ['spec-kit'];
+export const IMPORT_SOURCES: ImportSource[] = ['spec-kit', 'aidlc'];
 
 const posix = (p: string): string => p.split(path.sep).join('/');
 
@@ -290,9 +293,26 @@ const hasSpecKitEvidence = async (cwd: string): Promise<boolean> => {
  * nothing was found — the CLI has to be able to say "nothing to import". Without it, only sources
  * with evidence produce a plan; an empty array means no incumbent was observed.
  */
+const planAidlc = async (cwd: string): Promise<ImportPlan> => {
+  const { found, conversions, warnings } = await planAidlcImport(cwd);
+  return {
+    source: 'aidlc',
+    found: found ? [{ kind: 'aidlc-intent', path: found }] : [],
+    conversions,
+    warnings,
+    complete: found !== null,
+    detail: found ? `${conversions.filter((c) => c.action !== 'skip').length} conversion(s) from ${found}` : 'no AI-DLC intent record under aidlc/spaces/*/intents/',
+  };
+};
+
 export const planImport = async (cwd: string, source?: ImportSource): Promise<ImportPlan[]> => {
+  if (source === 'aidlc') return [await planAidlc(cwd)];
   if (source !== undefined) return [await planSpecKit(cwd)];
-  return (await hasSpecKitEvidence(cwd)) ? [await planSpecKit(cwd)] : [];
+  const plans: ImportPlan[] = [];
+  if (await hasSpecKitEvidence(cwd)) plans.push(await planSpecKit(cwd));
+  const aidlc = await planAidlc(cwd);
+  if (aidlc.found.length) plans.push(aidlc);
+  return plans;
 };
 
 /**
@@ -329,14 +349,15 @@ export const applyImport = async (
       continue;
     }
 
-    const content = await readIfExists(source);
+    const content = conversion.content ?? (await readIfExists(source));
     if (content === null) {
       skipped.push(`${conversion.from} — no se pudo leer el origen; no se escribe nada.`);
       continue;
     }
 
-    const payload =
-      conversion.from.endsWith('spec.md') && conversion.to.endsWith('requirements.md')
+    const payload = conversion.content !== undefined
+      ? conversion.content
+      : conversion.from.endsWith('spec.md') && conversion.to.endsWith('requirements.md')
         ? provenanceBanner(
             conversion.from,
             'spec-kit escribe escenarios de usuario y requisitos funcionales, no la sintaxis EARS.',

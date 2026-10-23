@@ -1,0 +1,19 @@
+{
+  "name": "fuzzy-idea",
+  "description": "Validate the idea before specifying it.",
+  "lead": "opensdd",
+  "phases": [
+    {
+      "id": "discover",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-discovery"
+        },
+        {
+          "use": "opensdd:command/discovery-lint",
+          "review": "human"
+        }
+      ]
+    }
+  ]
+}

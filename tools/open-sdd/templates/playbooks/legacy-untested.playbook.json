@@ -1,0 +1,17 @@
+{
+  "name": "legacy-untested",
+  "extends": "brownfield-extension",
+  "description": "Freeze behaviour before changing it.",
+  "lead": "opensdd",
+  "phases": [
+    {
+      "id": "understand",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-characterize",
+          "review": "human"
+        }
+      ]
+    }
+  ]
+}

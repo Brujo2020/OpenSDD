@@ -1,0 +1,132 @@
+{
+  "name": "multi-unit",
+  "description": "Several units or repositories: AI-DLC drives inception and operation, open-sdd governs every gate.",
+  "lead": "aidlc",
+  "budget": {
+    "handoff_tokens": 8000,
+    "improve_probes": 6,
+    "always_on_chars": 6000
+  },
+  "phases": [
+    {
+      "id": "discover",
+      "steps": [
+        {
+          "use": "opensdd:skill/sdd-discovery",
+          "when": "size != S"
+        },
+        {
+          "use": "opensdd:command/discovery-lint",
+          "when": "size != S"
+        }
+      ]
+    },
+    {
+      "id": "inception",
+      "steps": [
+        {
+          "use": "aidlc:stage/reverse-engineering",
+          "when": "terrain == brownfield"
+        },
+        {
+          "use": "aidlc:stage/requirements-analysis",
+          "checks": [
+            "opensdd:ears",
+            "opensdd:clarify",
+            "opensdd:constitution"
+          ],
+          "review": "human"
+        },
+        {
+          "use": "aidlc:stage/units-generation",
+          "checks": [
+            "opensdd:boundaries"
+          ],
+          "review": "human"
+        },
+        {
+          "use": "aidlc:stage/contract-design",
+          "when": "units >= 2 | repos >= 2"
+        },
+        {
+          "use": "aidlc:stage/delivery-planning"
+        }
+      ]
+    },
+    {
+      "id": "bridge",
+      "steps": [
+        {
+          "use": "opensdd:command/import-aidlc"
+        },
+        {
+          "use": "opensdd:command/delta-init",
+          "when": "terrain == brownfield"
+        },
+        {
+          "use": "opensdd:command/waves"
+        }
+      ]
+    },
+    {
+      "id": "construction",
+      "steps": [
+        {
+          "use": "aidlc:stage/code-generation",
+          "checks": [
+            "opensdd:gates-c1-c3"
+          ],
+          "review": "human"
+        },
+        {
+          "use": "aidlc:stage/build-and-test"
+        },
+        {
+          "use": "opensdd:command/brownfield-contracts",
+          "when": "terrain == brownfield"
+        }
+      ]
+    },
+    {
+      "id": "operation",
+      "steps": [
+        {
+          "use": "aidlc:stage/deployment-pipeline",
+          "when": "iac == true"
+        },
+        {
+          "use": "aidlc:stage/observability-setup",
+          "when": "iac == true"
+        }
+      ]
+    },
+    {
+      "id": "close",
+      "steps": [
+        {
+          "use": "opensdd:command/audit-bundle"
+        },
+        {
+          "use": "opensdd:command/archive"
+        }
+      ]
+    }
+  ],
+  "customize": [
+    {
+      "when": "governance == enterprise",
+      "add": [
+        {
+          "phase": "inception",
+          "after": "requirements-analysis",
+          "use": "aidlc:stage/practices-discovery"
+        },
+        {
+          "phase": "operation",
+          "use": "aidlc:stage/incident-response",
+          "when": "iac == true"
+        }
+      ]
+    }
+  ]
+}

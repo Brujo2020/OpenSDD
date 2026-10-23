@@ -7,11 +7,12 @@
  */
 import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { planAidlcImport } from './aidlc.js';
 import { parseConstitution, validateConstitution } from './constitution.js';
 import { TRIAD } from './triad.js';
 /** Where an import lands. */
 export const IMPORT_TARGET_SDD_DIR = '.sdd';
-export const IMPORT_SOURCES = ['spec-kit'];
+export const IMPORT_SOURCES = ['spec-kit', 'aidlc'];
 const posix = (p) => p.split(path.sep).join('/');
 const exists = async (p) => (await stat(p).catch(() => null)) !== null;
 const readIfExists = async (p) => readFile(p, 'utf8').catch(() => null);
@@ -188,10 +189,29 @@ const hasSpecKitEvidence = async (cwd) => {
  * nothing was found — the CLI has to be able to say "nothing to import". Without it, only sources
  * with evidence produce a plan; an empty array means no incumbent was observed.
  */
+const planAidlc = async (cwd) => {
+    const { found, conversions, warnings } = await planAidlcImport(cwd);
+    return {
+        source: 'aidlc',
+        found: found ? [{ kind: 'aidlc-intent', path: found }] : [],
+        conversions,
+        warnings,
+        complete: found !== null,
+        detail: found ? `${conversions.filter((c) => c.action !== 'skip').length} conversion(s) from ${found}` : 'no AI-DLC intent record under aidlc/spaces/*/intents/',
+    };
+};
 export const planImport = async (cwd, source) => {
+    if (source === 'aidlc')
+        return [await planAidlc(cwd)];
     if (source !== undefined)
         return [await planSpecKit(cwd)];
-    return (await hasSpecKitEvidence(cwd)) ? [await planSpecKit(cwd)] : [];
+    const plans = [];
+    if (await hasSpecKitEvidence(cwd))
+        plans.push(await planSpecKit(cwd));
+    const aidlc = await planAidlc(cwd);
+    if (aidlc.found.length)
+        plans.push(aidlc);
+    return plans;
 };
 /**
  * Apply a plan. Without `write` nothing happens at all; with it, every existing target is refused
@@ -218,14 +238,16 @@ export const applyImport = async (cwd, plan, opts) => {
             skipped.push(`${conversion.to} — ya existe: open-sdd NUNCA sobrescribe en una importación.`);
             continue;
         }
-        const content = await readIfExists(source);
+        const content = conversion.content ?? (await readIfExists(source));
         if (content === null) {
             skipped.push(`${conversion.from} — no se pudo leer el origen; no se escribe nada.`);
             continue;
         }
-        const payload = conversion.from.endsWith('spec.md') && conversion.to.endsWith('requirements.md')
-            ? provenanceBanner(conversion.from, 'spec-kit escribe escenarios de usuario y requisitos funcionales, no la sintaxis EARS.') + content
-            : content;
+        const payload = conversion.content !== undefined
+            ? conversion.content
+            : conversion.from.endsWith('spec.md') && conversion.to.endsWith('requirements.md')
+                ? provenanceBanner(conversion.from, 'spec-kit escribe escenarios de usuario y requisitos funcionales, no la sintaxis EARS.') + content
+                : content;
         try {
             await mkdir(path.dirname(target), { recursive: true });
             await writeFile(target, payload, 'utf8');

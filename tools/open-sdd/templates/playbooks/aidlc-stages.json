@@ -1,0 +1,527 @@
+{
+  "source": "AWS AI-DLC Workflows 2.0 (awslabs/aidlc-workflows, MIT-0), docs/guide/14-artifacts-reference.md and docs/guide/04-phases-and-stages.md",
+  "aidlcVersion": "2.7.1",
+  "snapshot": "2026-10-23",
+  "note": "produces from the artifacts reference; consumes simplified to the documented key dependency chains; cost 1-5 and component are open-sdd planning priors, not AI-DLC data",
+  "stages": [
+    {
+      "slug": "workspace-scaffold",
+      "phase": "initialization",
+      "produces": [
+        "scaffold-report"
+      ],
+      "consumes": [],
+      "cost": 1,
+      "component": "IAE"
+    },
+    {
+      "slug": "workspace-detection",
+      "phase": "initialization",
+      "produces": [
+        "workspace-findings"
+      ],
+      "consumes": [],
+      "cost": 1,
+      "component": "IAE"
+    },
+    {
+      "slug": "state-init",
+      "phase": "initialization",
+      "produces": [
+        "state-init-summary"
+      ],
+      "consumes": [],
+      "cost": 1,
+      "component": "IAE"
+    },
+    {
+      "slug": "intent-capture",
+      "phase": "ideation",
+      "produces": [
+        "intent-statement",
+        "stakeholder-map"
+      ],
+      "consumes": [],
+      "cost": 2,
+      "component": "IAE"
+    },
+    {
+      "slug": "market-research",
+      "phase": "ideation",
+      "produces": [
+        "competitive-analysis",
+        "build-vs-buy"
+      ],
+      "consumes": [
+        {
+          "artifact": "intent-statement",
+          "required": true
+        }
+      ],
+      "cost": 4,
+      "component": "UA"
+    },
+    {
+      "slug": "feasibility",
+      "phase": "ideation",
+      "produces": [
+        "feasibility-assessment",
+        "constraint-register",
+        "raid-log"
+      ],
+      "consumes": [
+        {
+          "artifact": "intent-statement",
+          "required": true
+        }
+      ],
+      "cost": 3,
+      "component": "R"
+    },
+    {
+      "slug": "scope-definition",
+      "phase": "ideation",
+      "produces": [
+        "scope-document",
+        "intent-backlog"
+      ],
+      "consumes": [
+        {
+          "artifact": "intent-statement",
+          "required": true
+        }
+      ],
+      "cost": 2,
+      "component": "IAE"
+    },
+    {
+      "slug": "team-formation",
+      "phase": "ideation",
+      "produces": [
+        "team-assessment",
+        "mob-composition"
+      ],
+      "consumes": [
+        {
+          "artifact": "scope-document",
+          "required": true
+        }
+      ],
+      "cost": 3,
+      "component": "R"
+    },
+    {
+      "slug": "rough-mockups",
+      "phase": "ideation",
+      "produces": [
+        "wireframes",
+        "user-flow"
+      ],
+      "consumes": [
+        {
+          "artifact": "intent-statement",
+          "required": true
+        }
+      ],
+      "cost": 3,
+      "component": "UA"
+    },
+    {
+      "slug": "approval-handoff",
+      "phase": "ideation",
+      "produces": [
+        "initiative-brief",
+        "decision-log"
+      ],
+      "consumes": [
+        {
+          "artifact": "scope-document",
+          "required": true
+        }
+      ],
+      "cost": 2,
+      "component": "IAE"
+    },
+    {
+      "slug": "reverse-engineering",
+      "phase": "inception",
+      "produces": [
+        "architecture",
+        "code-structure",
+        "technology-stack"
+      ],
+      "consumes": [],
+      "cost": 3,
+      "component": "CSU"
+    },
+    {
+      "slug": "practices-discovery",
+      "phase": "inception",
+      "produces": [
+        "team-practices",
+        "discovered-rules"
+      ],
+      "consumes": [],
+      "cost": 3,
+      "component": "R"
+    },
+    {
+      "slug": "requirements-analysis",
+      "phase": "inception",
+      "produces": [
+        "requirements"
+      ],
+      "consumes": [
+        {
+          "artifact": "intent-statement",
+          "required": false
+        }
+      ],
+      "cost": 1,
+      "component": "IAE"
+    },
+    {
+      "slug": "user-stories",
+      "phase": "inception",
+      "produces": [
+        "stories",
+        "personas"
+      ],
+      "consumes": [
+        {
+          "artifact": "requirements",
+          "required": true
+        }
+      ],
+      "cost": 2,
+      "component": "UA"
+    },
+    {
+      "slug": "refined-mockups",
+      "phase": "inception",
+      "produces": [
+        "mockups",
+        "interaction-spec",
+        "accessibility-checklist"
+      ],
+      "consumes": [
+        {
+          "artifact": "stories",
+          "required": true
+        }
+      ],
+      "cost": 3,
+      "component": "UA"
+    },
+    {
+      "slug": "domain-design",
+      "phase": "inception",
+      "produces": [
+        "components",
+        "decisions"
+      ],
+      "consumes": [
+        {
+          "artifact": "requirements",
+          "required": true
+        }
+      ],
+      "cost": 3,
+      "component": "CSU"
+    },
+    {
+      "slug": "units-generation",
+      "phase": "inception",
+      "produces": [
+        "unit-of-work",
+        "unit-of-work-dependency",
+        "unit-of-work-story-map"
+      ],
+      "consumes": [
+        {
+          "artifact": "requirements",
+          "required": true
+        },
+        {
+          "artifact": "components",
+          "required": false
+        }
+      ],
+      "cost": 2,
+      "component": "CSU"
+    },
+    {
+      "slug": "contract-design",
+      "phase": "inception",
+      "produces": [
+        "contract-summary"
+      ],
+      "consumes": [
+        {
+          "artifact": "unit-of-work",
+          "required": true
+        }
+      ],
+      "cost": 3,
+      "component": "CSU"
+    },
+    {
+      "slug": "delivery-planning",
+      "phase": "inception",
+      "produces": [
+        "bolt-plan",
+        "team-allocation",
+        "risk-and-sequencing-rationale",
+        "external-dependency-map"
+      ],
+      "consumes": [
+        {
+          "artifact": "unit-of-work",
+          "required": true
+        },
+        {
+          "artifact": "unit-of-work-dependency",
+          "required": true
+        }
+      ],
+      "cost": 2,
+      "component": "IAE"
+    },
+    {
+      "slug": "functional-design",
+      "phase": "construction",
+      "produces": [
+        "entities",
+        "rules",
+        "functional-spec"
+      ],
+      "consumes": [
+        {
+          "artifact": "unit-of-work",
+          "required": true
+        }
+      ],
+      "cost": 2,
+      "component": "IAE"
+    },
+    {
+      "slug": "nfr-requirements",
+      "phase": "construction",
+      "produces": [
+        "security-requirements",
+        "performance-requirements"
+      ],
+      "consumes": [
+        {
+          "artifact": "requirements",
+          "required": true
+        }
+      ],
+      "cost": 3,
+      "component": "VE"
+    },
+    {
+      "slug": "nfr-design",
+      "phase": "construction",
+      "produces": [
+        "security-design",
+        "performance-design"
+      ],
+      "consumes": [
+        {
+          "artifact": "security-requirements",
+          "required": true
+        }
+      ],
+      "cost": 3,
+      "component": "VE"
+    },
+    {
+      "slug": "infrastructure-design",
+      "phase": "construction",
+      "produces": [
+        "infrastructure-specification",
+        "monitoring-design",
+        "cicd-pipeline"
+      ],
+      "consumes": [
+        {
+          "artifact": "security-design",
+          "required": false
+        }
+      ],
+      "cost": 3,
+      "component": "CSU"
+    },
+    {
+      "slug": "code-generation",
+      "phase": "construction",
+      "produces": [
+        "code-generation-plan",
+        "code-summary",
+        "traceability",
+        "source-manifest"
+      ],
+      "consumes": [
+        {
+          "artifact": "unit-of-work",
+          "required": true
+        },
+        {
+          "artifact": "functional-spec",
+          "required": false
+        }
+      ],
+      "cost": 1,
+      "component": "IAE"
+    },
+    {
+      "slug": "build-and-test",
+      "phase": "construction",
+      "produces": [
+        "build-instructions",
+        "test-results"
+      ],
+      "consumes": [
+        {
+          "artifact": "code-summary",
+          "required": true
+        }
+      ],
+      "cost": 1,
+      "component": "VE"
+    },
+    {
+      "slug": "ci-pipeline",
+      "phase": "construction",
+      "produces": [
+        "ci-config",
+        "quality-gates"
+      ],
+      "consumes": [
+        {
+          "artifact": "build-instructions",
+          "required": true
+        }
+      ],
+      "cost": 2,
+      "component": "VE"
+    },
+    {
+      "slug": "deployment-pipeline",
+      "phase": "operation",
+      "produces": [
+        "cd-config",
+        "deployment-strategy",
+        "rollback-runbook"
+      ],
+      "consumes": [
+        {
+          "artifact": "build-instructions",
+          "required": true
+        }
+      ],
+      "cost": 3,
+      "component": "R"
+    },
+    {
+      "slug": "environment-provisioning",
+      "phase": "operation",
+      "produces": [
+        "environment-inventory",
+        "validation-report"
+      ],
+      "consumes": [
+        {
+          "artifact": "infrastructure-specification",
+          "required": true
+        }
+      ],
+      "cost": 4,
+      "component": "R"
+    },
+    {
+      "slug": "deployment-execution",
+      "phase": "operation",
+      "produces": [
+        "deployment-log",
+        "smoke-test-results"
+      ],
+      "consumes": [
+        {
+          "artifact": "cd-config",
+          "required": true
+        }
+      ],
+      "cost": 3,
+      "component": "R"
+    },
+    {
+      "slug": "observability-setup",
+      "phase": "operation",
+      "produces": [
+        "dashboards",
+        "alarms",
+        "slo-config"
+      ],
+      "consumes": [
+        {
+          "artifact": "deployment-log",
+          "required": false
+        }
+      ],
+      "cost": 3,
+      "component": "R"
+    },
+    {
+      "slug": "incident-response",
+      "phase": "operation",
+      "produces": [
+        "runbooks",
+        "incident-plan",
+        "escalation-matrix"
+      ],
+      "consumes": [
+        {
+          "artifact": "alarms",
+          "required": true
+        }
+      ],
+      "cost": 4,
+      "component": "R"
+    },
+    {
+      "slug": "performance-validation",
+      "phase": "operation",
+      "produces": [
+        "load-test-plan",
+        "nfr-validation-matrix"
+      ],
+      "consumes": [
+        {
+          "artifact": "deployment-log",
+          "required": true
+        }
+      ],
+      "cost": 4,
+      "component": "VE"
+    },
+    {
+      "slug": "feedback-optimization",
+      "phase": "operation",
+      "produces": [
+        "slo-report",
+        "cost-analysis",
+        "feedback-loop"
+      ],
+      "consumes": [
+        {
+          "artifact": "slo-config",
+          "required": true
+        }
+      ],
+      "cost": 4,
+      "component": "R"
+    }
+  ]
+}

@@ -46,6 +46,8 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { colors } from '../ui/colors.js';
+import { readAidlcState, summarizeAidlc } from '../../core/aidlc.js';
+import { readState } from '../../core/engine.js';
 import type { CliIO } from '../io.js';
 import { getSpecStatus, listSpecs, resolveSddDir } from '../../core/specManager.js';
 import {
@@ -496,6 +498,15 @@ export const handleStatusCommand = async (
     ? await adhesionView(report.root, sddRel, adhesionOutcome.alignment)
     : null;
   if (adhesion) applyAdhesion(report, adhesion);
+
+  // AI-DLC leads the run: show its stage checkboxes, read-only (REQ-PB-011).
+  if (feature) {
+    const run = await readState(report.root, feature).catch(() => null);
+    if (run?.lead === 'aidlc') {
+      const aidlc = await readAidlcState(report.root);
+      report.lines.push({ label: 'AI-DLC', value: aidlc ? summarizeAidlc(aidlc.stages) : 'lead: aidlc, but no intent record under aidlc/spaces/', tone: aidlc ? 'dim' : 'warn' });
+    }
+  }
 
   const rendered = renderStatus(report);
   const hasErrorLine = report.lines.some((line) => line.tone === 'err');

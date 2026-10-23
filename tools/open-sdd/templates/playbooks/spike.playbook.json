@@ -1,0 +1,7 @@
+{
+  "name": "spike",
+  "extends": "base/explore",
+  "description": "Spike / POC.",
+  "lead": "opensdd",
+  "phases": []
+}
