@@ -124,6 +124,8 @@ export const recordAnswer = async (cwd, feature, id, option, by, opts = {}) => {
     if (picked.effect === 'override' && opts.autonomous)
         return { ok: false, message: 'an override of a blocking gate is refused in autonomous mode' };
     const identity = opts.identity ?? { name: '', email: '' };
+    if (opts.requireApprovers && opts.channel !== 'deadline' && !opts.approvers)
+        return { ok: false, message: 'APPROVERS_REQUIRED: this run has strict ceremony; declare who may answer in .sdd/settings/approvers.json' };
     if (opts.channel !== 'deadline' && !approverAllowed(opts.approvers ?? null, by, identity))
         return { ok: false, message: `APPROVER_NOT_LISTED: «${by}» (${identity.email || 'no git email'}) is not in .sdd/settings/approvers.json` };
     const grants = picked.effect === 'approve' || picked.effect === 'override' || picked.effect === 'accept-as-is';

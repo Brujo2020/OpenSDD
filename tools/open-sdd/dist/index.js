@@ -38,6 +38,7 @@ import { handleBackupCommand } from './cli/commands/backup.js';
 import { handleBiographyCommand } from './cli/commands/biography.js';
 import { handleTemplatesCommand } from './cli/commands/templates.js';
 import { handleEngineCommand, handleHandoffCommand, handleHilCommand, handleMemoryCommand, handleNextCommand, handlePlaybookCommand, handleQuestionsCommand, handleReviewReceiptCommand, handleStepReportCommand, handleWaveRefereeCommand, } from './cli/commands/playbook.js';
+import { handleModernizeCommand, handleStartCommand } from './cli/commands/modernize.js';
 import { SCORE_FOOTER_FLAG, emitScoreFooter } from './cli/jsonOut.js';
 import { PACKAGE_NAME, VERSION, INSTALL_COMMAND } from './cli/packageIdentity.js';
 import { localeRefusal, normalizeLocale, parseLangFlag } from './cli/i18n.js';
@@ -266,6 +267,13 @@ const dispatchSubcommand = async (cmd, subArgv, io, targetCwd) => {
     // Ciclo multi-unit (v3.6.0): playbooks, motor next/report, traspaso, HIL, memoria y recibos.
     if (cmd === 'playbook')
         return handlePlaybookCommand(subArgv, io, targetCwd);
+    // Level ladder and Modernize Kit (v3.8.0).
+    if (cmd === 'start')
+        return handleStartCommand(subArgv, io, targetCwd);
+    if (cmd === 'modernize')
+        return handleModernizeCommand(subArgv, io, targetCwd);
+    if (cmd === 'engine' && subArgv[0] === 'event')
+        return handleModernizeCommand(subArgv, io, targetCwd);
     if (cmd === 'engine')
         return handleEngineCommand(subArgv, io, targetCwd);
     if (cmd === 'next')

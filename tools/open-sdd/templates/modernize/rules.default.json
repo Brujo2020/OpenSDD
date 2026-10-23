@@ -1,0 +1,182 @@
+{
+  "schema": "open-sdd.dynamic-rules/1",
+  "policy": {
+    "slaHours": { "critical": 24, "high": 72, "medium": 336, "low": 720 },
+    "canary": { "maxMismatchRate": 0.001, "maxLatencyRatio": 1.2, "minSample": 1000 },
+    "note": "Defaults to start from. Set your organisation's own remediation and release policy in .sdd/settings/dynamic-rules.json; these values are not regulatory requirements."
+  },
+  "rules": [
+    {
+      "id": "SEC-CRITICAL-LANE",
+      "on": "security-advisory",
+      "when": "severity == critical | exploited == true",
+      "priority": 10,
+      "rationale": "critical or exploited advisory: expedite lane, freeze forward moves, emergency change approved by a person",
+      "actions": [
+        { "type": "freeze", "reason": "critical security advisory open" },
+        { "type": "set-deadline", "sla": "critical" },
+        { "type": "require-hil", "trigger": "emergency-change", "step": "emergency-change", "use": "opensdd:modernize/emergency-change", "question": "Approve the emergency change for {event} on {component} now?" }
+      ]
+    },
+    {
+      "id": "SEC-HIGH-DEADLINE",
+      "on": "security-advisory",
+      "when": "severity == high",
+      "priority": 11,
+      "rationale": "high severity: patch within the high SLA, no freeze",
+      "actions": [{ "type": "set-deadline", "sla": "high" }]
+    },
+    {
+      "id": "SEC-EXPOSURE",
+      "on": "security-advisory",
+      "when": "sbom != true",
+      "priority": 20,
+      "rationale": "no dependency inventory for this component: assess exposure before patching",
+      "actions": [{ "type": "insert-steps", "steps": [{ "id": "exposure", "use": "opensdd:modernize/exposure-assessment" }] }]
+    },
+    {
+      "id": "SEC-SBOM-LOOKUP",
+      "on": "security-advisory",
+      "when": "sbom == true",
+      "priority": 20,
+      "rationale": "dependency inventory exists: exposure is a lookup",
+      "actions": [{ "type": "insert-steps", "steps": [{ "id": "sbom-lookup", "use": "opensdd:modernize/sbom-lookup" }] }]
+    },
+    {
+      "id": "SEC-PATCH",
+      "on": "security-advisory",
+      "when": "sev >= 1",
+      "priority": 30,
+      "rationale": "patch every system that serves traffic for the component",
+      "actions": [{ "type": "patch-both" }]
+    },
+    {
+      "id": "SEC-REGRESSION",
+      "on": "security-advisory",
+      "when": "sev >= 1",
+      "priority": 40,
+      "rationale": "a patch is a change: run the regression oracle",
+      "actions": [{ "type": "insert-steps", "steps": [{ "id": "regression", "use": "opensdd:modernize/regression-check" }] }]
+    },
+    {
+      "id": "SEC-REGULATED-GATE",
+      "on": "security-advisory",
+      "when": "regulated == true & sev >= 2",
+      "priority": 45,
+      "rationale": "regulated data: the security baseline gate runs on the patched code",
+      "actions": [{ "type": "insert-steps", "steps": [{ "id": "security-gate", "use": "opensdd:gate/C2" }] }]
+    },
+    {
+      "id": "INC-CANARY-ROLLBACK",
+      "on": "incident",
+      "when": "stage == canary-5 | stage == canary-25 | stage == canary-50",
+      "priority": 10,
+      "rationale": "incident during a canary: roll traffic back to the legacy system and freeze",
+      "actions": [
+        { "type": "freeze", "reason": "incident during canary" },
+        { "type": "insert-steps", "steps": [{ "id": "rollback", "use": "opensdd:modernize/rollback" }] }
+      ]
+    },
+    {
+      "id": "INC-CRITICAL",
+      "on": "incident",
+      "when": "severity == critical",
+      "priority": 20,
+      "rationale": "critical incident: deadline and a person decides how to proceed",
+      "actions": [
+        { "type": "set-deadline", "sla": "critical" },
+        { "type": "require-hil", "trigger": "incident", "step": "incident-review", "use": "opensdd:modernize/compliance-review", "question": "Resume work on {component} after incident {event}?" }
+      ]
+    },
+    {
+      "id": "WAVE-REFACTOR",
+      "on": "wave-start",
+      "when": "disposition == refactor",
+      "priority": 10,
+      "rationale": "refactor: characterize, strangler facade, parallel run, canary, cut-over",
+      "actions": [{ "type": "insert-steps", "steps": [
+        { "id": "characterize", "use": "opensdd:modernize/characterize" },
+        { "id": "facade", "use": "opensdd:modernize/strangler-facade" },
+        { "id": "parallel-run", "use": "opensdd:modernize/parallel-run" },
+        { "id": "canary", "use": "opensdd:modernize/canary" },
+        { "id": "cutover", "use": "opensdd:modernize/cutover" }
+      ] }]
+    },
+    {
+      "id": "WAVE-REPLATFORM",
+      "on": "wave-start",
+      "when": "disposition == replatform",
+      "priority": 10,
+      "rationale": "replatform: characterize, move to the managed runtime, parallel run, canary, cut-over",
+      "actions": [{ "type": "insert-steps", "steps": [
+        { "id": "characterize", "use": "opensdd:modernize/characterize" },
+        { "id": "replatform", "use": "opensdd:modernize/replatform" },
+        { "id": "parallel-run", "use": "opensdd:modernize/parallel-run" },
+        { "id": "canary", "use": "opensdd:modernize/canary" },
+        { "id": "cutover", "use": "opensdd:modernize/cutover" }
+      ] }]
+    },
+    {
+      "id": "WAVE-REHOST",
+      "on": "wave-start",
+      "when": "disposition == rehost",
+      "priority": 10,
+      "rationale": "rehost: lift and shift, smoke regression, cut-over",
+      "actions": [{ "type": "insert-steps", "steps": [
+        { "id": "rehost", "use": "opensdd:modernize/rehost" },
+        { "id": "regression", "use": "opensdd:modernize/regression-check" },
+        { "id": "cutover", "use": "opensdd:modernize/cutover" }
+      ] }]
+    },
+    {
+      "id": "WAVE-RELOCATE",
+      "on": "wave-start",
+      "when": "disposition == relocate",
+      "priority": 10,
+      "rationale": "relocate: move to the cloud version of the platform, cut-over",
+      "actions": [{ "type": "insert-steps", "steps": [{ "id": "relocate", "use": "opensdd:modernize/relocate" }, { "id": "cutover", "use": "opensdd:modernize/cutover" }] }]
+    },
+    {
+      "id": "WAVE-REPURCHASE",
+      "on": "wave-start",
+      "when": "disposition == repurchase",
+      "priority": 10,
+      "rationale": "repurchase: migrate data and integrations, parallel run, cut-over",
+      "actions": [{ "type": "insert-steps", "steps": [
+        { "id": "repurchase-migrate", "use": "opensdd:modernize/repurchase-migrate" },
+        { "id": "parallel-run", "use": "opensdd:modernize/parallel-run" },
+        { "id": "cutover", "use": "opensdd:modernize/cutover" }
+      ] }]
+    },
+    {
+      "id": "WAVE-RETIRE",
+      "on": "wave-start",
+      "when": "disposition == retire",
+      "priority": 10,
+      "rationale": "retire: archive and decommission (irreversible: approved on its own card at advance time)",
+      "actions": [{ "type": "insert-steps", "steps": [{ "id": "decommission", "use": "opensdd:modernize/decommission" }] }]
+    },
+    {
+      "id": "SIGNAL-ESCALATE",
+      "on": "signal",
+      "when": "level <= 1 & risk == true",
+      "priority": 10,
+      "rationale": "a tiny change or PoC now touches something risky: it is a feature now",
+      "actions": [
+        { "type": "raise-level", "to": "L2" },
+        { "type": "insert-steps", "steps": [{ "id": "requirements", "use": "opensdd:skill/sdd-spec-requirements" }, { "id": "design-review", "use": "opensdd:skill/sdd-validate-design", "review": "human" }] }
+      ]
+    },
+    {
+      "id": "REG-CHANGE",
+      "on": "regulatory-change",
+      "when": "regulated == true",
+      "priority": 10,
+      "rationale": "a regulatory change on regulated data: freeze and review compliance before moving on",
+      "actions": [
+        { "type": "freeze", "reason": "regulatory change under review" },
+        { "type": "require-hil", "trigger": "regulatory-change", "step": "compliance-review", "use": "opensdd:modernize/compliance-review", "question": "Is {component} compliant with change {event} as planned?" }
+      ]
+    }
+  ]
+}

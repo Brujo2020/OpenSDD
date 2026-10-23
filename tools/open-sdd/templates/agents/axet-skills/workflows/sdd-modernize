@@ -1,0 +1,10 @@
+# /sdd-modernize
+
+Modernization assistant — level ladder from tiny to full modernization, AWS 7 Rs, waves, strangler lifecycle, deterministic event handling
+
+Run the open-sdd skill `sdd-modernize`:
+
+1. Read `.axet-plugin/skills/sdd-modernize/SKILL.md` and follow it exactly, including the files it points to in that folder.
+2. The text the user typed after `/sdd-modernize` is the skill's input: `$ARGUMENTS` is all of it, `$1` the first word, `$2` the second. If the skill needs an input that is missing, ask for it.
+
+<!-- open-sdd:axet-workflow skill=sdd-modernize — generated from templates/agents/_shared/skills; edit the skill, not this file. -->

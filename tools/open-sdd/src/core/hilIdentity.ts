@@ -31,8 +31,14 @@ export const readApprovers = async (cwd: string): Promise<{ name?: string; email
 export const isAgentSession = (env: NodeJS.ProcessEnv = process.env, tty = Boolean(process.stdin.isTTY)): boolean =>
   env.OPEN_SDD_AGENT === '1' || env.CLAUDECODE === '1' || (!tty && env.OPEN_SDD_HUMAN !== '1');
 
+/**
+ * `--by` must name a listed approver, and when both the list entry and the shell have an email they
+ * must be the same person: typing someone else's name from your own git identity is refused.
+ */
 export const approverAllowed = (list: { name?: string; email?: string }[] | null, by: string, id: GitIdentity): boolean => {
   if (list === null) return true;
   const lc = (s?: string) => (s ?? '').trim().toLowerCase();
-  return list.some((a) => (a.name && lc(a.name) === lc(by)) || (a.email && (lc(a.email) === lc(id.email) || lc(a.email) === lc(by))));
+  const entry = list.find((a) => (a.name && lc(a.name) === lc(by)) || (a.email && lc(a.email) === lc(by)));
+  if (!entry) return false;
+  return !(entry.email && id.email) || lc(entry.email) === lc(id.email);
 };

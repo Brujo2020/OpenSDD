@@ -1,0 +1,26 @@
+{
+  "$schema": "./playbook.schema.json",
+  "name": "modernize",
+  "description": "L6: portfolio modernization. Assess → mobilize → migrate in waves (steps per component inserted by rules at wave start) → operate. AWS 7 Rs, pilot wave, strangler lifecycle.",
+  "lead": "opensdd",
+  "budget": { "handoff_tokens": 12000 },
+  "phases": [
+    {
+      "id": "assess",
+      "steps": [
+        { "use": "opensdd:modernize/assess" },
+        { "use": "opensdd:modernize/dispositions", "review": "human" },
+        { "use": "opensdd:modernize/wave-plan", "review": "human" }
+      ]
+    },
+    {
+      "id": "mobilize",
+      "steps": [
+        { "use": "opensdd:command/brownfield-constitution", "review": "human" },
+        { "use": "opensdd:modernize/landing-zone", "review": "human" }
+      ]
+    },
+    { "id": "migrate", "steps": [{ "use": "opensdd:modernize/wave-execution" }] },
+    { "id": "operate", "steps": [{ "use": "opensdd:command/audit-bundle" }] }
+  ]
+}

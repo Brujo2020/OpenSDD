@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.8.0] — 2026-10-23
+
+### Level ladder and Modernize Kit (spec `modernize-kit`)
+- `open-sdd start "<intent>"`: deterministic level L0 tiny … L6 modernization with evidence, playbook per level, ceremony minimal (L0–L1: no pack, no recall), standard, strict (L5–L6: approvers required). Risk words only raise the level; an explicit PoC stays a PoC. New playbooks `tiny` and `modernize`.
+- Dynamic workflows without a model: rules `{on, when, priority, actions}` (defaults + `.sdd/settings/dynamic-rules.json`) over events (`security-advisory`, `incident`, `wave-start`, `signal`, `regulatory-change`); actions insert steps, patch both systems during parallel run, freeze, prepare HIL cards, set deadlines, raise the level. Decision digest; repeated events are no-ops; urgent lanes jump the queue in understand → approve → change → verify order. `engine event` for any run.
+- `open-sdd modernize init|assess|override|waves|plan|wave|advance|event|propose|resolve|learn|rules|status`: portfolio schema and risk score, AWS 7 Rs decision table, retire-first/pilot/dependency-ordered waves, strangler lifecycle with deterministic canary decisions, approvals for regulated cut-over and irreversible decommission, agent proposals that may only raise risk, learning (one event = hypothesis, two = evidence), rule candidates adopted by a named, confirmed person, status as text/JSON/Mermaid/offline HTML.
+- HIL: `--by` must match the listed approver of the git identity in use.
+- Skill `sdd-modernize` (29 skills). Banking example portfolio. Guide `docs/guides/modernize-kit.md`. Claims CLM-074…077. 221 new tests including a 20-step banking go-live scenario with an unplanned critical CVE.
+
 ## [3.7.0] — 2026-10-23
 
 ### Trust, scale and visibility (spec `playbooks-v3-7`)

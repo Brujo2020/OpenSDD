@@ -32,6 +32,12 @@ const TRIAD = {
     'sdd:acceptance': ['acceptance.feature'],
     'sdd:spec': ['spec.json'],
 };
+/** Modernize Kit artifacts live once per repository, not per feature (REQ-MK-006/007). */
+const MODERNIZE = {
+    'sdd:portfolio-assessment': '.sdd/modernize/assessment.json',
+    'sdd:dispositions': '.sdd/modernize/dispositions.json',
+    'sdd:wave-plan': '.sdd/modernize/waves.json',
+};
 const findFile = async (root, name, depth = 5) => {
     if (depth < 0)
         return null;
@@ -54,6 +60,8 @@ export const resolveArtifact = async (cwd, feature, artifact) => {
         const hit = TRIAD[artifact].map((f) => path.join(cwd, '.sdd', 'specs', feature, f)).find((p) => existsSync(p));
         return hit ? [posix(path.relative(cwd, hit))] : [];
     }
+    if (artifact in MODERNIZE)
+        return existsSync(path.join(cwd, MODERNIZE[artifact])) ? [MODERNIZE[artifact]] : [];
     if (artifact === 'sdd:steering') {
         const dir = path.join(cwd, '.sdd', 'steering');
         return (await readdir(dir).catch(() => [])).filter((f) => f.endsWith('.md')).sort().map((f) => posix(path.join('.sdd', 'steering', f)));

@@ -533,3 +533,31 @@
   statement_en: 'An intent that names several services is planned as `multi-unit`.'
   verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && echo "{}" > package.json && node "$C" playbook plan "split billing into 3 microservices" --json --no-footer | grep -q "\"type\": \"multi-unit\""'
   expectation: pass
+
+- id: CLM-074
+  section: "v3.8.0 / REQ-MK-001 (risk only raises the level)"
+  statement_es: 'Un cambio "tiny" que toca autenticación se clasifica como feature (L2), no como tiny.'
+  statement_en: 'A "tiny" change that touches authentication is classified as a feature (L2), not tiny.'
+  verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && echo "{}" > package.json && node "$C" start "fix typo in the login page" --dry-run --json --no-footer | grep -q "\"level\": \"L2\""'
+  expectation: pass
+
+- id: CLM-075
+  section: "v3.8.0 / REQ-MK-006 (AWS 7 Rs)"
+  statement_es: 'En el portafolio bancario de ejemplo, el componente sin uso se retira y el mainframe con alta demanda se refactoriza, cada uno con su regla.'
+  statement_en: 'In the example banking portfolio, the unused component is retired and the high-demand mainframe is refactored, each with its rule.'
+  verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && node "$C" modernize init --example banking --no-footer >/dev/null && out=$(node "$C" modernize assess --no-footer) && echo "$out" | grep -q "legacy-fax.*retire.*D-RETIRE" && echo "$out" | grep -q "core-banking.*refactor.*D-MAINFRAME-REFACTOR"'
+  expectation: pass
+
+- id: CLM-076
+  section: "v3.8.0 / REQ-MK-003 (events cannot come from an agent)"
+  statement_es: 'El motor de reglas rechaza un evento cuya fuente es un agente.'
+  statement_en: 'The rule engine refuses an event whose source is an agent.'
+  verifier: 'C=$PWD/tools/open-sdd/dist/cli.js; d=$(mktemp -d); cd "$d" && echo "{}" > package.json && node "$C" start "fix typo in README" --feature t --no-footer >/dev/null && echo "{\"id\":\"e\",\"type\":\"signal\",\"at\":\"2026-10-24T00:00:00Z\",\"source\":\"agent\",\"title\":\"x\",\"components\":[],\"evidence\":[\"y\"]}" > e.json && node "$C" engine event t --file e.json --no-footer 2>&1 | grep -q "agent cannot raise"'
+  expectation: pass
+
+- id: CLM-077
+  section: "v3.8.0 / REQ-MK-004 (patch both systems in parallel run)"
+  statement_es: 'Durante el parallel run, un aviso de seguridad inserta un parche para el sistema legado y otro para el nuevo.'
+  statement_en: 'During parallel run, a security advisory inserts one patch for the legacy system and one for the new one.'
+  verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/mkLifecycleRules.test.ts -t "both systems are patched" >/dev/null 2>&1'
+  expectation: pass

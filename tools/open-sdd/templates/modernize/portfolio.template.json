@@ -1,0 +1,7 @@
+{
+  "schema": "open-sdd.portfolio/1",
+  "name": "my-portfolio",
+  "components": [
+    { "id": "example-service", "name": "Example service", "type": "service", "runtime": "java8", "platform": "virtual", "criticality": 3, "businessValue": 3, "techFit": 2, "businessDemand": "normal", "usage": "active", "sensitivity": "internal", "testCoverage": 0.4, "eol": true, "dependsOn": [], "owner": "team" }
+  ]
+}

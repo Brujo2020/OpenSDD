@@ -56,7 +56,12 @@ export interface EngineState {
   /** Units of work and their dependencies (REQ-V37-008); absent for single-unit runs. */
   units?: { id: string; deps: string[] }[];
   waves?: string[][];
+  /** Level of the work L0…L6 and its ceremony (REQ-MK-002); absent on runs started before v3.8. */
+  level?: string;
+  ceremony?: Ceremony;
 }
+
+export type Ceremony = 'minimal' | 'standard' | 'strict';
 
 // ── Directives ────────────────────────────────────────────────────────────────────────────────
 
@@ -169,10 +174,16 @@ export const startRun = async (
   feature: string,
   playbookName: string,
   values: Record<string, SignalValue | 'unknown'>,
-  opts: { autonomous?: boolean; units?: { id: string; deps: string[] }[] } = {},
+  opts: { autonomous?: boolean; units?: { id: string; deps: string[] }[]; waves?: string[][]; level?: string; ceremony?: Ceremony } = {},
 ): Promise<{ ok: boolean; message: string; state?: EngineState }> => {
   let waves: string[][] | undefined;
-  if (opts.units && opts.units.length) {
+  if (opts.units && opts.units.length && opts.waves) {
+    // Explicit waves (a modernization wave plan): every unit exactly once.
+    const flat = opts.waves.flat();
+    const ids = opts.units.map((u) => u.id);
+    if (flat.length !== new Set(flat).size || flat.length !== ids.length || ids.some((id) => !flat.includes(id))) return { ok: false, message: 'units: explicit waves must list every unit exactly once' };
+    waves = opts.waves;
+  } else if (opts.units && opts.units.length) {
     const t = topologicalWaves(opts.units.map((u) => ({ id: u.id, depends: u.deps, done: false })));
     if (t.error) return { ok: false, message: `units: ${t.error}` };
     waves = t.waves;
@@ -193,6 +204,8 @@ export const startRun = async (
     budget: checked.budget,
     steps: checked.steps.map((s) => ({ id: s.id, phase: s.phase, use: s.use, checks: s.checks, review: s.review, status: s.decision === 'SKIP' ? 'skipped' : 'pending', revisions: 0, reason: s.reason })),
     ...(opts.units && opts.units.length ? { units: opts.units, waves } : {}),
+    ...(opts.level ? { level: opts.level } : {}),
+    ...(opts.ceremony ? { ceremony: opts.ceremony } : {}),
   };
   await writeState(cwd, state);
   await appendAudit(cwd, feature, { event: 'RUN_STARTED', detail: `${checked.name} · ${state.steps.filter((s) => s.status === 'pending').length} steps · ${state.steps.filter((s) => s.review === 'human' && s.status !== 'skipped').length} human gates` });
@@ -246,13 +259,15 @@ export const nextDirective = async (cwd: string, feature: string): Promise<Direc
   const q = await openQuestions(cwd, feature, s.id);
   if (q && q.open.length) return { kind: 'ask', feature, step: s.id, file: rel(q.file), open: q.open };
   const pack = await readPack(cwd, feature, s.id);
+  // Minimal ceremony (L0–L1): no context pack and no recall — a typo does not need a handoff.
+  if (!pack && state.ceremony === 'minimal') return { kind: 'run-step', feature, step: s.id, use: s.use, phase: s.phase, gate: s.review === 'human', checks: s.checks, pack: null, restate: false, stale: [] };
   if (!pack) return { kind: 'handoff', feature, step: s.id, command: `open-sdd handoff write ${feature} ${s.id}` };
   return { kind: 'run-step', feature, step: s.id, use: s.use, phase: s.phase, gate: s.review === 'human', checks: s.checks, pack: rel(path.join(cwd, '.sdd', 'handoff', feature, `${s.id}.json`)), restate: true, stale: await staleItems(cwd, pack) };
 };
 
 // ── Guards ───────────────────────────────────────────────────────────────────────────────────
 
-const CHECKABLE = /^sdd:(requirements|design|tasks|brief|delta|acceptance|spec|steering|constitution)$/;
+const CHECKABLE = /^sdd:(requirements|design|tasks|brief|delta|acceptance|spec|steering|constitution|portfolio-assessment|dispositions|wave-plan)$/;
 
 const gateGuards = async (cwd: string, state: EngineState, step: EngineStep, produced: string[]): Promise<string[]> => {
   const problems: string[] = [];
@@ -371,6 +386,10 @@ export const report = async (
       return { ok: false, message: `gate refused for ${step.id}:\n  ${problems.join('\n  ')}` };
     }
     if (result === 'completed') return complete(cwd, state, step, 'STEP_COMPLETED', opts.by, telemetry);
+    // A card for this step answered before the work reached the gate (e.g. an emergency change
+    // approved by the CAB while the patch was being prepared) completes it now.
+    const early = (await listCards(cwd, feature)).find((c) => c.card.step === step.id && c.answer && ['approve', 'override', 'accept-as-is'].includes(c.answer.effect));
+    if (early?.answer) return complete(cwd, state, step, 'GATE_APPROVED', early.answer.by, telemetry);
     step.status = 'awaiting';
   } else if (result === 'rejected') {
     step.status = 'revising';
@@ -481,4 +500,63 @@ export const runMermaid = (state: EngineState): string => {
     lines.push('  end');
   }
   return lines.join('\n');
+};
+
+// ── Dynamic changes to a running workflow (REQ-MK-004) ──────────────────────────────────────
+
+export interface InsertStep {
+  id: string;
+  use: string;
+  review?: 'human' | 'auto';
+  checks?: string[];
+  reason?: string;
+}
+
+/**
+ * Insert steps before the next pending step, under `phase`. Idempotent: an id already in the run is
+ * left untouched. Returns the ids actually inserted.
+ */
+export const insertSteps = async (
+  cwd: string,
+  feature: string,
+  phase: string,
+  steps: InsertStep[],
+  detail?: string,
+  place: { afterPhasePrefix?: string; beforeUse?: string } = {},
+): Promise<string[]> => {
+  const state = await readState(cwd, feature);
+  if (!state) throw new Error(`no run for ${feature}`);
+  const fresh = steps.filter((x, i) => !state.steps.some((s) => s.id === x.id) && steps.findIndex((y) => y.id === x.id) === i);
+  if (!fresh.length) return [];
+  // Placement: steps added later to an existing lane go after that lane's last step; a lane of a kind
+  // already present (e.g. waves) goes after the last lane of that kind; else before a named program step;
+  // else (urgent events) before the next pending step.
+  const phases = state.steps.map((s) => s.phase);
+  const lastOfLane = phases.lastIndexOf(phase);
+  const lastOfKind = place.afterPhasePrefix ? phases.map((p) => p.startsWith(place.afterPhasePrefix as string)).lastIndexOf(true) : -1;
+  const beforeUse = place.beforeUse ? state.steps.findIndex((s) => s.use === place.beforeUse && s.status !== 'done' && s.status !== 'skipped') : -1;
+  const at =
+    lastOfLane >= 0 ? lastOfLane + 1
+    : lastOfKind >= 0 ? lastOfKind + 1
+    : beforeUse >= 0 ? beforeUse
+    : state.steps.findIndex((s) => s.status !== 'done' && s.status !== 'skipped');
+  const rows: EngineStep[] = fresh.map((x) => ({ id: x.id, phase, use: x.use, checks: x.checks ?? [], review: x.review ?? 'auto', status: 'pending', revisions: 0, reason: x.reason }));
+  state.steps.splice(at < 0 ? state.steps.length : at, 0, ...rows);
+  await writeState(cwd, state);
+  await appendAudit(cwd, feature, { event: 'STEPS_INSERTED', detail: `${phase}: ${fresh.map((x) => x.id).join(', ')}${detail ? ` · ${detail}` : ''}` });
+  return fresh.map((x) => x.id);
+};
+
+/** Raise the level (never lowers) and its ceremony. */
+export const raiseLevel = async (cwd: string, feature: string, level: string, ceremony: Ceremony, detail?: string): Promise<boolean> => {
+  const state = await readState(cwd, feature);
+  if (!state) throw new Error(`no run for ${feature}`);
+  const rank = (l?: string) => Number((l ?? 'L0').replace(/^L/, '')) || 0;
+  if (state.level && rank(level) <= rank(state.level)) return false;
+  const order: Ceremony[] = ['minimal', 'standard', 'strict'];
+  state.level = level;
+  if (order.indexOf(ceremony) > order.indexOf(state.ceremony ?? 'standard')) state.ceremony = ceremony;
+  await writeState(cwd, state);
+  await appendAudit(cwd, feature, { event: 'LEVEL_RAISED', detail: `${level} (${state.ceremony})${detail ? ` · ${detail}` : ''}` });
+  return true;
 };

@@ -1,0 +1,9 @@
+{
+  "$schema": "./playbook.schema.json",
+  "name": "tiny",
+  "description": "L0: a typo, a rename, a bump. Three-line spec, the change, fresh evidence. No gates to wait on.",
+  "lead": "opensdd",
+  "phases": [
+    { "id": "do", "steps": [{ "use": "opensdd:skill/sdd-tiny" }, { "use": "opensdd:skill/sdd-verify-completion", "review": "auto" }] }
+  ]
+}

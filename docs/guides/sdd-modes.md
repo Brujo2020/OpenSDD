@@ -72,7 +72,7 @@ runs. The six new **flows** (`sdd-tiny`, `sdd-promote`, `sdd-bugfix`, `sdd-plan-
 `sdd-characterize`) are skills, so they need the host's skills installed:
 
 ```bash
-open-sdd integrate claude-code --write     # 28 skills in .claude/skills/ + CLAUDE.md with the guide per project type
+open-sdd integrate claude-code --write     # 29 skills in .claude/skills/ + CLAUDE.md with the guide per project type
 open-sdd integrate --list                  # every host and where its skills go
 ```
 

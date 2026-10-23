@@ -108,7 +108,15 @@ export const readAudit = async (cwd, feature) => (await readFile(auditFile(cwd, 
     .map((l) => JSON.parse(l));
 export const startRun = async (cwd, feature, playbookName, values, opts = {}) => {
     let waves;
-    if (opts.units && opts.units.length) {
+    if (opts.units && opts.units.length && opts.waves) {
+        // Explicit waves (a modernization wave plan): every unit exactly once.
+        const flat = opts.waves.flat();
+        const ids = opts.units.map((u) => u.id);
+        if (flat.length !== new Set(flat).size || flat.length !== ids.length || ids.some((id) => !flat.includes(id)))
+            return { ok: false, message: 'units: explicit waves must list every unit exactly once' };
+        waves = opts.waves;
+    }
+    else if (opts.units && opts.units.length) {
         const t = topologicalWaves(opts.units.map((u) => ({ id: u.id, depends: u.deps, done: false })));
         if (t.error)
             return { ok: false, message: `units: ${t.error}` };
@@ -133,6 +141,8 @@ export const startRun = async (cwd, feature, playbookName, values, opts = {}) =>
         budget: checked.budget,
         steps: checked.steps.map((s) => ({ id: s.id, phase: s.phase, use: s.use, checks: s.checks, review: s.review, status: s.decision === 'SKIP' ? 'skipped' : 'pending', revisions: 0, reason: s.reason })),
         ...(opts.units && opts.units.length ? { units: opts.units, waves } : {}),
+        ...(opts.level ? { level: opts.level } : {}),
+        ...(opts.ceremony ? { ceremony: opts.ceremony } : {}),
     };
     await writeState(cwd, state);
     await appendAudit(cwd, feature, { event: 'RUN_STARTED', detail: `${checked.name} · ${state.steps.filter((s) => s.status === 'pending').length} steps · ${state.steps.filter((s) => s.review === 'human' && s.status !== 'skipped').length} human gates` });
@@ -190,12 +200,15 @@ export const nextDirective = async (cwd, feature) => {
     if (q && q.open.length)
         return { kind: 'ask', feature, step: s.id, file: rel(q.file), open: q.open };
     const pack = await readPack(cwd, feature, s.id);
+    // Minimal ceremony (L0–L1): no context pack and no recall — a typo does not need a handoff.
+    if (!pack && state.ceremony === 'minimal')
+        return { kind: 'run-step', feature, step: s.id, use: s.use, phase: s.phase, gate: s.review === 'human', checks: s.checks, pack: null, restate: false, stale: [] };
     if (!pack)
         return { kind: 'handoff', feature, step: s.id, command: `open-sdd handoff write ${feature} ${s.id}` };
     return { kind: 'run-step', feature, step: s.id, use: s.use, phase: s.phase, gate: s.review === 'human', checks: s.checks, pack: rel(path.join(cwd, '.sdd', 'handoff', feature, `${s.id}.json`)), restate: true, stale: await staleItems(cwd, pack) };
 };
 // ── Guards ───────────────────────────────────────────────────────────────────────────────────
-const CHECKABLE = /^sdd:(requirements|design|tasks|brief|delta|acceptance|spec|steering|constitution)$/;
+const CHECKABLE = /^sdd:(requirements|design|tasks|brief|delta|acceptance|spec|steering|constitution|portfolio-assessment|dispositions|wave-plan)$/;
 const gateGuards = async (cwd, state, step, produced) => {
     const problems = [];
     const type = stepCatalogue().get(step.use);
@@ -314,6 +327,11 @@ export const report = async (cwd, feature, stepId, result, opts = {}) => {
         }
         if (result === 'completed')
             return complete(cwd, state, step, 'STEP_COMPLETED', opts.by, telemetry);
+        // A card for this step answered before the work reached the gate (e.g. an emergency change
+        // approved by the CAB while the patch was being prepared) completes it now.
+        const early = (await listCards(cwd, feature)).find((c) => c.card.step === step.id && c.answer && ['approve', 'override', 'accept-as-is'].includes(c.answer.effect));
+        if (early?.answer)
+            return complete(cwd, state, step, 'GATE_APPROVED', early.answer.by, telemetry);
         step.status = 'awaiting';
     }
     else if (result === 'rejected') {
@@ -417,4 +435,48 @@ export const runMermaid = (state) => {
         lines.push('  end');
     }
     return lines.join('\n');
+};
+/**
+ * Insert steps before the next pending step, under `phase`. Idempotent: an id already in the run is
+ * left untouched. Returns the ids actually inserted.
+ */
+export const insertSteps = async (cwd, feature, phase, steps, detail, place = {}) => {
+    const state = await readState(cwd, feature);
+    if (!state)
+        throw new Error(`no run for ${feature}`);
+    const fresh = steps.filter((x, i) => !state.steps.some((s) => s.id === x.id) && steps.findIndex((y) => y.id === x.id) === i);
+    if (!fresh.length)
+        return [];
+    // Placement: steps added later to an existing lane go after that lane's last step; a lane of a kind
+    // already present (e.g. waves) goes after the last lane of that kind; else before a named program step;
+    // else (urgent events) before the next pending step.
+    const phases = state.steps.map((s) => s.phase);
+    const lastOfLane = phases.lastIndexOf(phase);
+    const lastOfKind = place.afterPhasePrefix ? phases.map((p) => p.startsWith(place.afterPhasePrefix)).lastIndexOf(true) : -1;
+    const beforeUse = place.beforeUse ? state.steps.findIndex((s) => s.use === place.beforeUse && s.status !== 'done' && s.status !== 'skipped') : -1;
+    const at = lastOfLane >= 0 ? lastOfLane + 1
+        : lastOfKind >= 0 ? lastOfKind + 1
+            : beforeUse >= 0 ? beforeUse
+                : state.steps.findIndex((s) => s.status !== 'done' && s.status !== 'skipped');
+    const rows = fresh.map((x) => ({ id: x.id, phase, use: x.use, checks: x.checks ?? [], review: x.review ?? 'auto', status: 'pending', revisions: 0, reason: x.reason }));
+    state.steps.splice(at < 0 ? state.steps.length : at, 0, ...rows);
+    await writeState(cwd, state);
+    await appendAudit(cwd, feature, { event: 'STEPS_INSERTED', detail: `${phase}: ${fresh.map((x) => x.id).join(', ')}${detail ? ` · ${detail}` : ''}` });
+    return fresh.map((x) => x.id);
+};
+/** Raise the level (never lowers) and its ceremony. */
+export const raiseLevel = async (cwd, feature, level, ceremony, detail) => {
+    const state = await readState(cwd, feature);
+    if (!state)
+        throw new Error(`no run for ${feature}`);
+    const rank = (l) => Number((l ?? 'L0').replace(/^L/, '')) || 0;
+    if (state.level && rank(level) <= rank(state.level))
+        return false;
+    const order = ['minimal', 'standard', 'strict'];
+    state.level = level;
+    if (order.indexOf(ceremony) > order.indexOf(state.ceremony ?? 'standard'))
+        state.ceremony = ceremony;
+    await writeState(cwd, state);
+    await appendAudit(cwd, feature, { event: 'LEVEL_RAISED', detail: `${level} (${state.ceremony})${detail ? ` · ${detail}` : ''}` });
+    return true;
 };

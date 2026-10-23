@@ -255,7 +255,9 @@ export const handleNextCommand = async (args: string[], io: CliIO, cwd: string):
 export const humanDirective = (d: Directive): string => {
   switch (d.kind) {
     case 'run-step':
-      return `Run step ${d.step} (${d.use}, phase ${d.phase}${d.gate ? ', human gate' : ''})${d.stale.length ? ` — inputs changed: ${d.stale.join(', ')}` : ''}.\n  Read ${d.pack}, then: open-sdd handoff recall ${d.feature} ${d.step} --text "<goal and ids>"`;
+      return d.pack
+        ? `Run step ${d.step} (${d.use}, phase ${d.phase}${d.gate ? ', human gate' : ''})${d.stale.length ? ` — inputs changed: ${d.stale.join(', ')}` : ''}.\n  Read ${d.pack}, then: open-sdd handoff recall ${d.feature} ${d.step} --text "<goal and ids>"`
+        : `Run step ${d.step} (${d.use}, phase ${d.phase}${d.gate ? ', human gate' : ''}).\n  open-sdd report ${d.feature} --step ${d.step} --result started   → do it →   --result ${d.gate ? 'awaiting-approval' : 'completed'}`;
     case 'ask':
       return `Step ${d.step} has open questions in ${d.file}:\n${d.open.map((q) => `  - ${q}`).join('\n')}`;
     case 'present-gate':
@@ -382,6 +384,7 @@ export const handleHilCommand = async (args: string[], io: CliIO, cwd: string): 
       approvers: await readApprovers(cwd),
       agent: isAgentSession(),
       confirm: flag(args, 'confirm'),
+      requireApprovers: state?.ceremony === 'strict',
     });
     if (!r.ok || !r.card || !r.answer) {
       io.error(r.message);

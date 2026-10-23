@@ -162,6 +162,8 @@ export const recordAnswer = async (
     agent?: boolean;
     confirm?: string;
     channel?: CardAnswer['channel'];
+    /** Strict ceremony (L5–L6): an approvers list must exist (REQ-MK-002). */
+    requireApprovers?: boolean;
   } = {},
 ): Promise<{ ok: boolean; message: string; answer?: CardAnswer; card?: DecisionCard }> => {
   const card = await readCard(cwd, feature, id);
@@ -172,6 +174,8 @@ export const recordAnswer = async (
   if (!picked) return { ok: false, message: `option ${option} is not one of ${card.options.map((o) => o.key).join(', ')}` };
   if (picked.effect === 'override' && opts.autonomous) return { ok: false, message: 'an override of a blocking gate is refused in autonomous mode' };
   const identity = opts.identity ?? { name: '', email: '' };
+  if (opts.requireApprovers && opts.channel !== 'deadline' && !opts.approvers)
+    return { ok: false, message: 'APPROVERS_REQUIRED: this run has strict ceremony; declare who may answer in .sdd/settings/approvers.json' };
   if (opts.channel !== 'deadline' && !approverAllowed(opts.approvers ?? null, by, identity))
     return { ok: false, message: `APPROVER_NOT_LISTED: «${by}» (${identity.email || 'no git email'}) is not in .sdd/settings/approvers.json` };
   const grants = picked.effect === 'approve' || picked.effect === 'override' || picked.effect === 'accept-as-is';

@@ -4,10 +4,10 @@
 Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001…018, 17 criterios AC-01…AC-17, 18 tareas en 6 olas) y publicar **v3.6.0**: un ciclo planificar → ejecutar → comprobar → decidir → aprender → mejorar, con playbooks a medida por caso, un contrato `next`/`report` común a todos los hosts, revisión humana (HIL) preparada, memoria con procedencia y mejora por propose‑probe‑compose. Fuentes: AWS AI-DLC (método), Google Harness² (método), open-sdd.
 
 ## Estado actual
-**v3.7.0 (spec `playbooks-v3-7`, 10 mejoras de la revisión) implementada, verificada y subida a GitHub (`feat/playbooks-v3.7` y `main`). npm y tags NO publicados.**
+**v3.8.0 (spec `modernize-kit`) implementada, verificada y subida a GitHub (`feat/modernize-kit` y `main`). npm 3.7.0 publicado por Mario; 3.8.0 NO publicado. Tags no subidos.**
 
-- v3.6.0: ciclo multi-unit completo (ver CHANGELOG).
-- v3.7.0: identidad verificable en HIL + `--confirm` en sesiones de agente; plazos aplicados; página `hil review --html`; `improve` sin sesgo (`unobservedRisk`, nunca quita controles humanos/seguridad); captura automática `gate-block`/`human-edit`; telemetría tokens/modelo/duración; planner con escala y riesgo; unidades→olas + lock; `next` legible, `--auto-handoff`, `engine list`, `--mermaid`; `playbook.schema.json`, `playbook new|diff`, recetas `poc-to-feature` y `brownfield-aidlc-inception`.
+- v3.6.0: ciclo multi-unit. v3.7.0: HIL verificable, improve sin sesgo, planner escala/riesgo, unidades/olas, visibilidad.
+- v3.8.0: escalera L0 tiny…L6 modernización (`open-sdd start`), ceremonia minimal/standard/strict, motor de reglas dinámicas determinista (eventos → carriles), Modernize Kit (`open-sdd modernize …`: portafolio, 7 Rs AWS, olas, ciclo strangler, canary, aprobaciones, propuestas de agente que solo suben riesgo, aprendizaje y adopción de reglas), skill `sdd-modernize` (29 skills), guía `docs/guides/modernize-kit.md`, ejemplo bancario.
 
 ## Contexto y decisiones
 - **Playbooks en JSON** (`.playbook.json`), no YAML: el repo no tiene librería YAML y `C-STACK-FACT` prohíbe añadir dependencias. **Pendiente actualizar la spec** (plan §4 y requirements muestran YAML).
@@ -42,11 +42,12 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - Sin migraciones, flags ni cambios de contrato en comandos existentes, salvo `import` aceptando `aidlc`.
 
 ## Evidencia
-- `npx tsc --noEmit`, `npm run build` OK; `open-sdd --version` → v3.7.0.
-- `npx vitest run` → **160 ficheros, 2083 tests en verde, 1 skipped (AC-10 de v3.6)**; nuevos `test/playbooksV37Ac.test.ts` (AC-01…AC-10 de v3.7).
-- `assure claims --verify` → 73 claims, 70 verificadas, 3 no medidas, **0 rotas** (nuevas CLM-072, CLM-073).
-- `status playbooks-v3-7 --check` y `status multi-unit-playbooks --check` → 0 errores, 0 avisos de frontera.
-- No ejecutado: AC-10 de v3.6 (validador AI-DLC); `npm publish`; push de tags (el proxy de la sesión los rechaza).
+- `npx tsc --noEmit`, `npm run build` OK; versión 3.8.0 en ambos `package.json`.
+- `npx vitest run` → **165 ficheros, 2304 tests en verde, 1 skipped (AC-10 v3.6)**. Nuevos en v3.8: 221 (`mkLevels` 88, `mkPortfolioWaves` 38, `mkLifecycleRules` 56, `mkBankingScenario` 20 pasos E2E, `mkLearnCli` 19).
+- `assure claims --verify` → 77 claims, 74 verificadas, 3 no medidas, **0 rotas** (nuevas CLM-074…077).
+- `status modernize-kit --check` → 0 errores, 0 avisos de frontera.
+- Inspección visual (Chromium headless) de `modernize status --html` y `hil review --html` del escenario bancario.
+- No ejecutado: validador AI-DLC (AC-10 v3.6); `npm publish` 3.8.0; push de tags.
 
 ## Fallos e intentos
 - `test/steelforgePort.test.ts` falló al añadir `multi-unit` (lista cerrada de tipos) → se actualizó la lista.
@@ -54,10 +55,10 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - `git status` sobre la carpeta montada dejó `.git/index.lock` vacíos dos veces → todo git se hace en la copia del sandbox; si ves un `index.lock` vacío, bórralo.
 
 ## Pendiente
-1. `npm publish` de 3.7.0 (Mario).
-2. Tags: `git tag v3.6.0 <commit release 3.6> && git tag v3.7.0 origin/main && git push origin --tags` desde el Mac.
-3. AC-10 v3.6: validar `templates/integrations/aidlc-plugin/opensdd/` con el validador de AI-DLC.
-4. La detección de sesión de agente es un freno, no autenticación (plan v3.7 D-3); para firma real, evaluar commits/respuestas firmados con GPG/SSH.
+1. `npm publish --access public` de 3.8.0 desde la raíz (Mario).
+2. Tags: `git tag v3.6.0 a72c690 && git tag v3.7.0 7551170 && git tag v3.8.0 origin/main && git push origin --tags`.
+3. AC-10 v3.6: validar el plugin AI-DLC con su validador.
+4. Umbrales (SLA, canary) son valores por defecto: cada cliente define su política en `.sdd/settings/dynamic-rules.json`.
 
 ## Reanudación exacta
 ```bash

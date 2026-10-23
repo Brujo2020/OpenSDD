@@ -87,6 +87,31 @@ const COMMANDS: StepType[] = [
   { use: 'opensdd:command/consistency', kind: 'command', consumes: [c('sdd:tasks')], produces: [], cost: 1, component: 'CSU' },
   { use: 'opensdd:command/audit-bundle', kind: 'command', consumes: [], produces: ['sdd:audit'], cost: 1, component: 'R' },
   { use: 'opensdd:command/archive', kind: 'command', consumes: [c('sdd:verification', false)], produces: [], cost: 1, component: 'R' },
+  // Modernize Kit (REQ-MK-006…008): program steps and the per-component steps rules insert at wave start
+  // or on an event. Costs are planning priors, like every other step type.
+  { use: 'opensdd:modernize/assess', kind: 'command', consumes: [], produces: ['sdd:portfolio-assessment'], cost: 2, component: 'CSU' },
+  { use: 'opensdd:modernize/dispositions', kind: 'command', consumes: [c('sdd:portfolio-assessment')], produces: ['sdd:dispositions'], cost: 1, component: 'R' },
+  { use: 'opensdd:modernize/wave-plan', kind: 'command', consumes: [c('sdd:dispositions')], produces: ['sdd:wave-plan'], cost: 1, component: 'CSU' },
+  { use: 'opensdd:modernize/landing-zone', kind: 'command', consumes: [], produces: ['sdd:landing-zone'], cost: 3, component: 'R' },
+  { use: 'opensdd:modernize/wave-execution', kind: 'command', consumes: [c('sdd:wave-plan')], produces: [], cost: 1, component: 'CSU' },
+  { use: 'opensdd:modernize/characterize', kind: 'command', consumes: [], produces: ['sdd:regression-oracle'], cost: 2, component: 'VE' },
+  { use: 'opensdd:modernize/strangler-facade', kind: 'command', consumes: [], produces: ['sdd:facade'], cost: 3, component: 'CSU' },
+  { use: 'opensdd:modernize/replatform', kind: 'command', consumes: [], produces: [], cost: 2, component: 'CSU' },
+  { use: 'opensdd:modernize/rehost', kind: 'command', consumes: [], produces: [], cost: 1, component: 'CSU' },
+  { use: 'opensdd:modernize/relocate', kind: 'command', consumes: [], produces: [], cost: 1, component: 'CSU' },
+  { use: 'opensdd:modernize/repurchase-migrate', kind: 'command', consumes: [], produces: [], cost: 3, component: 'CSU' },
+  { use: 'opensdd:modernize/parallel-run', kind: 'command', consumes: [], produces: ['sdd:reconciliation'], cost: 2, component: 'VE' },
+  { use: 'opensdd:modernize/canary', kind: 'command', consumes: [], produces: ['sdd:canary-report'], cost: 2, component: 'R' },
+  { use: 'opensdd:modernize/cutover', kind: 'command', consumes: [], produces: ['sdd:cutover-record'], cost: 1, component: 'R' },
+  { use: 'opensdd:modernize/decommission', kind: 'command', consumes: [], produces: [], cost: 1, component: 'R' },
+  { use: 'opensdd:modernize/rollback', kind: 'command', consumes: [], produces: [], cost: 1, component: 'R' },
+  { use: 'opensdd:modernize/dependency-scan', kind: 'command', consumes: [], produces: ['sdd:sbom'], cost: 1, component: 'R' },
+  { use: 'opensdd:modernize/exposure-assessment', kind: 'command', consumes: [], produces: [], cost: 3, component: 'R' },
+  { use: 'opensdd:modernize/sbom-lookup', kind: 'command', consumes: [], produces: [], cost: 1, component: 'R' },
+  { use: 'opensdd:modernize/patch', kind: 'command', consumes: [], produces: [], cost: 2, component: 'R' },
+  { use: 'opensdd:modernize/regression-check', kind: 'command', consumes: [], produces: [], cost: 1, component: 'VE' },
+  { use: 'opensdd:modernize/emergency-change', kind: 'gate', consumes: [], produces: [], cost: 1, component: 'R' },
+  { use: 'opensdd:modernize/compliance-review', kind: 'gate', consumes: [], produces: [], cost: 2, component: 'R' },
 ];
 
 /** Checks a step can carry (`checks: [...]`); they map to executable open-sdd commands. */

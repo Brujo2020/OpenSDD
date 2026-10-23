@@ -41,7 +41,7 @@ clear the shell's command cache, which still points at the old binary:
 rm -f "$(npm prefix -g)/bin/sdd" "$(npm prefix -g)/bin/sdd-open"   # left behind, both dangling
 npm install -g @brujo2020/open-sdd@latest
 hash -r                       # zsh: rehash — or open a new terminal
-open-sdd --version            # must print v3.7.0, not the 2.x banner
+open-sdd --version            # must print v3.8.0, not the 2.x banner
 ```
 
 A stale global is not cosmetic: the installed commit hook resolves its CLI through `PATH`, so an old
@@ -288,7 +288,7 @@ the six invariants, transactional waves and the constitution as the pivot.
 ## Documentation
 
 [Install](docs/INSTALL.md) · [Quickstart (60 s)](docs/guides/quickstart-60s.md) ·
-[Integrations](docs/guides/integrations.md) · [Playbooks](docs/guides/playbooks.md) · [Existing projects](docs/guides/existing-projects.md) ·
+[Integrations](docs/guides/integrations.md) · [Playbooks](docs/guides/playbooks.md) · [Modernize Kit](docs/guides/modernize-kit.md) · [Existing projects](docs/guides/existing-projects.md) ·
 [Migrate from spec-kit](docs/guides/migrate-from.md) ·
 [Every flow](docs/diagrams/open-sdd-flows.excalidraw) · [Measurements](docs/MEASUREMENTS.md) ·
 [Paper alignment and gaps](docs/PAPER-ALIGNMENT.md) · [Preprint](docs/papers/open-sdd-preprint.pdf) ·

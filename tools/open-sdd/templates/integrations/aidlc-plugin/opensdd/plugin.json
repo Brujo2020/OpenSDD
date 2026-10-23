@@ -1,7 +1,7 @@
 {
   "name": "opensdd",
   "description": "open-sdd sensors for AI-DLC gates: EARS, constitution, boundary and C1–C3. Sensors return verdicts only; they never open or close an AI-DLC gate.",
-  "version": "3.7.0",
+  "version": "3.8.0",
   "sensors": [
     { "id": "opensdd-ears", "file": "sensors/opensdd-ears.md", "run": "bin/opensdd-sensor ears" },
     { "id": "opensdd-constitution", "file": "sensors/opensdd-constitution.md", "run": "bin/opensdd-sensor constitution" },

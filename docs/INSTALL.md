@@ -1,7 +1,7 @@
 # Install
 
 Every way to get `open-sdd` onto a machine and into a repository, least friction first. The version
-this documentation describes is **v3.7.0** (`package.json` at the repository root). It is **not on the
+this documentation describes is **v3.8.0** (`package.json` at the repository root). It is **not on the
 npm registry yet**; each path below says plainly whether it installs this version or the older one
 that is published.
 
@@ -23,7 +23,7 @@ that is published.
 The scoped package name is `@brujo2020/open-sdd`. The **unscoped** `open-sdd` does **not exist** on
 the registry, so `npx open-sdd@latest` is never this project.
 
-This release (**v3.7.0**) is not published yet. The registry currently carries **v2.0.0** under the
+This release (**v3.8.0**) is not published yet. The registry currently carries **v2.0.0** under the
 same scoped name — an older toolkit with different commands. The command below therefore runs today,
 but it gives you the old binary, not the one this documentation describes:
 
@@ -31,12 +31,12 @@ but it gives you the old binary, not the one this documentation describes:
 npx --yes @brujo2020/open-sdd@latest --version   # runs the published v2.0.0 toolkit
 ```
 
-Once v3.7.0 is published, the same entry point installs the skills into the current directory with no
+Once v3.8.0 is published, the same entry point installs the skills into the current directory with no
 clone. **These two commands do not work yet** — they are the shape the release will have:
 
 ```bash
 npx @brujo2020/open-sdd@latest --claude-skills -y    # pending publication
-npx @brujo2020/open-sdd@3.7.0 --cursor-skills -y     # pending publication
+npx @brujo2020/open-sdd@3.8.0 --cursor-skills -y     # pending publication
 ```
 
 Until then, use the global install, the container, or a clone below.
@@ -45,14 +45,14 @@ Until then, use the global install, the container, or a clone below.
 
 ## 2. Global npm install
 
-**From a checkout (recommended until v3.7.0 is published).** This builds the CLI from source and puts
+**From a checkout (recommended until v3.8.0 is published).** This builds the CLI from source and puts
 it on your `PATH`:
 
 ```bash
 git clone https://github.com/Brujo2020/OpenSDD
 cd opensdd
 npm run install:global     # npm --prefix tools/open-sdd run build && npm install -g .
-open-sdd --version         # open-sdd v3.7.0
+open-sdd --version         # open-sdd v3.8.0
 ```
 
 **From the registry** (installs the published v2.0.0 today):
@@ -209,7 +209,7 @@ environment — and exits non-zero on a failure. Real shape on this repository:
 
 ```text
 ✓ [ok] Versión de Node: Node v26.7.0 cumple el rango ">=20" declarado en package.json.
-✓ [ok] CLI alcanzable: El CLI responde desde tools/open-sdd/dist/cli.js y reporta la versión 3.7.0.
+✓ [ok] CLI alcanzable: El CLI responde desde tools/open-sdd/dist/cli.js y reporta la versión 3.8.0.
 ✓ [ok] Hook de commit: Hook instalado en .git/hooks/pre-commit (.git/hooks), ejecutable e idéntico a la plantilla vigente pre-commit.mjs.
 ✓ [ok] Rigor declarado: nivel spec-first · gates activos: C1, C2 · rationale declarado (…).
 ✓ [ok] Sin modelo y sin red: No se requiere backend de modelo ni acceso a red: el CLI es determinista y funciona offline.
@@ -266,20 +266,20 @@ The CLI has **no runtime dependencies**, so one tarball is enough. On a connecte
 checkout:
 
 ```bash
-npm pack          # produces brujo2020-open-sdd-3.7.0.tgz
+npm pack          # produces brujo2020-open-sdd-3.8.0.tgz
 ```
 
 Transfer that file and install it without a registry:
 
 ```bash
-npm install -g /path/to/brujo2020-open-sdd-3.7.0.tgz
+npm install -g /path/to/brujo2020-open-sdd-3.8.0.tgz
 open-sdd --version
 ```
 
 Or into a single project instead of globally:
 
 ```bash
-npm install /path/to/brujo2020-open-sdd-3.7.0.tgz
+npm install /path/to/brujo2020-open-sdd-3.8.0.tgz
 ./node_modules/.bin/open-sdd --version
 ```
 
