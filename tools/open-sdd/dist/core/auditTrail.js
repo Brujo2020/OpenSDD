@@ -58,6 +58,9 @@ export const readAuditTrail = async (cwd, opts = {}) => {
                 principles: e.principles ?? [],
                 rule: e.rule ?? null,
                 evidence: e.evidence ?? e.problems ?? [],
+                ...(typeof e.tokens === 'number' ? { tokens: e.tokens } : {}),
+                ...(e.model ? { model: e.model } : {}),
+                ...(typeof e.durationS === 'number' ? { durationS: e.durationS } : {}),
                 chainIntact: chain.ok,
             });
         });
@@ -95,3 +98,50 @@ export const trailCsv = (records) => `${[
 ]
     .map((row) => row.map(cell).join(','))
     .join('\n')}\n`;
+const attr = (key, value) => ({
+    key,
+    value: Array.isArray(value)
+        ? { arrayValue: { values: value.map((v) => ({ stringValue: v })) } }
+        : typeof value === 'number'
+            ? { intValue: String(Math.round(value)) }
+            : typeof value === 'boolean'
+                ? { boolValue: value }
+                : { stringValue: value },
+});
+/**
+ * El registro como OTLP/JSON (logs) para llevarlo a cualquier backend de OpenTelemetry (Collector,
+ * Grafana, Datadog, CloudWatch…). Un logRecord por decisión. `event.name` y `gen_ai.request.model` siguen
+ * las convenciones semánticas de OTel; el resto va bajo el espacio `sdd.*`.
+ */
+export const trailOtlp = (records, service = 'open-sdd') => ({
+    resourceLogs: [
+        {
+            resource: { attributes: [attr('service.name', service)] },
+            scopeLogs: [
+                {
+                    scope: { name: 'open-sdd.audit', version: '1' },
+                    logRecords: records.map((r) => ({
+                        timeUnixNano: String(Date.parse(r.at) * 1e6),
+                        severityNumber: r.event.endsWith('_REFUSED') || !r.chainIntact ? 13 : 9,
+                        severityText: r.event.endsWith('_REFUSED') || !r.chainIntact ? 'WARN' : 'INFO',
+                        body: { stringValue: r.why || r.event },
+                        attributes: [
+                            attr('event.name', `sdd.${r.event.toLowerCase()}`),
+                            attr('sdd.feature', r.feature),
+                            ...(r.step ? [attr('sdd.step', r.step)] : []),
+                            attr('sdd.actor.name', r.actor.name),
+                            attr('sdd.actor.kind', r.actor.kind),
+                            ...(r.actor.email ? [attr('sdd.actor.email', r.actor.email)] : []),
+                            ...(r.requirements.length ? [attr('sdd.requirements', r.requirements)] : []),
+                            ...(r.principles.length ? [attr('sdd.principles', r.principles)] : []),
+                            ...(r.rule ? [attr('sdd.rule', r.rule)] : []),
+                            ...(r.model ? [attr('gen_ai.request.model', r.model)] : []),
+                            ...(typeof r.tokens === 'number' ? [attr('sdd.tokens', r.tokens)] : []),
+                            attr('sdd.audit.chain_intact', r.chainIntact),
+                        ],
+                    })),
+                },
+            ],
+        },
+    ],
+});

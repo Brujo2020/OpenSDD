@@ -516,7 +516,7 @@ export const COMMANDS: CommandDoc[] = [
     usage: 'open-sdd audit [<feature>] [--regulatory] [--json] | open-sdd audit <bundle|sarif> [feature] [--out <dir>] [--sarif <path>] | open-sdd audit trail [feature] [--requirement R] [--principle C] [--actor human|agent|rule|system] [--who name] [--decisions] [--json|--csv]',
     indexLines: [
       '  audit [bundle|sarif] [feature] [--out <dir>] [--json] [--sarif <path>]  Audit report; evidence bundle with a sha256 per artifact; SARIF 2.1.0 for code scanning',
-      '  audit trail [feature] [--requirement R] [--principle C] [--actor K]  Who decided what, why, on which requirements and principles (hash-chained; exit 1 if tampered)',
+      '  audit trail [feature] [--requirement R] [--principle C] [--actor K] [--otlp f]  Who decided what, why, on which requirements and principles (hash-chained; exit 1 if tampered); OTLP/JSON for OpenTelemetry',
     ],
     subcommands: [SUB('bundle', 'the evidence bundle with a sha256 per artifact'), SUB('sarif', 'SARIF 2.1.0 for code scanning'), SUB('trail', 'decision records: who, why, requirements, principles')],
     examples: ['open-sdd audit', 'open-sdd audit stripe-billing --regulatory', 'open-sdd audit bundle stripe-billing --out .sdd/audit'],
@@ -779,9 +779,17 @@ export const COMMANDS: CommandDoc[] = [
     name: 'flow',
     group: 'daily',
     summary: 'Every stage and step of a feature with its status, the current one, pending decisions and flow metrics (schema open-sdd.flow/1 for dashboards)',
-    usage: 'open-sdd flow [feature] [--json]',
+    usage: 'open-sdd flow [feature] [--json|--markdown]',
     indexLines: ['  flow [feature] [--json]                    Clear status (state, stage, blockers, next command); all features without one'],
     examples: ['open-sdd flow transfers', 'open-sdd flow transfers --json'],
+  },
+  {
+    name: 'attest',
+    group: 'daily',
+    summary: 'in-toto Statement v1 of a feature delivery: sha256 of the spec and constitution, commit, status, validation and the audit chain head; --verify detects any later change',
+    usage: 'open-sdd attest <feature> [--write [--out <file>]] | open-sdd attest --verify <file>',
+    indexLines: ['  attest <feature> [--write] | --verify <f>  in-toto attestation of what was delivered; verify detects later changes'],
+    examples: ['open-sdd attest cobros --write', 'open-sdd attest --verify .sdd/attestations/cobros.intoto.json'],
   },
   {
     name: 'estimate',

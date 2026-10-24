@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Cierre — 5 mejoras ([docs/REVISION-EXPERTO-3.md](docs/REVISION-EXPERTO-3.md))
+- FinOps en `flow`: tokens, modelos, duración y coste (`.sdd/settings/finops.json`), con aviso de presupuesto.
+- `audit trail --otlp <file>`: el registro de decisiones como OTLP/JSON para OpenTelemetry.
+- MCP: `open_sdd_flow`, `open_sdd_validation`, `open_sdd_audit_trail`.
+- `attest <feature> [--write]` / `attest --verify <file>`: atestación in-toto v1 de lo entregado.
+- `flow --markdown` y la GitHub Action publica el estado en el resumen del job (Node 22).
+
 ### Assurance: validación por reglas, flujo y auditoría de decisiones
 - **Ratificar la constitución exige teclear `RATIFICAR` en la terminal.** Antes se muestran el objetivo, el alcance (principios), quién y dónde queda registrado; sin terminal (agente, CI) no se escribe nada y el intento queda como `CONSTITUTION_RATIFY_REFUSED`. Manual §16.1.
 - `open-sdd validation <feature> [--record]`: la exigencia de pruebas por tarea la deciden reglas deterministas (dinero, datos personales, autenticación, API pública, latencia, migraciones; las propias en `.sdd/settings/validation-rules.json`, que pueden citar un principio de la constitución). La tarea demuestra cada clase con `[clase]` en su evidencia; una tarea hecha sin una clase bloqueante sale con 1.

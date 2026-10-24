@@ -858,6 +858,20 @@ open-sdd audit trail <feature> --actor human               # human | agent | rul
 open-sdd audit trail <feature> --decisions --csv > trail.csv
 ```
 
+## 19d. Operating it: cost, telemetry, MCP, attestation, PR status
+
+```bash
+open-sdd flow <feature>                          # also: tokens, models and cost (prices in .sdd/settings/finops.json)
+open-sdd audit trail [feature] --otlp otlp.json  # OTLP/JSON logs for an OpenTelemetry Collector (otlpjsonfile receiver)
+open-sdd attest <feature> --write                # .sdd/attestations/<feature>.intoto.json (in-toto Statement v1)
+open-sdd attest --verify <file>                  # exit 1 if the spec, constitution or audit log changed since
+open-sdd flow --markdown                         # status table for a PR or $GITHUB_STEP_SUMMARY
+```
+
+`.sdd/settings/finops.json`: `{ "budgetTokens": 2000000, "usdPerMillionTokens": { "<model>": 15, "default": 3 } }`.
+Steps declare usage with `open-sdd report <feature> --step <id> --result <r> --tokens N --model M`.
+MCP tools: `open_sdd_flow`, `open_sdd_validation`, `open_sdd_audit_trail`.
+
 ## 20. Troubleshooting and FAQ
 
 | Message | Meaning / fix |

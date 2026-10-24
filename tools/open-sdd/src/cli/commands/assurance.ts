@@ -2,13 +2,13 @@
  * `validation`, `flow` y `audit trail`: la exigencia de pruebas por reglas, el estado del flujo para
  * tableros y el registro de decisiones para auditoría.
  */
-import { readFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { CliIO } from '../io.js';
 import { colors, formatHeading } from '../ui/colors.js';
 import { appendAudit } from '../../core/engine.js';
-import { filterTrail, readAuditTrail, trailCsv, type ActorKind } from '../../core/auditTrail.js';
-import { buildFlow } from '../../core/flow.js';
+import { filterTrail, readAuditTrail, trailCsv, trailOtlp, type ActorKind } from '../../core/auditTrail.js';
+import { buildFlow, flowMarkdown } from '../../core/flow.js';
 import { parseConstitution } from '../../core/constitution.js';
 import { resolveSddDir } from '../../core/specManager.js';
 import { listFeatures } from '../../core/trace.js';
@@ -108,6 +108,10 @@ export const handleFlowCommand = async (args: string[], io: CliIO, cwd: string):
     const features = await listFeatures(cwd, sddDir);
     const flows = [];
     for (const name of features) flows.push(await buildFlow(cwd, name, sddDir));
+    if (args.includes('--markdown')) {
+      io.log(flowMarkdown(flows));
+      return 0;
+    }
     if (args.includes('--json')) {
       io.log(JSON.stringify({ schema: 'open-sdd.flow-list/1', features: flows.map((f) => ({ feature: f.feature, status: f.status, current: f.current, metrics: f.metrics })) }, null, 2));
       return 0;
@@ -122,6 +126,10 @@ export const handleFlowCommand = async (args: string[], io: CliIO, cwd: string):
     return 0;
   }
   const flow = await buildFlow(cwd, feature, sddDir);
+  if (args.includes('--markdown')) {
+    io.log(flowMarkdown([flow]));
+    return 0;
+  }
   if (args.includes('--json')) {
     io.log(JSON.stringify(flow, null, 2));
     return 0;
@@ -142,6 +150,9 @@ export const handleFlowCommand = async (args: string[], io: CliIO, cwd: string):
   io.log('');
   io.log(`  tareas ${m.tasksDone}/${m.tasksTotal} (${m.percent} %) · en curso ${m.wip} · bloqueadas ${m.blockedTasks} · sin validación ${m.validationGaps} · preguntas ${m.openQuestions}`);
   io.log(`  decisiones: personas ${m.decisions.human} · agentes ${m.decisions.agent} · reglas ${m.decisions.rule} · auditoría ${m.auditChainsIntact ? colors.green('íntegra') : colors.red('MANIPULADA')}`);
+  const u = m.usage;
+  if (u.tokens > 0) io.log(`  consumo: ${u.tokens.toLocaleString('es-CL')} tokens${u.models.length ? ` (${u.models.join(', ')})` : ''}${u.costUsd !== null ? ` · ≈ USD ${u.costUsd}` : ''}${u.budgetTokens !== null ? ` · presupuesto ${u.budgetTokens.toLocaleString('es-CL')}` : ''}`);
+  for (const w of flow.status.warnings) io.log(`  ${colors.yellow('!')} ${w}`);
   for (const d of flow.pendingDecisions) io.log(`  ${colors.magenta('?')} ${d.id} (${d.step}): ${d.question}`);
   io.log(colors.dim(`  para un tablero: open-sdd flow ${feature} --json  (schema open-sdd.flow/1)`));
   io.log('');
@@ -151,7 +162,7 @@ export const handleFlowCommand = async (args: string[], io: CliIO, cwd: string):
 // ── audit trail ─────────────────────────────────────────────────────────────────────────────
 
 export const handleAuditTrailCommand = async (args: string[], io: CliIO, cwd: string): Promise<number> => {
-  const valued = ['--requirement', '--principle', '--actor', '--who', '--out'];
+  const valued = ['--requirement', '--principle', '--actor', '--who', '--out', '--otlp'];
   const feature = positional(args.slice(1), valued);
   const trail = await readAuditTrail(cwd, feature ? { feature } : {});
   const actor = valueOf(args, '--actor') as ActorKind | undefined;
@@ -163,6 +174,13 @@ export const handleAuditTrailCommand = async (args: string[], io: CliIO, cwd: st
     decisionsOnly: args.includes('--decisions'),
   });
   const broken = trail.chains.filter((c) => !c.ok);
+  const otlp = valueOf(args, '--otlp');
+  if (otlp) {
+    await mkdir(path.dirname(path.resolve(cwd, otlp)), { recursive: true });
+    await writeFile(path.resolve(cwd, otlp), `${JSON.stringify(trailOtlp(records), null, 2)}\n`, 'utf8');
+    io.log(`${records.length} registro(s) exportados en OTLP/JSON a ${otlp} (envíalo con un OpenTelemetry Collector: receiver otlpjsonfile)`);
+    return broken.length > 0 ? 1 : 0;
+  }
   if (args.includes('--json')) {
     io.log(JSON.stringify({ ...trail, records }, null, 2));
   } else if (args.includes('--csv')) {
@@ -184,4 +202,41 @@ export const handleAuditTrailCommand = async (args: string[], io: CliIO, cwd: st
     io.log('');
   }
   return broken.length > 0 ? 1 : 0;
+};
+
+// ── attest ──────────────────────────────────────────────────────────────────────────────────
+
+export const handleAttestCommand = async (args: string[], io: CliIO, cwd: string): Promise<number> => {
+  const { buildAttestation, verifyAttestation } = await import('../../core/attestation.js');
+  const verify = valueOf(args, '--verify');
+  if (verify) {
+    const raw = await readFile(path.resolve(cwd, verify), 'utf8').catch(() => null);
+    if (raw === null) {
+      io.error(`no se puede leer ${verify}`);
+      return 1;
+    }
+    const problems = await verifyAttestation(cwd, JSON.parse(raw));
+    if (args.includes('--json')) io.log(JSON.stringify({ ok: problems.length === 0, problems }, null, 2));
+    else if (problems.length === 0) io.log(`${colors.green('✓')} ${verify}: la spec, la constitución y la auditoría coinciden con lo atestado`);
+    else for (const p of problems) io.log(`${colors.red('✗')} ${p}`);
+    return problems.length === 0 ? 0 : 1;
+  }
+  const feature = positional(args, ['--verify', '--out']);
+  if (!feature) {
+    io.error('usage: open-sdd attest <feature> [--write [--out <file>]] | attest --verify <file>');
+    return 2;
+  }
+  const sddDir = await resolveSddDir(cwd);
+  const statement = await buildAttestation(cwd, sddDir, feature);
+  const text = `${JSON.stringify(statement, null, 2)}\n`;
+  if (!args.includes('--write')) {
+    io.log(text.trimEnd());
+    return 0;
+  }
+  const out = valueOf(args, '--out') ?? path.posix.join(sddDir, 'attestations', `${feature}.intoto.json`);
+  await mkdir(path.dirname(path.resolve(cwd, out)), { recursive: true });
+  await writeFile(path.resolve(cwd, out), text, 'utf8');
+  io.log(`${colors.green('✓')} ${out} · ${statement.subject.length} artefacto(s) · estado ${statement.predicate.status.state} · commit ${statement.predicate.commit?.slice(0, 12) ?? '—'}`);
+  io.log(colors.dim(`  verificar: open-sdd attest --verify ${out}   ·   firmar (opcional): cosign sign-blob --bundle ${out}.sigstore.json ${out}`));
+  return 0;
 };

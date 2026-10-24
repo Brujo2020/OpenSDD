@@ -56,7 +56,7 @@ inputs:
   node-version:
     description: 'Node.js version used to build and run the CLI.'
     required: false
-    default: '20'
+    default: '22'
 
 outputs:
   bundle:
@@ -185,6 +185,12 @@ runs:
           echo "::error::The audit found a blocking finding (gate FAIL or broken claim). See $BUNDLE_DIR/manifest.json."
         fi
         exit "$CODE"
+
+    - name: Status of every feature in the job summary
+      if: always()
+      shell: bash
+      run: |
+        node "$OPEN_SDD_CLI" flow --markdown --no-footer >> "$GITHUB_STEP_SUMMARY" || true
 
     - name: Upload the evidence bundle
       if: always()
