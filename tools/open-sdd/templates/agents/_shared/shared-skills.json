@@ -1,0 +1,4 @@
+{
+  "_comment": "Skills whose text is identical for every agent. Edit them ONLY in _shared/skills; `npm run sync:templates` copies them to every agent tree and `--check` fails on drift.",
+  "skills": ["karpathy-guidelines", "sdd-brownfield", "sdd-help", "sdd-modernize", "sdd-playbook"]
+}

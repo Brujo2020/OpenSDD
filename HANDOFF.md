@@ -16,6 +16,7 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
   - REQ-STD-012 cerrada: `delta validate` reporta como **consultivo** el símbolo nuevo sin `reuse:` y su candidato `fichero:línea`; nunca cambia el exit.
   - Spec `multi-unit-playbooks`: ejemplo del plan §4 pasado de YAML a JSON.
   - **QC 2026-10-23 (5 fallos críticos, `test/qcCritical.test.ts`: 9 tests rojos con el código anterior → verdes):** (1) el agente ya no aprueba tarjetas HIL / adopta reglas / confirma reglas RE con `--confirm <id>`: hace falta teclear el id en `/dev/tty` (`confirmOnTty`, 60 s; nunca pregunta bajo vitest); (2) una sesión de agente no firma revisiones «humanas»; (3) el escalado prepara la tarjeta (A reintentar=solo persona · B aparcar=default · C excepción, no en autónomo) y se re-presenta al reanudar; (4) `setup` instala `.sdd/settings/rules/karpathy-guidelines.md` y cada comando lleva las 3 reglas; (5) la puerta sugiere `setup`/`start`/`check`. Guía visual `docs/GUIA.md`. Residual: un pty programático pasa `confirmOnTty` (documentado).
+  - **Sprint 3 de la revisión experta** (spec `measure`): `assure calibrate` (κ por detector; corpus sintético en `core/calibrate.ts`), mutantes `trust` M28–M32 (5/5 muertos), `scripts/sync-templates.mjs` (+ `--check` en CI). Las 3 revisiones expertas completas; quedan: anclar la cabeza de la cadena de auditoría, aprobación vía PR/CODEOWNERS, perfil efectivo en hook y bloqueo sin spec, ampliar el corpus a n ≥ 120 con casos reales.
   - **Sprint 2 de la revisión experta** (spec `clarity`): nivel → perfil mínimo (`effectiveProfile`), titular = eslabón más débil, estándares solo en lo que cambia (≤3). Tests `sprint2.test.ts` 3/3 rojos antes → verdes; suite 174/2512; revisión Sonnet aplicada (runs terminados mantienen el suelo, rutas normalizadas). Pendiente: hook de commit y bloqueo sin spec con perfil efectivo; sprint 3 (puntos 8 y 10).
   - **Sprint 1 de la revisión experta** (spec `trust-floor`, `docs/REVISION-EXPERTO.md`): aprobadores en `setup` y obligatorios en team/enterprise; cadena de hashes en la auditoría (`AUDIT_CHAIN_BROKEN` crítico); PR gate en `setup` para team/enterprise; `REVIEW_REQUIRED` si C5 no tiene sensor; `check` escala y se detiene (no en CI). Tests `trustFloor.test.ts`: 5/5 rojos con el código anterior → 6/6 verdes; suite 173/2509. Límites declarados en el documento. Siguiente: sprint 2 (puntos 6, 7, 9).
   - **Experiencia simple «una puerta, cinco verbos»** (spec `simple-experience`, REQ-SX-001…005): `--help`/`help` = 5 verbos en 15 líneas; `help --all` = catálogo completo; `setup` = `init`; `check` = `gates run`; `decide` = decisiones humanas pendientes (tarjetas HIL y gates escalados) con el comando exacto. Nada eliminado. README/README.es/MANUAL abren con los 5 verbos, 2 diagramas Mermaid, leyenda de colores 🟢🟡🔴🔵 y las 3 reglas; 19 quickstarts y `sdd-help` presentan los verbos primero.
@@ -67,6 +68,12 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - `git status` sobre la carpeta montada dejó `.git/index.lock` vacíos dos veces → todo git se hace en la copia del sandbox; si ves un `index.lock` vacío, bórralo.
 
 ## Pendiente
+0. **Revisión independiente del sprint 3 (Sonnet) — arreglos NO aplicados todavía** (la edición se interrumpió):
+   - `scripts/sync-templates.mjs`: detectar/borrar ficheros que existen en una copia y no en `_shared` (hoy no se detectan); normalizar CRLF (`\r?\n` en el marcador y comparar en LF, reescribir con los finales originales).
+   - `test/sprint3.test.ts`: la aserción `rules.split('\n')[2]` es frágil → comparar el fichero completo con `{{SDD_DIR}}` → `.sdd`.
+   - `core/calibrate.ts` y `docs/MEASUREMENTS.md`: declarar que en escalado y EARS κ mide conformidad con nuestra spec (corpus circular), no validez real; siguiente paso: casos de logs reales hasta n ≥ 120.
+   - `ALWAYS_ON_RULES` sustituye `{{SDD_DIR}}` por `.sdd` fijo (ignora `--sdd-dir`): menor.
+   - Descartado tras verificar: el riesgo de ruta en `dist` (no está empaquetado en un único fichero y `npm pack` incluye `templates/shared/always-on-rules.md`).
 1. AC-10 (v3.6): validar el plugin AI-DLC con su validador — requiere checkout de AI-DLC + `bun` (no accesibles en esta sesión). Esquema de dependencias de unidades AI-DLC sigue sin verificar.
 1b. El umbral «3» y la definición de progreso no están calibrados con datos reales: medir en uso (eventos `ESCALATED_TO_HIL` por motivo en `.sdd/engine/*.audit.jsonl`).
 2. RQC tarea 5 (calibración): bloqueada hasta tener un corpus etiquetado de defectos; no inventar etiquetas.
@@ -78,6 +85,7 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 7. Informativo: umbrales SLA/canary son valores por defecto (`.sdd/settings/dynamic-rules.json`).
 
 ## Reanudación exacta
+Primero: aplicar el punto 0 de «Pendiente» (arreglos de la revisión del sprint 3), luego `npm run sync:templates:check`, `npx vitest run`, `node tools/open-sdd/dist/cli.js assure claims --verify`.
 ```bash
 cd /Users/mramospe/Proyectos/Development/open-sdd
 git fetch origin && git status --short --branch

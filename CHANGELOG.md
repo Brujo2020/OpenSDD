@@ -14,6 +14,11 @@ All notable changes to this project will be documented in this file.
 - Progress-aware escalation to a person: at the 1st critical failure (`RECEIPT_TAMPERED`, `QUESTIONS_CHANGED`), when it repeats an earlier failure or fixed nothing (no progress, from the 2nd attempt), or after more than 3 failures while progressing. The engine prepares the decision card (retry · park · exception) and only a person retries or approves.
 - Karpathy guidelines in every project: `karpathy-guidelines` skill in every skills tree, `.sdd/settings/rules/karpathy-guidelines.md` written by `setup`, and the three rules in every installed command.
 
+### Measure (spec `measure`, sprint 3 of docs/REVISION-EXPERTO.md)
+- `open-sdd assure calibrate`: Cohen's κ, precision and recall of each detector against a labelled seeded-defect corpus (audit chain 0.70, escalation 0.85, EARS 0.75; precision 1.00). Results in `docs/MEASUREMENTS.md`; run in CI.
+- Mutation harness: `trust` family (M28–M32), 5/5 killed.
+- One source: `npm run sync:templates` (+ `:check` in CI) for the shared skills and the always-on rules; installed commands read the same rules file.
+
 ### Clarity (spec `clarity`, sprint 2 of docs/REVISION-EXPERTO.md)
 - One knob: the level sets the governance floor (L3–L4 `team`, L5–L6 `enterprise`); `governance.json` can raise it, never lower it. `start` prints `profile ≥ …`.
 - The score footer headlines the weakest measured link (`SDD 53% · … · eslabón débil: evidencia · compuesto 93%`).

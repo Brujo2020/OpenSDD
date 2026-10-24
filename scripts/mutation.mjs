@@ -45,6 +45,7 @@ const THRESHOLDS = {
   coach: 1.0,
   cli: 1.0,
   enforcement: 1.0,
+  trust: 1.0,
 };
 const OVERALL_THRESHOLD = 1.0;
 
@@ -53,6 +54,52 @@ const OVERALL_THRESHOLD = 1.0;
  * fails loudly instead of quietly testing nothing.
  */
 const MUTANTS = [
+  // ── trust (sprint 1 of the expert review + QC) ────────────────────────────────────────────────
+  {
+    id: 'M28',
+    family: 'trust',
+    breaks: 'an edited audit line passes the hash chain',
+    file: `${SRC}/core/engine.ts`,
+    find: "if (prev !== sha256(i === 0 ? '' : lines[i - 1])) return { ok: false, brokenAt: i + 1 };",
+    replace: '',
+    tests: ['test/trustFloor.test.ts'],
+  },
+  {
+    id: 'M29',
+    family: 'trust',
+    breaks: 'a stuck step (same failure again) never escalates',
+    file: `${SRC}/core/engine.ts`,
+    find: 'if (repeats || fixedNothing)',
+    replace: 'if (false)',
+    tests: ['test/escalateToHil.test.ts'],
+  },
+  {
+    id: 'M30',
+    family: 'trust',
+    breaks: 'an agent session approves its own HIL card',
+    file: `${SRC}/core/hilCards.ts`,
+    find: 'if (needsPerson && opts.agent && !confirmed)',
+    replace: 'if (false)',
+    tests: ['test/qcCritical.test.ts'],
+  },
+  {
+    id: 'M31',
+    family: 'trust',
+    breaks: 'an agent session signs a human review',
+    file: `${SRC}/core/reviewReceipts.ts`,
+    find: 'if (input.agent && input.reviewerModel === undefined)',
+    replace: 'if (false)',
+    tests: ['test/qcCritical.test.ts'],
+  },
+  {
+    id: 'M32',
+    family: 'trust',
+    breaks: 'a stuck `check` is never stopped for a person',
+    file: `${SRC}/core/trustFloor.ts`,
+    find: 'if (!latest.answer) return latest.card;',
+    replace: 'if (!latest.answer) return null;',
+    tests: ['test/trustFloor.test.ts'],
+  },
   // ── security ──────────────────────────────────────────────────────────────────────────────────
   {
     id: 'M01',

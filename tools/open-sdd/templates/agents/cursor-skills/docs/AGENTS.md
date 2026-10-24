@@ -68,9 +68,11 @@ Skills are located in `.cursor/skills/sdd-*/SKILL.md`
 ## Development Rules
 - 3-phase approval workflow: Requirements → Design → Tasks → Implementation
 - Human review required each phase; use `-y` only for intentional fast-track
+<!-- open-sdd:rules:start (generated from templates/shared/always-on-rules.md; run npm run sync:templates) -->
 - Always apply the Karpathy guidelines (skill `karpathy-guidelines`, or `{{SDD_DIR}}/settings/rules/karpathy-guidelines.md`): think before coding, simplicity first, surgical changes, goal-driven execution
 - Validation and review are done by a human or, if not, by a model different from the one that generated the code (constitution `C-INDEPENDENT-REVIEW`; `open-sdd review record --by-model <id> --author-model <id>`)
 - Stop and hand the decision to a person (HIL, `open-sdd decide`) at the first critical failure, when the same failure repeats twice in a row, or after more than 3 failed iterations
+<!-- open-sdd:rules:end -->
 - Keep steering current and verify alignment with `/sdd-spec-status`
 - Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
 

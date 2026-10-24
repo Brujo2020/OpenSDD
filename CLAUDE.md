@@ -67,7 +67,9 @@ The skills **shipped by this repository** are source templates; the CLI copies t
 set into a target project.
 
 - Templates (this repository): `tools/open-sdd/templates/agents/<agent>/skills/sdd-*/SKILL.md`
-  — 232 `SKILL.md` files across 8 skills-based agents (29 skills each), plus the shared tree.
+  — 30 skills per agent tree across 8 skills-based agents, plus the shared tree. Skills listed in
+  `_shared/shared-skills.json` and the always-on rules (`templates/shared/always-on-rules.md`) are edited
+  ONLY at their source: `npm run sync:templates` copies them, `npm run sync:templates:check` fails on drift (CI).
 - Installed in a target project: the agent's layout directory, e.g. `.claude/skills/sdd-*/SKILL.md`
   (Claude Code Skills), `.agent/skills/` (Antigravity), `.cursor/skills/` (Cursor).
 - The agent registry that defines every layout and alias flag is

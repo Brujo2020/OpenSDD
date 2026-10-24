@@ -27,6 +27,8 @@
     "gates": "node tools/open-sdd/dist/cli.js gates chain",
     "gates:run": "node tools/open-sdd/dist/cli.js gates run",
     "crosswalk": "node tools/open-sdd/dist/cli.js gates crosswalk",
+    "sync:templates": "node scripts/sync-templates.mjs",
+    "sync:templates:check": "node scripts/sync-templates.mjs --check",
     "mutate": "node scripts/mutation.mjs",
     "assertions": "node scripts/assertions.mjs",
     "assertions:probe": "node scripts/assertions.mjs --probe 30",

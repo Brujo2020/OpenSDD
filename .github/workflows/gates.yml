@@ -101,6 +101,12 @@ jobs:
       - name: Claims registry (§9.6) — a broken claim fails the build
         run: node tools/open-sdd/dist/cli.js assure claims --verify
 
+      - name: One source — shared skills and always-on rules have not drifted
+        run: npm run sync:templates:check
+
+      - name: Calibration — κ of each detector against the seeded-defect corpus
+        run: node tools/open-sdd/dist/cli.js assure calibrate
+
       # The evidence bundle an auditor reads: constitution, specs, gates, claims, alignment and
       # rigor, with one sha256 per artifact in manifest.json (REQ-MAT-006). It exits 1 on a gate
       # FAIL or a broken claim and 2 when the audit could not run, so it fails the job like any

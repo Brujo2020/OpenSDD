@@ -12,6 +12,7 @@
  * evidence rather than returning a green light.
  */
 
+import { renderCalibration, runCalibration } from '../../core/calibrate.js';
 import { CHECK_FEATURE, auditChainIssues, checkBlock, effectiveProfile, escalationApplies, freshReviewReceipt, recordCheckOutcome } from '../../core/trustFloor.js';
 import { appendFile, chmod, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { renderGateSummary } from '../../core/gateSummary.js';
@@ -1530,6 +1531,13 @@ export const handleAssureCommand = async (args: string[], io: CliIO, cwd: string
     return 0;
   }
 
+  if (sub === 'calibrate') {
+    // Sprint 3 (point 8): how well each detector agrees with a labelled corpus, by Cohen's κ.
+    const rows = runCalibration();
+    if (args.includes('--json')) io.log(JSON.stringify(rows, null, 2));
+    else for (const line of renderCalibration(rows)) io.log(line);
+    return 0;
+  }
   if (sub === 'claims') {
     // The registry is executable, not decorative: `--verify` runs every verifier and decides
     // each claim by exit code (§9.6). Without it, only the state model is printed.

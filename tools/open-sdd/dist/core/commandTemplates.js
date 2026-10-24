@@ -23,6 +23,7 @@
  * matches the signature, the file is untouched and may be refreshed; if it does not, a human (or
  * another tool) edited it, and the file is reported `keep` with that reason and left alone.
  */
+import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -670,12 +671,7 @@ const adaptFrontmatter = (raw, host, format) => {
  * The three rules that apply to every workflow in every project (user requirement): carried by each
  * installed command so the default path (no skills) enforces them too.
  */
-export const ALWAYS_ON_RULES = `
-## Always-on rules
-- Apply the Karpathy guidelines (\`.sdd/settings/rules/karpathy-guidelines.md\`): think before coding, simplicity first, surgical changes, goal-driven execution.
-- Validation and review are done by a person or by a model DIFFERENT from the one that wrote the code (constitution \`C-INDEPENDENT-REVIEW\`).
-- Stop and hand the decision to a person (\`open-sdd decide\`) at the first critical failure, when the same failure repeats twice in a row, or after more than 3 failed iterations.
-`;
+export const ALWAYS_ON_RULES = `\n## Always-on rules\n${readFileSync(fileURLToPath(new URL('../../templates/shared/always-on-rules.md', import.meta.url)), 'utf8').replace(/\{\{SDD_DIR\}\}/g, '.sdd')}`;
 export const renderCommandTemplate = async (id, host, templatesRoot) => {
     const raw = `${(await readFile(commandTemplatePath(id, templatesRoot), 'utf8')).replace(/\s*$/, '\n')}${ALWAYS_ON_RULES}`;
     const translated = adaptFrontmatter(translateInput(raw, host), host, host.format);

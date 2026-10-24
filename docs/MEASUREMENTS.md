@@ -120,3 +120,31 @@ renderer), and the expired-waiver naming sits just past that cut. The gate there
 correctly while the *reason* ("excepción caducada …; responsable: …") is not visible in the console
 line. The full text is present in the report the engine builds; only the render is clipped. This is
 recorded as a finding, not smoothed over.
+
+---
+
+## Detector calibration by Cohen's κ (seeded-defect corpus)
+
+| Field | Value |
+|---|---|
+| Command | `node tools/open-sdd/dist/cli.js assure calibrate` (also run in CI) |
+| Date | 2026-10-23 |
+| Corpus | 58 synthetic cases in `tools/open-sdd/src/core/calibrate.ts`, each labelled and stating what it seeds |
+| Rule | a detector may block only at κ ≥ 0.61 **and** n ≥ 120 (`SUBSTANTIAL_KAPPA`, `PREREGISTERED_N`) |
+
+| Detector | n | κ | Precision | Recall | Misses |
+|---|---|---|---|---|---|
+| audit chain | 28 | 0.70 (substantial) | 1.00 | 0.80 | truncating the tail (declared gap: no external anchor) |
+| escalation | 14 | 0.85 (almost perfect) | 1.00 | 0.89 | fake progress — one artificial problem fixed per attempt (declared gap) |
+| EARS | 16 | 0.75 (substantial) | 1.00 | 0.75 | "handle errors appropriately", "WHEN possible … try to be quick" |
+
+**Reading.** No false alarm anywhere. The misses are exactly the gaps already declared, now
+measured. No detector reaches n ≥ 120, so calibration alone promotes nothing to blocking.
+
+**Limits.** The corpus is synthetic and written by the same project that writes the detectors: it
+measures agreement with *our* labels on *these* cases. Treat it as a floor, not field data.
+- The escalation cases encode the escalation rules themselves (for example "more than 3 failures"),
+  and the vague EARS wording is the kind of wording the analyser was built around. For those two
+  detectors κ measures **conformance to our specification**, not real-world validity, which is circular
+  by construction. The audit-chain cases are adversarial edits and are the least circular.
+- Next: label cases drawn from real logs and real requirement sets until n ≥ 120 per detector.

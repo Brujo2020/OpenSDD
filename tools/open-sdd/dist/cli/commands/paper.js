@@ -11,6 +11,7 @@
  * implemented is reported as such, and a judgement that needs a model backend says it is not
  * evidence rather than returning a green light.
  */
+import { renderCalibration, runCalibration } from '../../core/calibrate.js';
 import { CHECK_FEATURE, auditChainIssues, checkBlock, effectiveProfile, escalationApplies, freshReviewReceipt, recordCheckOutcome } from '../../core/trustFloor.js';
 import { appendFile, chmod, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { renderGateSummary } from '../../core/gateSummary.js';
@@ -1279,6 +1280,16 @@ export const handleAssureCommand = async (args, io, cwd) => {
         for (const q of LAB_EXIT_QUESTIONS)
             io.log(`  ${q}`);
         io.log('');
+        return 0;
+    }
+    if (sub === 'calibrate') {
+        // Sprint 3 (point 8): how well each detector agrees with a labelled corpus, by Cohen's κ.
+        const rows = runCalibration();
+        if (args.includes('--json'))
+            io.log(JSON.stringify(rows, null, 2));
+        else
+            for (const line of renderCalibration(rows))
+                io.log(line);
         return 0;
     }
     if (sub === 'claims') {
