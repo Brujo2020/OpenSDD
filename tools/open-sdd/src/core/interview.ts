@@ -214,6 +214,18 @@ const NORMATIVE_QUESTIONS: readonly NormativeQuestionSpec[] = [
     options: ['cruce permitido si la delta lo declara', 'cruce prohibido sin enmienda'],
     confirms: 'C-BOUNDARIES',
     evidence: (ctx) => `${ctx.boundaryDetail} · ${truncate(ctx.boundaries, 4, 'frontera(s)').join(', ')}`,
+    // Cuando el código aún no muestra fronteras (greenfield), C-BOUNDARIES no existe en el borrador:
+    // sin este principio la respuesta se «aplicaba» a un principio inexistente y se perdía.
+    principle: {
+      id: 'C-BOUNDARIES',
+      title: 'Las fronteras de módulo se cruzan solo según la regla acordada',
+      level: 'MUST',
+      threatReference: 'acoplamiento silencioso entre módulos',
+      restriction: 'Ningún cambio cruza una frontera de módulo de otra forma que la que fija la decisión registrada en este principio.',
+      pattern: 'Declarar en la delta cada cruce de frontera y aplicar la regla acordada',
+      justification:
+        'Un cruce de frontera no declarado es el origen típico del acoplamiento que después impide cambiar un módulo sin romper otro.',
+    },
   },
   {
     id: 'Q-NORM-DATA-CLASSIFICATION',
@@ -551,7 +563,8 @@ const normativePrinciple = (spec: NormativeQuestionSpec, answer: string): Consti
     level: base.level,
     threatReference: base.threatReference,
     restriction: base.restriction,
-    pattern: free.length > 0 ? `${base.pattern} (decisión registrada: ${free})` : base.pattern,
+    // La opción elegida ES la decisión: si no hay texto libre, se registra la respuesta tal cual.
+    pattern: `${base.pattern} (decisión registrada: ${free.length > 0 ? free : answer.trim()})`,
     justification: base.justification,
     provenance: 'normative',
     draft: true,
@@ -701,13 +714,26 @@ export const applyConstitutionAnswers = async (input: {
         unanswered.push(question.id);
         continue;
       }
-      if (decision === 'no') {
+      // Una decisión solo «confirma» un principio que EXISTE en el borrador; si no existe, la decisión
+      // aterriza como principio propio (cuando la pregunta lo define) o vuelve como no aplicada.
+      const confirmed = base.principles.some((principle) => principle.id === spec.confirms);
+      if (confirmed && spec.principle?.id === spec.confirms) {
         applied.push({ id: question.id, principle: spec.confirms });
         continue;
       }
+      if (decision === 'no' || !spec.principle) {
+        if (confirmed) {
+          applied.push({ id: question.id, principle: spec.confirms });
+          continue;
+        }
+        if (!spec.principle) {
+          unanswered.push(question.id);
+          continue;
+        }
+      }
       const principle = normativePrinciple(spec, answer);
       if (!principle) {
-        applied.push({ id: question.id, principle: spec.confirms });
+        unanswered.push(question.id);
         continue;
       }
       if (!adoptedIds.has(principle.id)) {

@@ -345,7 +345,7 @@ export const handleGatesCommand = async (
   args: string[],
   io: CliIO,
   cwd: string,
-  opts: { escalate?: boolean } = {},
+  opts: { escalate?: boolean; env?: NodeJS.ProcessEnv } = {},
 ): Promise<number> => {
   const sub = args[0] ?? 'chain';
   const profile = parseProfile(args);
@@ -577,7 +577,7 @@ export const handleGatesCommand = async (
     }
     io.log('');
     // `check` (REQ-TF-005): while a person has not decided, the loop stays stopped.
-    const escalate = opts.escalate === true && escalationApplies();
+    const escalate = opts.escalate === true && escalationApplies(opts.env);
     if (escalate) {
       const blocked = await checkBlock(root);
       if (blocked) {

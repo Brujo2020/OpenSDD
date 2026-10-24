@@ -488,7 +488,11 @@ export const ratifyDraft = (
       });
       continue;
     }
-    if ((principle.evidence ?? []).filter((entry) => entry.trim().length > 0).length === 0) {
+    // Un principio NORMATIVO es una decisión, no un hecho del código: lo que le da autoridad es la
+    // persona nombrada que lo ratifica, no una evidencia que en un proyecto nuevo todavía no puede existir.
+    // Uno DESCRIPTIVO sigue necesitando evidencia (afirma algo sobre el código).
+    const normative = principle.provenance === 'normative';
+    if (!normative && (principle.evidence ?? []).filter((entry) => entry.trim().length > 0).length === 0) {
       refused.push({
         id,
         why: 'Sin evidencia: una propuesta que el código no demuestra no puede convertirse en principio. Aporta la prueba o déjala como pregunta.',
@@ -501,7 +505,9 @@ export const ratifyDraft = (
       title: `Ratificación de ${principle.id} — ${principle.title}`,
       proposedBy: by,
       status: 'in-force',
-      migrationPlan: 'Sin migración pendiente: la práctica ya está en el código y la evidencia observada es la prueba.',
+      migrationPlan: normative
+        ? 'Principio normativo: rige desde su ratificación; cada cambio aporta su evidencia (gates y revisión) a partir de ahora.'
+        : 'Sin migración pendiente: la práctica ya está en el código y la evidencia observada es la prueba.',
       rationale,
       approvals: [{ actor: by, at }],
       updatedAt: at,

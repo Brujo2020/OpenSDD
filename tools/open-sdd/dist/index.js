@@ -215,7 +215,7 @@ const runScoreDoor = async (io, cwd) => {
  * comando conocido: entonces `runCli` conserva el camino heredado (instalación vía `parseArgs`), que
  * es exactamente lo que hacía antes cuando ningún `if` encajaba.
  */
-const dispatchSubcommand = async (cmd, subArgv, io, targetCwd) => {
+const dispatchSubcommand = async (cmd, subArgv, io, targetCwd, env = process.env) => {
     if (cmd === 'status' || cmd === 'spec-status') {
         return handleStatusCommand(subArgv, io, targetCwd);
     }
@@ -224,7 +224,7 @@ const dispatchSubcommand = async (cmd, subArgv, io, targetCwd) => {
     }
     // The five verbs (REQ-SX-003/004): thin routes onto the existing handlers.
     if (cmd === 'check')
-        return handleGatesCommand(['run', ...subArgv.filter((a) => a !== SCORE_FOOTER_FLAG)], io, targetCwd, { escalate: true });
+        return handleGatesCommand(['run', ...subArgv.filter((a) => a !== SCORE_FOOTER_FLAG)], io, targetCwd, { escalate: true, env });
     if (cmd === 'decide')
         return handleDecideCommand(subArgv, io, targetCwd);
     // Adoption surface: the machine-checked integration matrix (`integrate`) and the importer that
@@ -250,6 +250,10 @@ const dispatchSubcommand = async (cmd, subArgv, io, targetCwd) => {
     }
     if (cmd === 'impl') {
         return handleImplCommand(subArgv, io, targetCwd);
+    }
+    if (cmd === 'estimate') {
+        const { handleEstimateCommand } = await import('./cli/commands/estimate.js');
+        return handleEstimateCommand(subArgv, io, targetCwd);
     }
     if (cmd === 'help') {
         return handleHelpCommand(subArgv, io);
@@ -539,7 +543,7 @@ export const runCli = async (rawArgv, runtime = { platform: process.platform, en
             emitUsageError(io, usageIssue.message, usageIssue.suggestions, usageIssue.runFor);
             return EXIT.USAGE;
         }
-        const code = await dispatchSubcommand(cmd, subArgv, io, targetCwd);
+        const code = await dispatchSubcommand(cmd, subArgv, io, targetCwd, runtime.env);
         if (code !== undefined) {
             // El pie de puntuación se emite aquí, en el despachador, y en ningún otro sitio: ningún
             // comando tiene que acordarse. `--json`, `--quiet` y `--no-footer` lo suprimen.

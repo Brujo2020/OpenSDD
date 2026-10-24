@@ -586,13 +586,15 @@ const chooseNextAction = (input: {
 }): string => {
   // The five verbs first (REQ-SX): a fresh repository is set up, an empty one is started.
   if (input.setUp === false && input.constitutionState === 'missing') return 'open-sdd setup --write';
+  // La constitución se construye guiada (preguntas con valor por defecto, borrador, ratificación).
   if (input.constitutionState === 'missing' || input.constitutionState === 'invalid') {
-    return 'open-sdd brownfield constitution . --write';
+    return 'open-sdd assist constitution';
   }
   if (input.constitutionState === 'unreadable') return 'open-sdd brownfield constitution .';
   if (!input.feature) return 'open-sdd start "<lo que quieres>"';
   if (input.requirementsMissing) return `open-sdd init ${input.feature}`;
-  if (input.earsErrors > 0) return `open-sdd govern --advise-ears ${input.feature}`;
+  // Requisitos no comprobables (vagos, compuestos, sin actor): la acción es preguntar, no reescribir.
+  if (input.earsErrors > 0) return `open-sdd brownfield clarify ${input.feature}`;
   if (input.traceabilityMeasured && input.traceGap > 0) return `open-sdd delta validate ${input.feature}`;
   if (input.evidenceMeasured && input.evidenceScore < 1) return `open-sdd impl ${input.feature}`;
   if (input.contractsMeasured && input.contractsScore < 1) return `open-sdd brownfield contracts ${input.feature}`;
@@ -605,8 +607,11 @@ const chooseNextAction = (input: {
 /** Por qué ESA acción, en una línea. La usa la puerta sin argumentos. */
 export const explainNextAction = (report: SddScoreReport): string => {
   const action = report.nextAction;
-  if (action.includes('brownfield constitution') && action.includes('--write')) {
-    return 'no hay constitución: es el suelo de todos los niveles.';
+  if (action === 'open-sdd assist constitution') {
+    return 'no hay constitución (o no es válida): es el suelo de todos los niveles; el asistente la construye contigo y la ratificas con tu nombre.';
+  }
+  if (action.includes('brownfield clarify')) {
+    return 'hay requisitos que no se pueden comprobar (términos vagos, compuestos o sin actor): clarify pregunta lo que falta.';
   }
   if (action.includes('brownfield constitution')) {
     return 'la constitución existe pero no se pudo leer: se re-deriva sin --write para no perder trabajo.';

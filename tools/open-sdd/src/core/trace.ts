@@ -115,6 +115,27 @@ export const listFeatures = async (root: string, sddDir: string): Promise<string
 const nodeId = (prefix: string, id: string): string => `${prefix}_${id.replace(/[^A-Za-z0-9]/g, '_')}`;
 const label = (text: string): string => text.replace(/["`<>]/g, "'").slice(0, 60);
 
+const csvCell = (value: string): string => (/[",\n;]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value);
+
+/**
+ * Matriz de trazabilidad para aceptación de cliente (abre en Excel/Sheets): una fila por par
+ * requisito × tarea; un requisito sin tarea aparece con la tarea vacía, para que el hueco se vea.
+ */
+export const renderCsv = (trace: FeatureTrace): string => {
+  const rows: string[][] = [['requirement', 'title', 'acceptance', 'task', 'task_title', 'status', 'evidence']];
+  for (const req of trace.requirements) {
+    const acceptance = req.statements.join(' | ');
+    const tasks = trace.tasks.filter((task) => task.requirements.includes(req.id));
+    if (tasks.length === 0) rows.push([req.id, req.title, acceptance, '', '', 'uncovered', '']);
+    for (const task of tasks) rows.push([req.id, req.title, acceptance, task.id, task.title, task.status, task.evidence.join(' | ')]);
+  }
+  for (const id of trace.unlinked) {
+    const task = trace.tasks.find((t) => t.id === id);
+    rows.push(['', '', '', id, task?.title ?? '', 'unlinked', task?.evidence.join(' | ') ?? '']);
+  }
+  return `${rows.map((row) => row.map(csvCell).join(',')).join('\n')}\n`;
+};
+
 export const renderMermaid = (trace: FeatureTrace): string => {
   const lines = ['flowchart LR'];
   for (const req of trace.requirements) {

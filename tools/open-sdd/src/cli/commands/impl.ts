@@ -52,6 +52,11 @@ export const handleImplCommand = async (
   io.log(`  Pending Tasks:     ${plan.pendingTasks}`);
   io.log(`  Execution Waves:   ${plan.waves.length}`);
   io.log(`  Max Concurrency:   ${colors.green(`${plan.maxConcurrency} parallel subagents`)}`);
+  if (plan.waves.length > 0) {
+    // Camino crítico en tareas: lo que el paralelismo puede ahorrar como máximo (no son horas).
+    const speedup = plan.pendingTasks / plan.waves.length;
+    io.log(`  Critical Path:     ${plan.waves.length} wave(s) for ${plan.pendingTasks} task(s) · up to ×${speedup.toFixed(1)} vs. one by one${speedup > 1 ? '' : colors.dim(' — mark independent tasks (P) with a _Boundary:_ to parallelise')}`);
+  }
 
   if (plan.waves.length === 0) {
     io.log('');

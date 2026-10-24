@@ -33,7 +33,7 @@
  * nombres en vez de `export *`: la ambigüedad se resuelve nombrando, no renombrando el contrato.
  */
 
-import { EARS_LIMIT, EARS_TEMPLATES, containsVagueTerm, type EarsPattern as ValidatorPattern } from './ears.js';
+import { EARS_LIMIT, EARS_TEMPLATES, VAGUE_TERMS_EN, containsVagueTerm, type EarsPattern as ValidatorPattern } from './ears.js';
 
 export type EarsPattern = 'ubiquitous' | 'event' | 'state' | 'option' | 'unwanted';
 
@@ -244,26 +244,8 @@ const VAGUE_TERMS: readonly string[] = [
   'facil de usar',
   'rápidamente',
   'rapidamente',
-  // Inglés: alineado con AMB-001/AMB-002 del coach de requisitos, que ya los marcaba mientras clarify no.
-  'quick',
-  'quickly',
-  'fast',
-  'rapidly',
-  'appropriate',
-  'appropriately',
-  'adequate',
-  'adequately',
-  'robust',
-  'efficient',
-  'efficiently',
-  'easy',
-  'easily',
-  'intuitive',
-  'seamless',
-  'seamlessly',
-  'reasonable',
-  'acceptable',
-  'securely',
+  // Inglés: la misma lista que C1 (ears.ts), alineada con AMB-001/AMB-002 del coach.
+  ...VAGUE_TERMS_EN,
 ];
 
 /**

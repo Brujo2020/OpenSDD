@@ -33,6 +33,17 @@ const RISKS = [
     { tag: 'infra', re: /\b(infra\w*|terraform|kubernetes|k8s|network|landing zone)\b/i },
     { tag: 'data', re: /\b(database|schema change|data model|etl|warehouse)\b/i },
 ];
+/**
+ * Una petición grande, partida en candidatas a feature: el texto tras «:» (o tras with/con/including),
+ * separado por comas y «;». No inventa: cada candidata es un trozo literal de la petición.
+ */
+export const splitFeatures = (intent) => {
+    const tail = intent.includes(':') ? intent.slice(intent.indexOf(':') + 1) : (intent.match(/\b(?:with|con|including|incluyendo)\s+(.+)$/i)?.[1] ?? '');
+    return tail
+        .split(/[,;]\s*|\s+(?:and|y|e)\s+(?=[^,]*$)/i)
+        .map((part) => part.trim().replace(/\.$/, ''))
+        .filter((part) => part.split(/\s+/).length >= 1 && part.length >= 3);
+};
 /** Scale and risk read from the intent text, each with the words that matched (REQ-V37-007). */
 export const intentSignals = (intent) => {
     const evidence = [];

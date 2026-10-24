@@ -42,7 +42,31 @@ const INJECTION_PATTERNS = [
     { id: 'ignore-previous', re: /ignore (all )?(previous|prior|above) instructions/i },
     { id: 'system-prompt-exfil', re: /(reveal|print|repeat)[^\n]{0,30}(system prompt|initial instructions)/i },
     { id: 'hidden-comment-instruction', re: /<!--[^>]*\b(ignore|must|shall|execute)\b[^>]*-->/i },
+    // Dirigidas a un agente que lee la spec como instrucciones (inyección indirecta, OWASP LLM01).
+    { id: 'guardrail-bypass', re: /(?<!\b(?:never|not|don't|no)\s)\b(disregard|ignore|bypass)\b[^\n]{0,40}\b(constitution|gates?|guardrails?|pre-commit|hooks?|review)\b/i },
+    { id: 'self-approval', re: /\b(approve|ratify)\b[^\n]{0,20}\b(yourself|your own)\b/i },
+    { id: 'role-header', re: /^\s*(system|assistant)\s*:/i },
 ];
+/**
+ * Lo que un agente LEE como instrucciones: specs y steering. Se escanean siempre, aunque el modo de
+ * la cadena no inspeccione cambios, porque una inyección ya comprometida sigue actuando en cada sesión.
+ */
+const specCorpus = async (cwd, sddDir) => {
+    const out = [];
+    const walk = async (rel) => {
+        const entries = await readdir(path.join(cwd, rel), { withFileTypes: true }).catch(() => []);
+        for (const entry of entries) {
+            const child = path.posix.join(rel, entry.name);
+            if (entry.isDirectory())
+                await walk(child);
+            else if (entry.name.endsWith('.md'))
+                out.push(child);
+        }
+    };
+    await walk(path.posix.join(sddDir, 'specs'));
+    await walk(path.posix.join(sddDir, 'steering'));
+    return out;
+};
 /** Scan files for secrets, destructive commands and injection patterns (C2). */
 export const scanSecurity = (files) => {
     const findings = [];
@@ -172,6 +196,14 @@ export const runGate = async (gateId, ctx, regime = 'flexible') => {
                 // disk: `--staged` supplies the index content as an override.
                 const override = ctx.contentOverrides?.[rel];
                 const content = override ?? (await readIfExists(path.join(ctx.cwd, rel)));
+                if (content !== null)
+                    files.push({ path: rel, content });
+            }
+            const seen = new Set(files.map((file) => file.path));
+            for (const rel of await specCorpus(ctx.cwd, ctx.sddDir ?? '.sdd')) {
+                if (seen.has(rel))
+                    continue;
+                const content = await readIfExists(path.join(ctx.cwd, rel));
                 if (content !== null)
                     files.push({ path: rel, content });
             }

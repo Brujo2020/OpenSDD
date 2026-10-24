@@ -32,7 +32,7 @@
  * `event`). Por eso el barrel `core/index.ts` re-exporta este módulo con una lista explícita de
  * nombres en vez de `export *`: la ambigüedad se resuelve nombrando, no renombrando el contrato.
  */
-import { EARS_LIMIT, EARS_TEMPLATES, containsVagueTerm } from './ears.js';
+import { EARS_LIMIT, EARS_TEMPLATES, VAGUE_TERMS_EN, containsVagueTerm } from './ears.js';
 export const EARS_PATTERNS = ['ubiquitous', 'event', 'state', 'option', 'unwanted'];
 /** Prefijo que marca una propuesta como PREGUNTA, nunca como frase lista para pegar. */
 export const EARS_NEEDS_INFORMATION = 'Falta información:';
@@ -179,26 +179,8 @@ const VAGUE_TERMS = [
     'facil de usar',
     'rápidamente',
     'rapidamente',
-    // Inglés: alineado con AMB-001/AMB-002 del coach de requisitos, que ya los marcaba mientras clarify no.
-    'quick',
-    'quickly',
-    'fast',
-    'rapidly',
-    'appropriate',
-    'appropriately',
-    'adequate',
-    'adequately',
-    'robust',
-    'efficient',
-    'efficiently',
-    'easy',
-    'easily',
-    'intuitive',
-    'seamless',
-    'seamlessly',
-    'reasonable',
-    'acceptable',
-    'securely',
+    // Inglés: la misma lista que C1 (ears.ts), alineada con AMB-001/AMB-002 del coach.
+    ...VAGUE_TERMS_EN,
 ];
 /**
  * `flexible` es el único término de la lista que TAMBIÉN es vocabulario de dominio aquí: nombra el

@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Revisión experta 2 — 10 mejoras ([docs/REVISION-EXPERTO-2.md](docs/REVISION-EXPERTO-2.md))
+- Constitución guiada: `open-sdd assist constitution` (y al final de `setup --write`) pregunta de a una con valores por defecto, guarda el borrador y ofrece ratificar con nombre; las decisiones normativas se ratifican sin evidencia del código (las descriptivas la siguen exigiendo); la decisión de fronteras ya no se pierde en proyectos nuevos.
+- C2 escanea siempre `specs/` y `steering/` contra inyección dirigida a agentes (`guardrail-bypass`, `self-approval`, `role-header`).
+- Un solo vocabulario de términos vagos para C1, el asistente EARS y clarify.
+- Siguiente acción: `brownfield clarify` con requisitos no comprobables; `assist constitution` sin constitución.
+- Nuevo `open-sdd estimate <feature>` (P50/P90, calendario con paralelismo) y `--sow` (borrador de alcance para una oferta).
+- Nuevo `open-sdd migrate estimate` (semanas-persona por ola según las 7 Rs).
+- `open-sdd trace <feature> --csv`: matriz de aceptación para el cliente.
+- `impl --parallel` muestra el camino crítico; `start` propone el reparto de una petición grande en features.
+- CI: `check` respeta el entorno inyectado (el test fallaba solo en GitHub).
+
 ### Migration Kit (antes Modernize Kit)
 - `open-sdd migrate` es el comando; `open-sdd modernize` sigue funcionando como alias. Los datos siguen en `.sdd/modernize/`.
 - El nivel L6 se llama **migration**. `start` reconoce intenciones de migración enterprise en español e inglés: salida del datacenter, migrar el mainframe, de Oracle a PostgreSQL, cloud migration, lift-and-shift.
