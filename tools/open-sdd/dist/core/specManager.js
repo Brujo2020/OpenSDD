@@ -74,7 +74,8 @@ export const parseTasksMarkdown = (content) => {
         const depends = dependsMatch
             ? dependsMatch[1]
                 .split(/[,;]/)
-                .map((d) => d.replace(/[`"]/g, '').trim())
+                // Solo el id: «1, 3 — _Boundary:_» no debe leerse como la tarea «3 —».
+                .map((d) => d.replace(/[`"]/g, '').trim().match(/^[\p{L}\p{N}][\p{L}\p{N}._-]*/u)?.[0] ?? '')
                 .filter(Boolean)
             : undefined;
         // Extract title (before boundary/depends)

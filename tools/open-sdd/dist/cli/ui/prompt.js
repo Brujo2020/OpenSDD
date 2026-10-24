@@ -40,6 +40,8 @@ export const isInteractive = () => {
 const PROMPT_ESCAPE = 'pass `--yes` to accept the defaults, or `--no-input` to run without prompting';
 /** Lanza un error accionable. Nunca el mensaje desnudo «TTY required». */
 const requireInteractive = () => {
+    if (isInteractive())
+        return;
     const reason = promptsBlocked();
     if (reason !== null) {
         throw new Error(`interactive prompts are disabled by ${reason}: ${PROMPT_ESCAPE}`);

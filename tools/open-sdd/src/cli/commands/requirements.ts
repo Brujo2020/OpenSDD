@@ -20,6 +20,7 @@ import path from 'node:path';
 import type { CliIO } from '../io.js';
 import { jsonEnvelope, type EnvelopeFinding } from '../jsonOut.js';
 import { colors, formatHeading } from '../ui/colors.js';
+import { offerClarify } from '../ui/clarifyOffer.js';
 import { DEFAULT_LOCALE, normalizeLocale, parseLangFlag, SUPPORTED_LOCALES } from '../i18n.js';
 import { readSpecMetadata, resolveSddDir } from '../../core/specManager.js';
 import type { StandardEntry, StandardRunner } from '../../core/standardsTypes.js';
@@ -308,6 +309,7 @@ const runReview = async (
   if (!engine) {
     io.log(colors.dim('standards engine not available: the deterministic core ran, catalogue entries were not loaded'));
   }
+  await offerClarify(io, cwd, feature, flags);
   return failed ? 1 : 0;
 };
 

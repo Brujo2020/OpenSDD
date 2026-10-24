@@ -66,6 +66,7 @@ After all research completes, synthesize findings in main context before generat
 - If issues are local to the draft, repair the requirements and review again
 - Keep the review bounded to at most 2 repair passes
 - If the draft exposes a real scope ambiguity or contradiction, stop and ask the user to clarify instead of writing guessed requirements
+- After writing, run `open-sdd brownfield clarify {feature}`. If it reports ambiguous requirements (VAGUE_TERM, NO_ACTOR…), tell the user how many and offer to clarify now: ask its questions one at a time and apply only the user's answers with `--answers <file> --write`. Never fill a threshold yourself
 
 ### Step 5: Finalize and Update Metadata
 - Write `{{SDD_DIR}}/specs/{feature}/requirements.md` only after the requirements review gate passes

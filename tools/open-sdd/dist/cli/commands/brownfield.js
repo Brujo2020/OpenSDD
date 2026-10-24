@@ -12,6 +12,7 @@ import { statSync } from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { colors } from '../ui/colors.js';
+import { offerClarify } from '../ui/clarifyOffer.js';
 import { scanProject } from '../../core/reverseEngineering.js';
 import { buildDescriptiveConstitution, collectRepoFacts } from '../../core/reverseConstitution.js';
 import { buildConstitutionDraft, constitutionArtifactPaths, RATIFY_INSTRUCTION } from '../../core/constitutionDraft.js';
@@ -1070,6 +1071,8 @@ export const handleBrownfieldCommand = async (args, io, cwd) => {
         io.log('');
         io.log(`  ${dim(result.detail)}`);
         io.log('');
+        if (written)
+            await offerClarify(io, root, feature, args);
         return result.questions.length > 0 ? 1 : 0;
     }
     if (sub === 'requirements') {
