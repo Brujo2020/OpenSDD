@@ -130,7 +130,8 @@ export const runCalibration = (cases = calibrationCorpus()) => {
     });
 };
 export const renderCalibration = (rows) => [
-    'Calibración (corpus sintético de defectos sembrados; no sustituye datos reales):',
+    'Calibración (corpus sintético de defectos sembrados; no sustituye datos reales).',
+    'Atención: escalado y EARS miden conformidad con NUESTRA especificación (etiquetas escritas por el mismo proyecto), no validez en el mundo real.',
     ...rows.map((r) => `  ${r.detector.padEnd(12)} n=${String(r.n).padEnd(3)} κ=${Number.isNaN(r.kappa.kappa) ? 'n/a' : r.kappa.kappa.toFixed(2)} (${r.kappa.band}) · precisión ${r.precision} · recall ${r.recall} · ${r.mayBlock ? 'puede bloquear' : `consultivo (κ ≥ ${SUBSTANTIAL_KAPPA} y n ≥ ${PREREGISTERED_N} para bloquear)`}` +
         `${r.misses.length ? `\n      no detecta: ${r.misses.join(', ')}` : ''}${r.falseAlarms.length ? `\n      falsas alarmas: ${r.falseAlarms.join(', ')}` : ''}`),
 ];
