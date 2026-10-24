@@ -65,7 +65,7 @@ export const handleInsightCommand = async (cmd: string, args: string[], io: CliI
   if (cmd === 'explain') {
     const id = positional(args);
     if (!id || !/^REQ-/i.test(id)) {
-      io.error(colors.red('Uso: open-sdd explain <REQ-ID>'));
+      io.error(colors.red('Uso: steelfoundry explain <REQ-ID>'));
       return 1;
     }
     const hits: { feature: string; title: string; statements: string[]; tasks: { id: string; title: string; status: string }[] }[] = [];
@@ -111,7 +111,7 @@ export const handleInsightCommand = async (cmd: string, args: string[], io: CliI
 
   if (cmd === 'report') {
     if (!args.includes('--html')) {
-      io.error(colors.red('Uso: open-sdd report <feature> --html [--out <fichero>]'));
+      io.error(colors.red('Uso: steelfoundry report <feature> --html [--out <fichero>]'));
       return 1;
     }
     const score = await computeSddScore(root, { sddDir, feature });
@@ -138,6 +138,6 @@ export const handleInsightCommand = async (cmd: string, args: string[], io: CliI
     io.log(`  ${req.id.padEnd(14)} ${tasks.length > 0 ? tasks.map((task) => `${task.status === 'completed' ? '✓' : '○'}${task.id}`).join(' ') : colors.red('sin tarea')}  ${colors.dim(req.title)}`);
   }
   if (trace.unlinked.length > 0) io.log(colors.yellow(`  tareas sin requisito: ${trace.unlinked.join(', ')}`));
-  io.log(colors.dim(`  ${trace.requirements.length} requisito(s) · ${trace.uncovered.length} sin cubrir · ${trace.tasks.length} tarea(s). Grafo: open-sdd trace ${feature} --mermaid`));
+  io.log(colors.dim(`  ${trace.requirements.length} requisito(s) · ${trace.uncovered.length} sin cubrir · ${trace.tasks.length} tarea(s). Grafo: steelfoundry trace ${feature} --mermaid`));
   return trace.uncovered.length > 0 ? 1 : 0;
 };

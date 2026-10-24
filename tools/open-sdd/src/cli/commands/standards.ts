@@ -1,5 +1,5 @@
 /**
- * `open-sdd standards` — la consola del motor de estándares (W2, REQ-STD-003).
+ * `steelfoundry standards` — la consola del motor de estándares (W2, REQ-STD-003).
  *
  * Cuatro verbos de lectura y uno de escritura:
  *   list              — el catálogo cargado, con su postura (advisoria o no)
@@ -37,7 +37,7 @@ import { detectDrift } from '../../core/standardsRender.js';
 import type { StandardEntry, StandardFinding } from '../../core/standardsTypes.js';
 
 const USAGE =
-  'Usage: open-sdd standards <list|show <id>|explain <id>|check|fix <id>> [--json] [--apply]';
+  'Usage: steelfoundry standards <list|show <id>|explain <id>|check|fix <id>> [--json] [--apply]';
 
 /**
  * Transformaciones que el motor sabe aplicar sin juicio. Se indexan por id de estándar y reciben el
@@ -216,7 +216,7 @@ export const handleStandardsCommand = async (
     const entry = byId.get(id);
     if (entry === undefined) {
       io.error(colors.red(`estándar desconocido: ${id}`));
-      io.error(colors.dim('open-sdd standards list'));
+      io.error(colors.dim('steelfoundry standards list'));
       return 1;
     }
     if (json) {
@@ -336,7 +336,7 @@ export const handleStandardsCommand = async (
     const entry = byId.get(id);
     if (entry === undefined) {
       io.error(colors.red(`estándar desconocido: ${id}`));
-      io.error(colors.dim('open-sdd standards list'));
+      io.error(colors.dim('steelfoundry standards list'));
       return 1;
     }
 
@@ -395,7 +395,7 @@ export const handleStandardsCommand = async (
         return 1;
       }
       io.error(colors.red(`\`${entry.id}\` no se aplica solo: ${question}`));
-      io.log(colors.dim('responde la pregunta y vuelve a ejecutar `open-sdd standards check`'));
+      io.log(colors.dim('responde la pregunta y vuelve a ejecutar `steelfoundry standards check`'));
       return 1;
     }
 

@@ -8,7 +8,7 @@
  * thin loop, never logic.
  *
  * Guards on the way to a gate (deterministic, all of them):
- *   - declared outputs that open-sdd can locate must exist (artifact guard);
+ *   - declared outputs that steelfoundry can locate must exist (artifact guard);
  *   - a step with a handoff pack must have passed the recall check (`RECALL_MISMATCH` blocks);
  *   - answers confirmed for the step must still hash the same, and produced artifacts must carry
  *     the confirmation id;
@@ -261,14 +261,14 @@ const openQuestions = async (cwd: string, feature: string, step: string): Promis
   const open = checkQuestions(parseQuestions(text)).map((i) => i.message);
   const { confirmation, fresh } = await readConfirmation(file);
   if (open.length === 0 && confirmation && fresh) return { file, open: [] };
-  if (open.length === 0) open.push('answers complete but not confirmed: run `open-sdd questions confirm`');
+  if (open.length === 0) open.push('answers complete but not confirmed: run `steelfoundry questions confirm`');
   return { file, open };
 };
 
 /** The single next directive. Reads only. */
 export const nextDirective = async (cwd: string, feature: string): Promise<Directive> => {
   const state = await readState(cwd, feature);
-  if (!state) return { kind: 'error', message: `no run for ${feature}: run \`open-sdd engine start ${feature} --playbook <name>\`` };
+  if (!state) return { kind: 'error', message: `no run for ${feature}: run \`steelfoundry engine start ${feature} --playbook <name>\`` };
   // Deadlines (REQ-V37-002): an unanswered card past its deadline takes its default (park/reject only).
   const overdue = await overdueCards(cwd, feature);
   if (overdue.length) {
@@ -300,14 +300,14 @@ export const nextDirective = async (cwd: string, feature: string): Promise<Direc
       cards = (await listCards(cwd, feature)).filter((c) => c.card.step === s.id && !c.answer);
     }
     const card = cards.length ? rel(path.join(cwd, '.sdd', 'hil', feature, `${cards[cards.length - 1].card.id}.md`)) : null;
-    return { kind: 'present-gate', feature, step: s.id, card, prepare: `open-sdd hil prepare ${feature} --step ${s.id} --card <card.json>`, revisions: s.revisions };
+    return { kind: 'present-gate', feature, step: s.id, card, prepare: `steelfoundry hil prepare ${feature} --step ${s.id} --card <card.json>`, revisions: s.revisions };
   }
   const q = await openQuestions(cwd, feature, s.id);
   if (q && q.open.length) return { kind: 'ask', feature, step: s.id, file: rel(q.file), open: q.open };
   const pack = await readPack(cwd, feature, s.id);
   // Minimal ceremony (L0–L1): no context pack and no recall — a typo does not need a handoff.
   if (!pack && state.ceremony === 'minimal') return { kind: 'run-step', feature, step: s.id, use: s.use, phase: s.phase, gate: s.review === 'human', checks: s.checks, pack: null, restate: false, stale: [] };
-  if (!pack) return { kind: 'handoff', feature, step: s.id, command: `open-sdd handoff write ${feature} ${s.id}` };
+  if (!pack) return { kind: 'handoff', feature, step: s.id, command: `steelfoundry handoff write ${feature} ${s.id}` };
   return { kind: 'run-step', feature, step: s.id, use: s.use, phase: s.phase, gate: s.review === 'human', checks: s.checks, pack: rel(path.join(cwd, '.sdd', 'handoff', feature, `${s.id}.json`)), restate: true, stale: await staleItems(cwd, pack) };
 };
 
@@ -331,7 +331,7 @@ const gateGuards = async (cwd: string, state: EngineState, step: EngineStep, pro
   const pack = await readPack(cwd, state.feature, step.id);
   if (pack) {
     const recall = await readRecall(cwd, state.feature, step.id);
-    if (!recall) problems.push(`RECALL_MISSING: restate goal and acceptance ids first (open-sdd handoff recall ${state.feature} ${step.id} --text "…")`);
+    if (!recall) problems.push(`RECALL_MISSING: restate goal and acceptance ids first (steelfoundry handoff recall ${state.feature} ${step.id} --text "…")`);
     else if (!recall.ok) problems.push(`RECALL_MISMATCH: missing ${recall.missing.join(', ') || '—'}; unexpected ${recall.extra.join(', ') || '—'}${recall.goalRestated ? '' : '; step not named'}`);
   }
   const qFile = questionFile(cwd, state.feature, step.id);
@@ -534,7 +534,7 @@ export const report = async (
   }
   const step = state.steps.find((s) => s.id === stepId);
   if (!step) return { ok: false, message: `no step ${stepId} in the run` };
-  if (result === 'approved') return { ok: false, message: 'approval comes only from a named answer: `open-sdd hil answer <feature> <card> <option> --by "<name>"`' };
+  if (result === 'approved') return { ok: false, message: 'approval comes only from a named answer: `steelfoundry hil answer <feature> <card> <option> --by "<name>"`' };
   const pack = await readPack(cwd, feature, step.id);
   const stale = step.status === 'done' && pack ? (await staleItems(cwd, pack)).length > 0 : false;
   const allowed: Record<Exclude<ReportResult, 'park' | 'unpark' | 'approved'>, StepStatus[]> = {
@@ -567,8 +567,8 @@ export const report = async (
         // The person gets a ready card, never a JSON to write: retry, park, or a recorded exception.
         const prepared = await prepareEscalationCard(cwd, state, step, verdict.why);
         const how = prepared.card
-          ? `a person answers: open-sdd decide ${feature} ${prepared.card.id} <${prepared.card.options.map((o) => o.key).join('|')}> --by "<name>"`
-          : `the decision card could not be prepared (${prepared.errors.join('; ')}); a person decides with \`open-sdd decide\``;
+          ? `a person answers: steelfoundry decide ${feature} ${prepared.card.id} <${prepared.card.options.map((o) => o.key).join('|')}> --by "<name>"`
+          : `the decision card could not be prepared (${prepared.errors.join('; ')}); a person decides with \`steelfoundry decide\``;
         return { ok: false, message: `gate refused for ${step.id} — escalated to HIL (${verdict.why}): ${how}:\n  ${problems.join('\n  ')}` };
       }
       return { ok: false, message: `gate refused for ${step.id} (${verdict.why}):\n  ${problems.join('\n  ')}` };

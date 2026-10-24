@@ -6,7 +6,7 @@
  * convenience:
  *
  *   1. Every template is a real contract: its frontmatter carries the declared keys, its `commands:`
- *      list is the authoritative set of `open-sdd …` invocations, and every command it cites either
+ *      list is the authoritative set of `steelfoundry …` invocations, and every command it cites either
  *      appears in the CLI help or is verified by actually running it. A template that cites a command
  *      that does not exist is a broken template.
  *   2. The installer is idempotent and never clobbers a human: `create` when absent, `keep` when
@@ -229,7 +229,7 @@ describe('command templates — the inventory is a contract', () => {
     }
   });
 
-  it('every cited open-sdd command is backed by the commands list and exists in the CLI', async () => {
+  it('every cited steelfoundry command is backed by the commands list and exists in the CLI', async () => {
     const fixture = await makeRoot();
     const signatures = new Set<string>();
     const normalized = (value: string): string => value.replace(/<[^>]+>/g, '<>').replace(/\s+/g, ' ').trim();
@@ -240,11 +240,11 @@ describe('command templates — the inventory is a contract', () => {
 
       const listed = fm.lists.commands;
       for (const entry of listed) {
-        expect(entry.startsWith('open-sdd '), `${id}: command "${entry}"`).toBe(true);
+        expect(entry.startsWith('steelfoundry '), `${id}: command "${entry}"`).toBe(true);
       }
 
-      // Rule 1: every `open-sdd …` string in the body must also be in `commands:`.
-      for (const cited of new Set([...raw.matchAll(/`(open-sdd [^`]+)`/g)].map((match) => match[1]))) {
+      // Rule 1: every `steelfoundry …` string in the body must also be in `commands:`.
+      for (const cited of new Set([...raw.matchAll(/`(steelfoundry [^`]+)`/g)].map((match) => match[1]))) {
         const backed = listed.some(
           (entry) =>
             normalized(entry) === normalized(cited) ||
@@ -255,7 +255,7 @@ describe('command templates — the inventory is a contract', () => {
       }
 
       for (const entry of listed) {
-        signatures.add(entry.replace(/^open-sdd\s+/, '').split(/\s+/).slice(0, 2).join(' '));
+        signatures.add(entry.replace(/^(?:steelfoundry|open-sdd)\s+/, '').split(/\s+/).slice(0, 2).join(' '));
       }
     }
 
@@ -668,7 +668,7 @@ describe('init — prompt templates by default, MCP opt-in', () => {
 });
 
 // ---------------------------------------------------------------------------------------------
-// `open-sdd templates` — el camino por defecto, LEGIBLE
+// `steelfoundry templates` — el camino por defecto, LEGIBLE
 // ---------------------------------------------------------------------------------------------
 
 describe('templates — the default flow is listable, not just installed', () => {
@@ -680,7 +680,7 @@ describe('templates — the default flow is listable, not just installed', () =>
       // Una entrada sin descripción no se puede listar; una sin comandos no apunta a ningún motor.
       expect(entry.description.length, `${entry.id} sin descripción`).toBeGreaterThan(10);
       expect(entry.commands.length, `${entry.id} sin invocaciones del motor`).toBeGreaterThan(0);
-      expect(entry.commands.every((command) => command.startsWith('open-sdd '))).toBe(true);
+      expect(entry.commands.every((command) => command.startsWith('steelfoundry '))).toBe(true);
     }
   });
 

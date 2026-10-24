@@ -129,7 +129,7 @@ describe('core/floorInstallation — installed, not merely declared', () => {
     // Runs the chain, but only on tags: that is a release check, not a merge gate.
     await writeFile(
       path.join(dir, '.github', 'workflows', 'release.yml'),
-      'on:\n  push:\n    tags: ["v*"]\njobs:\n  x:\n    steps:\n      - run: open-sdd gates run\n',
+      'on:\n  push:\n    tags: ["v*"]\njobs:\n  x:\n    steps:\n      - run: steelfoundry gates run\n',
       'utf8',
     );
 
@@ -148,7 +148,7 @@ describe('core/floorInstallation — installed, not merely declared', () => {
     await mkdir(path.join(dir, '.github', 'workflows'), { recursive: true });
     await writeFile(
       path.join(dir, '.github', 'workflows', 'gates.yml'),
-      'on:\n  pull_request:\njobs:\n  g:\n    steps:\n      - run: open-sdd gates run\n',
+      'on:\n  pull_request:\njobs:\n  g:\n    steps:\n      - run: steelfoundry gates run\n',
       'utf8',
     );
 

@@ -1,6 +1,6 @@
 # open-sdd — Guía visual en una página
 
-Todo lo que necesitas para usar open-sdd con seguridad, en diagramas y un ejemplo pequeño. Las
+Todo lo que necesitas para usar steelfoundry con seguridad, en diagramas y un ejemplo pequeño. Las
 salidas de consola de esta guía son reales (CLI de este repositorio, 2026-10-23), no ilustrativas.
 
 ## 1. El mapa en 30 segundos
@@ -9,7 +9,7 @@ Cinco verbos. La herramienta decide lo que la evidencia permite; una persona dec
 
 ```mermaid
 flowchart LR
-  D["open-sdd<br/>¿dónde estoy?"]:::auto --> S["setup<br/>instala"]:::auto
+  D["steelfoundry<br/>¿dónde estoy?"]:::auto --> S["setup<br/>instala"]:::auto
   S --> T["start &quot;lo que quieres&quot;<br/>nivel · rigor · playbook"]:::auto
   T --> W["el agente trabaja<br/>aplica Karpathy"]:::advisory
   W --> C{"check<br/>cadena de gates"}:::block
@@ -27,11 +27,11 @@ flowchart LR
 
 | Verbo | Úsalo cuando… | Qué decide solo |
 |---|---|---|
-| `open-sdd` | no sabes qué toca | la **única** siguiente acción |
-| `open-sdd setup --write` | el repositorio aún no tiene open-sdd | agente, terreno, rigor, constitución, hook, reglas |
-| `open-sdd start "<lo que quieres>"` | empiezas cualquier trabajo | nivel L0–L6, variante, rigor, playbook |
-| `open-sdd check` | quieres un veredicto | nada: pasa (exit 0) o bloquea (exit 1) |
-| `open-sdd decide` | algo espera a una persona | nada: lo decides tú |
+| `steelfoundry` | no sabes qué toca | la **única** siguiente acción |
+| `steelfoundry setup --write` | el repositorio aún no tiene open-sdd | agente, terreno, rigor, constitución, hook, reglas |
+| `steelfoundry start "<lo que quieres>"` | empiezas cualquier trabajo | nivel L0–L6, variante, rigor, playbook |
+| `steelfoundry check` | quieres un veredicto | nada: pasa (exit 0) o bloquea (exit 1) |
+| `steelfoundry decide` | algo espera a una persona | nada: lo decides tú |
 
 ## 2. Leyenda de colores
 
@@ -48,17 +48,17 @@ Proyecto mínimo: `package.json` y `src/math.js` con una función `add`. Objetiv
 
 ```text
 $ open-sdd
-SDD 15% · Fase 1 · Especificar · … · siguiente: open-sdd setup --write
-Por qué: open-sdd no está instalado en este repositorio: setup declara el rigor, la constitución y el hook de commit.
+SDD 15% · Fase 1 · Especificar · … · siguiente: steelfoundry setup --write
+Por qué: steelfoundry no está instalado en este repositorio: setup declara el rigor, la constitución y el hook de commit.
 
-$ open-sdd setup --write
+$ steelfoundry setup --write
     ✓ escrito: .sdd/settings/rules/karpathy-guidelines.md
   … 5 artefacto(s) por crear (rigor, constitución, reglas, hook de commit, plantillas de comando)
 
 $ open-sdd
-SDD 55% · … · siguiente: open-sdd start "<lo que quieres>"
+SDD 55% · … · siguiente: steelfoundry start "<lo que quieres>"
 
-$ open-sdd start "add a subtract function"
+$ steelfoundry start "add a subtract function"
 Level L2 · feature · brownfield (workspace has source code) · rigor spec-first → playbook legacy-untested
 Run add-subtract-function started.
 ```
@@ -71,23 +71,23 @@ tiene sentido un tercero: decide una persona (ver «Política de escalado», má
 gate refused for sdd-getspecs (failed iteration 1/3)
 # intento 2
 gate refused for sdd-getspecs — escalated to HIL (no progress after 2 attempts, the same failure twice in a row
-  (ARTIFACT_MISSING, RECALL_MISSING)): a person answers: open-sdd decide add-subtract-function HIL-0001 <A|B|C> --by "<name>"
+  (ARTIFACT_MISSING, RECALL_MISSING)): a person answers: steelfoundry decide add-subtract-function HIL-0001 <A|B|C> --by "<name>"
 
-$ open-sdd decide
+$ steelfoundry decide
 1 decisión(es) esperan a una persona:
   add-subtract-function · HIL-0001 — sdd-getspecs is stuck — no progress after 2 attempts, the same failure twice in a row (ARTIFACT_MISSING, RECALL_MISSING): how do we continue?
-      open-sdd decide add-subtract-function HIL-0001 <A|B|C> --by "<name>"
+      steelfoundry decide add-subtract-function HIL-0001 <A|B|C> --by "<name>"
 ```
 
 Si el **agente** intenta decidir por ti, se rechaza:
 
 ```text
-$ open-sdd decide add-subtract-function HIL-0001 C --by "Ana"     # desde la shell del agente
+$ steelfoundry decide add-subtract-function HIL-0001 C --by "Ana"     # desde la shell del agente
 AGENT_SESSION: this decision cannot come from an agent session. A person takes it from their own terminal: …
 ```
 
 Tú, desde **tu** terminal, eliges A (reintentar con nuevas instrucciones), B (aparcar) o C (excepción
-registrada). Al final, `open-sdd check` da el veredicto.
+registrada). Al final, `steelfoundry check` da el veredicto.
 
 ## 4. El ciclo de vida de un paso
 
@@ -191,7 +191,7 @@ Una segunda revisión por otro modelo (Sonnet) encontró 6 defectos más en las 
 | 2 | El agente podía firmar una revisión «humana» omitiendo `--by-model` | 🔴 `C-INDEPENDENT-REVIEW` era declarativo | una sesión de agente necesita `--by-model` y `--author-model` distintos | 🟢 |
 | 3 | Al escalar, decidir exigía escribir un JSON a mano; además el agente podía «reintentar» y reiniciar su propio presupuesto | 🔴 la regla de los intentos era evitable o inutilizable | el motor prepara la tarjeta (A reintentar · B aparcar · C excepción); reintentar lo decide una persona; al reanudar se presenta de nuevo; se escala por falta de progreso, no solo por conteo | 🟢 |
 | 4 | `setup` (camino por defecto) no instalaba las reglas permanentes | 🟠 Karpathy «siempre» no llegaba al proyecto | `setup` escribe `.sdd/settings/rules/karpathy-guidelines.md` y cada comando instalado lleva las 3 reglas | 🟢 |
-| 5 | La puerta recomendaba comandos avanzados en vez de los 5 verbos | 🟠 la experiencia simple se contradecía | `open-sdd` sugiere `setup`, `start` y `check` | 🟢 |
+| 5 | La puerta recomendaba comandos avanzados en vez de los 5 verbos | 🟠 la experiencia simple se contradecía | `steelfoundry` sugiere `setup`, `start` y `check` | 🟢 |
 
 ```mermaid
 flowchart TB
@@ -212,7 +212,7 @@ flowchart TB
 ```
 
 **Evidencia:** suite completa 172 ficheros / 2503 tests en verde; registro de claims 84, 0 rotas
-(CLM-084); `open-sdd check` en este repositorio → «La cadena pasa».
+(CLM-084); `steelfoundry check` en este repositorio → «La cadena pasa».
 
 ## 7. Límites honestos
 
@@ -228,13 +228,13 @@ flowchart TB
 
 | Pregunta | Orden | Qué responde |
 |---|---|---|
-| ¿Cómo va? | `open-sdd flow` | cada feature en una línea: SIN EMPEZAR · EN CURSO · ESPERA UNA DECISIÓN · BLOQUEADO · TERMINADO, etapa n/9, tareas, qué lo bloquea y la siguiente orden |
-| ¿Qué pruebas exige cada tarea? | `open-sdd validation <feature>` | las clases de prueba que suben las reglas (dinero, datos personales, acceso, API, latencia, migraciones y las tuyas) y por qué |
-| ¿Quién decidió qué? | `open-sdd audit trail <feature>` | persona (con email git), agente, regla o sistema; por qué; sobre qué requisito y principio; cadena de hashes |
-| Para un tablero | `open-sdd flow <feature> --json` | esquema `open-sdd.flow/1` |
+| ¿Cómo va? | `steelfoundry flow` | cada feature en una línea: SIN EMPEZAR · EN CURSO · ESPERA UNA DECISIÓN · BLOQUEADO · TERMINADO, etapa n/9, tareas, qué lo bloquea y la siguiente orden |
+| ¿Qué pruebas exige cada tarea? | `steelfoundry validation <feature>` | las clases de prueba que suben las reglas (dinero, datos personales, acceso, API, latencia, migraciones y las tuyas) y por qué |
+| ¿Quién decidió qué? | `steelfoundry audit trail <feature>` | persona (con email git), agente, regla o sistema; por qué; sobre qué requisito y principio; cadena de hashes |
+| Para un tablero | `steelfoundry flow <feature> --json` | esquema `open-sdd.flow/1` |
 
 **Ratificar la constitución.** *Objetivo*: que sus principios pasen a ser reglas que los gates citan.
-*Alcance*: solo los principios del borrador. *Cómo*: `open-sdd assist constitution` o
+*Alcance*: solo los principios del borrador. *Cómo*: `steelfoundry assist constitution` o
 `govern constitution --ratify --by "<nombre>" --rationale "<motivo>" --write`, y teclear `RATIFICAR` en la
 terminal. *Dónde queda*: `.sdd/steering/constitution.md` (enmienda por principio) y
 `.sdd/engine/_governance.audit.jsonl` (quién, email, motivo, principios). Un intento sin confirmar no escribe

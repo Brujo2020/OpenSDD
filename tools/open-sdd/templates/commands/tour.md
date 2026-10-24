@@ -19,20 +19,20 @@ parallelSafe: false
 moves:
   - constitution
 commands:
-  - "open-sdd tour . --json"
-  - "open-sdd tour . --write"
-  - "open-sdd brownfield survey ."
-  - "open-sdd brownfield constitution . --draft --write"
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
-  - "open-sdd delta init <feature> \"<title>\""
-  - "open-sdd delta validate <feature> --json"
-  - "open-sdd govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
+  - "steelfoundry tour . --json"
+  - "steelfoundry tour . --write"
+  - "steelfoundry brownfield survey ."
+  - "steelfoundry brownfield constitution . --draft --write"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
+  - "steelfoundry delta init <feature> \"<title>\""
+  - "steelfoundry delta validate <feature> --json"
+  - "steelfoundry govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
 scripts:
-  - "open-sdd tour . --json"
-  - "open-sdd tour . --write"
-  - "open-sdd brownfield constitution . --draft --write"
-  - "open-sdd status --check --json"
+  - "steelfoundry tour . --json"
+  - "steelfoundry tour . --write"
+  - "steelfoundry brownfield constitution . --draft --write"
+  - "steelfoundry status --check --json"
 ---
 
 # Tour — the first run, guided, ending at the human's decision
@@ -56,9 +56,9 @@ tour ends at the constitution hand-over.
 - **Identified — produces:** the guided-run report; with `--write` it writes the constitution **draft** and `.sdd/settings/`.
 - **Identified — refuses:** it refuses to ratify the constitution for the human and refuses to write application source; it hands over at the human decision.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd tour . --json` reports every step; `open-sdd status --check --json` **exits 1** until the constitution is in force, which is the hand-over point, and the tour reports that exit code as the boundary between installed and governed.
-- **Measured — components:** `constitution` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the tour ends at a DRAFT plus the exact ratify command, an unratified draft has no authority, and `open-sdd status --check --json` is the pivot check.
+- **Assured — backing check:** `steelfoundry tour . --json` reports every step; `steelfoundry status --check --json` **exits 1** until the constitution is in force, which is the hand-over point, and the tour reports that exit code as the boundary between installed and governed.
+- **Measured — components:** `constitution` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the tour ends at a DRAFT plus the exact ratify command, an unratified draft has no authority, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -81,62 +81,62 @@ tour ends at the constitution hand-over.
 1. Read the tour plan — each step and what it would write — without writing anything:
 
 ```bash
-open-sdd tour . --json
+steelfoundry tour . --json
 ```
 
 2. Execute the guided run. Every writing step declares itself first; a step that cannot run is
    reported, not skipped:
 
 ```bash
-open-sdd tour . --write
+steelfoundry tour . --write
 ```
 
 3. Reconnaissance is the tour's first evidence; read it directly if the tour reports it as missing:
 
 ```bash
-open-sdd brownfield survey .
+steelfoundry brownfield survey .
 ```
 
 4. Produce the constitution draft the tour ends on, explicitly not in force:
 
 ```bash
-open-sdd brownfield constitution . --draft --write
+steelfoundry brownfield constitution . --draft --write
 ```
 
 5. Read the score and the phase the tour reached:
 
 ```bash
-open-sdd status --json
+steelfoundry status --json
 ```
 
 6. Run the pivot check. Its exit code is the tour's verdict; **exit 1 BLOCKS** the hand-off until the
    constitution is in force:
 
 ```bash
-open-sdd status --check --json
+steelfoundry status --check --json
 ```
 
 7. If the human names a first feature, declare its change contract and validate it; otherwise stop at
    the hand-over:
 
 ```bash
-open-sdd delta init <feature> "<title>"
+steelfoundry delta init <feature> "<title>"
 ```
 
 ```bash
-open-sdd delta validate <feature> --json
+steelfoundry delta validate <feature> --json
 ```
 
 8. Give the human the ratify command and stop. Do not run it for them:
 
 ```bash
-open-sdd govern constitution --ratify --by "<name>" --rationale "<reason>" --write
+steelfoundry govern constitution --ratify --by "<name>" --rationale "<reason>" --write
 ```
 
 ## The constitution is the pivot
 
 The tour is built to end at a **draft** plus a ratify command, because an unratified draft has no
-authority and every downstream blocking verdict must cite a ratified principle. `open-sdd status
+authority and every downstream blocking verdict must cite a ratified principle. `steelfoundry status
 --check --json` is the pivot check; the tour reports its exit code as the boundary between "installed"
 and "governed".
 

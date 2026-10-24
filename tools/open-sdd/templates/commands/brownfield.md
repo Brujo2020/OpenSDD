@@ -26,24 +26,24 @@ moves:
   - constitution
   - contracts
 commands:
-  - "open-sdd brownfield survey ."
-  - "open-sdd brownfield bootstrap . --json"
-  - "open-sdd brownfield constitution . --draft --write"
-  - "open-sdd brownfield constitution . --interview --answers <path> --write"
-  - "open-sdd govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
-  - "open-sdd brownfield impact <feature>"
-  - "open-sdd brownfield contracts <feature> --json"
-  - "open-sdd brownfield reuse <feature>"
-  - "open-sdd delta init <feature> \"<title>\""
-  - "open-sdd delta validate <feature> --json"
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
+  - "steelfoundry brownfield survey ."
+  - "steelfoundry brownfield bootstrap . --json"
+  - "steelfoundry brownfield constitution . --draft --write"
+  - "steelfoundry brownfield constitution . --interview --answers <path> --write"
+  - "steelfoundry govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
+  - "steelfoundry brownfield impact <feature>"
+  - "steelfoundry brownfield contracts <feature> --json"
+  - "steelfoundry brownfield reuse <feature>"
+  - "steelfoundry delta init <feature> \"<title>\""
+  - "steelfoundry delta validate <feature> --json"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
 scripts:
-  - "open-sdd brownfield survey ."
-  - "open-sdd brownfield bootstrap . --json"
-  - "open-sdd brownfield constitution . --draft --write"
-  - "open-sdd delta validate <feature> --json"
-  - "open-sdd status --check --json"
+  - "steelfoundry brownfield survey ."
+  - "steelfoundry brownfield bootstrap . --json"
+  - "steelfoundry brownfield constitution . --draft --write"
+  - "steelfoundry delta validate <feature> --json"
+  - "steelfoundry status --check --json"
 ---
 
 # Brownfield — the existing code is the source of truth
@@ -72,9 +72,9 @@ do not invent a slug.
 - **Identified — produces:** the constitution **draft** `.sdd/steering/constitution.draft.md`, the feature's `.sdd/specs/<feature>/` artifacts and `.sdd/settings/`.
 - **Identified — refuses:** it refuses to create, modify or delete application source or tests — recon is read-only — and refuses to act on implementation intent, which becomes a deferred note.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd delta validate <feature> --json` **exits 1** on an invalid delta (BLOCKS the change contract) and `open-sdd status --check --json` **exits 1** when the constitution is absent or violated; `open-sdd brownfield contracts <feature> --json` reports uncovered files as holes, not passes.
-- **Measured — components:** `constitution`, `contracts` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the descriptive constitution must be ratified by a named human to have authority, the report never presents a draft as ratified, and `open-sdd status --check --json` is the pivot check.
+- **Assured — backing check:** `steelfoundry delta validate <feature> --json` **exits 1** on an invalid delta (BLOCKS the change contract) and `steelfoundry status --check --json` **exits 1** when the constitution is absent or violated; `steelfoundry brownfield contracts <feature> --json` reports uncovered files as holes, not passes.
+- **Measured — components:** `constitution`, `contracts` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the descriptive constitution must be ratified by a named human to have authority, the report never presents a draft as ratified, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -98,21 +98,21 @@ do not invent a slug.
 1. Survey the repository and read the evidence it gathers:
 
 ```bash
-open-sdd brownfield survey .
+steelfoundry brownfield survey .
 ```
 
 2. Run the single entry point that chains recon, constitution draft, module map and suggested steps.
    Read it before writing anything:
 
 ```bash
-open-sdd brownfield bootstrap . --json
+steelfoundry brownfield bootstrap . --json
 ```
 
 3. Produce the descriptive constitution as a draft — it is written to
    `.sdd/steering/constitution.draft.md` and is explicitly **not in force**:
 
 ```bash
-open-sdd brownfield constitution . --draft --write
+steelfoundry brownfield constitution . --draft --write
 ```
 
 4. Ask the human **only** the decisions the repository cannot answer (scope of the first change, which
@@ -120,54 +120,54 @@ open-sdd brownfield constitution . --draft --write
    questions, use the interview cycle to apply the answers and re-validate:
 
 ```bash
-open-sdd brownfield constitution . --interview --answers <path> --write
+steelfoundry brownfield constitution . --interview --answers <path> --write
 ```
 
    Then **hand over**: give the human the ratify command and do not run it for them. Only a named
    person with a rationale promotes the draft, and an unratified draft has no authority:
 
 ```bash
-open-sdd govern constitution --ratify --by "<name>" --rationale "<reason>" --write
+steelfoundry govern constitution --ratify --by "<name>" --rationale "<reason>" --write
 ```
 
 5. For the feature, declare the contract of change:
 
 ```bash
-open-sdd delta init <feature> "<title>"
+steelfoundry delta init <feature> "<title>"
 ```
 
 6. Measure the blast radius before touching anything, and find what already exists so the change
    reuses it:
 
 ```bash
-open-sdd brownfield impact <feature>
+steelfoundry brownfield impact <feature>
 ```
 
 ```bash
-open-sdd brownfield reuse <feature>
+steelfoundry brownfield reuse <feature>
 ```
 
 7. Identify the regression oracle: which tests protect the files the change touches, and which files
    no contract covers:
 
 ```bash
-open-sdd brownfield contracts <feature> --json
+steelfoundry brownfield contracts <feature> --json
 ```
 
 8. Validate the delta's ids, EARS form, targets and traceability:
 
 ```bash
-open-sdd delta validate <feature> --json
+steelfoundry delta validate <feature> --json
 ```
 
 9. Validate the repository against the constitution and the level, and finish with the state:
 
 ```bash
-open-sdd status --check --json
+steelfoundry status --check --json
 ```
 
 ```bash
-open-sdd status --json
+steelfoundry status --json
 ```
 
 ## The constitution is the pivot

@@ -9,7 +9,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const slug = (heading: string): string =>
   heading
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
+    .replace(/[^\p{L}\p{N}\s_-]/gu, '') // GitHub keeps letters with accents
     .trim()
     .replace(/\s+/g, '-');
 

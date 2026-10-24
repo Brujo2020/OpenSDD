@@ -1,5 +1,5 @@
 /**
- * `open-sdd biography <feature>` — la puerta de consola de la biografía de una especificación viva.
+ * `steelfoundry biography <feature>` — la puerta de consola de la biografía de una especificación viva.
  *
  * `core/specBiography.ts` mide el RITMO de una spec con lo que git y los artefactos registran: cuándo
  * nació, cuándo se movió por última vez, si el código siguió moviéndose sin ella, qué enmiendas
@@ -21,7 +21,7 @@ import type { CliIO } from '../io.js';
 import { jsonEnvelope } from '../jsonOut.js';
 import { DEFAULT_EVENT_LIMIT, renderBiography, specBiography } from '../../core/specBiography.js';
 
-const USAGE = 'Usage: open-sdd biography <feature> [--limit N] [--json]';
+const USAGE = 'Usage: steelfoundry biography <feature> [--limit N] [--json]';
 
 /** Valor de un flag con valor (`--limit 5` o `--limit=5`); `undefined` si no está. */
 const flagValue = (args: string[], name: string): string | undefined => {

@@ -1,10 +1,10 @@
 # Customization Guide
 
-This guide explains how to customize Open-SDD templates and rules to adapt to your team's specific workflow.
+This guide explains how to customize SteelFoundry templates and rules to adapt to your team's specific workflow.
 
 ## Introduction
 
-open-sdd provides two customization points:
+steelfoundry provides two customization points:
 
 - **templates/** - Define the **structure and format** of AI-generated documents
 - **rules/** - Define the **judgment criteria and generation principles** for AI
@@ -55,7 +55,7 @@ Both are located under `{{SDD_DIR}}/settings/` and are shared across the entire 
 
 ## 🚨 Structure That Must Be Maintained
 
-open-sdd commands read and understand documents through AI agents. The following elements **must be maintained**:
+steelfoundry commands read and understand documents through AI agents. The following elements **must be maintained**:
 
 | File | Required Elements | Reason |
 |------|-------------------|--------|
@@ -2031,7 +2031,7 @@ diff \
 
 **Solution**: Return to defaults and gradually re-customize
 ```bash
-npx @brujo2020/open-sdd@latest --overwrite=force
+npx @brujo2020/steelfoundry@latest --overwrite=force
 ```
 
 ### Generated Content Differs from Expectations

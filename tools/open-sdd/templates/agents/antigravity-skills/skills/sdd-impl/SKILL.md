@@ -107,14 +107,14 @@ After all parallel research completes, synthesize implementation brief before st
 ## Step 3: Execute Implementation
 
 ### Validation required by rule (deterministic)
-- Before starting, run `open-sdd validation {feature} --record`: it lists, per task, the test kinds the rules require (money, personal data, auth, public API, latency, migrations, plus the project's own rules) and records why in the audit log.
+- Before starting, run `steelfoundry validation {feature} --record`: it lists, per task, the test kinds the rules require (money, personal data, auth, public API, latency, migrations, plus the project's own rules) and records why in the audit log.
 - Write and run every required kind. Prove it in the task's evidence with tags: `_Evidence:_ [unit] [integration] [contract] … [review: <person>] [coverage 92%]`. An independent review is never self-signed: a person, or a different model via `review record --by-model`.
-- A task is not done while `open-sdd validation {feature}` exits 1 for it.
+- A task is not done while `steelfoundry validation {feature}` exits 1 for it.
 
 ### Autonomous Mode (Parallel Waves & Sub-Agent Dispatch)
 
 **Parallel Wave Execution (`--parallel`)**:
-- Compute execution plan: run `open-sdd impl {feature} --json` to retrieve topologically ordered waves with guaranteed disjoint file boundaries ($\text{Boundary}(T_i) \cap \text{Boundary}(T_j) = \emptyset$).
+- Compute execution plan: run `steelfoundry impl {feature} --json` to retrieve topologically ordered waves with guaranteed disjoint file boundaries ($\text{Boundary}(T_i) \cap \text{Boundary}(T_j) = \emptyset$).
 - For each wave:
   - If wave has multiple tasks: launch all implementers concurrently in a single call via `invoke_subagent` (specifying each subagent in the `Subagents` array with disjoint boundary scope).
   - When subagents complete with `READY_FOR_REVIEW`, conduct review and `sdd-verify-completion`.

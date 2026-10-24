@@ -4,7 +4,7 @@
  * ── Por qué existe este archivo ────────────────────────────────────────────────────────────────
  * El CLI anunciaba el nombre SIN SCOPE con `@latest` en sus propios mensajes de runtime, pero ese
  * nombre no existe en npm (E404): el primer comando que un usuario copia del propio tool falla. El
- * nombre real vive en el `package.json` de la RAÍZ de la distribución (`@brujo2020/open-sdd`), así
+ * nombre real vive en el `package.json` de la RAÍZ de la distribución (`@brujo2020/steelfoundry`), así
  * que aquí se DERIVA de ahí en vez de escribirse a mano. Un nombre escrito a mano es un nombre que
  * envejece (W0/W1 de `docs/EVOLUTION-PLAN.md`).
  *
@@ -22,7 +22,7 @@
  */
 import { createRequire } from 'node:module';
 /** Nombre scoped conocido: último recurso si ningún `package.json` es legible. */
-const KNOWN_PACKAGE_NAME = '@brujo2020/open-sdd';
+const KNOWN_PACKAGE_NAME = '@brujo2020/steelfoundry';
 const isNonEmptyString = (value) => typeof value === 'string' && value.trim().length > 0;
 /**
  * Leer el `package.json` de la raíz. Los candidatos van de la raíz hacia el workspace local: la
@@ -46,7 +46,7 @@ export const readPackageIdentity = () => {
     return { name: KNOWN_PACKAGE_NAME, version: 'dev', source: 'fallback' };
 };
 const identity = readPackageIdentity();
-/** Nombre del paquete publicado, tal y como aparece en npm (`@brujo2020/open-sdd`). */
+/** Nombre del paquete publicado, tal y como aparece en npm (`@brujo2020/steelfoundry`). */
 export const PACKAGE_NAME = identity.name;
 /** Versión del paquete publicado. `dev` cuando el manifiesto no es legible. */
 export const VERSION = identity.version;

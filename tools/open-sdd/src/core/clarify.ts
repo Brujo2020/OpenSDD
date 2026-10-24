@@ -686,7 +686,7 @@ export const planClarify = async (input: {
     );
   } else if (analysedRequirements === 0 && questions.length === 0) {
     detailParts.push(
-      `${artifacts.join(', ')} no contiene ningún requisito reconocible para "${feature}": NO se declara limpia (no se analizó ningún requisito). Escríbelos con \`open-sdd brownfield specify ${feature} "<descripción>"\` o \`open-sdd assist ears\`.`,
+      `${artifacts.join(', ')} no contiene ningún requisito reconocible para "${feature}": NO se declara limpia (no se analizó ningún requisito). Escríbelos con \`steelfoundry brownfield specify ${feature} "<descripción>"\` o \`steelfoundry assist ears\`.`,
     );
   } else if (questions.length === 0 && fromEvidence.length === 0 && unresolvable.length === 0) {
     detailParts.push(
@@ -937,7 +937,7 @@ export const clarifyQuestionsFile = (session: ClarifySession): Record<string, un
   howToAnswer:
     'Rellena `answers` con el id de cada pregunta. `answerKind: statement` espera la frase EARS completa; ' +
     '`value` espera el dato que sustituye al término (`slot`); `id` espera un REQ-<ÁREA>-<NNN>. ' +
-    'Después: open-sdd brownfield clarify <feature> --answers <este fichero> --write',
+    'Después: steelfoundry brownfield clarify <feature> --answers <este fichero> --write',
   questions: session.questions.map((question) => ({ ...question })),
   fromEvidence: session.fromEvidence.map((entry) => ({ ...entry })),
   unresolvable: session.unresolvable.map((entry) => ({ ...entry })),

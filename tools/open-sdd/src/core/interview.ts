@@ -420,7 +420,7 @@ export const planConstitutionInterview = async (
     decided: [...decidedByEvidence],
     answersTemplate,
     commands: {
-      apply: 'open-sdd brownfield constitution . --interview --answers <path> --write',
+      apply: 'steelfoundry brownfield constitution . --interview --answers <path> --write',
       ratify: RATIFY_INSTRUCTION,
     },
     instructions:
@@ -1033,7 +1033,7 @@ const pad = (value: number): string => String(value).padStart(3, '0');
  * De una descripción en lenguaje natural a requisitos EARS. Es SÍNCRONA y no toca el disco: lee la
  * descripción, usa el analizador compartido, y devuelve requisitos con su patrón o preguntas con el
  * dato que falta. Los requisitos existentes que se pasan en `existing` se conservan intactos:
- * decidir ADDED frente a MODIFIED es competencia de la delta (`open-sdd delta init|validate`).
+ * decidir ADDED frente a MODIFIED es competencia de la delta (`steelfoundry delta init|validate`).
  */
 export const specifyFromDescription = (input: {
   feature: string;
@@ -1123,7 +1123,7 @@ export const specifyFromDescription = (input: {
       : [
           `# Requirements — ${feature}`,
           '',
-          '<!-- Derivado por open-sdd brownfield specify a partir de una descripción en lenguaje natural.',
+          '<!-- Derivado por steelfoundry brownfield specify a partir de una descripción en lenguaje natural.',
           '     Los requisitos existentes no se tocan: ADDED frente a MODIFIED lo decide la delta. -->',
           '',
           ...section,
@@ -1152,7 +1152,7 @@ export const specifyFromDescription = (input: {
   if (existingText.trim().length > 0) {
     detailParts.push(
       `Se conservan ${existingStatements.size} enunciado(s) existente(s) palabra por palabra (${kept} de los derivados ya estaban): ` +
-        'decidir ADDED frente a MODIFIED es competencia de la delta (open-sdd delta init|validate), no de esta función.',
+        'decidir ADDED frente a MODIFIED es competencia de la delta (steelfoundry delta init|validate), no de esta función.',
     );
   }
   if (tidied > 0) {
@@ -1166,7 +1166,7 @@ export const specifyFromDescription = (input: {
     );
   }
   detailParts.push(
-    'La forma verbal tras "shall" se conserva tal como la escribió la descripción (no se conjuga ni se traduce): verifícala con `open-sdd brownfield requirements <feature>`.',
+    'La forma verbal tras "shall" se conserva tal como la escribió la descripción (no se conjuga ni se traduce): verifícala con `steelfoundry brownfield requirements <feature>`.',
   );
 
   return {

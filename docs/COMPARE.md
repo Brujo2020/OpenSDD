@@ -1,10 +1,10 @@
-# Open-SDD vs. Other AI Coding Tools
+# SteelFoundry vs. Other AI Coding Tools
 
-This guide shows why Open-SDD is better than the alternatives for production software.
+This guide shows why SteelFoundry is better than the alternatives for production software.
 
 ## The Problem They Don't Solve
 
-| Problem | Codeium | GitHub Copilot | Cursor Agent | Open-SDD |
+| Problem | Codeium | GitHub Copilot | Cursor Agent | SteelFoundry |
 |---------|---------|----------------|--------------|----------|
 | **Code without approval** | ✓ Generates directly | ✓ Generates directly | ✓ Generates directly | ✗ Requires spec first |
 | **Audit trail** | ✗ Hidden decisions | ✗ Hidden decisions | ✗ Hidden decisions | ✓ Specs in Git |
@@ -34,7 +34,7 @@ Merge & deploy
 - Hard to explain why code looks that way
 - Compliance team: "Where's the requirement?"
 
-### Open-SDD
+### SteelFoundry
 ```
 Engineer: "Make a user auth flow"
   ↓
@@ -73,10 +73,10 @@ $ cursor --ai-agent "add user login"
 # Back to the drawing board
 ```
 
-### With Open-SDD
+### With SteelFoundry
 
 ```bash
-# Start with Open-SDD
+# Start with SteelFoundry
 $ npm install open-sdd
 $ /sdd-spec-init "Add JWT-based user login with 2FA"
 
@@ -90,7 +90,7 @@ $ /sdd-spec-init "Add JWT-based user login with 2FA"
 
 $ /sdd-impl user-login
 
-# Open-SDD runs tasks in parallel:
+# SteelFoundry runs tasks in parallel:
 #  Task 1: DB schema → your code review
 #  Task 2: Auth endpoints → your code review  
 #  Task 3: Client → your code review
@@ -115,11 +115,11 @@ $ cursor --refactor "modernize this codebase to TS"
 # Generates random refactors → regressions
 ```
 
-### Open-SDD
+### SteelFoundry
 ```bash
 $ /sdd-getspecs "typescript-modernization"
 
-# Open-SDD reads your code
+# SteelFoundry reads your code
 # Generates specs for WHAT EXISTS
 # You review & edit specs
 # Then: /sdd-impl uses specs to drive safe refactoring
@@ -135,7 +135,7 @@ Auditor: "Show me the requirements for this feature"
 Engineer: "...it's in the PR comments?"
 ```
 
-### Open-SDD
+### SteelFoundry
 ```
 Auditor: "Show me requirements for feature X"
 Engineer: "Here: .sdd/specs/feature-x/requirements.md + design.md"
@@ -149,7 +149,7 @@ Engineer: "Yes: .sdd/specs/feature-x/design.md section 'Trade-offs'"
 
 ## Cost Comparison
 
-| Metric | Codeium | Copilot | Cursor | Open-SDD |
+| Metric | Codeium | Copilot | Cursor | SteelFoundry |
 |--------|---------|---------|--------|----------|
 | **Vendor lock-in** | High (cloud API) | Medium (VS Code) | High (IDE only) | None (open source) |
 | **Learning curve** | 5 min | 5 min | 5 min | 15 min (worth it) |
@@ -167,7 +167,7 @@ Engineer: "Yes: .sdd/specs/feature-x/design.md section 'Trade-offs'"
 - Internal tools (no audit needed)
 - You trust your own code judgment
 
-### ✓ Use **Open-SDD**
+### ✓ Use **SteelFoundry**
 - Production systems (audit trail needed)
 - Team + code review (specs before code)
 - Regulated industries (compliance proof)

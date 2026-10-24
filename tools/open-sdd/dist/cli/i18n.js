@@ -6,8 +6,8 @@
  * más de lo que hace es peor que ninguna. El alcance exacto es:
  *
  *   TRADUCIDO (claves de este catálogo, servidas por `t()`):
- *     · `open-sdd tour`  — TODA su salida propia (pasos, comandos, motivos, handover).
- *     · `open-sdd context` — su render humano (`context.*`).
+ *     · `steelfoundry tour`  — TODA su salida propia (pasos, comandos, motivos, handover).
+ *     · `steelfoundry context` — su render humano (`context.*`).
  *
  *   NO TRADUCIDO (permanece en español, con o sin `--lang en`):
  *     · El resto de comandos: status, brownfield, delta, gates, govern, assure, waves, floor,
@@ -57,7 +57,7 @@ export const DEFAULT_LOCALE = 'es';
 /** Variables de entorno que declaran el idioma de la máquina, en orden de precedencia. */
 export const ENVIRONMENT_LOCALE_KEYS = ['LC_ALL', 'LC_MESSAGES', 'LANG', 'LANGUAGE'];
 /** Superficies realmente traducidas por esta capa. */
-export const TRANSLATED_SURFACES = ['open-sdd tour', 'open-sdd context (render humano)'];
+export const TRANSLATED_SURFACES = ['steelfoundry tour', 'steelfoundry context (render humano)'];
 /** Superficies que siguen en español a propósito. */
 export const UNTRANSLATED_SURFACES = [
     'status',

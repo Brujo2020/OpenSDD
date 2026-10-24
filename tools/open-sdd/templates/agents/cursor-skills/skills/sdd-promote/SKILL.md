@@ -17,6 +17,6 @@ checkable requirements, keeping `tiny.md` as the origin.
    `tinyspec line → EARS criterion → what is still missing` and ask only what is missing (max 3, with options).
 3. With the user's approval, write `requirements.md` in the same folder and `spec.json` with phase
    `requirements-drafted`. Keep `tiny.md`.
-4. Run `open-sdd requirements review <feature>` and fix every finding with the user.
-5. Recommend the rigor level (`open-sdd modes`) and continue with `/sdd-spec-design <feature>`.
+4. Run `steelfoundry requirements review <feature>` and fix every finding with the user.
+5. Recommend the rigor level (`steelfoundry modes`) and continue with `/sdd-spec-design <feature>`.
 </instructions>

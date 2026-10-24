@@ -12,14 +12,14 @@ handoffs:
 parallelSafe: true
 moves: []
 commands:
-  - "open-sdd brownfield reuse <feature>"
-  - "open-sdd brownfield reuse <feature> --symbols <A,B>"
-  - "open-sdd brownfield impact <feature>"
-  - "open-sdd status --check --json"
-  - "open-sdd status --json"
+  - "steelfoundry brownfield reuse <feature>"
+  - "steelfoundry brownfield reuse <feature> --symbols <A,B>"
+  - "steelfoundry brownfield impact <feature>"
+  - "steelfoundry status --check --json"
+  - "steelfoundry status --json"
 scripts:
-  - "open-sdd brownfield reuse <feature>"
-  - "open-sdd brownfield reuse <feature> --symbols <A,B>"
+  - "steelfoundry brownfield reuse <feature>"
+  - "steelfoundry brownfield reuse <feature> --symbols <A,B>"
 ---
 
 # Reuse — search before you create, and prove the search happened
@@ -43,9 +43,9 @@ symbols from the delta and say which ones you derived.
 - **Identified — produces:** report only — it writes nothing (its `writes` list is empty on purpose).
 - **Identified — refuses:** it refuses to create a symbol or a file, and refuses to claim reuse it did not find: an empty search is reported as "no reuse found".
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd brownfield reuse <feature>` (and `--symbols <A,B>`) is the check; an unreadable or unavailable feature BLOCKS the reuse claim, and `open-sdd status --check --json` **exits 1** when the constitution is violated.
-- **Measured — components:** none — this template is read-only and changes no SDD score component; `open-sdd status --json` is identical before and after by design.
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: extending a symbol behind a boundary the constitution protects is reported as a conflict, and `open-sdd status --check --json` is the pivot check.
+- **Assured — backing check:** `steelfoundry brownfield reuse <feature>` (and `--symbols <A,B>`) is the check; an unreadable or unavailable feature BLOCKS the reuse claim, and `steelfoundry status --check --json` **exits 1** when the constitution is violated.
+- **Measured — components:** none — this template is read-only and changes no SDD score component; `steelfoundry status --json` is identical before and after by design.
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: extending a symbol behind a boundary the constitution protects is reported as a conflict, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -66,25 +66,25 @@ symbols from the delta and say which ones you derived.
 1. Search for existing symbols that already implement part of the intended change:
 
 ```bash
-open-sdd brownfield reuse <feature>
+steelfoundry brownfield reuse <feature>
 ```
 
 2. Search for a specific set of candidate symbols when the intent names them:
 
 ```bash
-open-sdd brownfield reuse <feature> --symbols <A,B>
+steelfoundry brownfield reuse <feature> --symbols <A,B>
 ```
 
 3. Read the blast radius of the change so reuse is judged against the same measured surface:
 
 ```bash
-open-sdd brownfield impact <feature>
+steelfoundry brownfield impact <feature>
 ```
 
 4. Validate against the constitution and the rigor level, and record the exit code:
 
 ```bash
-open-sdd status --check --json
+steelfoundry status --check --json
 ```
 
 5. Report every candidate with its location and the part of the job it covers, and — this is the
@@ -94,7 +94,7 @@ open-sdd status --check --json
 ## The constitution is the pivot
 
 Reuse must not violate a principle in force: extending a symbol that sits behind a boundary the
-constitution protects is reported as a conflict. `open-sdd status --check --json` is the pivot check.
+constitution protects is reported as a conflict. `steelfoundry status --check --json` is the pivot check.
 
 ## Evidence
 

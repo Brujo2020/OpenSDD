@@ -51,7 +51,7 @@ describe('sprint 2 — one knob, weakest link, only what changes', () => {
       phase: 2,
       phaseLabel: 'Fase 2 · Implementar',
       components: [c('constitution', 'constitución', 20, 1), c('evidence', 'evidencia', 15, 0.53), c('contracts', 'contratos', 10, 0)],
-      nextAction: 'open-sdd check',
+      nextAction: 'steelfoundry check',
       notMeasured: ['contratos'],
       detail: '',
     } as unknown as SddScoreReport;

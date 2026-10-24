@@ -18,18 +18,18 @@ handoffs:
 parallelSafe: true
 moves: []
 commands:
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
-  - "open-sdd status <feature> --json"
-  - "open-sdd context <feature> --json"
-  - "open-sdd govern rigor --gates"
-  - "open-sdd brownfield analyze <feature> --json"
-  - "open-sdd brownfield requirements <feature> --suggest --json"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
+  - "steelfoundry status <feature> --json"
+  - "steelfoundry context <feature> --json"
+  - "steelfoundry govern rigor --gates"
+  - "steelfoundry brownfield analyze <feature> --json"
+  - "steelfoundry brownfield requirements <feature> --suggest --json"
 scripts:
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
-  - "open-sdd context <feature> --json"
-  - "open-sdd govern rigor --gates"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
+  - "steelfoundry context <feature> --json"
+  - "steelfoundry govern rigor --gates"
 ---
 
 # Status — one door, one next action
@@ -51,9 +51,9 @@ The input may name a feature. Without one, report the repository as a whole.
 - **Identified — produces:** report only — it writes nothing (its `writes` list is empty on purpose).
 - **Identified — refuses:** it refuses to write anything at all, including the fix it just noticed; it routes instead.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** it reports the component and gate state verbatim; `open-sdd status --check --json` **exits 1** when the constitution is absent or violated and that exit code is reported as the repository's verdict, never softened.
-- **Measured — components:** none — this template is read-only and changes no SDD score component; `open-sdd status --json` is identical before and after by design.
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: an absent or unratified constitution is reported as the next action before anything else, and `open-sdd status --check --json` is the pivot check.
+- **Assured — backing check:** it reports the component and gate state verbatim; `steelfoundry status --check --json` **exits 1** when the constitution is absent or violated and that exit code is reported as the repository's verdict, never softened.
+- **Measured — components:** none — this template is read-only and changes no SDD score component; `steelfoundry status --json` is identical before and after by design.
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: an absent or unratified constitution is reported as the next action before anything else, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -74,44 +74,44 @@ The input may name a feature. Without one, report the repository as a whole.
 1. Read the repository score and the single recommended action:
 
 ```bash
-open-sdd status --json
+steelfoundry status --json
 ```
 
 2. Read the same state validated against the constitution and the declared rigor level:
 
 ```bash
-open-sdd status --check --json
+steelfoundry status --check --json
 ```
 
 3. When a feature is named, read that feature's phase and artifacts:
 
 ```bash
-open-sdd status <feature> --json
+steelfoundry status <feature> --json
 ```
 
 4. Read the declared rigor ladder so the recommendation is explained by the level, not by taste:
 
 ```bash
-open-sdd govern rigor --gates
+steelfoundry govern rigor --gates
 ```
 
 5. Read the context pack the engine serves — the same one the MCP server exposes — when the next step
    needs the assembled context rather than the score:
 
 ```bash
-open-sdd context <feature> --json
+steelfoundry context <feature> --json
 ```
 
 6. When the next action is a requirement fix, ask the EARS assistant what is not checkable:
 
 ```bash
-open-sdd brownfield requirements <feature> --suggest --json
+steelfoundry brownfield requirements <feature> --suggest --json
 ```
 
 7. When the next action is consistency work, ask for the findings:
 
 ```bash
-open-sdd brownfield analyze <feature> --json
+steelfoundry brownfield analyze <feature> --json
 ```
 
 8. Report, in this order: the score and its measured components, the components **not measured** and

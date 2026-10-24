@@ -20,16 +20,16 @@ parallelSafe: true
 moves:
   - gates
 commands:
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
-  - "open-sdd govern rigor --gates"
-  - "open-sdd govern conformance"
-  - "open-sdd gates run"
-  - "open-sdd assure threats"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
+  - "steelfoundry govern rigor --gates"
+  - "steelfoundry govern conformance"
+  - "steelfoundry gates run"
+  - "steelfoundry assure threats"
 scripts:
-  - "open-sdd govern rigor --gates"
-  - "open-sdd status --check --json"
-  - "open-sdd gates run"
+  - "steelfoundry govern rigor --gates"
+  - "steelfoundry status --check --json"
+  - "steelfoundry gates run"
 ---
 
 # Checklist — generated from the constitution and the rigor level, not from taste
@@ -53,9 +53,9 @@ items to it.
 - **Identified — produces:** `.sdd/specs/<feature>/checklist.md` (or repository-scope `.sdd/checklist.md`).
 - **Identified — refuses:** it refuses to tick an item without running that item's command, and refuses to invent a threshold, a policy or a check.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** every runnable item names the command that decides it; `open-sdd govern rigor --gates` and `open-sdd govern conformance` (exit 0) back the derived items and `open-sdd gates run` **exits 1** on failure (BLOCKS readiness); an item no command can decide is labelled human-judgement.
-- **Measured — components:** `gates` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the checklist is derived from the ratified constitution's principles in force, a draft constitution makes the items advisory, and `open-sdd status --check --json` is the pivot check.
+- **Assured — backing check:** every runnable item names the command that decides it; `steelfoundry govern rigor --gates` and `steelfoundry govern conformance` (exit 0) back the derived items and `steelfoundry gates run` **exits 1** on failure (BLOCKS readiness); an item no command can decide is labelled human-judgement.
+- **Measured — components:** `gates` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the checklist is derived from the ratified constitution's principles in force, a draft constitution makes the items advisory, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -78,14 +78,14 @@ items to it.
 1. Read the repository state:
 
 ```bash
-open-sdd status --json
+steelfoundry status --json
 ```
 
 2. Read the rigor ladder and the gates the declared level activates. Each activated gate becomes a
    checklist item with its control id:
 
 ```bash
-open-sdd govern rigor --gates
+steelfoundry govern rigor --gates
 ```
 
 3. Read the constitution and turn every principle **in force** into one of:
@@ -95,25 +95,25 @@ open-sdd govern rigor --gates
 4. Validate the repository against the constitution and the level:
 
 ```bash
-open-sdd status --check --json
+steelfoundry status --check --json
 ```
 
 5. Pull the invariant-level checks the engine exposes, and attach each to the item it verifies:
 
 ```bash
-open-sdd govern conformance
+steelfoundry govern conformance
 ```
 
 6. Pull the security posture for the items that belong to it:
 
 ```bash
-open-sdd assure threats
+steelfoundry assure threats
 ```
 
 7. Add the enforcement item — the repository's own verdict is part of readiness:
 
 ```bash
-open-sdd gates run
+steelfoundry gates run
 ```
 
 8. Write the checklist grouped by source (constitution / rigor level / invariants / security), one

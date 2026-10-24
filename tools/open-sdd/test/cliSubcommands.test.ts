@@ -31,7 +31,7 @@ const makeIO = () => {
 };
 
 describe('CLI Subcommands', () => {
-  it('executes open-sdd init', async () => {
+  it('executes steelfoundry init', async () => {
     const cwd = await mkdtemp(path.join(tmpdir(), 'sdd-cli-sub-'));
     const ctx = makeIO();
 
@@ -41,7 +41,7 @@ describe('CLI Subcommands', () => {
     expect(ctx.logs.join('\n')).toMatch(/payment-v2/);
   });
 
-  it('executes open-sdd status', async () => {
+  it('executes steelfoundry status', async () => {
     const cwd = await mkdtemp(path.join(tmpdir(), 'sdd-cli-sub-'));
     const ctxInit = makeIO();
     await runCli(['init', 'feature-alpha'], runtime, ctxInit.io, {}, { cwd });
@@ -53,7 +53,7 @@ describe('CLI Subcommands', () => {
     expect(ctx.logs.join('\n')).toMatch(/Phase:\s+initialized/);
   });
 
-  it('executes open-sdd status --json', async () => {
+  it('executes steelfoundry status --json', async () => {
     const cwd = await mkdtemp(path.join(tmpdir(), 'sdd-cli-sub-'));
     const ctxInit = makeIO();
     await runCli(['init', 'feature-beta'], runtime, ctxInit.io, {}, { cwd });
@@ -66,7 +66,7 @@ describe('CLI Subcommands', () => {
     expect(parsed.some((p: any) => p.name === 'feature-beta')).toBe(true);
   });
 
-  it('executes open-sdd gap', async () => {
+  it('executes steelfoundry gap', async () => {
     const cwd = await mkdtemp(path.join(tmpdir(), 'sdd-cli-sub-'));
     const ctxInit = makeIO();
     await runCli(['init', 'feature-gap'], runtime, ctxInit.io, {}, { cwd });
@@ -77,7 +77,7 @@ describe('CLI Subcommands', () => {
     expect(ctx.logs.join('\n')).toMatch(/Blast Radius & Gap Analysis/);
   });
 
-  it('executes open-sdd audit with --regulatory', async () => {
+  it('executes steelfoundry audit with --regulatory', async () => {
     const cwd = await mkdtemp(path.join(tmpdir(), 'sdd-cli-sub-'));
     const ctxInit = makeIO();
     await runCli(['init', 'feature-audit'], runtime, ctxInit.io, {}, { cwd });
@@ -85,11 +85,11 @@ describe('CLI Subcommands', () => {
     const ctx = makeIO();
     const code = await runCli(['audit', 'feature-audit', '--regulatory'], runtime, ctx.io, {}, { cwd });
     expect(code).toBe(0);
-    expect(ctx.logs.join('\n')).toMatch(/Open-SDD Audit/);
+    expect(ctx.logs.join('\n')).toMatch(/SteelFoundry Audit/);
     expect(ctx.logs.join('\n')).toMatch(/EU AI Act/);
   });
 
-  it('executes open-sdd getspecs', async () => {
+  it('executes steelfoundry getspecs', async () => {
     const cwd = await mkdtemp(path.join(tmpdir(), 'sdd-cli-sub-'));
     await writeFile(path.join(cwd, 'package.json'), JSON.stringify({ name: 'demo-app' }), 'utf8');
 
@@ -99,10 +99,10 @@ describe('CLI Subcommands', () => {
     expect(ctx.logs.join('\n')).toMatch(/Reverse-engineered repository context/);
   });
 
-  it('executes open-sdd help for specific commands', async () => {
+  it('executes steelfoundry help for specific commands', async () => {
     const ctx = makeIO();
     const code = await runCli(['help', 'audit'], runtime, ctx.io, {});
     expect(code).toBe(0);
-    expect(ctx.logs.join('\n')).toMatch(/Command: open-sdd audit/);
+    expect(ctx.logs.join('\n')).toMatch(/Command: steelfoundry audit/);
   });
 });

@@ -26,22 +26,22 @@ moves:
   - constitution
   - gates
 commands:
-  - "open-sdd integrate --list"
-  - "open-sdd init . --agent <agent> --write"
-  - "open-sdd brownfield survey ."
-  - "open-sdd brownfield bootstrap . --json"
-  - "open-sdd brownfield constitution . --draft --write"
-  - "open-sdd brownfield constitution . --interview --answers <path> --write"
-  - "open-sdd govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
-  - "open-sdd doctor --json"
+  - "steelfoundry integrate --list"
+  - "steelfoundry init . --agent <agent> --write"
+  - "steelfoundry brownfield survey ."
+  - "steelfoundry brownfield bootstrap . --json"
+  - "steelfoundry brownfield constitution . --draft --write"
+  - "steelfoundry brownfield constitution . --interview --answers <path> --write"
+  - "steelfoundry govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
+  - "steelfoundry doctor --json"
 scripts:
-  - "open-sdd integrate --list"
-  - "open-sdd init . --agent <agent> --write"
-  - "open-sdd brownfield survey ."
-  - "open-sdd brownfield constitution . --draft --write"
-  - "open-sdd status --json"
+  - "steelfoundry integrate --list"
+  - "steelfoundry init . --agent <agent> --write"
+  - "steelfoundry brownfield survey ."
+  - "steelfoundry brownfield constitution . --draft --write"
+  - "steelfoundry status --json"
 ---
 
 # Onboard — from nothing to a ratified constitution and a score
@@ -65,9 +65,9 @@ state the evidence before installing anything.
 - **Identified — produces:** a working install plus a constitution **draft** and a score: `.sdd/settings/`, the host prompt templates in the host's commands directory, and `.sdd/steering/constitution.draft.md`.
 - **Identified — refuses:** it refuses to ratify the constitution for the human and refuses to write application source, tests or manifests; anything else the human asks for becomes a deferred note.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd status --check --json` validates the repository against the constitution and the rigor level and **exits 1** when it is absent, unratified or violated (BLOCKS the hand-off to `specify`); `open-sdd doctor --json` **exits 1** on any failed environment check.
-- **Measured — components:** `constitution`, `gates` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the flow halts at a DRAFT and hands ratification to a human; an unratified draft has no authority, and `open-sdd status --check --json` is the pivot check that turns the draft into a blocking verdict.
+- **Assured — backing check:** `steelfoundry status --check --json` validates the repository against the constitution and the rigor level and **exits 1** when it is absent, unratified or violated (BLOCKS the hand-off to `specify`); `steelfoundry doctor --json` **exits 1** on any failed environment check.
+- **Measured — components:** `constitution`, `gates` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the flow halts at a DRAFT and hands ratification to a human; an unratified draft has no authority, and `steelfoundry status --check --json` is the pivot check that turns the draft into a blocking verdict.
 
 ## Pre-Execution Checks
 
@@ -91,66 +91,66 @@ state the evidence before installing anything.
    files the host already reads, with no MCP registration and nothing a security policy can block:
 
 ```bash
-open-sdd integrate --list
+steelfoundry integrate --list
 ```
 
 ```bash
-open-sdd init . --agent <agent> --write
+steelfoundry init . --agent <agent> --write
 ```
 
 2. Survey the repository so the draft is grounded in evidence, not in a blank page:
 
 ```bash
-open-sdd brownfield survey .
+steelfoundry brownfield survey .
 ```
 
 3. Run the single entry point that chains recon, module map and suggested next steps; read it before
    writing anything:
 
 ```bash
-open-sdd brownfield bootstrap . --json
+steelfoundry brownfield bootstrap . --json
 ```
 
 4. Produce the constitution draft. It is explicitly **not in force**:
 
 ```bash
-open-sdd brownfield constitution . --draft --write
+steelfoundry brownfield constitution . --draft --write
 ```
 
 5. If the draft has open questions, answer them in natural language and let the engine produce a
    validated draft (never answers the human must give):
 
 ```bash
-open-sdd brownfield constitution . --interview --answers <path> --write
+steelfoundry brownfield constitution . --interview --answers <path> --write
 ```
 
 6. **Hand over.** Ask the human to ratify, and give them the exact command. Do not ratify for them:
 
 ```bash
-open-sdd govern constitution --ratify --by "<name>" --rationale "<reason>" --write
+steelfoundry govern constitution --ratify --by "<name>" --rationale "<reason>" --write
 ```
 
 7. Read the score and the phase, then validate against the constitution and the declared rigor:
 
 ```bash
-open-sdd status --json
+steelfoundry status --json
 ```
 
 ```bash
-open-sdd status --check --json
+steelfoundry status --check --json
 ```
 
 8. Diagnose the installation so the human knows what is green and what still needs a fix:
 
 ```bash
-open-sdd doctor --json
+steelfoundry doctor --json
 ```
 
 ## The constitution is the pivot
 
 The flow **stops at a draft**. An unratified draft has no authority, and every later blocking verdict
 must cite a ratified principle, so onboarding is not complete until a named human runs the ratify
-command. `open-sdd status --check --json` is the pivot check; until it passes, the repository is
+command. `steelfoundry status --check --json` is the pivot check; until it passes, the repository is
 onboarded but not governed.
 
 ## Evidence

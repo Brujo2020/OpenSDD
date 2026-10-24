@@ -2,7 +2,7 @@
   "source": "AWS AI-DLC Workflows 2.0 (awslabs/aidlc-workflows, MIT-0), docs/guide/14-artifacts-reference.md and docs/guide/04-phases-and-stages.md",
   "aidlcVersion": "2.7.1",
   "snapshot": "2026-10-23",
-  "note": "produces from the artifacts reference; consumes simplified to the documented key dependency chains; cost 1-5 and component are open-sdd planning priors, not AI-DLC data",
+  "note": "produces from the artifacts reference; consumes simplified to the documented key dependency chains; cost 1-5 and component are steelfoundry planning priors, not AI-DLC data",
   "stages": [
     {
       "slug": "workspace-scaffold",

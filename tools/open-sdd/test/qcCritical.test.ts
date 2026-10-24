@@ -84,7 +84,7 @@ describe('QC-3 · an escalated step comes with a ready card (no hand-written JSO
     await report(cwd, 'f', step, 'started');
     let last = { ok: true, message: '' };
     for (let i = 0; i < 2; i += 1) last = await report(cwd, 'f', step, 'completed');
-    expect(last.message).toContain('open-sdd decide f HIL-0001 <A|B|C>');
+    expect(last.message).toContain('steelfoundry decide f HIL-0001 <A|B|C>');
     const [only] = await listCards(cwd, 'f');
     expect(only.card.options.map((o) => o.effect)).toEqual(['reject', 'park', 'override']);
     expect(only.card.default).toBe('B');
@@ -140,15 +140,15 @@ describe('QC-4 · the always-on rules reach the default `setup` path', () => {
       const text = readFileSync(path.join(dir, file), 'utf8');
       expect(text, file).toContain('## Always-on rules');
       expect(text, file).toContain('C-INDEPENDENT-REVIEW');
-      expect(text, file).toContain('open-sdd decide');
+      expect(text, file).toContain('steelfoundry decide');
     }
   });
 });
 
 describe('QC-5 · the door speaks in the five verbs', () => {
   it('fresh repo → setup; installed and no spec → start; a failing chain → check', async () => {
-    expect((await computeSddScore(cwd)).nextAction).toBe('open-sdd setup --write');
+    expect((await computeSddScore(cwd)).nextAction).toBe('steelfoundry setup --write');
     await run('setup', '--write', '--no-input');
-    expect((await computeSddScore(cwd)).nextAction).toBe('open-sdd start "<lo que quieres>"');
+    expect((await computeSddScore(cwd)).nextAction).toBe('steelfoundry start "<lo que quieres>"');
   });
 });

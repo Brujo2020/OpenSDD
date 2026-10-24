@@ -7,12 +7,12 @@
  * reads files is the host's own **prompt template** convention — a Markdown (or TOML) file the user
  * invokes from chat, whose body is the instructions the agent follows. spec-kit proved the shape;
  * this module makes open-sdd's version of it the default, because our templates can point at a real
- * engine (`open-sdd status --json`, `open-sdd delta validate …`) instead of guessing.
+ * engine (`steelfoundry status --json`, `steelfoundry delta validate …`) instead of guessing.
  *
  * ── The rule that is not negotiable ─────────────────────────────────────────────────────────────
  * `verified` is an EVIDENCE field, not a courtesy, exactly as in `integrations.ts`. It is `true`
  * only for the layouts this project confirmed against the host's own documentation (or against the
- * path open-sdd itself already installs its prompt mode into); `evidence` says how we know. An
+ * path steelfoundry itself already installs its prompt mode into); `evidence` says how we know. An
  * unverified host is printed as unverified and `--write` **refuses** to write into it rather than
  * guessing at a directory the host may never read — a plausible-looking wrong path is worse than an
  * acknowledged gap.
@@ -129,7 +129,7 @@ export interface HostCommandConvention {
    * not evidence about the fork, and treating it as such is how a plausible path gets written blind.
    */
   sourceArtifact?: string;
-  /** How we know: the documented convention, or the path open-sdd itself already installs into. */
+  /** How we know: the documented convention, or the path steelfoundry itself already installs into. */
   evidence: string;
   /** The host's own documentation page, when the convention was read from it. */
   docUrl?: string;
@@ -936,7 +936,7 @@ const decideExisting = (
     return {
       action: 'keep',
       reason:
-        'el archivo existe y no es una plantilla generada por open-sdd (o la firma ya no es la última línea): NO se sobrescribe, porque puede ser una edición del equipo. Bórralo o mézclalo a mano para reinstalar.',
+        'el archivo existe y no es una plantilla generada por steelfoundry (o la firma ya no es la última línea): NO se sobrescribe, porque puede ser una edición del equipo. Bórralo o mézclalo a mano para reinstalar.',
     };
   }
 
@@ -945,14 +945,14 @@ const decideExisting = (
     return {
       action: 'keep',
       reason:
-        'el archivo se generó con open-sdd pero su cuerpo ya no coincide con la firma: alguien lo editó. NO se sobrescribe; mézclalo a mano.',
+        'el archivo se generó con steelfoundry pero su cuerpo ya no coincide con la firma: alguien lo editó. NO se sobrescribe; mézclalo a mano.',
     };
   }
 
   return {
     action: 'update',
     reason:
-      'el archivo es una versión anterior generada por open-sdd y no fue editada (la firma coincide): se refresca con la plantilla vigente.',
+      'el archivo es una versión anterior generada por steelfoundry y no fue editada (la firma coincide): se refresca con la plantilla vigente.',
   };
 };
 
@@ -1001,7 +1001,7 @@ export const installCommandTemplates = async (
         format: host.format,
         action: 'keep',
         verified: false,
-        reason: `la convención de plantillas de ${host.label} NO está verificada o no existe: open-sdd no escribe en un directorio que el anfitrión podría no leer. ${host.evidence}`,
+        reason: `la convención de plantillas de ${host.label} NO está verificada o no existe: steelfoundry no escribe en un directorio que el anfitrión podría no leer. ${host.evidence}`,
       });
       continue;
     }
@@ -1106,7 +1106,7 @@ export const summarizeCommandTemplates = (
     return {
       path: dir,
       action: 'update',
-      reason: `hay plantillas generadas por open-sdd que no fueron editadas y están desactualizadas: se refrescan; las editadas a mano se conservan.`,
+      reason: `hay plantillas generadas por steelfoundry que no fueron editadas y están desactualizadas: se refrescan; las editadas a mano se conservan.`,
       verified: true,
     };
   }

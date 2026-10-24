@@ -10,8 +10,8 @@ Nothing here deletes or rewrites your specs.
 ## 1. Know what you have
 
 ```bash
-open-sdd --version
-open-sdd doctor
+steelfoundry --version
+steelfoundry doctor
 ```
 
 `doctor` reports the CLI version, the commit-hook state and the declared rigor level. Run it again
@@ -23,18 +23,18 @@ after the upgrade to confirm the hook was refreshed.
 v3.0.2 is published. Today, the registry's `latest` is the older **v2.0.0**:
 
 ```bash
-npx @brujo2020/open-sdd@latest --version
+npx @brujo2020/steelfoundry@latest --version
 ```
 
-The unscoped `npx open-sdd@latest` is **not** this project (the name does not exist). Pin an exact
-version when you need reproducibility: `npx @brujo2020/open-sdd@3.0.2 …`.
+The unscoped `npx steelfoundry@latest` is **not** this project (the name does not exist). Pin an exact
+version when you need reproducibility: `npx @brujo2020/steelfoundry@3.0.2 …`.
 
 **Global install.**
 
 ```bash
-npm install -g @brujo2020/open-sdd      # from the registry
+npm install -g @brujo2020/steelfoundry      # from the registry
 npm run install:global                  # from a checkout: builds, then installs this version
-open-sdd --version
+steelfoundry --version
 ```
 
 **From a clone.**
@@ -54,8 +54,8 @@ From inside the target repository, re-run the two installers:
 
 ```bash
 cd /path/to/your/repo
-open-sdd --claude-skills -y                             # skills + .sdd/settings templates
-open-sdd init . --agent claude-code-skills --write      # rigor + commit gate
+steelfoundry --claude-skills -y                             # skills + .sdd/settings templates
+steelfoundry init . --agent claude-code-skills --write      # rigor + commit gate
 ```
 
 Both are safe to re-run. The project initizer is **idempotent by construction**: it reports
@@ -66,7 +66,7 @@ output:
   Artefactos
     keep               .sdd/settings/rigor.json
     keep               .git/hooks/pre-commit
-        el hook instalado ya es nuestra versión vigente: se conserva (instalador: open-sdd floor install)
+        el hook instalado ya es nuestra versión vigente: se conserva (instalador: steelfoundry floor install)
   Plan de init en /path/to/repo: … 0 artefacto(s) por crear, 0 por actualizar, 2 conservado(s).
 ```
 
@@ -91,16 +91,16 @@ an upgrade does not touch it.
 ## 4. The commit hook: refresh, and what `doctor` means
 
 The commit gate is a file installed from `tools/open-sdd/templates/hooks/pre-commit.mjs` into
-`.git/hooks/pre-commit`. A new release can change that template. `open-sdd doctor` classifies the
+`.git/hooks/pre-commit`. A new release can change that template. `steelfoundry doctor` classifies the
 installed copy:
 
 | `doctor` state | Meaning | Fix |
 |---|---|---|
 | `current` | Identical to the shipped template. | Nothing to do. |
-| `stale` | Ours, but an older version — this is the "gate is outdated" case. | `open-sdd init . --write` or `open-sdd floor install .` |
-| `missing` | No hook installed. | `open-sdd floor install .` |
+| `stale` | Ours, but an older version — this is the "gate is outdated" case. | `steelfoundry init . --write` or `steelfoundry floor install .` |
+| `missing` | No hook installed. | `steelfoundry floor install .` |
 | `not-executable` | Present but git silently ignores it. | Reinstall restores the executable bit. |
-| `foreign` | Someone else's hook. Never overwritten. | `open-sdd floor install . --force` backs it up first. |
+| `foreign` | Someone else's hook. Never overwritten. | `steelfoundry floor install . --force` backs it up first. |
 | `unverifiable` | Present but not comparable to ours. | Left untouched. |
 
 ## 5. When `doctor` reports the gate as outdated
@@ -108,8 +108,8 @@ installed copy:
 This is the `stale` row above. Refresh it without touching anything else:
 
 ```bash
-open-sdd init . --agent claude-code-skills --write
-open-sdd doctor
+steelfoundry init . --agent claude-code-skills --write
+steelfoundry doctor
 ```
 
 Expected confirmation line:
@@ -120,7 +120,7 @@ Expected confirmation line:
 
 If the hook is `foreign`, the installer reports a backup and does **not** install ours; that is the
 designed behavior, not a failure. Re-read the message and decide, or use
-`open-sdd floor install . --force` which makes the backup explicit.
+`steelfoundry floor install . --force` which makes the backup explicit.
 
 ## 6. What changed
 
@@ -135,7 +135,7 @@ There is no automated rollback. npm cannot re-publish a version, so a bad releas
 followed by a new patch rather than overwritten ([Publishing](publish.md)):
 
 ```bash
-npx @brujo2020/open-sdd@2.0.0 --version    # pin the previous published version
+npx @brujo2020/steelfoundry@2.0.0 --version    # pin the previous published version
 ```
 
 To revert the on-disk artifacts, restore `.sdd/` and the agent's skill directory from version
@@ -162,23 +162,23 @@ current package declares (`open-sdd`, `sdd-open`, `sdd`). Two residues of that i
 upgrade, and both are silent about their cause:
 
 **1. `npm error code EEXIST … /bin/sdd`.** Uninstalling the old package removes its directory but
-**leaves its symlinks** in the npm prefix's `bin`. `npm install -g @brujo2020/open-sdd@latest` then
+**leaves its symlinks** in the npm prefix's `bin`. `npm install -g @brujo2020/steelfoundry@latest` then
 refuses to overwrite a file it does not recognise as its own. The links point into a directory that no
 longer exists, so check before removing:
 
 ```bash
 ls -l "$(npm prefix -g)/bin/sdd" "$(npm prefix -g)/bin/sdd-open"   # dangling -> no such file
 rm -f "$(npm prefix -g)/bin/sdd" "$(npm prefix -g)/bin/sdd-open"
-npm install -g @brujo2020/open-sdd@latest
+npm install -g @brujo2020/steelfoundry@latest
 ```
 
-**2. The shell still runs the old binary.** `open-sdd --version` keeps printing the previous 2.x
+**2. The shell still runs the old binary.** `steelfoundry --version` keeps printing the previous 2.x
 banner after a successful upgrade, because the shell hashes the resolved command path. Nothing is
 wrong with the install: clear the cache and it reports the new version.
 
 ```bash
 hash -r          # bash   (zsh: rehash, or simply open a new terminal)
-open-sdd --version && sdd --version && sdd-open --version   # all three must print v3.4.0
+steelfoundry --version && sdd --version && sdd-open --version   # all three must print v3.4.0
 ```
 
 **Why this matters more than a cosmetic version string.** The installed commit hook resolves its CLI

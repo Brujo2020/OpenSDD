@@ -1,5 +1,5 @@
 /**
- * `open-sdd templates` — la única puerta que LISTA lo que `init` instala.
+ * `steelfoundry templates` — la única puerta que LISTA lo que `init` instala.
  *
  * El camino por defecto de este proyecto son 22 plantillas de comando: workflows que el anfitrión
  * invoca desde el chat, sin MCP y sin red. Existían desde hace tres versiones y estaban probadas,
@@ -78,7 +78,7 @@ export const buildTemplatesReport = async (cwd) => {
             docUrl: host.docUrl,
         })),
         installed,
-        installCommand: 'npx @brujo2020/open-sdd init . --write',
+        installCommand: 'npx @brujo2020/steelfoundry init . --write',
     };
 };
 export const handleTemplatesCommand = async (args, io, cwd = process.cwd()) => {
@@ -86,7 +86,7 @@ export const handleTemplatesCommand = async (args, io, cwd = process.cwd()) => {
     const hostFilter = flagValue(args, 'host');
     const unknown = args.find((arg) => arg.startsWith('-') && !['--json', '--no-footer', '--host'].includes(arg.split('=')[0]));
     if (unknown) {
-        io.error(colors.red(`Opción desconocida: ${unknown}. Usage: open-sdd templates [--host <id>] [--json]`));
+        io.error(colors.red(`Opción desconocida: ${unknown}. Usage: steelfoundry templates [--host <id>] [--json]`));
         return 1;
     }
     const full = await buildTemplatesReport(cwd);

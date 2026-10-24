@@ -1,11 +1,11 @@
 # CI integration
 
-How to make the Open-SDD floor the merge boundary of a real pipeline: the gate chain, the
+How to make the SteelFoundry floor the merge boundary of a real pipeline: the gate chain, the
 constitutional status check, the audit evidence bundle and the SARIF 2.1.0 report that external
 code scanning consumes.
 
-> Commands below are shown as `open-sdd …` for an installed CLI. In this repository, replace
-> `open-sdd` with `node tools/open-sdd/dist/cli.js`.
+> Commands below are shown as `steelfoundry …` for an installed CLI. In this repository, replace
+> `steelfoundry` with `node tools/open-sdd/dist/cli.js`.
 
 ## What CI enforces
 
@@ -44,8 +44,8 @@ Two rules keep the contract honest:
 
 ## GitHub Actions
 
-The repository ships a composite action, **`open-sdd gates`**, in [`action.yml`](../../action.yml).
-It builds this repository's CLI — never a globally installed `open-sdd`, never an unpinned registry
+The repository ships a composite action, **`steelfoundry gates`**, in [`action.yml`](../../action.yml).
+It builds this repository's CLI — never a globally installed `steelfoundry`, never an unpinned registry
 copy — and then runs, in the caller's workspace: `govern rigor`, `gates chain`, `gates run`,
 `status --check`, `audit bundle` + SARIF, and the SARIF upload.
 
@@ -149,7 +149,7 @@ If you would rather not use the action, the equivalent steps in this repository 
 ```
 
 Every command is invoked through `node tools/open-sdd/dist/cli.js`. **Never** invoke a bare
-`open-sdd`: a globally installed copy of a different version resolves from `PATH` and would decide
+`steelfoundry`: a globally installed copy of a different version resolves from `PATH` and would decide
 the verdict with code the repository does not contain.
 
 ## GitLab CI
@@ -210,7 +210,7 @@ Two adaptations are usually needed:
 
 - **Tool acquisition.** The snippet builds the CLI from a checkout (`tools/open-sdd`). To use a
   published artifact instead, install a pinned version and set
-  `OPEN_SDD_CLI: node node_modules/@brujo2020/open-sdd/tools/open-sdd/dist/cli.js`; never rely on a
+  `OPEN_SDD_CLI: node node_modules/@brujo2020/steelfoundry/tools/open-sdd/dist/cli.js`; never rely on a
   global install.
 - **Network policy.** `gates run`, `status --check` and `audit bundle` work offline. The claims
   registry (`assure claims --verify`) executes local verifier commands only.

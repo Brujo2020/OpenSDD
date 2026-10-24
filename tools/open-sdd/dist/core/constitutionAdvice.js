@@ -185,7 +185,7 @@ const checkEvidenceExpired = (ctx, inForce) => {
                 pattern: 'Sustituir la referencia caducada por la ruta vigente; si no existe sustituto, degradar el principio a borrador hasta re-anclarlo.',
                 justification: 'Una prueba que ya no existe convierte un hecho observado en una afirmación no verificable y erosiona la autoridad del documento completo.',
             }),
-            apply: 'open-sdd brownfield constitution . --write',
+            apply: 'steelfoundry brownfield constitution . --write',
         });
     }
     if (withEvidence.length > 0) {
@@ -239,7 +239,7 @@ const checkPracticeUnstated = async (ctx, inForce) => {
                         pattern: 'Añadir el test del módulo en el directorio de test y nombrarlo con el módulo, como ya hace todo el código observado.',
                         justification: 'Una práctica que el repositorio ya cumple al cien por cien es una decisión de ingeniería sin registrar; sin principio, el siguiente cambio puede abandonarla sin que nadie lo note.',
                     }),
-                    apply: 'open-sdd govern constitution --draft --write',
+                    apply: 'steelfoundry govern constitution --draft --write',
                 });
             }
             else if (covered.length < project.modules.length) {
@@ -306,7 +306,7 @@ const checkPracticeUnstated = async (ctx, inForce) => {
                         pattern: `Añadir ${dependency} a dependencies/devDependencies del manifiesto correspondiente y justificar su uso en la delta.`,
                         justification: 'Una dependencia presente en todos los manifiestos es una decisión transversal del proyecto; declararla permite auditar su retirada sin depender de la memoria del equipo.',
                     }),
-                    apply: 'open-sdd govern constitution --draft --write',
+                    apply: 'steelfoundry govern constitution --draft --write',
                 });
             }
             ctx.checked.push(`práctica "dependencia en el 100% de manifiestos": ${readable.length} manifiesto(s) comparados, ${universal.length} dependencia(s) universal(es) no enunciadas, ${reported.length} reportada(s)`);
@@ -380,7 +380,7 @@ const checkAmendmentAged = (ctx, constitution) => {
                 pattern: 'Ratificarla con --promote y su plan de migración, o cerrarla como rechazada con motivo escrito; la ambigüedad no es un tercer estado.',
                 justification: 'Una propuesta vieja sin decisión deja a los agentes sin saber si la regla gobierna, y el silencio se interpreta como permiso para ignorarla.',
             }),
-            ...(canPromote ? { apply: `open-sdd govern constitution --promote ${item.id} --plan "<plan de migración>"` } : {}),
+            ...(canPromote ? { apply: `steelfoundry govern constitution --promote ${item.id} --plan "<plan de migración>"` } : {}),
         });
     }
     ctx.checked.push(`enmiendas sin decisión: ${undecided.length} registro(s) y ${drafts.length} principio(s) en borrador; con fecha comprobable: ${dated.length}`);
@@ -668,7 +668,7 @@ const checkBoundaryAged = async (ctx, inForce) => {
                 pattern: 'Añadir estas fronteras a la evidencia del principio de límites, como hace la constitución descriptiva cuando registra el mapa de módulos.',
                 justification: 'Una frontera que existe en el código y no en la constitución convierte cada cruce en una refactorización involuntaria sin autoridad que la juzgue.',
             }),
-            apply: 'open-sdd brownfield constitution . --write',
+            apply: 'steelfoundry brownfield constitution . --write',
         });
     }
     for (const boundary of missing) {
@@ -689,7 +689,7 @@ const checkBoundaryAged = async (ctx, inForce) => {
                 pattern: `Añadir "${boundary}" a la evidencia del principio que gobierna los límites de módulo.`,
                 justification: 'Una frontera que existe en el código y no en la constitución deja el límite sin autoridad citable, y el primer cruce silencioso nadie lo nota.',
             }),
-            apply: 'open-sdd brownfield constitution . --write',
+            apply: 'steelfoundry brownfield constitution . --write',
         });
     }
     for (const boundary of vanished) {
@@ -708,7 +708,7 @@ const checkBoundaryAged = async (ctx, inForce) => {
                 pattern: `Eliminar "${boundary}" de la evidencia del principio de límites o actualizarla a la ubicación vigente, dejando registro del traslado.`,
                 justification: 'Una frontera fantasma hace que los agentes busquen límites que no existen y que los veredictos citen una arquitectura que ya nadie mantiene.',
             }),
-            apply: 'open-sdd brownfield constitution . --write',
+            apply: 'steelfoundry brownfield constitution . --write',
         });
     }
     ctx.checked.push(`fronteras: ${discovered.length} observada(s) por el mapa de módulos (scanProject, la misma fuente que cita C-BOUNDARIES) frente a ${declared.size} nombrada(s) en ${boundaryPrinciples.length} principio(s) de límites`);
@@ -766,7 +766,7 @@ const checkStackDrifted = (ctx, inForce, project) => {
                     pattern: `Usar ${observedManager} en todos los manifiestos y scripts, o tramitar una enmienda que autorice el cambio y migre el lockfile con su justificación.`,
                     justification: 'Un principio que declara un gestor distinto del que el repositorio usa convierte el stack en ficción y enseña a los agentes a desconfiar de la constitución.',
                 }),
-                apply: 'open-sdd brownfield constitution . --write',
+                apply: 'steelfoundry brownfield constitution . --write',
             });
         }
         else if (!MANAGER_FAMILY.members.includes(observedManager) && observedManager !== stated) {
@@ -805,7 +805,7 @@ const checkStackDrifted = (ctx, inForce, project) => {
                     pattern: 'Actualizar el principio y su evidencia al lenguaje vigente, o declarar el cambio como enmienda gobernada.',
                     justification: 'Un lenguaje declarado que ya no es el del repositorio hace que todo principio derivado de él se lea como una aspiración incumplida, no como un hecho.',
                 }),
-                apply: 'open-sdd brownfield constitution . --write',
+                apply: 'steelfoundry brownfield constitution . --write',
             });
         }
         else {

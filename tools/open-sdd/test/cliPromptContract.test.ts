@@ -53,7 +53,7 @@ describe('prompt contract', () => {
     const errs: string[] = [];
     const io = { log: (m: string) => logs.push(m), error: (m: string) => errs.push(m), exit: () => {} };
     expect(await runCli(['--no-input', '--version'], runtime, io, {})).toBe(0);
-    expect(logs.join('\n')).toContain('open-sdd v');
+    expect(logs.join('\n')).toContain('steelfoundry v');
     // El flag global no llega a `parseArgs` como bandera desconocida.
     expect(errs.join('\n')).not.toContain('Unknown flag');
   });

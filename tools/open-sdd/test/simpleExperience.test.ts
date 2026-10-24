@@ -35,7 +35,7 @@ describe('simple-experience — one door, five verbs', () => {
       expect(out).toContain('brownfield survey');
       expect(out).toContain('The five verbs');
     }
-    expect((await run('decide', '--help')).out).toContain('open-sdd decide');
+    expect((await run('decide', '--help')).out).toContain('steelfoundry decide');
   });
 
   it('AC-02 setup behaves exactly as init', async () => {
@@ -79,7 +79,7 @@ describe('simple-experience — one door, five verbs', () => {
     expect(prepared.ok).toBe(true);
     const one = await run('decide');
     expect(one.out).toContain(`pay · ${prepared.card!.id} — Accept?`);
-    expect(one.out).toContain(`open-sdd decide pay ${prepared.card!.id} <A|B> --by "<name>"`);
+    expect(one.out).toContain(`steelfoundry decide pay ${prepared.card!.id} <A|B> --by "<name>"`);
     expect((await run('decide', 'pay')).out).toContain('OPEN');
     expect((await run('decide', 'pay', prepared.card!.id)).code).toBe(2);
 
@@ -97,7 +97,7 @@ describe('simple-experience — one door, five verbs', () => {
     for (let i = 0; i < 2; i += 1) await report(cwd, 'f', step, 'completed');
     const out = (await run('decide')).out;
     expect(out).toContain(`f · HIL-0001 — ${step} is stuck — no progress after 2 attempts`);
-    expect(out).toContain('open-sdd decide f HIL-0001 <A|B|C> --by "<name>"');
+    expect(out).toContain('steelfoundry decide f HIL-0001 <A|B|C> --by "<name>"');
 
     writeFileSync(path.join(cwd, 'gate.playbook.json'), JSON.stringify({ name: 'gate', phases: [{ id: 'spec', steps: [{ use: 'opensdd:skill/sdd-spec-requirements', review: 'human' }] }] }));
     mkdirSync(path.join(cwd, '.sdd', 'specs', 'g'), { recursive: true });
@@ -107,14 +107,14 @@ describe('simple-experience — one door, five verbs', () => {
     await report(cwd, 'g', gstep, 'started');
     await report(cwd, 'g', gstep, 'awaiting-approval');
     const all = JSON.parse((await run('decide', '--json')).out) as { feature: string; kind: string; command: string }[];
-    expect(all).toEqual(expect.arrayContaining([expect.objectContaining({ feature: 'g', kind: 'gate', id: gstep, command: 'open-sdd next g' })]));
+    expect(all).toEqual(expect.arrayContaining([expect.objectContaining({ feature: 'g', kind: 'gate', id: gstep, command: 'steelfoundry next g' })]));
   });
 
   it('AC-05 the docs open with the five verbs, diagrams and the colour legend', () => {
     const root = path.resolve(__dirname, '..', '..', '..');
     for (const doc of ['README.md', 'README.es.md', 'docs/MANUAL.md']) {
       const text = readFileSync(path.join(root, doc), 'utf8');
-      for (const verb of ['open-sdd setup', 'open-sdd start', 'open-sdd check', 'open-sdd decide']) expect(text, doc).toContain(verb);
+      for (const verb of ['steelfoundry setup', 'steelfoundry start', 'steelfoundry check', 'steelfoundry decide']) expect(text, doc).toContain(verb);
       expect((text.match(/```mermaid/g) ?? []).length, doc).toBeGreaterThanOrEqual(2);
       expect(text, doc).toMatch(/🟢/);
       expect(text, doc).toMatch(/🔵/);

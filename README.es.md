@@ -1,7 +1,21 @@
-# open-sdd
+# SteelFoundry — SDD Toolkit
 
-`open-sdd` es la capa que hace verificable el «hecho» de un agente de código: gates ejecutables,
+**Por qué el nombre.** Una fundición funde muchos materiales en bruto en piezas de acero estándar y
+repetibles. SteelFoundry hace lo mismo con el Spec-Driven Development: **consolida en un solo toolkit toda la
+variedad de casos** — desde un cambio menor o una PoC rápida, pasando por spikes y proyectos pequeños, hasta
+programas grandes y migraciones con exigencia estricta y auditada — y la ceremonia crece solo cuando el
+trabajo lo pide (niveles L0–L6, escalera de rigor). Es **agnóstico**: las mismas specs, gates y auditoría
+funcionan con cualquier agente (Claude Code, Cursor, Copilot, Codex, Gemini, Windsurf…) y cualquier modelo,
+vía skills, comandos y MCP. Y **apoya el proceso de specs tomando lo mejor de otros toolkits** — la
+constitución de Spec Kit, el discovery por roles de BMAD, los requisitos EARS y el steering de Kiro, las
+specs delta de OpenSpec — fundido en un solo motor determinista.
+
+`steelfoundry` es la capa que hace verificable el «hecho» de un agente de código: gates ejecutables,
 specs delta para el código que ya existe y una constitución que valida cada spec.
+
+> 📘 Manual: [Español](docs/MANUAL.es.md) · [English](docs/MANUAL.md) · **Por qué existe, qué tomó de cada toolkit y alcance:** [POR-QUE.md](docs/POR-QUE.md) · [WHY.md](docs/WHY.md)
+
+> **SteelFoundry** antes se llamaba **open-sdd**. Los comandos `open-sdd`, `sdd-open` y `sdd` siguen funcionando como alias de `steelfoundry`, y las carpetas `.sdd/` existentes no necesitan cambios.
 
 [![Licencia: MIT](https://img.shields.io/github/license/Brujo2020/OpenSDD)](https://github.com/Brujo2020/OpenSDD/blob/main/LICENSE)
 [![CI — Linux + Windows](https://img.shields.io/github/actions/workflow/status/Brujo2020/OpenSDD/gates.yml?branch=main)](https://github.com/Brujo2020/OpenSDD/actions/workflows/gates.yml)
@@ -12,29 +26,29 @@ specs delta para el código que ya existe y una constitución que valida cada sp
 
 > 📘 Guía visual de una página, con un ejemplo pequeño de principio a fin y el control de calidad: [docs/GUIA.md](docs/GUIA.md). Revisión experta con los 10 puntos siguientes: [docs/REVISION-EXPERTO.md](docs/REVISION-EXPERTO.md).
 
-No necesitas los otros 50 comandos para usar open-sdd. Cinco verbos cubren todo el ciclo; la
+No necesitas los otros 50 comandos para usar steelfoundry. Cinco verbos cubren todo el ciclo; la
 herramienta decide todo lo que la evidencia permite decidir (agente, greenfield o brownfield, nivel,
 rigor, playbook) y solo pregunta a una persona cuando la decisión es humana. Todos los demás comandos
-siguen funcionando y se listan con `open-sdd help --all`.
+siguen funcionando y se listan con `steelfoundry help --all`.
 
 | | Verbo | Qué hace | Qué decide por ti |
 |---|---|---|---|
-| 🟢 | `open-sdd` | Dónde estás: puntuación, fase y **la** siguiente acción | La siguiente acción |
-| 🟢 | `open-sdd setup` | Instala en el repositorio (igual que `init`; primero el plan, `--write` aplica) | Agente y terreno |
-| 🟢 | `open-sdd start "<lo que quieres>"` | Inicia cualquier trabajo, de una errata a una modernización | Nivel L0–L6, variante, rigor, playbook |
-| 🔴 | `open-sdd check` | Un veredicto: toda la cadena de gates (igual que `gates run`) | Nada: solo pasa o bloquea |
-| 🔵 | `open-sdd decide` | Lista las decisiones que esperan a una persona, con el comando exacto | Nada: decide una persona |
+| 🟢 | `steelfoundry` | Dónde estás: puntuación, fase y **la** siguiente acción | La siguiente acción |
+| 🟢 | `steelfoundry setup` | Instala en el repositorio (igual que `init`; primero el plan, `--write` aplica) | Agente y terreno |
+| 🟢 | `steelfoundry start "<lo que quieres>"` | Inicia cualquier trabajo, de una errata a una modernización | Nivel L0–L6, variante, rigor, playbook |
+| 🔴 | `steelfoundry check` | Un veredicto: toda la cadena de gates (igual que `gates run`) | Nada: solo pasa o bloquea |
+| 🔵 | `steelfoundry decide` | Lista las decisiones que esperan a una persona, con el comando exacto | Nada: decide una persona |
 
 ```mermaid
 flowchart LR
-  A["open-sdd setup"]:::auto --> B["open-sdd start &quot;intención&quot;"]:::auto
+  A["steelfoundry setup"]:::auto --> B["steelfoundry start &quot;intención&quot;"]:::auto
   B --> C["el agente trabaja<br/>next → report"]:::advisory
-  C --> D{"open-sdd check"}:::block
+  C --> D{"steelfoundry check"}:::block
   D -- pasa --> E["hecho ✔"]:::auto
   D -- rechazo con progreso --> C
-  D -- "atascado · crítico · más de 3" --> F["open-sdd decide<br/>(HIL)"]:::human
+  D -- "atascado · crítico · más de 3" --> F["steelfoundry decide<br/>(HIL)"]:::human
   F --> C
-  G["open-sdd<br/>¿dónde estoy?"]:::auto -.-> B
+  G["steelfoundry<br/>¿dónde estoy?"]:::auto -.-> B
   classDef auto fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
   classDef advisory fill:#ffec99,stroke:#f08c00,color:#1e1e1e
   classDef block fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
@@ -82,7 +96,7 @@ flowchart TB
 |---|---|
 | Guías Karpathy (pensar, simplicidad, cambios quirúrgicos, objetivos verificables) | skill `karpathy-guidelines` instalada en cada proyecto |
 | La revisión es humana, o la hace un modelo **distinto** al autor | constitución `C-INDEPENDENT-REVIEW`; una sesión de agente no puede firmar una revisión humana, y `--by-model` debe ser distinto de `--author-model` |
-| Tarea atascada → decide una persona | escala al 1.er fallo crítico, al 2.º fallo idéntico (sin progreso) o tras más de 3 fallos; el motor prepara una tarjeta (reintentar · aparcar · excepción) y solo una persona reintenta o aprueba (`open-sdd decide`) |
+| Tarea atascada → decide una persona | escala al 1.er fallo crítico, al 2.º fallo idéntico (sin progreso) o tras más de 3 fallos; el motor prepara una tarjeta (reintentar · aparcar · excepción) y solo una persona reintenta o aprueba (`steelfoundry decide`) |
 
 
 ## El problema
@@ -95,18 +109,18 @@ un control declarado pero no implementado se reporta como declarado en vez de co
 ## Instalación y los primeros 60 segundos
 
 ```bash
-npx @brujo2020/open-sdd init . --write
+npx @brujo2020/steelfoundry init . --write
 ```
 
 Ejecútalo dentro de tu repositorio. Detecta el agente anfitrión, registra el nivel de exigencia en
 `.sdd/settings/rigor.json`, instala el gate de commit (`.git/hooks/pre-commit`) y —sin MCP, sin red y
 sin claves de API— las **22 plantillas de comando** como comandos propios del anfitrión. Es
 plan-first: sin `--write` solo imprime el plan, y nunca sobrescribe un archivo existente. Para
-instalar también las skills del anfitrión, añade `--skills`; `open-sdd integrate <host> --write`
+instalar también las skills del anfitrión, añade `--skills`; `steelfoundry integrate <host> --write`
 instala las skills **y** registra el servidor MCP (`--list` muestra los 25 anfitriones, cada uno con su
 registro verificado).
 
-¿Quieres ver el flujo antes de instalarlo? `open-sdd templates` lista los 22 workflows, qué escribe
+¿Quieres ver el flujo antes de instalarlo? `steelfoundry templates` lista los 22 workflows, qué escribe
 cada uno y el directorio que lee cada uno de los once anfitriones. MCP es opt-in (`--mcp`): un
 anfitrión que lo bloquee, o una política de seguridad que lo restrinja, no pierde ningún workflow.
 
@@ -114,14 +128,14 @@ Después, la única puerta. Sin argumentos, de solo lectura: imprime un score SD
 actual y UNA acción siguiente, con una línea de por qué.
 
 ```bash
-open-sdd                 # score SDD, fase y la única acción siguiente
-open-sdd status          # el mismo estado como panel completo
-open-sdd --help          # todos los comandos
+steelfoundry                 # score SDD, fase y la única acción siguiente
+steelfoundry status          # el mismo estado como panel completo
+steelfoundry --help          # todos los comandos
 ```
 
 Los mensajes de consola están hoy en español; `--lang en` traduce por completo solo
-`open-sdd tour` y `open-sdd context`. Los comandos de arriba funcionan desde el paquete publicado. En
-este checkout, sustituye `open-sdd` por `node tools/open-sdd/dist/cli.js`.
+`steelfoundry tour` y `steelfoundry context`. Los comandos de arriba funcionan desde el paquete publicado. En
+este checkout, sustituye `steelfoundry` por `node tools/open-sdd/dist/cli.js`.
 
 Opcional: la demo de 60 segundos, sin red, en un directorio temporal desechable.
 
@@ -139,13 +153,13 @@ distinto de cero si la herramienta deja pasar alguna.
 [![open-sdd: todos los flujos — instala, elige tu situación, especifica, implementa, verifica](docs/diagrams/open-sdd-flows.png)](docs/diagrams/open-sdd-flows.excalidraw)
 
 Se lee de izquierda a derecha: busca la fila de tu situación y sigue las flechas. Cada `/comando` es
-una skill del chat de tu agente; `open-sdd …` se ejecuta en una terminal.
+una skill del chat de tu agente; `steelfoundry …` se ejecuta en una terminal.
 
 | Tu situación | Empieza con | Qué obtienes |
 |---|---|---|
 | Una idea difusa | `/sdd-discovery "<idea>"` | `brief.md` (no-objetivos, resultado medible, supuestos) y un roadmap; luego una spec o un lote |
 | Una feature clara | `/sdd-spec-quick <feature>` o la cadena paso a paso | requisitos → diseño → tareas |
-| Código existente | `/sdd-getspecs`, `open-sdd brownfield constitution . --write`, `open-sdd delta init <feature> "<cambio>"` | steering, una constitución descriptiva y una spec delta del cambio, no del sistema entero |
+| Código existente | `/sdd-getspecs`, `steelfoundry brownfield constitution . --write`, `steelfoundry delta init <feature> "<cambio>"` | steering, una constitución descriptiva y una spec delta del cambio, no del sistema entero |
 | Varias features | `/sdd-spec-batch` | todas las specs del roadmap, por olas de dependencia |
 | Un bug | `/sdd-bugfix` | lo que pasa · lo esperado · lo que no debe cambiar, y luego el arreglo con su prueba |
 | Un spike | `/sdd-tiny` y `/sdd-promote` si crece | una spec de tres líneas (objetivo · hecho cuando · fuera de alcance) |
@@ -156,8 +170,8 @@ una skill del chat de tu agente; `open-sdd …` se ejecuta en una terminal.
 (`/sdd-validate-gap` sobre código existente) → `/sdd-spec-design` (`/sdd-validate-design`) → `/sdd-spec-tasks`.
 **Implementa** con `/sdd-impl <feature>`, que lanza un subagente por tarea con revisión independiente y
 gate de verificación, o con `/sdd-impl <feature> 1,2` para solo esas tareas. **Cierra** con
-`/sdd-validate-impl` → `/sdd-verify-completion` → `/sdd-audit` → `open-sdd archive <feature>`. En cualquier
-momento tienes `/sdd-steering` (memoria del proyecto), `/sdd-spec-status`, `/sdd-help` y `open-sdd status`.
+`/sdd-validate-impl` → `/sdd-verify-completion` → `/sdd-audit` → `steelfoundry archive <feature>`. En cualquier
+momento tienes `/sdd-steering` (memoria del proyecto), `/sdd-spec-status`, `/sdd-help` y `steelfoundry status`.
 Funcionan solos: el commit gate (C1 · C2 · C3 sobre el índice), la cadena completa en cada pull request y,
 donde el anfitrión lo permite, un hook Stop en el bucle del agente.
 
@@ -169,7 +183,7 @@ La fuente editable es [`docs/diagrams/open-sdd-flows.excalidraw`](docs/diagrams/
 
 ```mermaid
 flowchart LR
-  I(["1 · Instala<br/>npx -y @brujo2020/open-sdd init . --write<br/>detecta tu agente · constitución + skills + commit gate"])
+  I(["1 · Instala<br/>npx -y @brujo2020/steelfoundry init . --write<br/>detecta tu agente · constitución + skills + commit gate"])
 
   I --> A1["Idea difusa"] --> C1["/sdd-discovery<br/>→ brief.md + roadmap"]
   I --> A2["Feature clara"]
@@ -198,7 +212,7 @@ flowchart LR
   Q2 --> M1
   Q2 -.-> M2
 
-  V["5 · Verifica y cierra<br/>/sdd-validate-impl → /sdd-verify-completion<br/>→ /sdd-audit → open-sdd archive"]
+  V["5 · Verifica y cierra<br/>/sdd-validate-impl → /sdd-verify-completion<br/>→ /sdd-audit → steelfoundry archive"]
   M1 & M2 & SHORT --> V --> DONE(["Listo"])
 
   CONST["Constitución<br/>.sdd/steering/constitution.md<br/>principios con evidencia · un humano la ratifica"]
@@ -239,13 +253,13 @@ nunca sale de un agente.
 sequenceDiagram
   autonumber
   participant A as 🟨 Agente
-  participant E as 🟦 Motor (open-sdd)
+  participant E as 🟦 Motor (steelfoundry)
   participant G as 🟦 Gates C1–C6
   participant H as 🟪 Persona
-  A->>E: open-sdd next
+  A->>E: steelfoundry next
   E-->>A: un paso + contrato (entradas, salidas, hecho-cuando)
   A->>A: hace el trabajo
-  A->>E: open-sdd report (evidencia, tokens, modelo)
+  A->>E: steelfoundry report (evidencia, tokens, modelo)
   E->>G: ejecuta los gates del rigor declarado
   alt los gates fallan
     G-->>E: ❌ bloqueado (motivo + fichero)
@@ -285,7 +299,7 @@ flowchart LR
 ```
 
 La ceremonia (`minimal` · `standard` · `strict`) y la variante (`greenfield` · `brownfield`) se
-eligen por ejecución: `open-sdd start "<intención>" --level L2 --variant brownfield --rigor spec-anchored`.
+eligen por ejecución: `steelfoundry start "<intención>" --level L2 --variant brownfield --rigor spec-anchored`.
 
 ### Greenfield frente a brownfield
 
@@ -403,7 +417,7 @@ flowchart TB
 
 ### ¿Dónde estoy?
 
-`open-sdd where` muestra la fase, el progreso ponderado por coste de paso, los pasos pendientes y
+`steelfoundry where` muestra la fase, el progreso ponderado por coste de paso, los pasos pendientes y
 las decisiones en espera; `--save` escribe un checkpoint reanudable en `.sdd/state/checkpoint.md`.
 
 ```mermaid
@@ -425,7 +439,7 @@ flowchart LR
   IN -- sensor --> S1["aidlc-opensdd-ears"]
   CO -- sensor --> S2["aidlc-opensdd-gates"]
   CO -- sensor --> S3["aidlc-opensdd-steering"]
-  S1 & S2 & S3 --> CLI{"CLI open-sdd<br/>OPEN_SDD_CLI o PATH"}
+  S1 & S2 & S3 --> CLI{"CLI steelfoundry<br/>OPEN_SDD_CLI o PATH"}
   CLI -- encontrado --> RES["pasa · hallazgos"]
   CLI -- ausente --> FC["🟥 fail closed"]
   classDef aw fill:#ffd8a8,stroke:#e8590c,color:#1e1e1e
@@ -447,19 +461,19 @@ rigor**: subir el listón añade comprobaciones, pero nunca quita esta.
 
 Tiene dos orígenes, y el archivo registra cuál aplica:
 
-- **Descriptiva** (código existente): `open-sdd brownfield constitution . --write` extrae los principios
+- **Descriptiva** (código existente): `steelfoundry brownfield constitution . --write` extrae los principios
   que el código ya cumple, cada uno con su evidencia. Las prácticas que quieres y que el código aún no
   sigue pasan a ser *enmiendas propuestas*, no reglas en vigor.
-- **Ratificada** (decisión humana): `open-sdd brownfield constitution . --draft` escribe un borrador
-  que explícitamente no está en vigor. `open-sdd govern constitution --evidence-pack` da a un modelo o a
+- **Ratificada** (decisión humana): `steelfoundry brownfield constitution . --draft` escribe un borrador
+  que explícitamente no está en vigor. `steelfoundry govern constitution --evidence-pack` da a un modelo o a
   un revisor lo que necesita para mejorarlo, y
-  `open-sdd govern constitution --ratify --by "<nombre>" --rationale "<por qué>" --write` lo pone en
+  `steelfoundry govern constitution --ratify --by "<nombre>" --rationale "<por qué>" --write` lo pone en
   vigor, registrando quién lo ratificó y por qué. Una ratificación sin persona nombrada y sin motivo se rechaza,
   y hay que confirmarla tecleando `RATIFICAR` en la terminal (una sesión de agente no puede); ver
   [Manual §16.1](docs/MANUAL.md#161-ratifying-the-constitution-mandatory-terminal-confirmation).
 
-`open-sdd govern constitution --matrix` muestra cómo está cada spec frente a cada principio, y
-`open-sdd status` informa de la alineación constitucional junto al resto del score.
+`steelfoundry govern constitution --matrix` muestra cómo está cada spec frente a cada principio, y
+`steelfoundry status` informa de la alineación constitucional junto al resto del score.
 
 ## Lo que obtienes
 
@@ -468,7 +482,7 @@ Tiene dos orígenes, y el archivo registra cuál aplica:
   vez de pedirle a un modelo que «considere» una comprobación. Sin MCP y sin red. El argumento que
   escribes se traduce al marcador propio de cada anfitrión (`{{args}}`, `${input:request}`,
   `$ARGUMENTS`), y el límite de tamaño que documenta cada fabricante se comprueba en vez de suponerse.
-  `open-sdd templates` las lista.
+  `steelfoundry templates` las lista.
 - **Un servidor MCP, si lo quieres.** Un servidor stdio JSON-RPC con 11 herramientas y recursos de solo
   lectura, invocable desde cualquier anfitrión MCP moderno. Sin red, sin backend de modelo, sin claves
   de API. Es opt-in (`--mcp`), porque algunos anfitriones y algunas políticas de seguridad no lo
@@ -512,7 +526,7 @@ mapea sus artefactos a los de esta herramienta.
 
 ### Lo mejor de cada herramienta, en un solo sitio
 
-open-sdd no sustituye a estas herramientas copiándolas: toma la idea que cada una hace mejor, la convierte en una
+steelfoundry no sustituye a estas herramientas copiándolas: toma la idea que cada una hace mejor, la convierte en una
 comprobación determinista o en un comando cuando se puede, y deja fuera lo que solo añade ceremonia. Ideas y reglas,
 no código (todas MIT); en [modos SDD](docs/guides/sdd-modes.md) está por qué se incluye cada pieza.
 
@@ -536,7 +550,7 @@ no código (todas MIT); en [modos SDD](docs/guides/sdd-modes.md) está por qué 
   lectores a ignorarla.
 - **Tres convenciones de plantillas de comando se rechazan, no se adivinan.** Codex, Zed y Cline no
   documentan directorio de comandos de proyecto, así que `init --write` imprime la convención que no
-  pudo verificar y no escribe nada ahí. `open-sdd templates` lista los once anfitriones y los marca.
+  pudo verificar y no escribe nada ahí. `steelfoundry templates` lista los once anfitriones y los marca.
 - **Un `docker build` local sigue siendo de una sola arquitectura.** Produce la arquitectura del
   builder; la imagen multi-arquitectura (`linux/amd64` + `linux/arm64`) la construye y publica el job
   de contenedor de CI, así que necesita los runners de GitHub, no un portátil.
@@ -565,7 +579,7 @@ invariantes, las olas transaccionales y la constitución como pivote.
   (fuentes LaTeX en español y en [inglés](docs/papers/open-sdd-preprint-en.tex)).
 - **Qué está implementado y qué no:** [`docs/PAPER-ALIGNMENT.md`](docs/PAPER-ALIGNMENT.md) vincula cada
   sección del paper con el símbolo que la implementa y enumera cada brecha declarada.
-  `open-sdd assure claims --verify` ejecuta ese registro, que debe quedar en 0 rotas.
+  `steelfoundry assure claims --verify` ejecuta ese registro, que debe quedar en 0 rotas.
 - Las mediciones del prototipo del paper (κ, la tasa de falsos positivos de C4, los tiempos de barrido)
   son de ese prototipo y **no** son mediciones de este repositorio.
 

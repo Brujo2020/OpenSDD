@@ -20,18 +20,18 @@ parallelSafe: false
 moves:
   - ears
 commands:
-  - "open-sdd status --json"
-  - "open-sdd status <feature> --json"
-  - "open-sdd brownfield specify <feature> \"<description>\" --json"
-  - "open-sdd brownfield requirements <feature> --suggest --json"
-  - "open-sdd brownfield analyze <feature> --json"
-  - "open-sdd delta init <feature> \"<title>\""
-  - "open-sdd delta validate <feature> --json"
-  - "open-sdd status --check --json"
+  - "steelfoundry status --json"
+  - "steelfoundry status <feature> --json"
+  - "steelfoundry brownfield specify <feature> \"<description>\" --json"
+  - "steelfoundry brownfield requirements <feature> --suggest --json"
+  - "steelfoundry brownfield analyze <feature> --json"
+  - "steelfoundry delta init <feature> \"<title>\""
+  - "steelfoundry delta validate <feature> --json"
+  - "steelfoundry status --check --json"
 scripts:
-  - "open-sdd brownfield specify <feature> \"<description>\" --json"
-  - "open-sdd brownfield requirements <feature> --suggest --json"
-  - "open-sdd delta init <feature> \"<title>\""
+  - "steelfoundry brownfield specify <feature> \"<description>\" --json"
+  - "steelfoundry brownfield requirements <feature> --suggest --json"
+  - "steelfoundry delta init <feature> \"<title>\""
 ---
 
 # Specify — intent becomes numbered EARS requirements
@@ -54,9 +54,9 @@ anything. A requirement invented from silence is the most expensive kind of bug.
 - **Identified — produces:** `.sdd/specs/<feature>/requirements.md` (numbered EARS statements, pattern named) and `spec.json`.
 - **Identified — refuses:** it refuses to write the constitution, application source, tests or manifests; implementation, refactor or deploy intent becomes a deferred note, never a requirement.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd brownfield requirements <feature> --suggest --json` re-checks every statement against the real EARS patterns and **exits 1** when the spec cannot be analysed (BLOCKS hand-off to `plan`); `open-sdd delta validate <feature> --json` **exits 1** on an invalid delta.
-- **Measured — components:** `ears` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: requirements are written under the ratified constitution in EARS form with the pattern named (`When … the system shall …`, `If … the system shall …`), an unknowable datum becomes a question instead of a fabricated requirement, and `open-sdd status --check --json` validates the spec against the principles.
+- **Assured — backing check:** `steelfoundry brownfield requirements <feature> --suggest --json` re-checks every statement against the real EARS patterns and **exits 1** when the spec cannot be analysed (BLOCKS hand-off to `plan`); `steelfoundry delta validate <feature> --json` **exits 1** on an invalid delta.
+- **Measured — components:** `ears` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: requirements are written under the ratified constitution in EARS form with the pattern named (`When … the system shall …`, `If … the system shall …`), an unknowable datum becomes a question instead of a fabricated requirement, and `steelfoundry status --check --json` validates the spec against the principles.
 
 ## Pre-Execution Checks
 
@@ -71,7 +71,7 @@ anything. A requirement invented from silence is the most expensive kind of bug.
 
 - **May write:** the feature's own `.sdd/specs/<feature>/` artifacts (`spec.json`, `requirements.md`
   and, when useful, `brief.md`). For an existing codebase, the change contract is a delta:
-  `open-sdd delta init <feature> "<title>"` — declare ADDED / MODIFIED / REMOVED / RENAMED there.
+  `steelfoundry delta init <feature> "<title>"` — declare ADDED / MODIFIED / REMOVED / RENAMED there.
 - **Must not touch:** the constitution, application source, tests, or build manifests.
 - **Deferred intents:** implementation detail, refactors, deployment steps and "while we are here"
   cleanups are **not requirements**. Capture them as deferred notes at the end of `requirements.md`
@@ -82,21 +82,21 @@ anything. A requirement invented from silence is the most expensive kind of bug.
 1. Read the current state so you know which phase and which feature you are in:
 
 ```bash
-open-sdd status --json
+steelfoundry status --json
 ```
 
 2. Turn the natural-language intent into a first-pass spec with the engine's specify front door. It
    writes the spec artifacts and the questions it cannot answer; read both:
 
 ```bash
-open-sdd brownfield specify <feature> "<description>" --json
+steelfoundry brownfield specify <feature> "<description>" --json
 ```
 
 3. For an existing codebase, declare the contract of change; then the requirements have a scope to
    live in:
 
 ```bash
-open-sdd delta init <feature> "<title>"
+steelfoundry delta init <feature> "<title>"
 ```
 
 4. Draft the requirements in EARS. **Name the pattern for each statement** and keep exactly one
@@ -109,7 +109,7 @@ open-sdd delta init <feature> "<title>"
 5. Use the engine's EARS assistant to check and suggest rewrites against the real patterns:
 
 ```bash
-open-sdd brownfield requirements <feature> --suggest --json
+steelfoundry brownfield requirements <feature> --suggest --json
 ```
 
 6. Read the machine report: it names every statement that is not yet checkable and every pattern it
@@ -122,13 +122,13 @@ open-sdd brownfield requirements <feature> --suggest --json
 9. Ask the engine what the change touches, so the requirements do not silently contradict the code:
 
 ```bash
-open-sdd brownfield analyze <feature> --json
+steelfoundry brownfield analyze <feature> --json
 ```
 
 10. Confirm the feature's artifacts parse and are in the phase you think they are:
 
 ```bash
-open-sdd status <feature> --json
+steelfoundry status <feature> --json
 ```
 
 ## The constitution is the pivot
@@ -155,7 +155,7 @@ constitution first. A draft constitution has no authority; a requirement may not
 
 ## Mandatory Post-Execution Hooks
 
-1. Re-run `open-sdd status <feature> --json` and confirm the EARS component is now measured.
+1. Re-run `steelfoundry status <feature> --json` and confirm the EARS component is now measured.
 2. Hand the open questions to `clarify` before any plan is written.
 
 ## Completion Report

@@ -25,7 +25,7 @@ export const pendingDecisions = async (cwd) => {
                 kind: 'card',
                 id: card.id,
                 question: card.question,
-                command: `open-sdd decide ${feature} ${card.id} <${card.options.map((o) => o.key).join('|')}> --by "<name>"`,
+                command: `steelfoundry decide ${feature} ${card.id} <${card.options.map((o) => o.key).join('|')}> --by "<name>"`,
             });
         }
     }
@@ -39,7 +39,7 @@ export const pendingDecisions = async (cwd) => {
                 kind: 'gate',
                 id: step.id,
                 question: step.reason ?? 'human gate waiting for its decision card',
-                command: `open-sdd next ${run.feature}`,
+                command: `steelfoundry next ${run.feature}`,
             });
         }
     }
@@ -65,7 +65,7 @@ export const handleDecideCommand = async (args, io, cwd) => {
     if (feature && card && option)
         return handleHilCommand(['answer', feature, card, option, ...flags], io, cwd);
     if (feature && card) {
-        io.error(`decide ${feature} ${card} needs the option: open-sdd decide ${feature} ${card} <option> --by "<name>"`);
+        io.error(`decide ${feature} ${card} needs the option: steelfoundry decide ${feature} ${card} <option> --by "<name>"`);
         return EXIT.USAGE;
     }
     if (feature)

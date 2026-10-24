@@ -184,7 +184,7 @@ describe('assist — constitución ausente: colaboración, no volcado', () => {
 
     // Los dos comandos exactos, en orden, y la constancia de que no se ha escrito nada.
     expect(suggestion!.proposal).toContain(CONSTITUTION_DRAFT_COMMAND);
-    expect(suggestion!.proposal).toContain('open-sdd govern constitution --ratify --by "<nombre>" --rationale "<texto>"');
+    expect(suggestion!.proposal).toContain('steelfoundry govern constitution --ratify --by "<nombre>" --rationale "<texto>"');
     expect(CONSTITUTION_RATIFY_COMMAND).toContain('--ratify --by');
     expect(suggestion!.proposal).toMatch(/Nada se ha escrito/);
     expect(suggestion!.action).toBe(CONSTITUTION_DRAFT_COMMAND);
@@ -245,7 +245,7 @@ describe('assist — EARS: la propuesta, el ejemplo y la acción', () => {
     expect(suggestion.proposal).toContain('The [drafter] shall record the evidence.');
     expect(suggestion.example).toBeDefined();
     expect(suggestion.example!).toContain('fuente:');
-    expect(suggestion.action).toBe('open-sdd brownfield requirements demo --suggest');
+    expect(suggestion.action).toBe('steelfoundry brownfield requirements demo --suggest');
   });
 
   it('un término vago pide el dato medible en vez de emitir un hueco', async () => {
@@ -301,7 +301,7 @@ describe('assist — UNFILLED_REQUIREMENT_PLACEHOLDER: la sustitución exacta', 
     expect(out.suggestions[0].proposal).toContain('Sustituye exactamente {{REQ-ORD-001}} por REQ-ORD-001');
     expect(out.suggestions[1].proposal).toMatch(/^Falta información:/);
     expect(out.suggestions[1].proposal).toContain('{{REQUIREMENT_IDS}}');
-    expect(out.suggestions[0].action).toBe('open-sdd delta validate demo');
+    expect(out.suggestions[0].action).toBe('steelfoundry delta validate demo');
   });
 
   it('los descubre solo, sin que nadie los pase como hallazgo', async () => {

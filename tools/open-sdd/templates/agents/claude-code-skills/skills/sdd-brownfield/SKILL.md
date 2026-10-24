@@ -41,17 +41,17 @@ steering y specs (`/sdd-spec-quick`) ni como sustituto de `/sdd-getspecs` en el 
 ### 1. Reconocer — qué es este proyecto ya, con evidencia
 
 ```bash
-open-sdd brownfield bootstrap . --focus "el área que te importa"
+steelfoundry brownfield bootstrap . --focus "el área que te importa"
 ```
 
 `bootstrap` es el punto de entrada único: compone el reconocimiento, la constitución descriptiva, el
 mapa de módulos, el documento de inteligencia de código y el plan ordenado de pasos. Para solo la
-evidencia, `open-sdd brownfield survey .`.
+evidencia, `steelfoundry brownfield survey .`.
 
 ### 2. Anclar — la constitución descriptiva
 
 ```bash
-open-sdd brownfield constitution . --write
+steelfoundry brownfield constitution . --write
 ```
 
 Escribe `.sdd/steering/constitution.md`. **Solo lo que el código ya cumple**, cada principio con su
@@ -61,8 +61,8 @@ queda como **enmienda propuesta**, nunca como hecho. El stack es un hecho establ
 ### 3. Describir el cambio — la delta es el contrato del cambio
 
 ```bash
-open-sdd delta init <feature> "qué cambia"
-open-sdd delta validate <feature>
+steelfoundry delta init <feature> "qué cambia"
+steelfoundry delta validate <feature>
 ```
 
 La delta describe **solo lo que cambia**, no la spec de todo el sistema, con ids acotados
@@ -72,11 +72,11 @@ La delta describe **solo lo que cambia**, no la spec de todo el sistema, con ids
 ### 4. Comprobar — antes de escribir el cambio
 
 ```bash
-open-sdd status <feature> --check          # alineación constitucional: el pivote
-open-sdd brownfield impact <feature>       # radio de impacto y cambios de ruptura
-open-sdd brownfield contracts <feature>    # el oráculo de regresión; --verify lo ejecuta
-open-sdd brownfield reuse <feature> --symbols A,B
-open-sdd govern rigor                      # el nivel declarado y sus gates
+steelfoundry status <feature> --check          # alineación constitucional: el pivote
+steelfoundry brownfield impact <feature>       # radio de impacto y cambios de ruptura
+steelfoundry brownfield contracts <feature>    # el oráculo de regresión; --verify lo ejecuta
+steelfoundry brownfield reuse <feature> --symbols A,B
+steelfoundry govern rigor                      # el nivel declarado y sus gates
 ```
 
 ### 5. Entregar — evidencia, gates y un único panel
@@ -85,7 +85,7 @@ La evidencia va **en las tareas**, no en el chat. Corren los gates del nivel dec
 único panel: constitución, specs, delta, contratos, alineación y próximos pasos en una pantalla.
 
 ```bash
-open-sdd status --check
+steelfoundry status --check
 ```
 
 ## La constitución es el PIVOTE
@@ -100,15 +100,15 @@ evidencia `tools/open-sdd/src/core/index.ts; tools/open-sdd/src/index.ts`). La d
 `tools/open-sdd/src/index.ts` — justo el fichero que `C-API-COMPAT` protege. Por eso esa spec **debe**
 citar `C-API-COMPAT`:
 
-- si citara `C-SOLO-CONSOLA` (un id que no existe), `open-sdd status --check` reporta **autoridad
+- si citara `C-SOLO-CONSOLA` (un id que no existe), `steelfoundry status --check` reporta **autoridad
   fantasma** (`UNKNOWN_PRINCIPLE`, error) y sale con código 1;
 - si no citara ninguno, reporta el **pivote sin usar** (`NO_PRINCIPLES_DECLARED`, aviso);
 - si un requisito dijera "sustituir el punto de entrada sin ruta de migración", contradice el `MUST`.
 
 Estado real hoy: `.sdd/specs/brownfield-support/` declara los cuatro principios (`_Constitution:`),
-`open-sdd status --check` reporta **alineación 100 %**, ningún principio en vigor sin mencionar, **0
+`steelfoundry status --check` reporta **alineación 100 %**, ningún principio en vigor sin mencionar, **0
 errores y 1 aviso** (`BOUNDARY_VIOLATION`: `.sdd/settings/rigor.json` queda fuera de las fronteras
-declaradas). Y `open-sdd govern constitution --matrix` reporta **cobertura 50 %**: `C-API-COMPAT` y
+declaradas). Y `steelfoundry govern constitution --matrix` reporta **cobertura 50 %**: `C-API-COMPAT` y
 `C-REGRESSION-ORACLE` salen `cubierto`; `C-STACK-FACT` y `C-BOUNDARIES` salen `hueco` porque su
 evidencia es un hecho y una lista de directorios, no un `fichero:línea`.
 
@@ -123,17 +123,17 @@ Acumulativa: subir de nivel solo **añade** comprobaciones. El nivel por defecto
 | **spec-as-source** | + contratos declarados y regeneración desde la spec como reparación | C1, C2, C3, C4, C5, C6 |
 
 **C2 (secretos y comandos destructivos) está activo en todos los niveles**: es el suelo duro, no un
-ajuste de rigor. Se configura con `open-sdd govern rigor --set <nivel> --rationale "..."`, y un nivel
+ajuste de rigor. Se configura con `steelfoundry govern rigor --set <nivel> --rationale "..."`, y un nivel
 sin motivo declarado no es auditable.
 
 El objetivo es que la experiencia **no estorbe**: `status` es un panel, no un muro, y lo que corre en
-cada commit es `open-sdd govern rigor --no-drift --quiet` (una línea, veredicto en el código de
-salida); `open-sdd status --quiet` deja el panel entero en una sola línea.
+cada commit es `steelfoundry govern rigor --no-drift --quiet` (una línea, veredicto en el código de
+salida); `steelfoundry status --quiet` deja el panel entero en una sola línea.
 
 ## Buscar antes de crear (reuse-first)
 
 Antes de generar una clase o un método nuevos, busca si ya existe algo reutilizable:
-`open-sdd brownfield reuse <feature>`. Crear código nuevo solo es legítimo cuando no existe nada
+`steelfoundry brownfield reuse <feature>`. Crear código nuevo solo es legítimo cuando no existe nada
 reutilizable — en este repositorio esa política está en la enmienda **propuesta** `AMD-REUSE-FIRST`,
 así que el informe es un aviso, no un gate.
 

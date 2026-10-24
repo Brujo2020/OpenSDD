@@ -1,5 +1,5 @@
 /**
- * `open-sdd init` — comportamiento del inicializador de un comando.
+ * `steelfoundry init` — comportamiento del inicializador de un comando.
  *
  * Todo se ejecuta sobre fixtures en `mkdtemp` y se limpia en `afterEach`: la suite NUNCA escribe
  * dentro del repositorio. Se prueba el contrato observable (plan sin `--write` no escribe, `--write`
@@ -250,9 +250,9 @@ describe('init — plan y escritura', () => {
     expect(plan.level.ladder).toHaveLength(3);
     expect(plan.artifacts[0]).toMatchObject({ path: '.sdd/settings/rigor.json', action: 'create' });
     expect(plan.nextCommands).toHaveLength(3);
-    expect(plan.nextCommands[0]).toMatch(/^open-sdd brownfield constitution /);
-    expect(plan.nextCommands).toContain('open-sdd status');
-    expect(plan.nextCommands).toContain('open-sdd status --check');
+    expect(plan.nextCommands[0]).toMatch(/^steelfoundry brownfield constitution /);
+    expect(plan.nextCommands).toContain('steelfoundry status');
+    expect(plan.nextCommands).toContain('steelfoundry status --check');
     expect(plan.outcome.written).toEqual([]);
   });
 
@@ -493,6 +493,6 @@ describe('init — contrato heredado `init <feature>` sigue en pie', () => {
 
     const bad = makeIO();
     expect(await handleSpecInitCommand([], bad.io, dir)).toBe(1);
-    expect(bad.errs.join('\n')).toContain('Usage: open-sdd init <feature-slug>');
+    expect(bad.errs.join('\n')).toContain('Usage: steelfoundry init <feature-slug>');
   });
 });

@@ -2,7 +2,7 @@
  * One playbook, native in every host (REQ-PB-018, REQ-PB-011).
  *
  * The emitted artefacts are thin: a host never receives logic, only the loop over the engine's
- * two calls (`open-sdd next --json` → do the step → `open-sdd report …`) and the step list. That is
+ * two calls (`steelfoundry next --json` → do the step → `steelfoundry report …`) and the step list. That is
  * what makes the playbook portable: adding a host is adding a template.
  *
  * Harness²'s ablation is the budget rule: on-demand skills and scripts carried most of the gain
@@ -24,10 +24,10 @@ const slug = (name) => name.replace(/[^a-z0-9-]+/gi, '-').replace(/^-+|-+$/g, ''
 const loop = (name) => [
     'Loop until the engine says `done` or `parked`:',
     '',
-    '1. Run `open-sdd next <feature> --json` and act on the ONE directive it prints:',
-    '   - `handoff` → run the command it gives; `ask` → ask the open questions in the file it names, write the answers there, then `open-sdd questions confirm`;',
-    '   - `run-step` → read the pack, restate the goal and acceptance ids with `open-sdd handoff recall`, do the step, then `open-sdd report <feature> --step <id> --result completed|awaiting-approval`;',
-    '   - `present-gate` → prepare the decision card if none exists and STOP: a named person answers with `open-sdd hil answer`.',
+    '1. Run `steelfoundry next <feature> --json` and act on the ONE directive it prints:',
+    '   - `handoff` → run the command it gives; `ask` → ask the open questions in the file it names, write the answers there, then `steelfoundry questions confirm`;',
+    '   - `run-step` → read the pack, restate the goal and acceptance ids with `steelfoundry handoff recall`, do the step, then `steelfoundry report <feature> --step <id> --result completed|awaiting-approval`;',
+    '   - `present-gate` → prepare the decision card if none exists and STOP: a named person answers with `steelfoundry hil answer`.',
     '2. Never write `approved` yourself; never override a gate in autonomous mode.',
     '',
     `Playbook: \`${name}\`. Every verdict comes from the engine, not from this text.`,
@@ -43,7 +43,7 @@ export const buildFor = (target, r) => {
     const files = [];
     const host = skillsHosts().find((h) => h.id === target);
     if (host) {
-        const always = `---\nname: sdd-playbook-${name}\ndescription: Run the "${r.name}" playbook through the open-sdd engine (next/report). Use when working on a feature planned with this playbook.\n---\n`;
+        const always = `---\nname: sdd-playbook-${name}\ndescription: Run the "${r.name}" playbook through the steelfoundry engine (next/report). Use when working on a feature planned with this playbook.\n---\n`;
         const body = [`# Playbook ${r.name}`, '', ...loop(r.name), '', '## Steps', '', ...stepTable(r), ''].join('\n');
         if (always.length > r.budget.always_on_chars)
             errors.push(`always-on text ${always.length} > budget ${r.budget.always_on_chars}`);
@@ -58,8 +58,8 @@ export const buildFor = (target, r) => {
             content: `${JSON.stringify({
                 playbook: r.name,
                 tools: [
-                    { name: 'open_sdd_next', description: `Next directive for a feature planned with ${r.name}`, command: 'open-sdd next <feature> --json' },
-                    { name: 'open_sdd_report', description: 'Report a step result (never approved)', command: 'open-sdd report <feature> --step <id> --result <result>' },
+                    { name: 'open_sdd_next', description: `Next directive for a feature planned with ${r.name}`, command: 'steelfoundry next <feature> --json' },
+                    { name: 'open_sdd_report', description: 'Report a step result (never approved)', command: 'steelfoundry report <feature> --step <id> --result <result>' },
                 ],
                 steps: r.steps.filter((s) => s.decision === 'EXECUTE').map((s) => ({ id: s.id, use: s.use, checks: s.checks, review: s.review })),
             }, null, 2)}\n`,
@@ -70,7 +70,7 @@ export const buildFor = (target, r) => {
         const aidlcSteps = r.steps.filter((s) => s.decision === 'EXECUTE' && s.use.startsWith('aidlc:stage/'));
         files.push({
             path: `.sdd/build/aidlc/opensdd/scopes/${scope}.md`,
-            content: `---\nname: ${scope}\nplugin: opensdd\ndepth: standard\nkeywords: []\ndescription: Compiled from the open-sdd playbook "${r.name}". Stage membership is plain; open-sdd evaluated every condition.\n---\n\n# ${scope}\n\n${aidlcSteps.length} AI-DLC stage(s) run under this scope; open-sdd sensors gate them.\n`,
+            content: `---\nname: ${scope}\nplugin: opensdd\ndepth: standard\nkeywords: []\ndescription: Compiled from the steelfoundry playbook "${r.name}". Stage membership is plain; steelfoundry evaluated every condition.\n---\n\n# ${scope}\n\n${aidlcSteps.length} AI-DLC stage(s) run under this scope; steelfoundry sensors gate them.\n`,
         });
         for (const s of aidlcSteps) {
             const slugName = s.use.split('/')[1];

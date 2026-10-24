@@ -171,7 +171,7 @@ const createConflictHandler = (
 };
 
 const showVersion = (io: CliIO): void => {
-  io.log(`open-sdd v${VERSION}`);
+  io.log(`steelfoundry v${VERSION}`);
 };
 
 const handleDryRun = async (
@@ -205,7 +205,7 @@ const runPlanExecution = async (
     const agentDef = getAgentDefinition(resolvedConfig.agent);
 
     io.log('');
-    io.log(formatBox(`open-sdd v${VERSION} / ${agentDef.label}`));
+    io.log(formatBox(`steelfoundry v${VERSION} / ${agentDef.label}`));
 
     const plan = await planFromFile(manifestPath, resolvedConfig);
     const operations = await buildFileOperations(plan, resolvedConfig, execOpts);
@@ -281,7 +281,7 @@ const runScoreDoor = async (io: CliIO, cwd: string): Promise<number> => {
     const report = await computeSddScore(cwd);
     io.log(renderScoreFooter(report));
     io.log(`Por qué: ${explainNextAction(report)}`);
-    io.log('los cinco verbos: open-sdd --help · todos los comandos: open-sdd help --all');
+    io.log('los cinco verbos: steelfoundry --help · todos los comandos: steelfoundry help --all');
     return 0;
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
@@ -475,16 +475,16 @@ const dispatchSubcommand = async (
     const code = subArgv.find((arg) => !arg.startsWith('-'));
     if (!code) {
       io.error(formatError('error[usage]: `explain` needs a gate code'));
-      io.error(`  = help: run \`open-sdd gates list\`, or \`open-sdd explain C1\``);
+      io.error(`  = help: run \`steelfoundry gates list\`, or \`steelfoundry explain C1\``);
       return EXIT.USAGE;
     }
     const explained = renderExplain(code);
     if (!explained.ok) {
       io.error(formatError(explained.text));
       for (const suggestion of explained.suggestions) {
-        io.error(`  = help: did you mean \`${suggestion}\`? Run \`open-sdd explain ${suggestion}\``);
+        io.error(`  = help: did you mean \`${suggestion}\`? Run \`steelfoundry explain ${suggestion}\``);
       }
-      io.error('  = help: run `open-sdd gates list` for every code');
+      io.error('  = help: run `steelfoundry gates list` for every code');
       return EXIT.USAGE;
     }
     io.log(explained.text);
@@ -563,7 +563,7 @@ const emitUsageError = (
   for (const suggestion of suggestions) {
     io.error(`  = help: did you mean \`${suggestion}\`? Run \`${runFor(suggestion)}\``);
   }
-  io.error('  = help: run `open-sdd --help` to list every command, or `open-sdd help exit-codes`');
+  io.error('  = help: run `steelfoundry --help` to list every command, or `steelfoundry help exit-codes`');
 };
 
 interface UsageIssue {
@@ -587,7 +587,7 @@ const validateSubcommand = (cmd: string, subArgv: readonly string[]): UsageIssue
   return {
     message: `unknown subcommand \`${first}\` for \`${cmd}\``,
     suggestions: suggestCommands(first, known),
-    runFor: (suggestion) => `open-sdd ${cmd} ${suggestion}`,
+    runFor: (suggestion) => `steelfoundry ${cmd} ${suggestion}`,
   };
 };
 
@@ -604,7 +604,7 @@ export const runCli = async (
   setColorMode(global.color ?? 'auto');
   setNonInteractive(global.noInput);
   if (global.colorError !== undefined) {
-    emitUsageError(io, global.colorError, [], () => 'open-sdd --help');
+    emitUsageError(io, global.colorError, [], () => 'steelfoundry --help');
     return EXIT.USAGE;
   }
   const argv = global.argv;
@@ -633,7 +633,7 @@ export const runCli = async (
   const requestedLang = parseLangFlag(argv);
   if (requestedLang !== undefined && requestedLang.length > 0 && normalizeLocale(requestedLang) === undefined) {
     io.error(formatError(`error[usage]: ${localeRefusal(requestedLang)}`));
-    io.error(`  = help: run \`open-sdd --help\` to see the translated locales, or \`open-sdd help formatting\``);
+    io.error(`  = help: run \`steelfoundry --help\` to see the translated locales, or \`steelfoundry help formatting\``);
     return EXIT.USAGE;
   }
 
@@ -693,7 +693,7 @@ export const runCli = async (
       io,
       `unknown command \`${firstArg}\``,
       suggestCommands(cmd, KNOWN_COMMANDS),
-      (suggestion) => `open-sdd help ${suggestion}`,
+      (suggestion) => `steelfoundry help ${suggestion}`,
     );
     return EXIT.USAGE;
   }
@@ -708,7 +708,7 @@ export const runCli = async (
     // Un error de argumentos es un error de USO (2), no un fallo de gobernanza (1): el contrato de
     // códigos de salida existe para que un script distinga «escribiste mal» de «tu repositorio falló».
     io.error(formatError(`error[usage]: ${msg}`));
-    io.error('  = help: run `open-sdd --help` to list every command and flag, or `open-sdd help exit-codes`');
+    io.error('  = help: run `steelfoundry --help` to list every command and flag, or `steelfoundry help exit-codes`');
     return EXIT.USAGE;
   }
 

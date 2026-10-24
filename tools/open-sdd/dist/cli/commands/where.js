@@ -24,9 +24,9 @@ export const handleWhereCommand = async (args, io, cwd) => {
         return EXIT.PASSED;
     }
     io.log([
-        ...(ps.length ? ps.flatMap((p) => [...renderProgress(p), '']) : ['no runs: open-sdd start "<intent>"']),
+        ...(ps.length ? ps.flatMap((p) => [...renderProgress(p), '']) : ['no runs: steelfoundry start "<intent>"']),
         ...(reverse ? [`reverse engineering: ${reverse.stages.filter((s) => s.done).length}/6 stages${reverse.current ? ` · open ${reverse.current.id} ${reverse.current.name} (${reverse.current.metric})` : ' · complete'}`] : []),
-        ...(saved ? [`checkpoint saved: ${saved.md} (resume from it in any session)`] : ['save where we are: open-sdd where --save [--note "…"]']),
+        ...(saved ? [`checkpoint saved: ${saved.md} (resume from it in any session)`] : ['save where we are: steelfoundry where --save [--note "…"]']),
     ].join('\n'));
     return EXIT.PASSED;
 };

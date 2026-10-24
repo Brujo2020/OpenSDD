@@ -1,6 +1,6 @@
 # SDD modes and the modules from SteelForge
 
-SteelForge IDE ran open-sdd inside a desktop agent for months and grew a layer around it: rigor levels people could
+SteelForge IDE ran open-sdd (now SteelFoundry) inside a desktop agent for months and grew a layer around it: rigor levels people could
 pick, flows for each kind of work, a stage guide, and a set of deterministic checks that the other SDD toolkits
 (Spec Kit, OpenSpec, BMAD) leave to a prompt. This guide documents what came back to open-sdd, **why
 each piece is included**, and which skills fit each kind of project.
@@ -11,14 +11,14 @@ Everything here is deterministic: no model, no network. Only `gherkin --write`, 
 ## Which skills to use for which kind of project
 
 Projects are different, and the skill that fits one is ceremony — or a missing safety net — for another. Identify
-the type first; `open-sdd modes --projects` prints this table and `open-sdd modes --project <type>` one row.
+the type first; `steelfoundry modes --projects` prints this table and `steelfoundry modes --project <type>` one row.
 
 | Type | Recognise it by | Level · terrain | Skills, in order | Do NOT use |
 |---|---|---|---|---|
-| `fuzzy-idea` | nobody can say who needs it or what "done" is | spec-first · greenfield | `/sdd-discovery` → `open-sdd discovery lint` → `/sdd-spec-quick` or `/sdd-tiny` | `/sdd-spec-requirements` |
+| `fuzzy-idea` | nobody can say who needs it or what "done" is | spec-first · greenfield | `/sdd-discovery` → `steelfoundry discovery lint` → `/sdd-spec-quick` or `/sdd-tiny` | `/sdd-spec-requirements` |
 | `spike` | throwaway code to test feasibility | explore | `/sdd-tiny` → implement → `/sdd-promote` if it survives | `/sdd-spec-quick`, `/sdd-impl` |
-| `greenfield` | no existing code constrains it | spec-first · greenfield | `/sdd-steering` → `/sdd-spec-init` → `/sdd-spec-requirements` → `/sdd-spec-design` → `/sdd-spec-tasks` → `open-sdd gherkin --write` → `/sdd-impl` → `/sdd-validate-impl` → `open-sdd archive --confirm` | `/sdd-getspecs`, `/sdd-characterize` |
-| `multi-feature` | a roadmap with dependencies | spec-anchored · greenfield | `/sdd-discovery` → `/sdd-spec-batch` → `open-sdd waves` → `/sdd-impl` per wave | `/sdd-spec-quick` one by one |
+| `greenfield` | no existing code constrains it | spec-first · greenfield | `/sdd-steering` → `/sdd-spec-init` → `/sdd-spec-requirements` → `/sdd-spec-design` → `/sdd-spec-tasks` → `steelfoundry gherkin --write` → `/sdd-impl` → `/sdd-validate-impl` → `steelfoundry archive --confirm` | `/sdd-getspecs`, `/sdd-characterize` |
+| `multi-feature` | a roadmap with dependencies | spec-anchored · greenfield | `/sdd-discovery` → `/sdd-spec-batch` → `steelfoundry waves` → `/sdd-impl` per wave | `/sdd-spec-quick` one by one |
 | `brownfield-extension` | running code with tests | spec-anchored · brownfield | `/sdd-getspecs` → `brownfield constitution` → `steering check` → `delta init/validate` → `brownfield contracts` → `/sdd-spec-tasks` → `/sdd-impl` → `contracts --verify` | a new spec from scratch, `/sdd-tiny` |
 | `legacy-untested` | nothing pins the current behaviour | spec-anchored · brownfield | `/sdd-getspecs` → `/sdd-characterize` → `brownfield contracts` → `/sdd-refactor`, `/sdd-bugfix` or `delta init` | any change before `/sdd-characterize` |
 | `bug` | existing behaviour is wrong | spec-first · brownfield | `/sdd-bugfix` → `delta init` only if a spec changes → `/sdd-verify-completion` | `/sdd-spec-quick` |
@@ -26,7 +26,7 @@ the type first; `open-sdd modes --projects` prints this table and `open-sdd mode
 
 ## The two axes: level and flow
 
-**Level** (`open-sdd modes [--level …] [--brownfield] [--governance …]`) decides which modules are required (`on`),
+**Level** (`steelfoundry modes [--level …] [--brownfield] [--governance …]`) decides which modules are required (`on`),
 available (`opt`) or out of scope (`off`):
 
 | Module | explore | spec-first | spec-anchored | spec-as-source | Why it is required where it is |
@@ -51,14 +51,14 @@ throwaway mode, and nothing built in it counts as evidence until `/sdd-promote` 
 
 | Addition | Where | Why it is included |
 |---|---|---|
-| `open-sdd modes` | `src/core/sddModes.ts` | open-sdd had the rigor ladder and every artifact, but no place that answered "with this level, on this terrain, what must I do and what can I skip?". The matrix and the project-type table are data any interface can render (`--json`). |
-| `open-sdd stages <feature>` | `stagesFor` in `sddModes.ts` | A sequential stage guide: the active stage is the first one not done, and each stage says what it needs. Users stopped asking "what now?". |
-| `open-sdd gherkin <feature>` | `src/core/earsGherkin.ts` | open-sdd validated and coached EARS but never turned a criterion into an acceptance scenario, so the requirement → test trace was typed by hand and drifted. Deterministic: it only reorders what the criterion says, and skips (with the reason) what is not EARS. |
+| `steelfoundry modes` | `src/core/sddModes.ts` | steelfoundry had the rigor ladder and every artifact, but no place that answered "with this level, on this terrain, what must I do and what can I skip?". The matrix and the project-type table are data any interface can render (`--json`). |
+| `steelfoundry stages <feature>` | `stagesFor` in `sddModes.ts` | A sequential stage guide: the active stage is the first one not done, and each stage says what it needs. Users stopped asking "what now?". |
+| `steelfoundry gherkin <feature>` | `src/core/earsGherkin.ts` | steelfoundry validated and coached EARS but never turned a criterion into an acceptance scenario, so the requirement → test trace was typed by hand and drifted. Deterministic: it only reorders what the criterion says, and skips (with the reason) what is not EARS. |
 | Five task-structure checks in `consistency` | `src/core/taskStructure.ts` | `consistency` traced ids but did not read the task list itself. Duplicate numbers make `/sdd-impl 1.2` ambiguous; `(P)` without `_Boundary:_` lets parallel tasks collide; `_Depends:_` on a missing task corrupts the waves; a task with no verification makes "done" an opinion; a requirement the plan never names was not designed. |
 | `REQUIREMENT_NAMES_TECHNOLOGY` in `consistency` | `src/core/requirementTechnology.ts` | The rule: a requirement says WHAT, not WITH WHAT; naming PostgreSQL or React fixes a design decision inside the document that must survive any design. Advisory only (`info`): the list holds names that are unambiguous in prose, and a criterion that records the constraint (`Constraint:`, ADR, contract) is left alone. It complements the catalogued `VER-004`, which needs the standards catalogue loaded. |
-| `open-sdd discovery lint` / `log` | `src/core/discoveryBrief.ts` | `/sdd-discovery` wrote `brief.md` but nothing checked it before requirements consumed it. The gate blocks an empty scope exclusion, an unmeasurable outcome and any unconfirmed assumption (from BMAD), and refuses secrets. The log is append-only so the reasons behind a kill or a lock survive. |
-| `open-sdd archive <feature>` | `src/core/archive.ts` | specs had no end of life and finished work inflated every scan. Archiving (from OpenSpec) requires every task done, `spec.json` in `verified`/`completed` and tasks approved; it is a dry run without `--confirm`, never overwrites, and moves in one `rename`. |
-| `open-sdd steering check` | `src/core/steeringCheck.ts` | generated steering is partly inferred. Until a person confirms it, every spec inherits guesses as rules. The check validates the steering `inclusion` modes, rejects `#[[file:…]]` references outside the workspace, and treats `(inferred)` / `[NEEDS CLARIFICATION]` as a draft. |
+| `steelfoundry discovery lint` / `log` | `src/core/discoveryBrief.ts` | `/sdd-discovery` wrote `brief.md` but nothing checked it before requirements consumed it. The gate blocks an empty scope exclusion, an unmeasurable outcome and any unconfirmed assumption (from BMAD), and refuses secrets. The log is append-only so the reasons behind a kill or a lock survive. |
+| `steelfoundry archive <feature>` | `src/core/archive.ts` | specs had no end of life and finished work inflated every scan. Archiving (from OpenSpec) requires every task done, `spec.json` in `verified`/`completed` and tasks approved; it is a dry run without `--confirm`, never overwrites, and moves in one `rename`. |
+| `steelfoundry steering check` | `src/core/steeringCheck.ts` | generated steering is partly inferred. Until a person confirms it, every spec inherits guesses as rules. The check validates the steering `inclusion` modes, rejects `#[[file:…]]` references outside the workspace, and treats `(inferred)` / `[NEEDS CLARIFICATION]` as a draft. |
 | `/sdd-tiny`, `/sdd-promote` | skills | a spike needs "done when" but not governance; promotion is the explicit door back into the ladder. |
 | `/sdd-bugfix` | skill | a bug's evidence is the root cause and the regression contract (what must NOT change), written before the fix. |
 | `/sdd-plan-only` | skill | decide before committing: the agent is read-only. |
@@ -67,16 +67,16 @@ throwaway mode, and nothing built in it counts as evidence until `/sdd-promote` 
 
 ## Getting the new flows into your agent
 
-The CLI commands (`modes`, `stages`, `gherkin`, `archive`, `discovery`, `steering check`) work anywhere `open-sdd`
+The CLI commands (`modes`, `stages`, `gherkin`, `archive`, `discovery`, `steering check`) work anywhere `steelfoundry`
 runs. The six new **flows** (`sdd-tiny`, `sdd-promote`, `sdd-bugfix`, `sdd-plan-only`, `sdd-refactor`,
 `sdd-characterize`) are skills, so they need the host's skills installed:
 
 ```bash
-open-sdd integrate claude-code --write     # 29 skills in .claude/skills/ + CLAUDE.md with the guide per project type
-open-sdd integrate --list                  # every host and where its skills go
+steelfoundry integrate claude-code --write     # 29 skills in .claude/skills/ + CLAUDE.md with the guide per project type
+steelfoundry integrate --list                  # every host and where its skills go
 ```
 
-`open-sdd init . --write` (the no-MCP default) installs the 22 prompt templates only; it does not install these six
+`steelfoundry init . --write` (the no-MCP default) installs the 22 prompt templates only; it does not install these six
 flows. Verified on a clean repository: `integrate claude-code --write` writes `.claude/skills/sdd-*/SKILL.md` (27
 directories, each `name:` equal to its folder) and the "Which commands for which kind of project" section of
 `CLAUDE.md`. The same skills are in the shared tree that every host reading `.agents/skills/` installs.

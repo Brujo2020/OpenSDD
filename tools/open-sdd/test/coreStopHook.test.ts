@@ -282,7 +282,7 @@ describe('the produced argv actually stops an agent (real subprocess fixtures)',
     const result = run(claude.argv(cliEntry)[0], claude.argv(cliEntry).slice(1), repo);
     expect(result.status, result.output).toBe(2);
     // Requirement: a block must carry the CLI's own explanation, on the host-visible stream.
-    expect(result.output).toMatch(/open-sdd/);
+    expect(result.output).toMatch(/steelfoundry|open-sdd/);
     expect(result.output.length).toBeGreaterThan(0);
   });
 
@@ -326,7 +326,7 @@ shellDescribe('the Codex string form survives a real shell (sh -c)', () => {
     const failing = await failingRepo();
     const blocked = run('sh', ['-c', commandFor(cliEntry)], failing);
     expect(blocked.status, blocked.output).toBe(2);
-    expect(blocked.output).toMatch(/open-sdd/);
+    expect(blocked.output).toMatch(/steelfoundry|open-sdd/);
   }, 30_000);
 
   it('escapes embedded single quotes: a cli path with a quote reaches the CLI intact', async () => {

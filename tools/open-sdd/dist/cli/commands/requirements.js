@@ -49,10 +49,10 @@ const SPEC_MESSAGES = {
 };
 const usage = (io, message) => {
     io.error(message);
-    io.error('usage: open-sdd requirements review <feature> [--json] [--strict]');
-    io.error('       open-sdd requirements checklist <feature> [--verify] [--json]');
-    io.error('       open-sdd requirements fix <feature> --apply <id> [--json] [--dry-run] [--force]');
-    io.error('       open-sdd review <feature> --base <ref> [--json]');
+    io.error('usage: steelfoundry requirements review <feature> [--json] [--strict]');
+    io.error('       steelfoundry requirements checklist <feature> [--verify] [--json]');
+    io.error('       steelfoundry requirements fix <feature> --apply <id> [--json] [--dry-run] [--force]');
+    io.error('       steelfoundry review <feature> --base <ref> [--json]');
     return 2;
 };
 const flagValue = (argv, name) => {
@@ -83,7 +83,7 @@ const renderReview = (report, io, locale) => {
     for (const skipped of report.skipped)
         io.log(colors.dim(`  skipped ${skipped}`));
     io.log('');
-    io.log(colors.dim(`  ${messages.useFix} open-sdd requirements fix ${report.feature} --apply <id>`));
+    io.log(colors.dim(`  ${messages.useFix} steelfoundry requirements fix ${report.feature} --apply <id>`));
     io.log('');
 };
 const toEnvelopeFindings = (report) => {
@@ -184,7 +184,7 @@ const readApprovalState = async (cwd, sddDir, feature, deps) => {
 const resolveLocaleOrRefuse = (argv, io) => {
     const requested = parseLangFlag([...argv]) ?? process.env.OPEN_SDD_LANG;
     if (requested && !normalizeLocale(requested)) {
-        io.error(`unsupported locale "${requested}" · open-sdd requirements is translated for: ${SUPPORTED_LOCALES.join(', ')}`);
+        io.error(`unsupported locale "${requested}" · steelfoundry requirements is translated for: ${SUPPORTED_LOCALES.join(', ')}`);
         return null;
     }
     return (normalizeLocale(requested) ?? DEFAULT_LOCALE);

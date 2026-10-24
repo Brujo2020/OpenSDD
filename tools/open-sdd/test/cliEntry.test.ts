@@ -32,14 +32,14 @@ describe('CLI entry', () => {
     const ctx = makeIO();
     const code = await runCli(['--help'], runtime, ctx.io, {});
     expect(code).toBe(0);
-    expect(ctx.logs.join('\n')).toMatch(/Usage: open-sdd/);
+    expect(ctx.logs.join('\n')).toMatch(/Usage: steelfoundry/);
   });
 
   it('shows version', async () => {
     const ctx = makeIO();
     const code = await runCli(['--version'], runtime, ctx.io, {});
     expect(code).toBe(0);
-    expect(ctx.logs.join('\n')).toMatch(/(open-sdd|open-sdd) v/);
+    expect(ctx.logs.join('\n')).toMatch(/(open-sdd|steelfoundry) v/);
   });
 
   it('prints plan on --dry-run', async () => {

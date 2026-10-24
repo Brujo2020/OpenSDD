@@ -2,7 +2,7 @@
  * Playbooks: a per-case SDD flow as validated data (REQ-PB-003).
  *
  * A playbook is `.sdd/playbooks/<name>.playbook.json`: phases of steps, each step a registered
- * STEP TYPE (an open-sdd flow, module, skill, command or gate, or an AI-DLC stage slug) with
+ * STEP TYPE (an steelfoundry flow, module, skill, command or gate, or an AI-DLC stage slug) with
  * declared `consumes` / `produces`. The format is JSON on purpose: the repository has no YAML
  * dependency and `C-STACK-FACT` forbids adding one; people edit playbooks through the
  * `sdd-playbook` skill, not by hand.
@@ -48,7 +48,7 @@ export type Component = 'IAE' | 'CSU' | 'VE' | 'R' | 'UA';
 
 const c = (artifact: string, required = true): Consume => ({ artifact, required });
 
-/** open-sdd skill contracts. Artifacts of the open-sdd triad are namespaced `sdd:`. */
+/** steelfoundry skill contracts. Artifacts of the steelfoundry triad are namespaced `sdd:`. */
 const SKILL_CONTRACTS: Record<string, { consumes: Consume[]; produces: string[]; cost: number; component: Component }> = {
   'sdd-discovery': { consumes: [], produces: ['sdd:brief'], cost: 3, component: 'IAE' },
   'sdd-steering': { consumes: [], produces: ['sdd:steering'], cost: 2, component: 'CSU' },
@@ -122,16 +122,16 @@ const COMMANDS: StepType[] = [
   { use: 'opensdd:reverse/spec-baseline', kind: 'command', consumes: [c('sdd:re-rules')], produces: ['sdd:requirements'], cost: 2, component: 'IAE' },
 ];
 
-/** Checks a step can carry (`checks: [...]`); they map to executable open-sdd commands. */
+/** Checks a step can carry (`checks: [...]`); they map to executable steelfoundry commands. */
 export const CHECKS: Record<string, string> = {
-  'opensdd:ears': 'open-sdd requirements review <feature>',
-  'opensdd:clarify': 'open-sdd requirements review <feature>',
-  'opensdd:constitution': 'open-sdd govern constitution',
-  'opensdd:boundaries': 'open-sdd waves <feature>',
-  'opensdd:gates-c1-c3': 'open-sdd gates run C1 C2 C3',
-  'opensdd:trace': 'open-sdd next <feature> (phase boundary trace)',
+  'opensdd:ears': 'steelfoundry requirements review <feature>',
+  'opensdd:clarify': 'steelfoundry requirements review <feature>',
+  'opensdd:constitution': 'steelfoundry govern constitution',
+  'opensdd:boundaries': 'steelfoundry waves <feature>',
+  'opensdd:gates-c1-c3': 'steelfoundry gates run C1 C2 C3',
+  'opensdd:trace': 'steelfoundry next <feature> (phase boundary trace)',
 };
-for (const id of ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8']) CHECKS[`opensdd:gate/${id}`] = `open-sdd gates run ${id}`;
+for (const id of ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8']) CHECKS[`opensdd:gate/${id}`] = `steelfoundry gates run ${id}`;
 
 interface AidlcSnapshot {
   aidlcVersion: string;

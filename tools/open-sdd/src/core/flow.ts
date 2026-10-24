@@ -82,7 +82,7 @@ export const buildFlow = async (cwd: string, feature: string, sddDir = '.sdd'): 
   const blocking = plan.filter((t) => t.blocking).length;
 
   const facts: [string, string, boolean, string][] = [
-    ['constitution', 'Constitución en vigor', constitution, constitution ? 'constitution.md con principios' : 'falta: open-sdd assist constitution'],
+    ['constitution', 'Constitución en vigor', constitution, constitution ? 'constitution.md con principios' : 'falta: steelfoundry assist constitution'],
     ['discovery', 'Discovery (brief)', await has(path.join(spec, 'brief.md')), 'brief.md'],
     ['requirements', 'Requisitos EARS', await has(path.join(spec, 'requirements.md'), /REQ-[A-Z0-9]+-\d+/), 'requirements.md con REQ-…'],
     ['clarify', 'Ambigüedad resuelta', (await has(path.join(spec, 'requirements.md'))) && openQuestions === 0, `${openQuestions} pregunta(s) de clarify abiertas`],
@@ -143,24 +143,24 @@ export const buildFlow = async (cwd: string, feature: string, sddDir = '.sdd'): 
   const notStarted = !hasRequirements && plan.length === 0;
   const flowState: FlowState = allDone && !blockedBy.length ? 'done' : blockedBy.length ? 'blocked' : cards.length ? 'waiting-decision' : notStarted ? 'not-started' : 'in-progress';
   const NEXT: Record<string, string> = {
-    constitution: 'open-sdd assist constitution',
-    discovery: `open-sdd assist discover "<idea>" --feature ${feature}`,
-    requirements: `open-sdd brownfield specify ${feature} "<qué debe hacer>" --write`,
-    clarify: `open-sdd brownfield clarify ${feature}`,
+    constitution: 'steelfoundry assist constitution',
+    discovery: `steelfoundry assist discover "<idea>" --feature ${feature}`,
+    requirements: `steelfoundry brownfield specify ${feature} "<qué debe hacer>" --write`,
+    clarify: `steelfoundry brownfield clarify ${feature}`,
     design: `/sdd-spec-design ${feature}`,
     tasks: `/sdd-spec-tasks ${feature}`,
-    implement: `open-sdd impl ${feature}`,
-    validate: `open-sdd validation ${feature}`,
-    approve: `open-sdd decide ${feature}`,
+    implement: `steelfoundry impl ${feature}`,
+    validate: `steelfoundry validation ${feature}`,
+    approve: `steelfoundry decide ${feature}`,
   };
   const next = !chainsIntact
-    ? `open-sdd audit trail ${feature}`
+    ? `steelfoundry audit trail ${feature}`
     : blocking > 0
-      ? `open-sdd validation ${feature}`
+      ? `steelfoundry validation ${feature}`
       : cards.length
-        ? `open-sdd decide ${feature}`
+        ? `steelfoundry decide ${feature}`
         : allDone
-          ? `open-sdd check`
+          ? `steelfoundry check`
           : NEXT[stage.id];
   const LABEL: Record<FlowState, string> = {
     'not-started': 'SIN EMPEZAR',
@@ -230,7 +230,7 @@ export const flowMarkdown = (flows: Flow[]): string => {
     '',
     '| Feature | Estado | Etapa | Tareas | Bloqueado por | Siguiente |',
     '|---|---|---|---|---|---|',
-    ...(rows.length ? rows : ['| — | sin specs | | | | `open-sdd start "<lo que quieres>"` |']),
+    ...(rows.length ? rows : ['| — | sin specs | | | | `steelfoundry start "<lo que quieres>"` |']),
     '',
   ].join('\n');
 };

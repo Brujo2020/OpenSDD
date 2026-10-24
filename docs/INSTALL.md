@@ -1,9 +1,9 @@
 # Install
 
-Every way to get `open-sdd` onto a machine and into a repository, least friction first. The version
+Every way to get `steelfoundry` onto a machine and into a repository, least friction first. The version
 this documentation describes is **v3.10.0** (`package.json` at the repository root). The package is
-published on npm as `@brujo2020/open-sdd` (v3.7.0 onward); check what the registry serves with
-`npm view @brujo2020/open-sdd version`.
+published on npm as `@brujo2020/steelfoundry` (v3.7.0 onward); check what the registry serves with
+`npm view @brujo2020/steelfoundry version`.
 
 ## Prerequisites
 
@@ -14,19 +14,19 @@ published on npm as `@brujo2020/open-sdd` (v3.7.0 onward); check what the regist
 | npm | Only to build from a clone or install the package. The CLI itself has **no runtime dependencies** (every import is relative or `node:`). | `npm --version` |
 | Docker (optional) | The container path, if you do not want Node on the host. | `docker --version` |
 
-`open-sdd doctor` re-checks the Node range and the git environment after install.
+`steelfoundry doctor` re-checks the Node range and the git environment after install.
 
 ---
 
 ## 1. `npx`, no install
 
-The scoped package name is `@brujo2020/open-sdd`. The **unscoped** `open-sdd` does **not exist** on
-the registry, so `npx open-sdd@latest` is never this project.
+The scoped package name is `@brujo2020/steelfoundry`. The **unscoped** `steelfoundry` does **not exist** on
+the registry, so `npx steelfoundry@latest` is never this project.
 
 ```bash
-npx --yes @brujo2020/open-sdd@latest --version     # prints the published version
-npx @brujo2020/open-sdd@latest --claude-skills -y  # install the skills into the current directory
-npx @brujo2020/open-sdd@3.10.0 --cursor-skills -y   # pin a version
+npx --yes @brujo2020/steelfoundry@latest --version     # prints the published version
+npx @brujo2020/steelfoundry@latest --claude-skills -y  # install the skills into the current directory
+npx @brujo2020/steelfoundry@3.10.0 --cursor-skills -y   # pin a version
 ```
 
 If `--version` prints an older number than this document, the newest release has not reached the
@@ -43,21 +43,21 @@ it on your `PATH`:
 git clone https://github.com/Brujo2020/OpenSDD
 cd opensdd
 npm run install:global     # npm --prefix tools/open-sdd run build && npm install -g .
-open-sdd --version         # open-sdd v3.10.0
+steelfoundry --version         # steelfoundry v3.10.0
 ```
 
 **From the registry** (installs the published v2.0.0 today):
 
 ```bash
-npm install -g @brujo2020/open-sdd
-open-sdd --version
+npm install -g @brujo2020/steelfoundry
+steelfoundry --version
 ```
 
 Then, from inside a target repository:
 
 ```bash
 cd /path/to/your/project
-open-sdd --claude-skills -y
+steelfoundry --claude-skills -y
 ```
 
 ---
@@ -72,8 +72,8 @@ pins its base tag.
 git clone https://github.com/Brujo2020/OpenSDD
 cd opensdd
 docker build -t open-sdd .
-docker run --rm -v "$PWD:/work" open-sdd doctor
-docker run --rm -v "$PWD:/work" open-sdd status
+docker run --rm -v "$PWD:/work" steelfoundry doctor
+docker run --rm -v "$PWD:/work" steelfoundry status
 ```
 
 Read-only commands (`status`, `gates`, `delta validate`) work against the mounted repository as-is.
@@ -106,18 +106,18 @@ repository**.
 
 | Goal | Command | Writes |
 |---|---|---|
-| Agent skills + settings | `open-sdd --claude-skills -y` | `.sdd/settings/`, the agent's skill directory, the agent documentation file |
-| Project scaffold (templates + rigor + commit gate) | `open-sdd init . --agent claude-code-skills --write` | the host's **prompt templates**, `.sdd/settings/rigor.json`, `.git/hooks/pre-commit` |
-| Project scaffold + MCP (opt-in) | `open-sdd init . --agent claude-code-skills --write --mcp` | everything above **plus** the host's MCP server registration |
-| Commit gate + PR workflow | `open-sdd floor install . --ci` | `.git/hooks/pre-commit`, `.github/workflows/open-sdd-gates.yml` |
+| Agent skills + settings | `steelfoundry --claude-skills -y` | `.sdd/settings/`, the agent's skill directory, the agent documentation file |
+| Project scaffold (templates + rigor + commit gate) | `steelfoundry init . --agent claude-code-skills --write` | the host's **prompt templates**, `.sdd/settings/rigor.json`, `.git/hooks/pre-commit` |
+| Project scaffold + MCP (opt-in) | `steelfoundry init . --agent claude-code-skills --write --mcp` | everything above **plus** the host's MCP server registration |
+| Commit gate + PR workflow | `steelfoundry floor install . --ci` | `.git/hooks/pre-commit`, `.github/workflows/open-sdd-gates.yml` |
 
 Known agent flags include `--claude-skills`, `--codex-skills`, `--cursor-skills`,
 `--copilot-skills`, `--gemini-skills`, `--windsurf-skills`, `--opencode-skills`,
-`--antigravity` and `--cline`. Several at once: `open-sdd init . --agent claude-code-skills,cline-skills --skills --write`.
+`--antigravity` and `--cline`. Several at once: `steelfoundry init . --agent claude-code-skills,cline-skills --skills --write`.
 
 **Cline.** `--cline` installs the skills in `.cline/skills/sdd-*/SKILL.md`, the directory docs.cline.bot
 recommends, plus `AGENTS.md`. `init` picks Cline by itself when `.cline/` or `.clinerules/` exists.
-For VS Code's *Run Task*: `open-sdd integrate vscode-tasks --write`.
+For VS Code's *Run Task*: `steelfoundry integrate vscode-tasks --write`.
 
 The full table (ids, aliases, install directories) is the README's
 [Supported host agents](../README.md) section and
@@ -125,15 +125,15 @@ The full table (ids, aliases, install directories) is the README's
 
 ### Two paths: prompt templates (default) or templates + MCP (opt-in)
 
-`open-sdd init . --write` installs the **prompt templates** for the host it detected. That is the
+`steelfoundry init . --write` installs the **prompt templates** for the host it detected. That is the
 default because it works anywhere: the templates are plain files in the directory the host already
 reads, they need no network, and no security policy can block them. Each template points at the real
-engine (`open-sdd status --json`, `open-sdd delta validate <feature> --json`, …) instead of guessing.
+engine (`steelfoundry status --json`, `steelfoundry delta validate <feature> --json`, …) instead of guessing.
 
 | Path | Command | What you get |
 |---|---|---|
-| **Templates only — default, works anywhere** | `open-sdd init . --write` | The 22 prompt templates in the host's commands directory — `/sdd-onboard`, `/sdd-constitution`, `/sdd-specify`, `/sdd-plan`, `/sdd-tasks`, `/sdd-implement`, `/sdd-analyze`, `/sdd-converge`, `/sdd-release`, and the rest. No MCP, no network, nothing a security policy can block. |
-| **Templates + MCP — opt-in, richer** | `open-sdd init . --write --mcp` | Everything above **plus** the MCP server registration, so the host can call the engine directly instead of shelling out. `open-sdd integrate <host> --write` is the host-by-host equivalent. |
+| **Templates only — default, works anywhere** | `steelfoundry init . --write` | The 22 prompt templates in the host's commands directory — `/sdd-onboard`, `/sdd-constitution`, `/sdd-specify`, `/sdd-plan`, `/sdd-tasks`, `/sdd-implement`, `/sdd-analyze`, `/sdd-converge`, `/sdd-release`, and the rest. No MCP, no network, nothing a security policy can block. |
+| **Templates + MCP — opt-in, richer** | `steelfoundry init . --write --mcp` | Everything above **plus** the MCP server registration, so the host can call the engine directly instead of shelling out. `steelfoundry integrate <host> --write` is the host-by-host equivalent. |
 
 MCP is **opt-in** because it is not universally available: some hosts do not implement it, and some
 security policies block or allow-list it. The default path must work on every host and under every
@@ -144,7 +144,7 @@ sha256 signature of the body it was generated from: a second `init --write` repo
 unedited older template is refreshed (`update`), and an edited template is reported `keep` with the
 reason instead of being replaced. A host whose prompt-template convention is **not verified** (Codex
 CLI, Windsurf, Qwen Code, Antigravity, Zed, Cline) is marked `NO VERIFICADA` and `--write` refuses to
-write into it — the same rule the MCP matrix follows. `open-sdd integrate --list` is the live matrix
+write into it — the same rule the MCP matrix follows. `steelfoundry integrate --list` is the live matrix
 for MCP; the prompt-template matrix is `tools/open-sdd/src/core/commandTemplates.ts`.
 
 The per-host commands directories are: Claude Code `.claude/commands/`, Cursor `.cursor/commands/`,
@@ -154,12 +154,12 @@ GitHub Copilot `.github/prompts/` (`.prompt.md`), Gemini CLI `.gemini/commands/`
 Preview before writing with `--dry-run`:
 
 ```bash
-open-sdd --claude-skills --dry-run
+steelfoundry --claude-skills --dry-run
 ```
 
 ### What is never overwritten
 
-- The **project initizer** (`open-sdd init .`) reports `keep` for every artifact that already exists:
+- The **project initizer** (`steelfoundry init .`) reports `keep` for every artifact that already exists:
   `.sdd/settings/rigor.json` and the constitution are never overwritten. The one exception is the
   commit hook, which is refreshed when it is an older version of our own template; a hook that is not
   ours is never touched.
@@ -172,7 +172,7 @@ open-sdd --claude-skills --dry-run
 
 ## What the installer writes, and where
 
-Verified by installing into a throwaway git repository with `open-sdd --claude-skills -y`:
+Verified by installing into a throwaway git repository with `steelfoundry --claude-skills -y`:
 
 | Path | What it is |
 |---|---|
@@ -180,21 +180,21 @@ Verified by installing into a throwaway git repository with `open-sdd --claude-s
 | `.sdd/settings/git.json` | Git automation, shipped **assisted and never pushing**. |
 | `.sdd/settings/templates/…` | Spec, steering and steering-custom templates. |
 | `.claude/skills/sdd-*/SKILL.md` (+ `rules/`, `references/`, `templates/` for some skills) | The shared skill set, for Claude Code Skills. Other agents write their own directory (`.cursor/skills`, `.agent/skills`, …). |
-| `.claude/commands/sdd-*.md` | The 22 prompt templates, written by `open-sdd init . --write` (the default path). Other hosts write their own commands directory (`.cursor/commands/`, `.github/prompts/`, `.gemini/commands/`, `.opencode/commands/`). |
+| `.claude/commands/sdd-*.md` | The 22 prompt templates, written by `steelfoundry init . --write` (the default path). Other hosts write their own commands directory (`.cursor/commands/`, `.github/prompts/`, `.gemini/commands/`, `.opencode/commands/`). |
 | `CLAUDE.md` / `AGENTS.md` | The agent's documentation file, where that agent uses one. |
 
 Not written by that command, on purpose:
 
-- `.sdd/specs/<feature>/` — created by the workflow commands (`/sdd-spec-init`, `open-sdd init <feature>`).
-- `.sdd/steering/` — created by `/sdd-steering` or `open-sdd brownfield constitution . --write`.
-- `.sdd/settings/rigor.json` and `.git/hooks/pre-commit` — these belong to `open-sdd init . --write`.
-- `.github/workflows/open-sdd-gates.yml` — this belongs to `open-sdd floor install . --ci`.
+- `.sdd/specs/<feature>/` — created by the workflow commands (`/sdd-spec-init`, `steelfoundry init <feature>`).
+- `.sdd/steering/` — created by `/sdd-steering` or `steelfoundry brownfield constitution . --write`.
+- `.sdd/settings/rigor.json` and `.git/hooks/pre-commit` — these belong to `steelfoundry init . --write`.
+- `.github/workflows/open-sdd-gates.yml` — this belongs to `steelfoundry floor install . --ci`.
 
 ---
 
 ## Verify the install
 
-The diagnosis command is `open-sdd doctor`. It runs nine checks — Node range, CLI reachable, commit
+The diagnosis command is `steelfoundry doctor`. It runs nine checks — Node range, CLI reachable, commit
 hook state, hook portability, declared rigor, constitution, specs, no-model/no-network, and the git
 environment — and exits non-zero on a failure. Real shape on this repository:
 
@@ -211,7 +211,7 @@ Diagnóstico de /path/to/repo: 9 ok · 0 aviso(s) · 0 fallo(s) — sin fallos.
 The other two checks most people run first:
 
 ```bash
-open-sdd --version                 # the CLI responds
+steelfoundry --version                 # the CLI responds
 ls .claude/skills                  # the skills landed (example for Claude Code Skills)
 ```
 
@@ -220,13 +220,13 @@ ls .claude/skills                  # the skills landed (example for Claude Code 
 ## Upgrade
 
 Short version: re-run the installer and the project initizer; both are idempotent and a `keep` is a
-promise that your edits survive. `open-sdd doctor` tells you when the commit gate is an older
+promise that your edits survive. `steelfoundry doctor` tells you when the commit gate is an older
 version of ours. The full path — including what to do when `doctor` reports the gate as outdated and
 how to roll back — is [Upgrade](guides/upgrade.md).
 
 ```bash
-npm run install:global                                  # or: npm install -g @brujo2020/open-sdd
-open-sdd init . --agent claude-code-skills --write      # refreshes a stale hook, keeps everything else
+npm run install:global                                  # or: npm install -g @brujo2020/steelfoundry
+steelfoundry init . --agent claude-code-skills --write      # refreshes a stale hook, keeps everything else
 ```
 
 Release history and the current `[Unreleased]` section are in [CHANGELOG.md](../CHANGELOG.md).
@@ -238,13 +238,13 @@ Release history and the current `[Unreleased]` section are in [CHANGELOG.md](../
 There is **no** uninstall command, and the installed artifacts carry no lock file. Remove the three
 things by hand, or restore them from version control:
 
-1. The global CLI: `npm uninstall -g @brujo2020/open-sdd`.
+1. The global CLI: `npm uninstall -g @brujo2020/steelfoundry`.
 2. The commit gate: delete `.git/hooks/pre-commit` (and unset `core.hooksPath` if you opted into a
    versioned hooks directory). From a clone, `node scripts/install-hooks.mjs --uninstall` does this
    for that checkout.
 3. The project artifacts: `.sdd/`, the agent's skill directory (`.claude/skills/`, `.cursor/skills/`,
    …) and the agent documentation file (`CLAUDE.md` / `AGENTS.md`). If you used
-   `open-sdd floor install . --ci`, also remove `.github/workflows/open-sdd-gates.yml`.
+   `steelfoundry floor install . --ci`, also remove `.github/workflows/open-sdd-gates.yml`.
 
 Your own content — `.sdd/specs/`, `.sdd/steering/` and anything you edited — is plain Markdown under
 version control; delete only what you do not want to keep.
@@ -264,7 +264,7 @@ Transfer that file and install it without a registry:
 
 ```bash
 npm install -g /path/to/brujo2020-open-sdd-3.10.0.tgz
-open-sdd --version
+steelfoundry --version
 ```
 
 Or into a single project instead of globally:

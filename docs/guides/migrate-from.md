@@ -1,24 +1,24 @@
 # Migrating from spec-kit
 
-Open-SDD can read what spec-kit already wrote. This guide is honest about what that means:
+SteelFoundry can read what spec-kit already wrote. This guide is honest about what that means:
 **a conversion is a mapping, never a promise of equivalence.** We move documents to the place our
 engine reads, we rename what has a declared alias, and we say out loud what we did not convert and
 why. Nothing is ever overwritten, and nothing is silently "fixed".
 
 ```bash
-open-sdd import                          # detect spec-kit and print the plan
-open-sdd import spec-kit --write         # apply the plan
-open-sdd import spec-kit --json          # machine-readable plan
-open-sdd import spec-kit --write --dry-run   # show what would change, write nothing
+steelfoundry import                          # detect spec-kit and print the plan
+steelfoundry import spec-kit --write         # apply the plan
+steelfoundry import spec-kit --json          # machine-readable plan
+steelfoundry import spec-kit --write --dry-run   # show what would change, write nothing
 ```
 
-In this repository, replace `open-sdd` with `node tools/open-sdd/dist/cli.js`. The importer never
+In this repository, replace `steelfoundry` with `node tools/open-sdd/dist/cli.js`. The importer never
 writes without `--write`, and it never overwrites a file that already exists — it reports the path it
 refused to touch.
 
 ## What a mapping is, and what it is not
 
-- It **is** a relocation: the document lands where `open-sdd status`, the gate chain and the MCP
+- It **is** a relocation: the document lands where `steelfoundry status`, the gate chain and the MCP
   server look for it.
 - It **is** a rename where a canonical name exists: `design.md` is a declared alias of `plan.md` in
   `tools/open-sdd/src/core/triad.ts`, so it is normalized to `plan.md` with the content copied
@@ -29,12 +29,12 @@ refused to touch.
 
 What every user must do by hand after an import:
 
-1. Read `open-sdd import <source>` (no `--write`) and read the `skip` list. Those are the losses.
+1. Read `steelfoundry import <source>` (no `--write`) and read the `skip` list. Those are the losses.
 2. Rewrite requirements into checkable EARS form and run the requirements validation.
 3. Write or review `.sdd/steering/constitution.md`: an imported constitution is not automatically
    the authority a blocking verdict can cite.
-4. Recreate each spec's metadata with `open-sdd init <feature>` if you need the engine's `spec.json`.
-5. Run `open-sdd status --check` and `open-sdd doctor`, then `open-sdd gates run`.
+4. Recreate each spec's metadata with `steelfoundry init <feature>` if you need the engine's `spec.json`.
+5. Run `steelfoundry status --check` and `steelfoundry doctor`, then `steelfoundry gates run`.
 
 ## spec-kit
 
@@ -60,10 +60,10 @@ by hand before it can govern anything. Templates and scripts are deliberately no
 ## After the import
 
 ```bash
-open-sdd status                       # what the engine now sees
-open-sdd brownfield constitution .    # if you need a descriptive constitution from the code
-open-sdd integrate <host> --write     # register MCP and install the skills for your host
-open-sdd doctor                       # verify the whole installation
+steelfoundry status                       # what the engine now sees
+steelfoundry brownfield constitution .    # if you need a descriptive constitution from the code
+steelfoundry integrate <host> --write     # register MCP and install the skills for your host
+steelfoundry doctor                       # verify the whole installation
 ```
 
 ## See also

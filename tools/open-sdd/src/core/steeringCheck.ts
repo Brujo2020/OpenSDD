@@ -5,7 +5,7 @@
  *
  * ── Why it is included (ported from SteelForge plugins/sdd/steering.js; ideas from other SDD tools) ───────
  * `/sdd-getspecs` and `/sdd-steering` write steering that is partly INFERRED from code. Until a person confirms
- * it, every spec built on top inherits guesses as if they were project rules. open-sdd had no gate for that:
+ * it, every spec built on top inherits guesses as if they were project rules. steelfoundry had no gate for that:
  *   - `inclusion: always | fileMatch | manual` tells hosts when to load each file; a typo silently meant
  *     "never loaded", and `fileMatch` without `fileMatchPattern` matched nothing;
  *   - `#[[file:path]]` pulls a file into context; a reference outside the workspace is an exfiltration

@@ -6,10 +6,10 @@
 > `tools/open-sdd/src/core/integrations.ts`). Antigravity's page is JavaScript-rendered, but the page
 > advertises a Markdown sibling (`https://antigravity.google/docs/mcp.md`, the target of its own
 > `View Markdown` link) which documents the entry shape: a single top-level `mcpServers` object with
-> `command` (string) + `args` (array) for stdio. `open-sdd integrate --list` is the live source of
+> `command` (string) + `args` (array) for stdio. `steelfoundry integrate --list` is the live source of
 > truth.
 
-Open-SDD installs into the host you already use. This guide is the human face of the
+SteelFoundry installs into the host you already use. This guide is the human face of the
 machine-checked matrix in `tools/open-sdd/src/core/integrations.ts`: one section per host with how
 to install, what gets written and where, the exact in-chat invocation, the MCP registration snippet
 verbatim, how to verify the install, and how to remove it.
@@ -17,14 +17,14 @@ verbatim, how to verify the install, and how to remove it.
 Run the same matrix from the CLI — it is the source of truth, so the docs and the tool cannot drift:
 
 ```bash
-open-sdd integrate --list                 # the whole matrix, one row per host
-open-sdd integrate cursor                 # detect or name a host, print its exact invocation
-open-sdd integrate cursor --write         # register the MCP server and install the skills
-open-sdd integrate cursor --write --dry-run   # show what would change, write nothing
-open-sdd integrate cursor --json          # the plan and the outcome as machine-readable JSON
+steelfoundry integrate --list                 # the whole matrix, one row per host
+steelfoundry integrate cursor                 # detect or name a host, print its exact invocation
+steelfoundry integrate cursor --write         # register the MCP server and install the skills
+steelfoundry integrate cursor --write --dry-run   # show what would change, write nothing
+steelfoundry integrate cursor --json          # the plan and the outcome as machine-readable JSON
 ```
 
-In this repository, replace `open-sdd` with `node tools/open-sdd/dist/cli.js`.
+In this repository, replace `steelfoundry` with `node tools/open-sdd/dist/cli.js`.
 
 Detection names its evidence. With no host argument and no marker in the repository, the plan
 proposes `claude-code` as a **default** — exactly like `init` — and labels it `[defecto]` rather than
@@ -82,7 +82,7 @@ habit is widespread.
 
 **Verified** means the snippet shape (and the file the tool writes) is one this project is confident
 about, and the `notes` in the matrix say how we know. Every host in the shipped matrix is verified
-today, so `open-sdd integrate --list` prints no **NO VERIFICADA** row — the legend stays because the
+today, so `steelfoundry integrate --list` prints no **NO VERIFICADA** row — the legend stays because the
 rule still governs any host added later. **No** means not confirmed: the CLI prints it as
 **NO VERIFICADO**, `--write` refuses to touch that config file, and you paste the snippet yourself
 after checking it against the host's own documentation. A snippet that looks right and is wrong is
@@ -93,12 +93,12 @@ worse than an acknowledged gap.
 Three equivalent routes. The npm/npx route needs no global install and no Python:
 
 ```bash
-npx open-sdd@latest --cursor-skills --lang en     # per host: see the alias in each section
-npm install -g open-sdd && open-sdd --cursor-skills --lang en
-docker run --rm -v "$PWD:/work" -w /work node:22 npx -y open-sdd@latest --cursor-skills --lang en
+npx steelfoundry@latest --cursor-skills --lang en     # per host: see the alias in each section
+npm install -g open-sdd && steelfoundry --cursor-skills --lang en
+docker run --rm -v "$PWD:/work" -w /work node:22 npx -y steelfoundry@latest --cursor-skills --lang en
 ```
 
-Every host section uses its own skills alias flag. `open-sdd integrate <host> --write` runs exactly
+Every host section uses its own skills alias flag. `steelfoundry integrate <host> --write` runs exactly
 that command for you (the installer is the single implementation; `integrate` only delegates), and
 registers the MCP server in the same pass.
 
@@ -111,19 +111,19 @@ What the install writes, in general:
 
 ## Two paths: prompt templates (default) and MCP (opt-in)
 
-There are two ways to give the host the open-sdd workflow, and they are not equivalent:
+There are two ways to give the host the steelfoundry workflow, and they are not equivalent:
 
 | Path | Command | What you get |
 |---|---|---|
-| **Templates only — default, works anywhere** | `open-sdd init . --write` | The 22 prompt templates in the host's commands directory. Each one points at the real engine (`open-sdd status --json`, `open-sdd brownfield analyze <feature> --json`, `open-sdd delta validate <feature> --json`, `open-sdd gates run`, …) instead of describing what it would do. No MCP, no network, nothing a security policy can block. |
-| **Templates + MCP — opt-in, richer** | `open-sdd init . --write --mcp` (or `open-sdd integrate <host> --write`) | Everything above **plus** the MCP server registration, so the host can call the engine directly instead of shelling out. |
+| **Templates only — default, works anywhere** | `steelfoundry init . --write` | The 22 prompt templates in the host's commands directory. Each one points at the real engine (`steelfoundry status --json`, `steelfoundry brownfield analyze <feature> --json`, `steelfoundry delta validate <feature> --json`, `steelfoundry gates run`, …) instead of describing what it would do. No MCP, no network, nothing a security policy can block. |
+| **Templates + MCP — opt-in, richer** | `steelfoundry init . --write --mcp` (or `steelfoundry integrate <host> --write`) | Everything above **plus** the MCP server registration, so the host can call the engine directly instead of shelling out. |
 
 MCP is opt-in because it is not universally available: some hosts do not implement it, and some
 security policies block or allow-list it. The default path must work on every host and under every
-policy, so it does not depend on MCP at all. `open-sdd integrate <host> --write` still registers MCP
+policy, so it does not depend on MCP at all. `steelfoundry integrate <host> --write` still registers MCP
 and installs the skills for one host; `init --write` is the project-wide default.
 
-**Read the flow before installing it:** `open-sdd templates` lists all 22 workflows, what each one
+**Read the flow before installing it:** `steelfoundry templates` lists all 22 workflows, what each one
 writes, the directory every one of the eleven hosts reads, and whether that convention is verified —
 plus how many are already installed *here* (counted by the installer, not by a directory listing, so a
 template a human edited by hand is reported as edited and not as missing). `--host <id>` narrows it to
@@ -173,7 +173,7 @@ instruction instead of a token their engine would never expand. Before this was 
 declared in the matrix and never consumed, so three hosts silently received an argument that never
 arrived. A host that publishes a per-file size limit also gets it **checked**: `windsurf` and
 `antigravity` cap a workflow at 12 000 characters, and a template over the limit is reported as a
-failure with the number rather than truncated. `open-sdd templates` prints both the token and the
+failure with the number rather than truncated. `steelfoundry templates` prints both the token and the
 limit per host.
 
 An unverified host is printed as **NO VERIFICADA** and `--write` refuses to write into it, exactly as
@@ -227,8 +227,8 @@ repository at all.
 ```
 
 ```bash
-OPEN_SDD_LOCAL_HOSTS=/path/to/local-hosts.json open-sdd init . --agent internal-agent --write
-open-sdd integrate --list              # the private row appears, marked NO VERIFICADA unless it says otherwise
+OPEN_SDD_LOCAL_HOSTS=/path/to/local-hosts.json steelfoundry init . --agent internal-agent --write
+steelfoundry integrate --list              # the private row appears, marked NO VERIFICADA unless it says otherwise
 ```
 
 The rules the overlay cannot be talked out of: a row is **refused by default**; `"verified": true`
@@ -269,9 +269,9 @@ of) their own directory, and each row's `notes` names the page where that was re
 installed **once**, from one neutral tree, instead of one hand-adapted copy per host:
 
 ```bash
-open-sdd --agents-skills                       # the legacy alias path: writes .agents/skills/ + AGENTS.md
-open-sdd init . --agent agents-skills --write  # the same thing through init
-open-sdd integrate roo-code --write            # that host's MCP file AND the shared skills tree
+steelfoundry --agents-skills                       # the legacy alias path: writes .agents/skills/ + AGENTS.md
+steelfoundry init . --agent agents-skills --write  # the same thing through init
+steelfoundry integrate roo-code --write            # that host's MCP file AND the shared skills tree
 ```
 
 Twenty-one skills land in `.agents/skills/sdd-*/SKILL.md`. A host is only mapped to that installer when
@@ -280,15 +280,15 @@ host does not read is indistinguishable from not installing them. **Trae** is de
 Gaia, which use their own layouts and are declared as gaps instead of being written blind.
 
 **Goose, OpenHands and DeepSeek Harness** read the same path but have no MCP row — their configuration
-is user-scoped or plugin-based — so `open-sdd --agents-skills` serves them too.
+is user-scoped or plugin-based — so `steelfoundry --agents-skills` serves them too.
 
 
 ## How to verify any install
 
 ```bash
-open-sdd doctor              # Node range, CLI reachability, commit hook, rigor, constitution, specs
-open-sdd status              # the whole repository state on one screen
-open-sdd integrate --list    # what the matrix promises for the host you installed
+steelfoundry doctor              # Node range, CLI reachability, commit hook, rigor, constitution, specs
+steelfoundry status              # the whole repository state on one screen
+steelfoundry integrate --list    # what the matrix promises for the host you installed
 ```
 
 `doctor` is the same instrument in every host because the engine is the same. It reports the fix for
@@ -297,7 +297,7 @@ definition of a working integration.
 
 ## How to uninstall
 
-1. Remove the MCP entry: delete the `open-sdd` key from the config file in the table (for Claude
+1. Remove the MCP entry: delete the `steelfoundry` key from the config file in the table (for Claude
    Code you can run `claude mcp remove open-sdd` instead of editing `.mcp.json`).
 2. Remove the skills: delete the host's skills layout directory (for example
    `.cursor/skills/sdd-*`).
@@ -308,7 +308,7 @@ definition of a working integration.
 
 ## Claude Code
 
-- **Install:** `npx open-sdd@latest --claude-code-skills --lang en`
+- **Install:** `npx steelfoundry@latest --claude-code-skills --lang en`
   (alias `--claude-skills`; the deprecated `--claude-code` prompt mode is not the skills layout).
 - **What gets written:** `.claude/skills/sdd-*/SKILL.md`, plus `.sdd/settings/` and a `CLAUDE.md`
   quickstart. Detection markers: `.claude/`, `.claude/skills/`, `CLAUDE.md`.
@@ -328,14 +328,14 @@ definition of a working integration.
 ```
 
 The user scope is `~/.claude.json` and takes the same object. The host's own command writes the same
-entry: `claude mcp add open-sdd -- node /absolute/path/to/open-sdd/dist/cli.js mcp`.
+entry: `claude mcp add steelfoundry -- node /absolute/path/to/open-sdd/dist/cli.js mcp`.
 
-- **Verify:** `open-sdd doctor`, then `/sdd-help` in the chat.
+- **Verify:** `steelfoundry doctor`, then `/sdd-help` in the chat.
 - **Uninstall:** `claude mcp remove open-sdd` (or delete the key), `rm -rf .claude/skills/sdd-*`.
 
 ## Cursor
 
-- **Install:** `npx open-sdd@latest --cursor-skills --lang en`
+- **Install:** `npx steelfoundry@latest --cursor-skills --lang en`
   (the deprecated `--cursor` command mode is not the skills layout).
 - **What gets written:** `.cursor/skills/sdd-*/SKILL.md`, `.sdd/settings/`, `AGENTS.md`.
   Detection markers: `.cursor/`, `.cursor/mcp.json`, `.cursorrules`.
@@ -355,12 +355,12 @@ entry: `claude mcp add open-sdd -- node /absolute/path/to/open-sdd/dist/cli.js m
 
 The user scope `~/.cursor/mcp.json` takes the same shape.
 
-- **Verify:** `open-sdd doctor`, then `/sdd-spec-status` in the chat.
-- **Uninstall:** delete the `open-sdd` key from `.cursor/mcp.json`, `rm -rf .cursor/skills/sdd-*`.
+- **Verify:** `steelfoundry doctor`, then `/sdd-spec-status` in the chat.
+- **Uninstall:** delete the `steelfoundry` key from `.cursor/mcp.json`, `rm -rf .cursor/skills/sdd-*`.
 
 ## GitHub Copilot
 
-- **Install:** `npx open-sdd@latest --copilot-skills --lang en`
+- **Install:** `npx steelfoundry@latest --copilot-skills --lang en`
   (alias `--github-copilot-skills`).
 - **What gets written:** `.github/skills/sdd-*/SKILL.md`, `.sdd/settings/`, `AGENTS.md`.
   Detection markers: `.github/copilot-instructions.md`, `.github/skills/`, `.vscode/mcp.json`.
@@ -382,13 +382,13 @@ The user scope `~/.cursor/mcp.json` takes the same shape.
 }
 ```
 
-- **Verify:** `open-sdd doctor`, then `/sdd-help` in the chat.
-- **Uninstall:** remove the `open-sdd` entry from whichever file you used,
+- **Verify:** `steelfoundry doctor`, then `/sdd-help` in the chat.
+- **Uninstall:** remove the `steelfoundry` entry from whichever file you used,
   `rm -rf .github/skills/sdd-*`.
 
 ## Codex CLI
 
-- **Install:** `npx open-sdd@latest --codex-skills --lang en`
+- **Install:** `npx steelfoundry@latest --codex-skills --lang en`
   (the deprecated `--codex` prompt mode is rejected by the CLI).
 - **What gets written:** `.agents/skills/sdd-*/SKILL.md`, `.sdd/settings/`, `AGENTS.md`.
   Detection markers: `.codex/`, `.agents/skills/`, `.codex/config.toml`.
@@ -404,12 +404,12 @@ args = ["/absolute/path/to/open-sdd/dist/cli.js", "mcp"]
 The merge is textual: if the table already exists it is kept, otherwise it is appended at the end of
 the file and nothing else changes.
 
-- **Verify:** `open-sdd doctor`, then `$sdd-spec-status` in the chat.
+- **Verify:** `steelfoundry doctor`, then `$sdd-spec-status` in the chat.
 - **Uninstall:** delete the `[mcp_servers.open-sdd]` table, `rm -rf .agents/skills/sdd-*`.
 
 ## Gemini CLI
 
-- **Install:** `npx open-sdd@latest --gemini-cli-skills --lang en` (alias `--gemini-skills`).
+- **Install:** `npx steelfoundry@latest --gemini-cli-skills --lang en` (alias `--gemini-skills`).
 - **What gets written:** `.gemini/skills/sdd-*/SKILL.md`, `.sdd/settings/`, `GEMINI.md`.
   Detection markers: `.gemini/`, `GEMINI.md`, `.gemini/settings.json`.
 - **Invocation in chat:** `/sdd-brownfield`.
@@ -429,12 +429,12 @@ the file and nothing else changes.
 That file also holds other Gemini CLI settings; the merge preserves every key it does not own. The
 user scope `~/.gemini/settings.json` takes the same shape.
 
-- **Verify:** `open-sdd doctor`, then `/sdd-spec-status` in the chat.
-- **Uninstall:** delete the `open-sdd` key, `rm -rf .gemini/skills/sdd-*`.
+- **Verify:** `steelfoundry doctor`, then `/sdd-spec-status` in the chat.
+- **Uninstall:** delete the `steelfoundry` key, `rm -rf .gemini/skills/sdd-*`.
 
 ## Windsurf
 
-- **Install:** `npx open-sdd@latest --windsurf-skills --lang en`.
+- **Install:** `npx steelfoundry@latest --windsurf-skills --lang en`.
 - **What gets written:** `.windsurf/skills/sdd-*/SKILL.md`, `.sdd/settings/`, `AGENTS.md`.
   Detection markers: `.windsurf/`, `.windsurfrules`, `.windsurf/skills/`.
 - **Invocation in chat:** `@sdd-brownfield`. Windsurf uses mentions, not slash commands.
@@ -453,12 +453,12 @@ user scope `~/.gemini/settings.json` takes the same shape.
 
 Windsurf documents MCP in a user-level file, so `--write` writes outside the repository and says so.
 
-- **Verify:** `open-sdd doctor`, then `@sdd-spec-status` in the chat.
-- **Uninstall:** delete the `open-sdd` key, `rm -rf .windsurf/skills/sdd-*`.
+- **Verify:** `steelfoundry doctor`, then `@sdd-spec-status` in the chat.
+- **Uninstall:** delete the `steelfoundry` key, `rm -rf .windsurf/skills/sdd-*`.
 
 ## OpenCode
 
-- **Install:** `npx open-sdd@latest --opencode-skills --lang en`.
+- **Install:** `npx steelfoundry@latest --opencode-skills --lang en`.
 - **What gets written:** `.opencode/skills/sdd-*/SKILL.md`, `.sdd/settings/`, `AGENTS.md`.
   Detection markers: `.opencode/`, `opencode.json`, `.opencode/skills/`.
 - **Invocation in chat:** `/sdd-brownfield`.
@@ -479,13 +479,13 @@ Windsurf documents MCP in a user-level file, so `--write` writes outside the rep
 }
 ```
 
-- **Verify:** `open-sdd doctor`, then `/sdd-spec-status` in the chat.
-- **Uninstall:** delete the `open-sdd` key from `opencode.json`,
+- **Verify:** `steelfoundry doctor`, then `/sdd-spec-status` in the chat.
+- **Uninstall:** delete the `steelfoundry` key from `opencode.json`,
   `rm -rf .opencode/skills/sdd-*`.
 
 ## Google Antigravity
 
-- **Install:** `npx open-sdd@latest --antigravity-skills --lang en` (alias `--antigravity`).
+- **Install:** `npx steelfoundry@latest --antigravity-skills --lang en` (alias `--antigravity`).
 - **What gets written:** `.agent/skills/sdd-*/SKILL.md`, `.sdd/settings/`, `AGENTS.md`.
   Detection markers: `.agent/`, `.agent/skills/`, `.agent/rules/`.
 - **Invocation in chat:** `/sdd-brownfield`.
@@ -510,8 +510,8 @@ Windsurf documents MCP in a user-level file, so `--write` writes outside the rep
 
 - **Also available:** the Interactive MCP Manager (`/mcp` in the prompt) shows live server status, and
   `Manage MCP Servers` → `View raw config` opens the same `mcp_config.json`.
-- **Verify:** `open-sdd doctor`, then `/sdd-help` in the chat.
-- **Uninstall:** `rm -rf .agent/skills/sdd-*` and delete the `open-sdd` key from `mcp_config.json`.
+- **Verify:** `steelfoundry doctor`, then `/sdd-help` in the chat.
+- **Uninstall:** `rm -rf .agent/skills/sdd-*` and delete the `steelfoundry` key from `mcp_config.json`.
 
 ## Zed
 
@@ -540,8 +540,8 @@ The file path is remembered (`~/.config/zed/settings.json` on Linux,
 `~/Library/Application Support/Zed/settings.json` on macOS, `%APPDATA%\Zed\settings.json` on
 Windows), but the inner entry shape is not confirmed here. `--write` refuses it.
 
-- **Verify:** `open-sdd doctor`; confirm the server appears in Zed's agent panel.
-- **Uninstall:** delete the `open-sdd` entry from `context_servers`, remove the rules reference.
+- **Verify:** `steelfoundry doctor`; confirm the server appears in Zed's agent panel.
+- **Uninstall:** delete the `steelfoundry` entry from `context_servers`, remove the rules reference.
 
 ## Cline
 
@@ -568,15 +568,15 @@ on Linux, and `%APPDATA%\Code\User\globalStorage\saoudrizwan.claude-dev\settings
 on Windows. Cline accepts extra per-server keys (`disabled`, `autoApprove`); the snippet omits them
 because they are optional.
 
-- **Verify:** `open-sdd doctor`; confirm the server is listed in Cline's MCP panel.
-- **Uninstall:** delete the `open-sdd` key from `cline_mcp_settings.json`, remove
+- **Verify:** `steelfoundry doctor`; confirm the server is listed in Cline's MCP panel.
+- **Uninstall:** delete the `steelfoundry` key from `cline_mcp_settings.json`, remove
 
 ---
 
 ## See also
 
 - [Migrating from spec-kit](migrate-from.md) — what maps, what does not, and the
-  exact `open-sdd import` commands.
+  exact `steelfoundry import` commands.
 - [Quickstart in 60 seconds](quickstart-60s.md) — install and first spec.
 - [CI integration](ci-integration.md) — make the gate chain the merge boundary.
 - [Command reference](command-reference.md) — every console command.

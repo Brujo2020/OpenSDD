@@ -1,31 +1,31 @@
 # Brownfield en 10 minutos
 
-Guía corta para gobernar un repositorio **que ya existe** con Open-SDD. La regla que manda sobre
+Guía corta para gobernar un repositorio **que ya existe** con SteelFoundry. La regla que manda sobre
 todas las demás:
 
 > El código existente es la fuente de verdad de facto: **no reinventes la arquitectura, gobiérnala**.
 
-Todo lo que sigue se ejecuta desde la raíz del repositorio. Los comandos usan `open-sdd`; si no lo
-tienes en el `PATH`, sustituye `open-sdd` por `node tools/open-sdd/dist/cli.js`.
+Todo lo que sigue se ejecuta desde la raíz del repositorio. Los comandos usan `steelfoundry`; si no lo
+tienes en el `PATH`, sustituye `steelfoundry` por `node tools/open-sdd/dist/cli.js`.
 
 El manual del agente es el skill `/sdd-brownfield` (se instala con el resto de skills). Esta guía y
 ese skill dicen lo mismo: aquí está la ruta, allí está el protocolo.
 
 ## Los 6 comandos, en orden
 
-### 1. `open-sdd brownfield bootstrap .` — reconocer y planificar
+### 1. `steelfoundry brownfield bootstrap .` — reconocer y planificar
 
 Un solo punto de entrada: reconocimiento + constitución + mapa de módulos + inteligencia del código +
 el plan ordenado de pasos. No escribe nada sin `--write`.
 
 ```text
-Bootstrap brownfield — @brujo2020/open-sdd
+Bootstrap brownfield — @brujo2020/steelfoundry
 
   raíz: /Users/mramospe/Proyectos/open-sdd
   stack: TypeScript · tests: Vitest
 
   Mapa de módulos (2)
-    .  @brujo2020/open-sdd
+    .  @brujo2020/steelfoundry
       posee: package.json
       responsabilidades: expone un ejecutable CLI (declarado en package.json bin)
     tools/open-sdd  open-sdd
@@ -53,12 +53,12 @@ Bootstrap brownfield — @brujo2020/open-sdd
 Nada se reporta como inspeccionado si no lo fue: una responsabilidad vacía significa que la evidencia
 no la sostiene, no que el módulo no tenga ninguna.
 
-### 2. `open-sdd brownfield survey .` — la evidencia, sola
+### 2. `steelfoundry brownfield survey .` — la evidencia, sola
 
 Si solo quieres el reconocimiento, sin plan. Esto es lo que imprime en este repositorio:
 
 ```text
-Reconocimiento — @brujo2020/open-sdd
+Reconocimiento — @brujo2020/steelfoundry
 
   lenguaje: TypeScript
   gestor de paquetes: npm
@@ -71,14 +71,14 @@ Reconocimiento — @brujo2020/open-sdd
     · API pública: 2 punto(s) de entrada
 ```
 
-### 3. `open-sdd brownfield constitution . --write` — anclar
+### 3. `steelfoundry brownfield constitution . --write` — anclar
 
 Escribe `.sdd/steering/constitution.md`. **Solo lo que el código ya cumple**, cada principio con su
 evidencia; lo deseado-pero-ausente queda como **enmienda propuesta**. El stack es un hecho establecido,
 no una opinión. En este repositorio:
 
 ```text
-Constitución reversa — @brujo2020/open-sdd
+Constitución reversa — @brujo2020/steelfoundry
 
   principios en vigor: 4 · enmiendas propuestas: 2
 
@@ -94,14 +94,14 @@ Constitución reversa — @brujo2020/open-sdd
 
 Un principio descriptivo **sin evidencia es un error de validación**: no se admite como hecho.
 
-### 4. `open-sdd delta init` + `open-sdd delta validate` — describir el cambio
+### 4. `steelfoundry delta init` + `steelfoundry delta validate` — describir el cambio
 
 La delta es el **contrato del cambio**, no la spec de todo el sistema. Cuatro secciones —**ADSR**
 (`Added`, `Deleted/Removed`, `Spec`, `Renamed`)— y un id acotado `REQ-<AREA>-<NNN>` por entrada.
 
 ```bash
-open-sdd delta init <feature> "qué cambia"
-open-sdd delta validate <feature>
+steelfoundry delta init <feature> "qué cambia"
+steelfoundry delta validate <feature>
 ```
 
 Ejemplo real (`.sdd/specs/brownfield-support/delta.md`, 14 entradas):
@@ -122,14 +122,14 @@ Validación de la delta — brownfield-support
 (`WHEN <disparador> the <componente> shall <respuesta>`): un requisito que no se puede comprobar no
 es un requisito.
 
-### 5. `open-sdd status --check` y los informes — comprobar antes de escribir
+### 5. `steelfoundry status --check` y los informes — comprobar antes de escribir
 
 ```bash
-open-sdd status <feature> --check     # alineación constitucional: el pivote
-open-sdd brownfield impact <feature>  # radio de impacto y cambios de ruptura
-open-sdd brownfield contracts <feature> [--verify]
-open-sdd brownfield reuse <feature> [--symbols A,B]
-open-sdd govern rigor
+steelfoundry status <feature> --check     # alineación constitucional: el pivote
+steelfoundry brownfield impact <feature>  # radio de impacto y cambios de ruptura
+steelfoundry brownfield contracts <feature> [--verify]
+steelfoundry brownfield reuse <feature> [--symbols A,B]
+steelfoundry govern rigor
 ```
 
 Salidas reales de este repositorio (las cifras se mueven con el cambio pendiente: son una foto del
@@ -159,10 +159,10 @@ exige: constitution, triad
 ✓ sin hallazgos: cumples lo que exige spec-first.
 ```
 
-### 6. `open-sdd status` — el único panel
+### 6. `steelfoundry status` — el único panel
 
 Cuando el cambio ya está en marcha, `status` es el panel: constitución, specs, delta, contratos,
-alineación constitucional, rigor y la próxima acción. `open-sdd status <feature>` da el detalle,
+alineación constitucional, rigor y la próxima acción. `steelfoundry status <feature>` da el detalle,
 `--json` lo emite para herramientas y `--quiet` deja una sola línea para el commit.
 
 ```text
@@ -179,20 +179,20 @@ Constitucional — declarados: C-STACK-FACT, C-API-COMPAT, C-BOUNDARIES, C-REGRE
 Rigor
 Rigor — spec-first · gates activos C1, C2 · brownfield
 Siguiente
-Siguiente — open-sdd brownfield contracts brownfield-support --write
+Siguiente — steelfoundry brownfield contracts brownfield-support --write
 ```
 
 Con `--quiet` (lo que corre en un commit) imprime una sola línea y deja el veredicto en el código de
 salida:
 
 ```text
-spec-first · warn · open-sdd brownfield contracts brownfield-support --write
+spec-first · warn · steelfoundry brownfield contracts brownfield-support --write
 ```
 
 ## El pivote: la constitución valida cada spec
 
-La constitución no es un documento decorativo. `open-sdd status --check` la usa como referencia
-contra la que se valida **cada** spec, y `open-sdd govern constitution --matrix` publica la
+La constitución no es un documento decorativo. `steelfoundry status --check` la usa como referencia
+contra la que se valida **cada** spec, y `steelfoundry govern constitution --matrix` publica la
 cobertura principio → artefacto.
 
 Ejemplo real de este repositorio. `.sdd/steering/constitution.md` define `C-API-COMPAT` (`MUST`,
@@ -236,7 +236,7 @@ Acumulativa: subir de nivel solo **añade**. El nivel por defecto es fluido a pr
 
 **C2 (secretos y comandos destructivos) está activo en todos los niveles**: es el suelo duro que nunca
 se auto-autoriza, no un ajuste de rigor. Se sube con
-`open-sdd govern rigor --set spec-anchored --rationale "por qué"`; un nivel sin motivo declarado no
+`steelfoundry govern rigor --set spec-anchored --rationale "por qué"`; un nivel sin motivo declarado no
 es auditable.
 
 ## FAQ
@@ -247,8 +247,8 @@ el brownfield no puede permitirse; por eso la spec del sistema se extrae del có
 constitución) y el cambio se especifica aparte.
 
 **¿Y si mi constitución está mal?**
-`open-sdd status --check` te dice qué principio falta, cuál se cita sin existir, o qué requisito
-contradice un principio en vigor. Para la cobertura principio → artefacto, `open-sdd govern
+`steelfoundry status --check` te dice qué principio falta, cuál se cita sin existir, o qué requisito
+contradice un principio en vigor. Para la cobertura principio → artefacto, `steelfoundry govern
 constitution --matrix`. Y un principio descriptivo sin evidencia no pasa la validación de la propia
 constitución.
 
@@ -259,7 +259,7 @@ EARS; C2 corre siempre. Si algo bloquea y es un falso positivo legítimo, se dec
 `.sdd/settings/security-allowlist.json` con un motivo — nunca con `--no-verify`.
 
 **¿Por dónde empiezo si no hay ni `.sdd/`?**
-`open-sdd brownfield bootstrap . --write`. Y si necesitas steering + semillas de spec para todo el
+`steelfoundry brownfield bootstrap . --write`. Y si necesitas steering + semillas de spec para todo el
 proyecto, `/sdd-getspecs`; este flujo lo complementa, no lo sustituye.
 
 ## Qué NO hace todavía

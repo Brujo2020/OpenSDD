@@ -87,7 +87,7 @@ describe('locale contract — honest locales', () => {
     expect(errs).toContain('unsupported locale `ja`');
     expect(errs).toContain('`es`');
     expect(errs).toContain('`en`');
-    expect(errs).toContain('open-sdd --help');
+    expect(errs).toContain('steelfoundry --help');
   });
 
   it('refuses an untranslated locale on the installer path too', async () => {

@@ -97,7 +97,7 @@ describe('escalation in the engine', () => {
     const second = await report(cwd, 'f', step, 'completed');
     expect(second.ok).toBe(false);
     expect(second.message).toContain('escalated to HIL (no progress after 2 attempts');
-    expect(second.message).toMatch(/open-sdd decide f HIL-0001 <A\|B\|C> --by/);
+    expect(second.message).toMatch(/steelfoundry decide f HIL-0001 <A\|B\|C> --by/);
     expect((await readState(cwd, 'f'))!.steps[0].status).toBe('awaiting');
     expect((await nextDirective(cwd, 'f')).kind).toBe('present-gate');
     const cards = await listCards(cwd, 'f');

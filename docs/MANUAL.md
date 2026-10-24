@@ -1,8 +1,19 @@
-# open-sdd — User Manual (v3.10.0)
+# SteelFoundry — SDD Toolkit · User Manual
 
-Model-agnostic Spec-Driven Development: one CLI that scales the process to the work — from a typo to
-the modernization of a banking portfolio — where a **deterministic engine decides**, **agents
-propose**, and **named people approve**.
+Model-agnostic Spec-Driven Development: one toolkit that scales the process to the work — from a typo
+or a quick PoC to a strict, audited migration programme — where a **deterministic engine decides**,
+**agents propose**, and **named people approve**.
+
+> **Why "SteelFoundry".** A foundry melts many raw materials into standard, repeatable steel parts.
+> SteelFoundry does that with SDD: it consolidates the whole range of cases (PoC → spike → small
+> project → programme with strict rigor) in one toolkit, works with any agent and model, and takes the
+> best of other toolkits — Spec Kit's constitution, BMAD's role-based discovery, Kiro's EARS and
+> steering, OpenSpec's delta specs — cast into one deterministic engine.
+>
+> Formerly **open-sdd**: the `open-sdd`, `sdd-open` and `sdd` commands still work, and `.sdd/` folders,
+> `OPEN_SDD_*` variables, `open-sdd.*/1` schemas and `open_sdd_*` MCP tools are unchanged.
+>
+> 📘 Spanish edition: [MANUAL.es.md](MANUAL.es.md) · Why it exists, what it took from each toolkit and its precise scope: [WHY.md](WHY.md).
 
 ---
 
@@ -10,29 +21,29 @@ propose**, and **named people approve**.
 
 > 📘 One-page visual guide with a small end-to-end example and the QC report: [GUIA.md](GUIA.md) (Spanish).
 
-You do not need the other 50 commands to use open-sdd. Five verbs cover the whole lifecycle; the
+You do not need the other 50 commands to use steelfoundry. Five verbs cover the whole lifecycle; the
 tool decides everything that evidence can decide (agent, greenfield or brownfield, level, rigor,
 playbook) and asks a person only for a human decision. Every other command still works and is listed
-by `open-sdd help --all`.
+by `steelfoundry help --all`.
 
 | | Verb | What it does | What it decides for you |
 |---|---|---|---|
-| 🟢 | `open-sdd` | Where you are: score, phase and the **one** next action | The next action |
-| 🟢 | `open-sdd setup` | Installs into the repository (same as `init`; plan first, `--write` applies) | Agent and terrain |
-| 🟢 | `open-sdd start "<what you want>"` | Starts any work, from a typo to a modernization | Level L0–L6, variant, rigor, playbook |
-| 🔴 | `open-sdd check` | One verdict: the whole gate chain (same as `gates run`) | Nothing: it only passes or blocks |
-| 🔵 | `open-sdd decide` | Lists the decisions waiting for a person, with the exact command | Nothing: a person decides |
+| 🟢 | `steelfoundry` | Where you are: score, phase and the **one** next action | The next action |
+| 🟢 | `steelfoundry setup` | Installs into the repository (same as `init`; plan first, `--write` applies) | Agent and terrain |
+| 🟢 | `steelfoundry start "<what you want>"` | Starts any work, from a typo to a modernization | Level L0–L6, variant, rigor, playbook |
+| 🔴 | `steelfoundry check` | One verdict: the whole gate chain (same as `gates run`) | Nothing: it only passes or blocks |
+| 🔵 | `steelfoundry decide` | Lists the decisions waiting for a person, with the exact command | Nothing: a person decides |
 
 ```mermaid
 flowchart LR
-  A["open-sdd setup"]:::auto --> B["open-sdd start &quot;intent&quot;"]:::auto
+  A["steelfoundry setup"]:::auto --> B["steelfoundry start &quot;intent&quot;"]:::auto
   B --> C["agent works<br/>next → report"]:::advisory
-  C --> D{"open-sdd check"}:::block
+  C --> D{"steelfoundry check"}:::block
   D -- passes --> E["done ✔"]:::auto
   D -- refused, progressing --> C
-  D -- "stuck · critical · > 3" --> F["open-sdd decide<br/>(HIL)"]:::human
+  D -- "stuck · critical · > 3" --> F["steelfoundry decide<br/>(HIL)"]:::human
   F --> C
-  G["open-sdd<br/>where am I?"]:::auto -.-> B
+  G["steelfoundry<br/>where am I?"]:::auto -.-> B
   classDef auto fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
   classDef advisory fill:#ffec99,stroke:#f08c00,color:#1e1e1e
   classDef block fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
@@ -80,7 +91,7 @@ flowchart TB
 |---|---|
 | Karpathy guidelines (think, simplicity, surgical changes, goal-driven) | `karpathy-guidelines` skill installed in every project |
 | Review is human, or by a model **different** from the author | constitution `C-INDEPENDENT-REVIEW`; an agent session cannot sign a human review, and `--by-model` must differ from `--author-model` |
-| A stuck task → a person decides | escalates at the 1st critical failure, the 2nd identical failure (no progress) or after more than 3 failures; the engine prepares a card (retry · park · exception) and only a person retries or approves (`open-sdd decide`) |
+| A stuck task → a person decides | escalates at the 1st critical failure, the 2nd identical failure (no progress) or after more than 3 failures; the engine prepares a card (retry · park · exception) and only a person retries or approves (`steelfoundry decide`) |
 
 
 ## Contents
@@ -100,10 +111,10 @@ flowchart TB
 13. [Progress and checkpoints: `where`](#13-progress-and-checkpoints-where)
 14. [Multi-unit work and waves](#14-multi-unit-work-and-waves)
 15. [Agent hosts, skills and MCP](#15-agent-hosts-skills-and-mcp)
-16. [Governance: gates, constitution, claims](#16-governance)
+16. [Governance: gates, constitution, claims](#16-governance) — [16.1 Ratifying the constitution](#161-ratifying-the-constitution-mandatory-terminal-confirmation)
 17. [Files and folders](#17-files-and-folders)
 18. [Command reference](#18-command-reference)
-19. [Worked scenarios](#19-worked-scenarios)
+19. [Worked scenarios](#19-worked-scenarios) — [19b Offers](#19b-for-offers-and-client-acceptance) · [19c Assurance](#19c-assurance-validation-by-rule-flow-and-audit-trail) · [19d Operating it](#19d-operating-it-cost-telemetry-mcp-attestation-pr-status)
 20. [Troubleshooting and FAQ](#20-troubleshooting-and-faq)
 21. [Limits and what is not verified](#21-limits-and-what-is-not-verified)
 
@@ -116,7 +127,7 @@ flowchart TB
 | **Spec** | `.sdd/specs/<feature>/`: `requirements.md` (EARS), `plan.md` (or `design.md`), `tasks.md`. |
 | **Steering** | `.sdd/steering/`: project memory — `product.md`, `tech.md`, `structure.md`, `constitution.md`. |
 | **Constitution** | Principles every spec is checked against; the authority a blocking verdict cites. |
-| **Level** | Size of the work: L0 tiny … L6 modernization. Decides playbook and ceremony. |
+| **Level** | Size of the work: L0 tiny … L6 migration. Decides playbook and ceremony. |
 | **Variant** | `greenfield` (new) or `brownfield` (existing code). |
 | **Rigor** | Strictness: `tiny-spec` → `spec-first` → `spec-anchored` → `spec-as-code` (legacy name `spec-as-source` accepted). |
 | **Playbook** | Ordered phases of steps for one kind of case (`.playbook.json`). |
@@ -143,11 +154,11 @@ flowchart TB
 ## 2. Install and set up
 
 ```bash
-npm install -g @brujo2020/open-sdd      # or: npx @brujo2020/open-sdd …
-open-sdd --version
-open-sdd init . --write                 # installs the command templates for your host
-open-sdd integrate claude-code --write  # skills for a host (cursor, codex, gemini-cli, windsurf, …)
-open-sdd doctor                         # self-diagnosis: Node, CLI, commit gate, constitution, specs
+npm install -g @brujo2020/steelfoundry      # or: npx @brujo2020/steelfoundry …
+steelfoundry --version
+steelfoundry init . --write                 # installs the command templates for your host
+steelfoundry integrate claude-code --write  # skills for a host (cursor, codex, gemini-cli, windsurf, …)
+steelfoundry doctor                         # self-diagnosis: Node, CLI, commit gate, constitution, specs
 ```
 
 From a checkout: `npm install && npm run build`, then `node tools/open-sdd/dist/cli.js …`.
@@ -157,7 +168,7 @@ From a checkout: `npm install && npm run build`, then `node tools/open-sdd/dist/
 
 ```json
 // .sdd/settings/approvers.json
-{ "approvers": [ { "name": "Ana Rojas", "email": "ana.rojas@bank.example" } ] }
+{ "approvers": [ { "name": "Ana Rojas", "email": "ana.rojas@acme.example" } ] }
 ```
 
 An answer's `--by` must name a listed approver **and** match the git identity of the shell in use.
@@ -169,23 +180,23 @@ An answer's `--by` must name a listed approver **and** match the git identity of
 Always start by asking the engine what it thinks:
 
 ```bash
-open-sdd start "<what you want to do>" --dry-run
+steelfoundry start "<what you want to do>" --dry-run
 ```
 
 | You want to… | Command | What happens |
 |---|---|---|
-| fix a typo | `open-sdd start "fix typo in README"` | L0, playbook `tiny`, 2 steps, no pack, no recall |
-| try an idea | `open-sdd start "prototype voice search"` | L1 PoC, minimal ceremony |
-| add a feature | `open-sdd start "add CSV export to reports"` | L2, spec-first (brownfield variant if code exists) |
-| build a small app | `open-sdd start "new service for document signing from scratch"` | L3 `greenfield` |
-| deliver several features | `open-sdd start "platform with onboarding, billing and notifications"` | L4 `multi-feature` |
-| change several services | `open-sdd start "split billing into 3 microservices"` | L5 `multi-unit`, strict |
-| understand legacy code | `open-sdd start "reverse engineer the billing system"` | `reverse-engineering`, see §8 |
-| modernize a portfolio | `open-sdd migrate init --example banking` | see §9 |
-| not sure | `open-sdd assist` | recommends assistants from the repo state |
+| fix a typo | `steelfoundry start "fix typo in README"` | L0, playbook `tiny`, 2 steps, no pack, no recall |
+| try an idea | `steelfoundry start "prototype voice search"` | L1 PoC, minimal ceremony |
+| add a feature | `steelfoundry start "add CSV export to reports"` | L2, spec-first (brownfield variant if code exists) |
+| build a small app | `steelfoundry start "new service for document signing from scratch"` | L3 `greenfield` |
+| deliver several features | `steelfoundry start "platform with onboarding, billing and notifications"` | L4 `multi-feature` |
+| change several services | `steelfoundry start "split billing into 3 microservices"` | L5 `multi-unit`, strict |
+| understand legacy code | `steelfoundry start "reverse engineer the billing system"` | `reverse-engineering`, see §8 |
+| migrate a portfolio | `steelfoundry migrate init --example datacenter-exit` | see §9 |
+| not sure | `steelfoundry assist` | recommends assistants from the repo state |
 
-Then loop: `open-sdd next <feature>` → do the step → `open-sdd report …` (see §5). Check progress any
-time with `open-sdd where`.
+Then loop: `steelfoundry next <feature>` → do the step → `steelfoundry report …` (see §5). Check progress any
+time with `steelfoundry where`.
 
 ---
 
@@ -201,7 +212,7 @@ time with `open-sdd where`.
 | L3 small project | from scratch, new app/service/project, build an app | standard |
 | L4 medium | platform, roadmap, several features, ≥ 3 features listed | standard |
 | L5 large | ≥ 2 services/repos/units named, or several repos in the workspace | strict |
-| L6 modernization | modernize, mainframe, COBOL, monolith to microservices, strangler, portfolio migration | strict |
+| L6 migration | migrate/modernize a portfolio, mainframe, COBOL, data-center exit, Oracle → PostgreSQL, cloud migration, monolith to microservices, strangler | strict |
 
 Rules that never bend:
 - **Risk only raises the level.** Payments, auth, PII, migration, infra or data in a "tiny" change make it L2. A PoC with personal data is L2.
@@ -234,7 +245,7 @@ greenfield), else from the workspace (source code present → brownfield). Overr
 | `spec-as-code` (legacy name `spec-as-source`) | discovery, contracts, audit; full chain | — |
 
 ```bash
-open-sdd start "add CSV export" --rigor spec-anchored
+steelfoundry start "add CSV export" --rigor spec-anchored
 ```
 
 The stricter steps are composed onto the variant playbook into
@@ -249,16 +260,16 @@ skipped and the reason is printed. All 48 combinations L0–L5 × 2 variants × 
 The engine is the same for every host. The agent asks what to do and says what happened:
 
 ```bash
-open-sdd next <feature> [--json] [--auto-handoff]
-open-sdd report <feature> --step <id> --result <started|awaiting-approval|completed|rejected|revised|skipped|park|unpark> \
+steelfoundry next <feature> [--json] [--auto-handoff]
+steelfoundry report <feature> --step <id> --result <started|awaiting-approval|completed|rejected|revised|skipped|park|unpark> \
   [--produced a,b] [--reason r] [--by name] [--tokens n] [--model id] [--duration s]
 ```
 
 | Directive | Agent does |
 |---|---|
-| `handoff` | writes the bounded context pack (`open-sdd handoff write <f> <step>`), or use `--auto-handoff` |
-| `ask` | puts the open questions in the question file to the user; user confirms (`open-sdd questions confirm <f> <step> --by …`) |
-| `run-step` | reads the pack, restates goal and acceptance ids (`open-sdd handoff recall <f> <step> --text "…"`), reports `started`, does the step, reports `completed` (auto) or `awaiting-approval` (human gate) |
+| `handoff` | writes the bounded context pack (`steelfoundry handoff write <f> <step>`), or use `--auto-handoff` |
+| `ask` | puts the open questions in the question file to the user; user confirms (`steelfoundry questions confirm <f> <step> --by …`) |
+| `run-step` | reads the pack, restates goal and acceptance ids (`steelfoundry handoff recall <f> <step> --text "…"`), reports `started`, does the step, reports `completed` (auto) or `awaiting-approval` (human gate) |
 | `present-gate` | prepares a card if none exists and **stops** for the person |
 | `parked` | explains the reason and stops |
 | `done` | nothing left |
@@ -277,11 +288,11 @@ Minimal ceremony (L0–L1) skips the pack and the recall. Other commands:
 ## 6. Human in the loop (HIL)
 
 ```bash
-open-sdd hil prepare <feature> --card card.json      # validated: one question, 2–4 options, evidence lines
-open-sdd hil review <feature> --html                 # offline page with every open card and the exact answer command
-open-sdd hil answer <feature> <card-id> <option> --by "<name>" [--confirm <card-id>]
-open-sdd hil list <feature> [--overdue]
-open-sdd hil stats <feature>                         # useless escalations per trigger → threshold proposals
+steelfoundry hil prepare <feature> --card card.json      # validated: one question, 2–4 options, evidence lines
+steelfoundry hil review <feature> --html                 # offline page with every open card and the exact answer command
+steelfoundry hil answer <feature> <card-id> <option> --by "<name>" [--confirm <card-id>]
+steelfoundry hil list <feature> [--overdue]
+steelfoundry hil stats <feature>                         # useless escalations per trigger → threshold proposals
 ```
 
 Card rules: the default (applied when the deadline passes) may only **park** or **reject**;
@@ -300,15 +311,15 @@ Evidence line format: `kept|revised|dropped -> <change> -> <evidence with a numb
 ## 7. Assistants
 
 ```bash
-open-sdd assist                                   # which assistant helps now (by repository state)
+steelfoundry assist                                   # which assistant helps now (by repository state)
 ```
 
 ### 7.1 Discovery by roles (BMAD-style)
 
 ```bash
-open-sdd assist discover "invoice export for customers" --feature invoices
+steelfoundry assist discover "invoice export for customers" --feature invoices
 # answer .sdd/questions/invoices/discovery.md
-open-sdd assist brief invoices --write            # composes and lints .sdd/specs/invoices/brief.md
+steelfoundry assist brief invoices --write            # composes and lints .sdd/specs/invoices/brief.md
 ```
 
 Questions come from roles — analyst, PM, architect, UX, QA, security — chosen deterministically by
@@ -320,11 +331,11 @@ confirms or discards it. L0 work needs no discovery.
 ### 7.2 EARS conversion and review
 
 ```bash
-open-sdd assist ears "When a payment fails the system must notify the customer. The export should be fast."
-open-sdd assist ears --file notes.md                                    # one statement per line/bullet
-open-sdd assist ears "Users can export the report." --system "the reporting service"
-open-sdd assist ears --file notes.md --feature invoices --write --area INV [--accept]
-open-sdd assist ears review invoices                                    # suggestions over requirements.md
+steelfoundry assist ears "When a payment fails the system must notify the customer. The export should be fast."
+steelfoundry assist ears --file notes.md                                    # one statement per line/bullet
+steelfoundry assist ears "Users can export the report." --system "the reporting service"
+steelfoundry assist ears --file notes.md --feature invoices --write --area INV [--accept]
+steelfoundry assist ears review invoices                                    # suggestions over requirements.md
 ```
 
 The five patterns (keywords and `shall` stay in English; your clauses keep your language):
@@ -358,8 +369,8 @@ question remains.
 ### 7.3 Steering drafts
 
 ```bash
-open-sdd assist steering --write     # or: open-sdd steering draft --write
-open-sdd steering check              # ready only when no (inferred) / [NEEDS CLARIFICATION] remain
+steelfoundry assist steering --write     # or: steelfoundry steering draft --write
+steelfoundry steering check              # ready only when no (inferred) / [NEEDS CLARIFICATION] remain
 ```
 
 Drafts `product.md`, `tech.md`, `structure.md` from the workspace (README, manifests, languages,
@@ -369,9 +380,9 @@ files are never overwritten without `--force`.
 ### 7.4 Constitution
 
 ```bash
-open-sdd assist constitution --draft       # from what the code already obeys (evidence per principle)
-open-sdd assist constitution --interview   # questions for what evidence cannot answer
-open-sdd govern constitution …             # matrix, evidence pack, ratification by a named person
+steelfoundry assist constitution --draft       # from what the code already obeys (evidence per principle)
+steelfoundry assist constitution --interview   # questions for what evidence cannot answer
+steelfoundry govern constitution …             # matrix, evidence pack, ratification by a named person
 ```
 
 A draft is never authority until a named person ratifies it.
@@ -383,12 +394,12 @@ A draft is never authority until a named person ratifies it.
 For existing systems nobody fully understands. Multi-stage and incremental (slice by slice).
 
 ```bash
-open-sdd start "reverse engineer the billing system" --feature billing-baseline
-open-sdd reverse init --scope payments --critical payments
-open-sdd reverse next
-open-sdd reverse status [--feature billing-baseline] [--mermaid] [--json]
-open-sdd reverse confirm RULE-PAY-001 --by "Ana Rojas" [--confirm RULE-PAY-001]
-open-sdd reverse init --scope accounts     # next slice: adds modules, keeps flags and work
+steelfoundry start "reverse engineer the billing system" --feature billing-baseline
+steelfoundry reverse init --scope payments --critical payments
+steelfoundry reverse next
+steelfoundry reverse status [--feature billing-baseline] [--mermaid] [--json]
+steelfoundry reverse confirm RULE-PAY-001 --by "Ana Rojas" [--confirm RULE-PAY-001]
+steelfoundry reverse init --scope accounts     # next slice: adds modules, keeps flags and work
 ```
 
 | Stage | Done when | Who works |
@@ -416,10 +427,10 @@ Rules format:
 
 ## 9. Migration Kit
 
-`open-sdd migrate` (the old name `modernize` still works). L6 is the **migration** level: a portfolio of
+`steelfoundry migrate` (the old name `modernize` still works). L6 is the **migration** level: a portfolio of
 applications moving platform, decided per component with the AWS 7 Rs.
 
-**Enterprise examples** (`open-sdd migrate init --example <id>`):
+**Enterprise examples** (`steelfoundry migrate init --example <id>`):
 
 | Example | Scenario | What it exercises |
 |---|---|---|
@@ -430,14 +441,14 @@ applications moving platform, decided per component with the AWS 7 Rs.
 | `monolith` | Java EE monolith → services, Java 8→21, AngularJS EOL | strangler on checkout first, retain the SaaS payment gateway |
 
 ```bash
-open-sdd migrate init [--example <id>]     # .sdd/modernize/portfolio.json
-open-sdd migrate assess                     # risk score + AWS 7 Rs per component, with rule and reason
-open-sdd migrate override <id> <r> --by "<name>" --reason "<why>"
-open-sdd migrate waves [--max 3]            # retire first → pilot → dependency-ordered waves
-open-sdd migrate plan <feature>             # L6 run, strict ceremony, units and waves
-open-sdd migrate wave <feature> <n>         # rules insert each component's steps
-open-sdd migrate advance <id> --to <stage> [--metrics m.json]
-open-sdd migrate status [--json|--mermaid|--html]
+steelfoundry migrate init [--example <id>]     # .sdd/modernize/portfolio.json
+steelfoundry migrate assess                     # risk score + AWS 7 Rs per component, with rule and reason
+steelfoundry migrate override <id> <r> --by "<name>" --reason "<why>"
+steelfoundry migrate waves [--max 3]            # retire first → pilot → dependency-ordered waves
+steelfoundry migrate plan <feature>             # L6 run, strict ceremony, units and waves
+steelfoundry migrate wave <feature> <n>         # rules insert each component's steps
+steelfoundry migrate advance <id> --to <stage> [--metrics m.json]
+steelfoundry migrate status [--json|--mermaid|--html]
 ```
 
 **Portfolio fields** per component: `id`, `criticality` (1–5), `businessValue` (1–5), `techFit`
@@ -485,11 +496,11 @@ decommission is `irreversible-damage` (default park). Run `advance` again after 
 No model involved: rules turn events into workflow changes.
 
 ```bash
-open-sdd migrate event <feature> --file event.json      # or: open-sdd engine event <feature> --file …
-open-sdd migrate propose <feature> --file proposal.json # agent evidence: may only raise risk
-open-sdd migrate resolve <feature> --event <id>
-open-sdd migrate learn <feature> --event <id> [--reflect]
-open-sdd migrate rules [list | adopt <id> --by "<name>" [--confirm <id>]]
+steelfoundry migrate event <feature> --file event.json      # or: steelfoundry engine event <feature> --file …
+steelfoundry migrate propose <feature> --file proposal.json # agent evidence: may only raise risk
+steelfoundry migrate resolve <feature> --event <id>
+steelfoundry migrate learn <feature> --event <id> [--reflect]
+steelfoundry migrate rules [list | adopt <id> --by "<name>" [--confirm <id>]]
 ```
 
 **Event** (`source` must be human|scanner|monitor|pipeline — an agent cannot raise events):
@@ -538,14 +549,14 @@ candidate** that only a named, confirmed person can adopt.
 ## 11. Playbooks
 
 ```bash
-open-sdd playbook profile                 # detected signals and project type
-open-sdd playbook plan "<intent>" [--save name]   # model-free plan: bands, kept/skipped steps, risk review
-open-sdd playbook check <name|file>       # unknown keys/steps, bad `when`, starved steps → exit 1
-open-sdd playbook build <name> --target <host|prompt|mcp|aidlc> [--write]
-open-sdd playbook improve <name> [--k 3]  # propose–probe–compose over recorded runs
-open-sdd playbook new <name> --from <base> [--add phase:use[:human]] [--skip id]
-open-sdd playbook diff <a> <b>
-open-sdd playbook list | save
+steelfoundry playbook profile                 # detected signals and project type
+steelfoundry playbook plan "<intent>" [--save name]   # model-free plan: bands, kept/skipped steps, risk review
+steelfoundry playbook check <name|file>       # unknown keys/steps, bad `when`, starved steps → exit 1
+steelfoundry playbook build <name> --target <host|prompt|mcp|aidlc> [--write]
+steelfoundry playbook improve <name> [--k 3]  # propose–probe–compose over recorded runs
+steelfoundry playbook new <name> --from <base> [--add phase:use[:human]] [--skip id]
+steelfoundry playbook diff <a> <b>
+steelfoundry playbook list | save
 ```
 
 Format (JSON, schema `templates/playbooks/playbook.schema.json`):
@@ -570,11 +581,11 @@ step caught count as unobserved risk.
 ## 12. Memory and continuous improvement
 
 ```bash
-open-sdd memory capture --kind <gate-block|hil-answer|human-edit|recall-mismatch> --text "…"
-open-sdd memory reflect --file reflection.json
-open-sdd memory promote <id> --by "<name>"
-open-sdd memory withdraw --origin <id>
-open-sdd memory list
+steelfoundry memory capture --kind <gate-block|hil-answer|human-edit|recall-mismatch> --text "…"
+steelfoundry memory reflect --file reflection.json
+steelfoundry memory promote <id> --by "<name>"
+steelfoundry memory withdraw --origin <id>
+steelfoundry memory list
 ```
 
 Captured automatically: refused gates, HIL answers, edits of reviewed files, recall mismatches.
@@ -586,25 +597,27 @@ are refused; only promoted lessons reach context packs, as hypotheses.
 ## 13. Progress and checkpoints: `where`
 
 ```bash
-open-sdd where                         # every run: phase, progress bar, pending, waiting decisions
-open-sdd where <feature> --json
-open-sdd where --line                  # one line for a prompt: "csv 40% sdd-spec-design ⚑1"
-open-sdd where --save --note "before CAB"   # .sdd/state/checkpoint.md and .json
+steelfoundry where                         # every run: phase, progress bar, pending, waiting decisions
+steelfoundry where <feature> --json
+steelfoundry where --line                  # one line for a prompt: "csv 40% sdd-spec-design ⚑1"
+steelfoundry where --save --note "before CAB"   # .sdd/state/checkpoint.md and .json
 ```
 
 Progress is weighted by step cost (count also shown). A remaining-time estimate appears after three
 timed steps and is labelled uncalibrated. Resume in any session by reading
 `.sdd/state/checkpoint.md` and running the `next` command it lists. Also: `engine list`,
-`engine status <f> --mermaid`, `modernize status --html`, `reverse status`.
+`engine status <f> --mermaid`, `migrate status --html`, `reverse status`.
+
+For a clear status (state, stage n/9, blockers, next command) and dashboards use `steelfoundry flow` (§19c).
 
 ---
 
 ## 14. Multi-unit work and waves
 
 ```bash
-open-sdd engine start <feature> --playbook multi-unit --units api,web:api,ui:api+web
-open-sdd waves <feature> --baseline 1 --protect tests/oracle.test.ts
-open-sdd waves <feature> --verify 1 --check "npm test" --units api,web
+steelfoundry engine start <feature> --playbook multi-unit --units api,web:api,ui:api+web
+steelfoundry waves <feature> --baseline 1 --protect tests/oracle.test.ts
+steelfoundry waves <feature> --verify 1 --check "npm test" --units api,web
 ```
 
 Units with dependencies (`id:dep+dep`) become waves; cycles are refused; one writer per feature (lock).
@@ -619,8 +632,9 @@ The wave referee refuses a merge when a unit's check fails or a protected file c
   `sdd-verify-completion`, `sdd-characterize`, `sdd-getspecs`.
 - Hard rules for agents: never report `approved`, never answer cards, never add `--confirm`, never adopt
   rules or promote lessons, never raise events, propose only with evidence.
-- MCP (`open-sdd mcp`): tools include `open_sdd_next`, `open_sdd_report` (with tokens/model),
-  `open_sdd_status`, `open_sdd_context_pack`, `open_sdd_gates_run` and the constitution resources.
+- MCP (`steelfoundry mcp`): tools include `open_sdd_next`, `open_sdd_report` (with tokens/model),
+  `open_sdd_status`, `open_sdd_context_pack`, `open_sdd_gates_run`, `open_sdd_flow`,
+  `open_sdd_validation`, `open_sdd_audit_trail` and the constitution resources.
 - AI-DLC: `aidlc:stage/*` step types, `import aidlc`, plugin template
   `templates/integrations/aidlc-plugin/opensdd/` in the AI-DLC plugin layout:
   `.aidlc-plugin/plugin.json`, sensors `aidlc-opensdd-{ears,gates,steering}` (deterministic,
@@ -634,13 +648,13 @@ The wave referee refuses a merge when a unit's check fails or a protected file c
 ## 16. Governance
 
 ```bash
-open-sdd gates chain --profile regulated     # resolve the Zero-Trust chain
-open-sdd gates run [C1 C2 C3] [--staged] [--strict]
-open-sdd govern rigor | conformance | hitl | discipline | constitution
-open-sdd status <feature> --check [--strict] # spec against the constitution
-open-sdd review record <feature> <step> --by "<name>" --artifact <path>   # review receipt; pre-commit freeze
-open-sdd assure claims --verify              # claims registry: must stay at 0 broken
-open-sdd audit <feature> | audit bundle | audit sarif
+steelfoundry gates chain --profile regulated     # resolve the Zero-Trust chain
+steelfoundry gates run [C1 C2 C3] [--staged] [--strict]
+steelfoundry govern rigor | conformance | hitl | discipline | constitution
+steelfoundry status <feature> --check [--strict] # spec against the constitution
+steelfoundry review record <feature> <step> --by "<name>" --artifact <path>   # review receipt; pre-commit freeze
+steelfoundry assure claims --verify              # claims registry: must stay at 0 broken
+steelfoundry audit <feature> | audit bundle | audit sarif
 ```
 
 Never bypass the commit gate with `--no-verify`; declare a genuine false positive with a reason in
@@ -656,10 +670,10 @@ agent's.
 principle (it states something about the code) needs evidence; a *normative* one (a decision of the
 team, e.g. from the guided interview) is ratified by the named person. Nothing else changes.
 
-**How.** `open-sdd assist constitution` guides you to the end, or directly:
+**How.** `steelfoundry assist constitution` guides you to the end, or directly:
 
 ```bash
-open-sdd govern constitution --ratify --by "<name>" --rationale "<why>" --write
+steelfoundry govern constitution --ratify --by "<name>" --rationale "<why>" --write
 ```
 
 Before writing, the command prints the objective, the exact list of principles, who (name and git email)
@@ -674,7 +688,7 @@ shows what would happen and asks nothing.
 |---|---|
 | `.sdd/steering/constitution.md` | each principle with its amendment `AMD-RATIFY-<id>`: who, when, why |
 | `.sdd/engine/_governance.audit.jsonl` | `CONSTITUTION_RATIFIED` (or `…_REFUSED`): person, git email, reason, principles; hash-chained |
-| `open-sdd audit trail --actor human` | the readable view; `--principle C-…` for one principle |
+| `steelfoundry audit trail --actor human` | the readable view; `--principle C-…` for one principle |
 
 Limit: typing on the terminal raises the bar from "an agent typed a name" to "someone at the terminal
 confirmed"; it is not a proof of identity (an agent could open a pseudo-terminal). Identity comes from the
@@ -688,9 +702,10 @@ git email recorded with it.
 |---|---|
 | `.sdd/specs/<f>/` | `requirements.md`, `plan.md`/`design.md`, `tasks.md`, `brief.md`, `delta.md` |
 | `.sdd/steering/` | `product.md`, `tech.md`, `structure.md`, `constitution.md` |
-| `.sdd/settings/` | `approvers.json`, `rigor.json`, `dynamic-rules.json`, `reverse.json`, `hitl.json`, `security-allowlist.json` |
+| `.sdd/settings/` | `approvers.json`, `rigor.json`, `dynamic-rules.json`, `reverse.json`, `hitl.json`, `security-allowlist.json`, `validation-rules.json`, `estimate.json`, `migration-estimate.json`, `finops.json` |
 | `.sdd/playbooks/` | project and generated playbooks |
-| `.sdd/engine/` | `<f>.state.json`, `<f>.audit.jsonl`, `<f>.lock` |
+| `.sdd/engine/` | `<f>.state.json`, `<f>.audit.jsonl` (hash-chained decision log), `_governance.audit.jsonl` (ratifications), `<f>.lock` |
+| `.sdd/attestations/` | `<f>.intoto.json` (in-toto Statement v1) |
 | `.sdd/handoff/<f>/` | context packs, recall records |
 | `.sdd/questions/<f>/` | question files (including `discovery.md`) |
 | `.sdd/hil/<f>/` | cards, answers, `review.html` |
@@ -725,9 +740,15 @@ git email recorded with it.
 | `waves <f> [--baseline\|--verify]` | wave plan / referee |
 | `brownfield …`, `delta …` | brownfield console and deltas |
 | `gates`, `govern`, `assure`, `audit`, `status --check`, `doctor` | governance |
+| `flow [f] [--json\|--markdown]` | clear status, stages, metrics |
+| `validation <f> [--record]` | tests each task must show, by rule |
+| `audit trail [f] [--requirement\|--principle\|--actor\|--who] [--csv\|--otlp f]` | decision log |
+| `attest <f> [--write]` / `attest --verify <file>` | in-toto attestation |
+| `estimate <f> [--sow --write]`, `migrate estimate` | estimates and offer scope |
+| `trace <f> [--mermaid\|--csv]` | requirement → task traceability |
 
-Every command answers `--help`; `open-sdd help <command>` shows usage and examples;
-`open-sdd help exit-codes` documents exit codes (0 ok, 1 refused by a gate, 2 usage).
+Every command answers `--help`; `steelfoundry help <command>` shows usage and examples;
+`steelfoundry help exit-codes` documents exit codes (0 ok, 1 refused by a gate, 2 usage).
 
 ---
 
@@ -736,38 +757,38 @@ Every command answers `--help`; `open-sdd help <command>` shows usage and exampl
 ### 19.1 Tiny change (3 commands)
 
 ```bash
-open-sdd start "fix typo in README"
-open-sdd report fix-typo-readme --step sdd-tiny --result started
-open-sdd report fix-typo-readme --step sdd-tiny --result completed   # then sdd-verify-completion
+steelfoundry start "fix typo in README"
+steelfoundry report fix-typo-readme --step sdd-tiny --result started
+steelfoundry report fix-typo-readme --step sdd-tiny --result completed   # then sdd-verify-completion
 ```
 
 ### 19.2 Tiny change that turns risky
 
 ```bash
 echo '{"id":"sig-1","type":"signal","at":"2026-10-24T09:00:00Z","source":"human","title":"typo is in the auth error path","components":[],"signal":{"name":"touches-auth","risk":true},"evidence":["review comment #12"]}' > sig.json
-open-sdd engine event fix-typo-readme --file sig.json   # → L2, standard ceremony, requirements + human design review
+steelfoundry engine event fix-typo-readme --file sig.json   # → L2, standard ceremony, requirements + human design review
 ```
 
 ### 19.3 PoC that becomes a feature
 
 ```bash
-open-sdd start "prototype voice search then turn into a feature if it works"   # poc-to-feature
+steelfoundry start "prototype voice search then turn into a feature if it works"   # poc-to-feature
 ```
 
 ### 19.4 Brownfield feature at higher rigor
 
 ```bash
-open-sdd start "add CSV export to the existing reports" --rigor spec-anchored
-open-sdd assist ears "When the export completes the reporting service must email the link to the requester."
+steelfoundry start "add CSV export to the existing reports" --rigor spec-anchored
+steelfoundry assist ears "When the export completes the reporting service must email the link to the requester."
 ```
 
 ### 19.5 Reverse engineering a legacy module, then changing it
 
 ```bash
-open-sdd start "reverse engineer the billing system" --feature billing-baseline
-open-sdd reverse init --scope payments --critical payments
-open-sdd reverse next          # repeat until RE-6
-open-sdd start "add partial refunds to the existing payments module"
+steelfoundry start "reverse engineer the billing system" --feature billing-baseline
+steelfoundry reverse init --scope payments --critical payments
+steelfoundry reverse next          # repeat until RE-6
+steelfoundry start "add partial refunds to the existing payments module"
 ```
 
 ### 19.6 Banking modernization with an unplanned critical CVE on go-live day
@@ -792,11 +813,11 @@ The whole story runs in `tools/open-sdd/test/mkBankingScenario.test.ts` (20 orde
 ## 19b. For offers and client acceptance
 
 ```bash
-open-sdd estimate <feature>               # effort P50/P90 + calendar with parallel waves (declared factors)
-open-sdd estimate <feature> --sow --write # .sdd/specs/<feature>/sow.md: scope, exclusions, deliverables, acceptance, assumptions, risks
-open-sdd migrate estimate                 # person-weeks per wave from the 7 Rs
-open-sdd trace <feature> --csv --out matrix.csv   # requirement × task × status × evidence
-open-sdd assist constitution              # guided constitution: one question at a time, draft, ratify with your name
+steelfoundry estimate <feature>               # effort P50/P90 + calendar with parallel waves (declared factors)
+steelfoundry estimate <feature> --sow --write # .sdd/specs/<feature>/sow.md: scope, exclusions, deliverables, acceptance, assumptions, risks
+steelfoundry migrate estimate                 # person-weeks per wave from the 7 Rs
+steelfoundry trace <feature> --csv --out matrix.csv   # requirement × task × status × evidence
+steelfoundry assist constitution              # guided constitution: one question at a time, draft, ratify with your name
 ```
 
 Factors live in `.sdd/settings/estimate.json` and `.sdd/settings/migration-estimate.json`; every output says
@@ -823,22 +844,22 @@ audit shows. A task proves each kind in its evidence: `_Evidence:_ [unit] [integ
 [review: Name] [coverage 93%]`.
 
 ```bash
-open-sdd validation <feature>            # per task: required kinds, the rule and the text that fired it; exit 1 if a done task lacks a blocking kind
-open-sdd validation <feature> --record   # also writes each decision to the audit log (once per change)
+steelfoundry validation <feature>            # per task: required kinds, the rule and the text that fired it; exit 1 if a done task lacks a blocking kind
+steelfoundry validation <feature> --record   # also writes each decision to the audit log (once per change)
 ```
 
 **Status and flow** — the clear status first, then every stage, the playbook steps, pending decisions and
 flow metrics, in a stable schema for dashboards:
 
 ```bash
-open-sdd flow                    # every feature, one line each: state · stage n/9 · tasks · blockers · next command
-open-sdd flow <feature>          # constitution → discovery → requirements → clarify → design → tasks → implement → validate → approve
-open-sdd flow <feature> --json   # schema open-sdd.flow/1
+steelfoundry flow                    # every feature, one line each: state · stage n/9 · tasks · blockers · next command
+steelfoundry flow <feature>          # constitution → discovery → requirements → clarify → design → tasks → implement → validate → approve
+steelfoundry flow <feature> --json   # schema open-sdd.flow/1
 ```
 
 ```
   ▶ EN CURSO · etapa 7/9 Implementación · tareas 1/4
-  siguiente: open-sdd impl cobros
+  siguiente: steelfoundry impl cobros
 ```
 
 `status.state` is one of `not-started`, `in-progress`, `waiting-decision`, `blocked`, `done`;
@@ -852,24 +873,24 @@ trying to approve, a person not in `approvers.json`), reviews, rule-driven valid
 are all recorded. Each log is hash-chained; a tampered line is reported and the command exits 1.
 
 ```bash
-open-sdd audit trail <feature> --requirement REQ-COB-001   # what was decided about this requirement
-open-sdd audit trail <feature> --principle C-BOUNDARIES
-open-sdd audit trail <feature> --actor human               # human | agent | rule | system
-open-sdd audit trail <feature> --decisions --csv > trail.csv
+steelfoundry audit trail <feature> --requirement REQ-COB-001   # what was decided about this requirement
+steelfoundry audit trail <feature> --principle C-BOUNDARIES
+steelfoundry audit trail <feature> --actor human               # human | agent | rule | system
+steelfoundry audit trail <feature> --decisions --csv > trail.csv
 ```
 
 ## 19d. Operating it: cost, telemetry, MCP, attestation, PR status
 
 ```bash
-open-sdd flow <feature>                          # also: tokens, models and cost (prices in .sdd/settings/finops.json)
-open-sdd audit trail [feature] --otlp otlp.json  # OTLP/JSON logs for an OpenTelemetry Collector (otlpjsonfile receiver)
-open-sdd attest <feature> --write                # .sdd/attestations/<feature>.intoto.json (in-toto Statement v1)
-open-sdd attest --verify <file>                  # exit 1 if the spec, constitution or audit log changed since
-open-sdd flow --markdown                         # status table for a PR or $GITHUB_STEP_SUMMARY
+steelfoundry flow <feature>                          # also: tokens, models and cost (prices in .sdd/settings/finops.json)
+steelfoundry audit trail [feature] --otlp otlp.json  # OTLP/JSON logs for an OpenTelemetry Collector (otlpjsonfile receiver)
+steelfoundry attest <feature> --write                # .sdd/attestations/<feature>.intoto.json (in-toto Statement v1)
+steelfoundry attest --verify <file>                  # exit 1 if the spec, constitution or audit log changed since
+steelfoundry flow --markdown                         # status table for a PR or $GITHUB_STEP_SUMMARY
 ```
 
 `.sdd/settings/finops.json`: `{ "budgetTokens": 2000000, "usdPerMillionTokens": { "<model>": 15, "default": 3 } }`.
-Steps declare usage with `open-sdd report <feature> --step <id> --result <r> --tokens N --model M`.
+Steps declare usage with `steelfoundry report <feature> --step <id> --result <r> --tokens N --model M`.
 MCP tools: `open_sdd_flow`, `open_sdd_validation`, `open_sdd_audit_trail`.
 
 ## 20. Troubleshooting and FAQ
@@ -888,6 +909,9 @@ MCP tools: `open_sdd_flow`, `open_sdd_validation`, `open_sdd_audit_trail`.
 | `LOCK_HELD` | another writer is updating the run; retry |
 | `STARVED_STEP` | a step needs an output whose producer is skipped or later |
 | `cannot report «x» while it is y` | follow the step lifecycle: pending → started → completed/awaiting-approval |
+| `Ratificación NO confirmada` | type `RATIFICAR` on your own terminal; an agent session or a CI script cannot ratify (§16.1) |
+| `validation` exits 1 | a done task lacks a kind its rules require: add the test and its `[kind]` tag to `_Evidence:_` |
+| `audit trail` exits 1 / flow `blocked` by the audit log | a line of a hash-chained log was edited or removed; investigate before trusting it |
 
 **Why did my tiny change become L2?** It names a risk (auth, payments, personal data…). Use `--level`
 only if you accept the recorded override.
@@ -906,6 +930,9 @@ be typed by the person.
 - The 7 Rs table encodes AWS guidance as rules; it does not replace an assessment with the owners.
 - The AI-DLC plugin template has not been run through the AI-DLC validator.
 - EARS disciplines the statement of a requirement, not its correctness.
+- Estimates (`estimate`, `migrate estimate`) and FinOps cost use declared starting factors and prices; they are not calibrated.
+- Typing `RATIFICAR` raises the bar but is not proof of identity; the attestation is unsigned until you sign it (e.g. Sigstore).
+- Validation rules match text and paths: they can over- or under-fire; tune them in `validation-rules.json`.
 
 Sources: AWS Prescriptive Guidance — *About the migration strategies* (7 Rs);
 AWS DevOps Blog — *AI-Driven Development Life Cycle*.

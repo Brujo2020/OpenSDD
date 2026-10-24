@@ -86,10 +86,10 @@ type ConsoleLocale = keyof typeof SPEC_MESSAGES;
 
 const usage = (io: CliIO, message: string): number => {
   io.error(message);
-  io.error('usage: open-sdd requirements review <feature> [--json] [--strict]');
-  io.error('       open-sdd requirements checklist <feature> [--verify] [--json]');
-  io.error('       open-sdd requirements fix <feature> --apply <id> [--json] [--dry-run] [--force]');
-  io.error('       open-sdd review <feature> --base <ref> [--json]');
+  io.error('usage: steelfoundry requirements review <feature> [--json] [--strict]');
+  io.error('       steelfoundry requirements checklist <feature> [--verify] [--json]');
+  io.error('       steelfoundry requirements fix <feature> --apply <id> [--json] [--dry-run] [--force]');
+  io.error('       steelfoundry review <feature> --base <ref> [--json]');
   return 2;
 };
 
@@ -121,7 +121,7 @@ const renderReview = (report: ReviewReport, io: CliIO, locale: ConsoleLocale): v
   for (const finding of report.findings) io.log(findingLine(finding));
   for (const skipped of report.skipped) io.log(colors.dim(`  skipped ${skipped}`));
   io.log('');
-  io.log(colors.dim(`  ${messages.useFix} open-sdd requirements fix ${report.feature} --apply <id>`));
+  io.log(colors.dim(`  ${messages.useFix} steelfoundry requirements fix ${report.feature} --apply <id>`));
   io.log('');
 };
 
@@ -251,7 +251,7 @@ const resolveLocaleOrRefuse = (argv: readonly string[], io: CliIO): ConsoleLocal
   const requested = parseLangFlag([...argv]) ?? process.env.OPEN_SDD_LANG;
   if (requested && !normalizeLocale(requested)) {
     io.error(
-      `unsupported locale "${requested}" · open-sdd requirements is translated for: ${SUPPORTED_LOCALES.join(', ')}`,
+      `unsupported locale "${requested}" · steelfoundry requirements is translated for: ${SUPPORTED_LOCALES.join(', ')}`,
     );
     return null;
   }

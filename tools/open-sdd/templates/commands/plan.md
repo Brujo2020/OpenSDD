@@ -20,20 +20,20 @@ parallelSafe: false
 moves:
   - gates
 commands:
-  - "open-sdd status <feature> --json"
-  - "open-sdd brownfield analyze <feature> --json"
-  - "open-sdd brownfield contracts <feature> --json"
-  - "open-sdd brownfield reuse <feature>"
-  - "open-sdd brownfield templates --json"
-  - "open-sdd brownfield impact <feature>"
-  - "open-sdd delta validate <feature> --json"
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
+  - "steelfoundry status <feature> --json"
+  - "steelfoundry brownfield analyze <feature> --json"
+  - "steelfoundry brownfield contracts <feature> --json"
+  - "steelfoundry brownfield reuse <feature>"
+  - "steelfoundry brownfield templates --json"
+  - "steelfoundry brownfield impact <feature>"
+  - "steelfoundry delta validate <feature> --json"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
 scripts:
-  - "open-sdd status <feature> --json"
-  - "open-sdd brownfield analyze <feature> --json"
-  - "open-sdd brownfield contracts <feature> --json"
-  - "open-sdd brownfield impact <feature>"
+  - "steelfoundry status <feature> --json"
+  - "steelfoundry brownfield analyze <feature> --json"
+  - "steelfoundry brownfield contracts <feature> --json"
+  - "steelfoundry brownfield impact <feature>"
 ---
 
 # Plan — design the change against the code that already exists
@@ -56,9 +56,9 @@ If no feature is named, read the state and ask which one to plan.
 - **Identified — produces:** `.sdd/specs/<feature>/plan.md` (alias `design.md`) and `research.md`.
 - **Identified — refuses:** it refuses to rewrite `requirements.md`, the constitution, source or tests; out-of-scope improvements become deferred notes.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd brownfield analyze <feature> --json` and `open-sdd brownfield contracts <feature> --json` back every claim about existing code (contracts **exits 0** while reporting uncovered files — that report IS the check); `open-sdd delta validate <feature> --json` **exits 1** on an invalid delta (BLOCKS hand-off to `tasks`).
-- **Measured — components:** `gates` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the ratified constitution outranks design preference, and `open-sdd status --check --json` rejects a plan that violates a principle in force instead of softening it.
+- **Assured — backing check:** `steelfoundry brownfield analyze <feature> --json` and `steelfoundry brownfield contracts <feature> --json` back every claim about existing code (contracts **exits 0** while reporting uncovered files — that report IS the check); `steelfoundry delta validate <feature> --json` **exits 1** on an invalid delta (BLOCKS hand-off to `tasks`).
+- **Measured — components:** `gates` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the ratified constitution outranks design preference, and `steelfoundry status --check --json` rejects a plan that violates a principle in force instead of softening it.
 
 ## Pre-Execution Checks
 
@@ -82,39 +82,39 @@ If no feature is named, read the state and ask which one to plan.
 1. Read the feature state and the requirement ids you are planning against:
 
 ```bash
-open-sdd status <feature> --json
+steelfoundry status <feature> --json
 ```
 
 2. Ask the engine what the change touches and what it breaks:
 
 ```bash
-open-sdd brownfield analyze <feature> --json
+steelfoundry brownfield analyze <feature> --json
 ```
 
 3. Ask which existing tests protect the files you are about to change — this is the regression
    oracle, and a change without a covering contract is a risk you must name:
 
 ```bash
-open-sdd brownfield contracts <feature> --json
+steelfoundry brownfield contracts <feature> --json
 ```
 
 4. Search before you create. The reuse-first pass names existing symbols that already do part of the
    job, and the plan must either reuse them or say why it does not:
 
 ```bash
-open-sdd brownfield reuse <feature>
+steelfoundry brownfield reuse <feature>
 ```
 
 5. Ask what the public surface change costs downstream consumers:
 
 ```bash
-open-sdd brownfield impact <feature>
+steelfoundry brownfield impact <feature>
 ```
 
 6. Read the house templates so the plan matches the repository's own shape instead of your habits:
 
 ```bash
-open-sdd brownfield templates --json
+steelfoundry brownfield templates --json
 ```
 
 7. Write `plan.md` with, at minimum:
@@ -152,7 +152,7 @@ do not cite it as justification.
 
 ## Mandatory Post-Execution Hooks
 
-1. Re-run `open-sdd status <feature> --json` and confirm the phase advanced.
+1. Re-run `steelfoundry status <feature> --json` and confirm the phase advanced.
 2. Hand every uncovered requirement to `tasks` with an explicit note.
 
 ## Completion Report

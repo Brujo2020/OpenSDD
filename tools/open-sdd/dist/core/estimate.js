@@ -93,7 +93,7 @@ export const renderSow = (input) => {
     return [
         `# Alcance y estimación — ${e.feature}`,
         '',
-        '> Borrador generado desde la especificación por `open-sdd estimate --sow`. Revísalo antes de enviarlo: no es un compromiso contractual.',
+        '> Borrador generado desde la especificación por `steelfoundry estimate --sow`. Revísalo antes de enviarlo: no es un compromiso contractual.',
         ...section('Alcance (requisitos)', reqTitles, 'requirements.md no declara requisitos con id REQ-…'),
         ...section('Fuera de alcance', nonGoals, 'el brief no declara exclusiones: acórdalas antes de ofertar'),
         ...section('Entregables (tareas)', e.tasks.map((t) => `- ${t.id}. ${t.title.replace(/\s+—\s*(_.*)?$/, '')}`), 'no hay tareas pendientes'),

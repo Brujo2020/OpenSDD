@@ -19,17 +19,17 @@ parallelSafe: true
 moves:
   - contracts
 commands:
-  - "open-sdd brownfield contracts <feature> --json"
-  - "open-sdd brownfield contracts <feature> --write"
-  - "open-sdd brownfield contracts <feature> --verify"
-  - "open-sdd brownfield analyze <feature> --json"
-  - "open-sdd delta validate <feature> --json"
-  - "open-sdd status --check --json"
-  - "open-sdd status --json"
+  - "steelfoundry brownfield contracts <feature> --json"
+  - "steelfoundry brownfield contracts <feature> --write"
+  - "steelfoundry brownfield contracts <feature> --verify"
+  - "steelfoundry brownfield analyze <feature> --json"
+  - "steelfoundry delta validate <feature> --json"
+  - "steelfoundry status --check --json"
+  - "steelfoundry status --json"
 scripts:
-  - "open-sdd brownfield contracts <feature> --json"
-  - "open-sdd brownfield contracts <feature> --verify"
-  - "open-sdd delta validate <feature> --json"
+  - "steelfoundry brownfield contracts <feature> --json"
+  - "steelfoundry brownfield contracts <feature> --verify"
+  - "steelfoundry delta validate <feature> --json"
 ---
 
 # Contracts — the hole in the oracle is the finding
@@ -52,9 +52,9 @@ The input names the feature. If it does not, read the current state and ask.
 - **Identified — produces:** the regression-oracle report; with `--write` the oracle artifact under `.sdd/specs/<feature>/contracts/`.
 - **Identified — refuses:** it refuses to edit source or tests: it reports which changed files no test covers instead of assuming the suite protects everything.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd brownfield contracts <feature> --json` is the check — it **exits 0 while reporting the uncovered files**, and that report is the finding; `open-sdd brownfield contracts <feature> --verify` re-proves it after the change and `open-sdd delta validate <feature> --json` **exits 1** on a broken delta.
-- **Measured — components:** `contracts` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: a contract that contradicts a ratified principle is reported invalid rather than counted as protection, and `open-sdd status --check --json` is the pivot check.
+- **Assured — backing check:** `steelfoundry brownfield contracts <feature> --json` is the check — it **exits 0 while reporting the uncovered files**, and that report is the finding; `steelfoundry brownfield contracts <feature> --verify` re-proves it after the change and `steelfoundry delta validate <feature> --json` **exits 1** on a broken delta.
+- **Measured — components:** `contracts` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: a contract that contradicts a ratified principle is reported invalid rather than counted as protection, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -78,36 +78,36 @@ The input names the feature. If it does not, read the current state and ask.
 1. Read the oracle: covering tests per changed file, and the files with no coverage at all:
 
 ```bash
-open-sdd brownfield contracts <feature> --json
+steelfoundry brownfield contracts <feature> --json
 ```
 
 2. Publish the oracle as an artifact so the release can cite it, and re-run it in verification mode
    after implementation to prove the same oracle still holds:
 
 ```bash
-open-sdd brownfield contracts <feature> --write
+steelfoundry brownfield contracts <feature> --write
 ```
 
 ```bash
-open-sdd brownfield contracts <feature> --verify
+steelfoundry brownfield contracts <feature> --verify
 ```
 
 3. Read the change analysis, which supplies the changed-file set the oracle is measured against:
 
 ```bash
-open-sdd brownfield analyze <feature> --json
+steelfoundry brownfield analyze <feature> --json
 ```
 
 4. Validate the delta's declared targets, so a contract is bound to a real change element:
 
 ```bash
-open-sdd delta validate <feature> --json
+steelfoundry delta validate <feature> --json
 ```
 
 5. Validate the repository against the constitution and the rigor level, and record the exit code:
 
 ```bash
-open-sdd status --check --json
+steelfoundry status --check --json
 ```
 
 6. Report, in this order: the covering tests per changed file; the **uncovered** changed files; the
@@ -117,7 +117,7 @@ open-sdd status --check --json
 ## The constitution is the pivot
 
 A contract is only valid if the behaviour it locks is a principle the constitution protects.
-`open-sdd status --check --json` is the pivot check; a contract that contradicts a ratified principle
+`steelfoundry status --check --json` is the pivot check; a contract that contradicts a ratified principle
 is reported as invalid rather than counted as protection.
 
 ## Evidence

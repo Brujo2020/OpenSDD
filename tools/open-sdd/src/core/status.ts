@@ -454,7 +454,7 @@ export const buildStatus = async (
   const demands = demandsFor(declaredBrownfield);
 
   if (features.length === 0) {
-    lines.push(content('Specs', 'ninguna especificación en .sdd/specs', 'warn', 'crea una con open-sdd init <feature>'));
+    lines.push(content('Specs', 'ninguna especificación en .sdd/specs', 'warn', 'crea una con steelfoundry init <feature>'));
   }
 
   for (const feature of features) {
@@ -597,7 +597,7 @@ export const buildStatus = async (
           'Delta',
           `brownfield sin delta: el nivel ${level} exige el contrato del cambio`,
           'err',
-          `créala con open-sdd delta init ${focus ?? '<feature>'} "..."`,
+          `créala con steelfoundry delta init ${focus ?? '<feature>'} "..."`,
         ),
       );
     } else {
@@ -780,22 +780,22 @@ const chooseNextAction = (input: {
   gates: string[];
 }): string | undefined => {
   if (input.constitutionState === 'missing' || input.constitutionState === 'invalid') {
-    return 'open-sdd brownfield constitution . --write';
+    return 'steelfoundry brownfield constitution . --write';
   }
   // Ilegible: se re-deriva SIN --write, porque sobrescribir lo que no se pudo leer perdería trabajo.
-  if (input.constitutionState === 'unreadable') return 'open-sdd brownfield constitution .';
+  if (input.constitutionState === 'unreadable') return 'steelfoundry brownfield constitution .';
 
   const demands = rigorRequires(input.level, input.brownfield);
   if (input.focus && input.brownfield && demands.delta === 'required' && !input.focusHasDelta) {
-    return `open-sdd delta init ${input.focus} "..."`;
+    return `steelfoundry delta init ${input.focus} "..."`;
   }
   if (input.focus && input.missingDeclared.length > 0) {
-    return `open-sdd brownfield contracts ${input.focus}`;
+    return `steelfoundry brownfield contracts ${input.focus}`;
   }
   if (input.focus && input.changeOriginKnown && input.uncoveredChanges.length > 0) {
-    return `open-sdd brownfield contracts ${input.focus} --write`;
+    return `steelfoundry brownfield contracts ${input.focus} --write`;
   }
-  return input.gates.length > 0 ? `open-sdd gates run ${input.gates.join(' ')}` : 'open-sdd gates run';
+  return input.gates.length > 0 ? `steelfoundry gates run ${input.gates.join(' ')}` : 'steelfoundry gates run';
 };
 
 /**

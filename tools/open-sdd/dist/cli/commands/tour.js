@@ -1,5 +1,5 @@
 /**
- * `open-sdd tour` — el recorrido guiado de primera ejecución (REQ-MAT-009).
+ * `steelfoundry tour` — el recorrido guiado de primera ejecución (REQ-MAT-009).
  *
  * Enseña HACIENDO: inspecciona el repositorio y, en cada paso, imprime el siguiente comando REAL,
  * una línea de por qué y la salida que ese comando produce de verdad. No es un tratado; es el
@@ -23,7 +23,7 @@
  *     es la salida del producto, no una maqueta. Si un paso lanza, se declara; si le falta un
  *     prerrequisito, se nombra. Nunca se omite.
  *
- * ── Por qué este fichero también sirve `open-sdd context` ──────────────────────────────────────
+ * ── Por qué este fichero también sirve `steelfoundry context` ──────────────────────────────────────
  * El context pack y el recorrido comparten la misma capa i18n y el mismo renderizado de consola, y
  * el alcance de este cambio es crear UN fichero de comando: `tour` y `context` viven aquí, y la
  * delegación del handler MCP al `buildContextPack` de `src/core/contextPack.ts` queda declarada en
@@ -110,7 +110,7 @@ const runCommand = async (fn) => {
         };
     }
 };
-const RATIFY_COMMAND = 'open-sdd govern constitution --ratify --by "<nombre>" --rationale "<motivo>" --write';
+const RATIFY_COMMAND = 'steelfoundry govern constitution --ratify --by "<nombre>" --rationale "<motivo>" --write';
 /**
  * Construir el recorrido. Función de orquestación sin E/S de consola: devuelve la estructura y el
  * comando la pinta. Cada paso ejecuta el handler real y captura su salida.
@@ -131,7 +131,7 @@ export const planTour = async (input) => {
     let haltedAt = null;
     // ── 1. Reconocimiento ───────────────────────────────────────────────────────────────────────
     {
-        const commands = [`open-sdd brownfield survey ${targetArg}`];
+        const commands = [`steelfoundry brownfield survey ${targetArg}`];
         const why = t('tour.recon.why');
         if (!targetExists) {
             steps.push({
@@ -163,7 +163,7 @@ export const planTour = async (input) => {
     }
     // ── 2. Borrador de constitución (la decisión humana) ────────────────────────────────────────
     {
-        const commands = [`open-sdd brownfield constitution ${targetArg} --draft${readOnly ? '' : ' --write'}`];
+        const commands = [`steelfoundry brownfield constitution ${targetArg} --draft${readOnly ? '' : ' --write'}`];
         const why = t('tour.constitution.why');
         const read = await loadConstitution(root, sddDir);
         const inForce = read.exists && read.constitution !== null ? principlesInForce(read.constitution).length : 0;
@@ -206,7 +206,7 @@ export const planTour = async (input) => {
                 code: run.code,
                 ...(run.error ? { prerequisite: t('tour.stepFailed', { error: run.error }) } : {}),
                 humanDecision,
-                handoverCommand: draftExists || !readOnly ? RATIFY_COMMAND : `open-sdd brownfield constitution ${targetArg} --draft --write && ${RATIFY_COMMAND}`,
+                handoverCommand: draftExists || !readOnly ? RATIFY_COMMAND : `steelfoundry brownfield constitution ${targetArg} --draft --write && ${RATIFY_COMMAND}`,
             });
             haltedAt = 'constitution';
         }
@@ -216,7 +216,7 @@ export const planTour = async (input) => {
         ? {
             id: 'check',
             title: t('tour.check.title'),
-            commands: ['open-sdd govern rigor'],
+            commands: ['steelfoundry govern rigor'],
             why: t('tour.check.why'),
             status: 'blocked',
             executed: false,
@@ -228,7 +228,7 @@ export const planTour = async (input) => {
             return {
                 id: 'check',
                 title: t('tour.check.title'),
-                commands: ['open-sdd govern rigor'],
+                commands: ['steelfoundry govern rigor'],
                 why: t('tour.check.why'),
                 status: 'ran',
                 executed: true,
@@ -239,7 +239,7 @@ export const planTour = async (input) => {
         })());
     // ── 4. Panel de estado ──────────────────────────────────────────────────────────────────────
     {
-        const commands = [feature ? `open-sdd status ${feature}` : 'open-sdd status'];
+        const commands = [feature ? `steelfoundry status ${feature}` : 'steelfoundry status'];
         steps.push(haltedAt !== null
             ? {
                 id: 'status',
@@ -270,8 +270,8 @@ export const planTour = async (input) => {
     {
         const featureToken = feature ?? '<feature>';
         const commands = [
-            `open-sdd delta init ${featureToken} "<qué cambia>"`,
-            `open-sdd delta validate ${featureToken}`,
+            `steelfoundry delta init ${featureToken} "<qué cambia>"`,
+            `steelfoundry delta validate ${featureToken}`,
         ];
         steps.push({
             id: 'delta',
@@ -373,7 +373,7 @@ export const handleTourCommand = async (argv, io, cwd = process.cwd()) => {
     return report.targetExists ? 0 : 1;
 };
 // ---------------------------------------------------------------------------------------------
-// `open-sdd context <feature> [--json]`
+// `steelfoundry context <feature> [--json]`
 // ---------------------------------------------------------------------------------------------
 /**
  * Render humano del context pack: qué está PRESENTE y qué AUSENTE, con el motivo de cada ausencia.

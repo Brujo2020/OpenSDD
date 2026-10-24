@@ -20,16 +20,16 @@ moves:
   - traceability
   - evidence
 commands:
-  - "open-sdd status <feature> --json"
-  - "open-sdd brownfield contracts <feature> --json"
-  - "open-sdd delta validate <feature> --json"
-  - "open-sdd brownfield templates --json"
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
+  - "steelfoundry status <feature> --json"
+  - "steelfoundry brownfield contracts <feature> --json"
+  - "steelfoundry delta validate <feature> --json"
+  - "steelfoundry brownfield templates --json"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
 scripts:
-  - "open-sdd status <feature> --json"
-  - "open-sdd brownfield contracts <feature> --json"
-  - "open-sdd delta validate <feature> --json"
+  - "steelfoundry status <feature> --json"
+  - "steelfoundry brownfield contracts <feature> --json"
+  - "steelfoundry delta validate <feature> --json"
 ---
 
 # Tasks — ordered work with a proof attached to each item
@@ -52,9 +52,9 @@ If no feature is named, read the state and ask which feature to decompose.
 - **Identified — produces:** `.sdd/specs/<feature>/tasks.md` — ordered tasks each carrying a requirement id, a real test command and an `_Evidence:_` line.
 - **Identified — refuses:** it refuses to rewrite `requirements.md` or `plan.md`, refuses to edit source, and refuses to mark any task complete.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd brownfield contracts <feature> --json` reports the coverage (exit 0, but the holes it names must be carried as `coverage: unknown`); `open-sdd delta validate <feature> --json` **exits 1** on a broken traceability mapping (BLOCKS hand-off to `implement`).
-- **Measured — components:** `traceability`, `evidence` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: each task encodes the principles in force, a requirement with no design element is a reported gap rather than an invented task, and `open-sdd status --check --json` validates the spec against the principles.
+- **Assured — backing check:** `steelfoundry brownfield contracts <feature> --json` reports the coverage (exit 0, but the holes it names must be carried as `coverage: unknown`); `steelfoundry delta validate <feature> --json` **exits 1** on a broken traceability mapping (BLOCKS hand-off to `implement`).
+- **Measured — components:** `traceability`, `evidence` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: each task encodes the principles in force, a requirement with no design element is a reported gap rather than an invented task, and `steelfoundry status --check --json` validates the spec against the principles.
 
 ## Pre-Execution Checks
 
@@ -77,20 +77,20 @@ If no feature is named, read the state and ask which feature to decompose.
 1. Read the feature state and confirm the task set targets the right phase:
 
 ```bash
-open-sdd status <feature> --json
+steelfoundry status <feature> --json
 ```
 
 2. Ask which tests protect the files each task will change, so every task names its regression
    protection rather than assuming it:
 
 ```bash
-open-sdd brownfield contracts <feature> --json
+steelfoundry brownfield contracts <feature> --json
 ```
 
 3. Read the repository's own task template so the document matches house shape:
 
 ```bash
-open-sdd brownfield templates --json
+steelfoundry brownfield templates --json
 ```
 
 4. Decompose by **observable outcome**, not by file. Each task must have:
@@ -107,7 +107,7 @@ open-sdd brownfield templates --json
 6. For a change to existing code, verify the delta's traceability now, before implementation:
 
 ```bash
-open-sdd delta validate <feature> --json
+steelfoundry delta validate <feature> --json
 ```
 
 7. Check the coverage of the task set against the plan: every plan element maps to at least one
@@ -137,7 +137,7 @@ verdict downstream will cite the principle, so encode it here as a task constrai
 
 ## Mandatory Post-Execution Hooks
 
-1. Re-run `open-sdd status <feature> --json` and confirm the traceability component moved.
+1. Re-run `steelfoundry status <feature> --json` and confirm the traceability component moved.
 2. Hand the ordered set to `implement`.
 
 ## Completion Report

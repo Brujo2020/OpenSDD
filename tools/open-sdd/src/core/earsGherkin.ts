@@ -3,7 +3,7 @@
  * with its requirement id, so the acceptance test that verifies a requirement is linked to it by construction.
  *
  * ── Why it is included (ported from SteelForge, research/SDD-PARA-OPENSDD.md §4) ─────────────────────────
- * open-sdd already validates that a criterion IS EARS (`ears.ts`) and coaches how to write it (`earsAssistant.ts`),
+ * steelfoundry already validates that a criterion IS EARS (`ears.ts`) and coaches how to write it (`earsAssistant.ts`),
  * but nothing turned a valid criterion into an executable acceptance scenario: the trace requirement → test had
  * to be typed by hand and drifted. Spec Kit asks an LLM for this step; here it is deterministic.
  *
@@ -19,7 +19,7 @@ import type { RequirementItem } from './types.js';
 /** Gherkin language of the generated file. */
 export type GherkinLang = 'es' | 'en';
 
-/** EARS pattern of one criterion (open-sdd names, plus `complex`). */
+/** EARS pattern of one criterion (steelfoundry names, plus `complex`). */
 export type GherkinPattern = 'ubiquitous' | 'event-driven' | 'state-driven' | 'optional' | 'unwanted' | 'complex';
 
 /** The parts of an EARS criterion, as written. */
@@ -98,7 +98,7 @@ export type ScenarioResult = { ok: true; text: string; pattern: GherkinPattern }
 export const earsToScenario = (id: string, criterion: string, lang: GherkinLang = 'en'): ScenarioResult => {
   const k = KW[lang];
   const p = parseEarsParts(criterion);
-  if (!p) return { ok: false, reason: `${id}: "${criterion.slice(0, 60)}" is not EARS (no shall/debe); fix it with \`open-sdd requirements review\` first` };
+  if (!p) return { ok: false, reason: `${id}: "${criterion.slice(0, 60)}" is not EARS (no shall/debe); fix it with \`steelfoundry requirements review\` first` };
   const name = upperFirst(p.response).slice(0, 70);
   const ready = `${k.given} ${k.ready}`;
   const steps: string[] = [];

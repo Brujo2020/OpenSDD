@@ -1,10 +1,10 @@
 # Native GitFlow
 
-> The branch role decides the governance. `open-sdd` derives the role from the branches that actually
+> The branch role decides the governance. `steelfoundry` derives the role from the branches that actually
 > exist — never from a configuration file — and says what this branch owes before you ask.
 
 ```bash
-open-sdd gitflow          # model, branch role, base and the policy this branch owes
+steelfoundry gitflow          # model, branch role, base and the policy this branch owes
 ```
 
 ## 1. The model is detected, not declared
@@ -61,7 +61,7 @@ gate chain; `brownfield: false` substitutes the living triad for the delta.
 `blocking` names only mechanisms that can actually stop something **in this repository today**:
 
 - **Commit gate (level B).** The pre-commit hook runs `C1/C2/C3` over the staged index and fails
-  closed; `open-sdd floor status` says whether it is installed here (it is).
+  closed; `steelfoundry floor status` says whether it is installed here (it is).
 - **PR workflow (level C).** `.github/workflows/gates.yml` runs the full chain on every
   `pull_request`; a red chain fails the pull request.
 - **Governance profiles.** Under `team` and `enterprise`, code without an approved spec/delta fails
@@ -79,20 +79,20 @@ names the mechanism and points at the command that verifies installation.
 
 ```bash
 git checkout -b feature/checkout-flow develop
-open-sdd delta init checkout-flow "add a checkout flow"   # branch -> delta
-open-sdd delta validate checkout-flow                     # tasks/evidence -> gates
-open-sdd gates run                                        # green before the PR
+steelfoundry delta init checkout-flow "add a checkout flow"   # branch -> delta
+steelfoundry delta validate checkout-flow                     # tasks/evidence -> gates
+steelfoundry gates run                                        # green before the PR
 # PR into develop; CI runs the full chain
 
 git checkout -b release/1.4.0 main
-open-sdd gates run && open-sdd audit bundle checkout-flow  # release also needs the bundle
+steelfoundry gates run && steelfoundry audit bundle checkout-flow  # release also needs the bundle
 # PR into main, then merge back into develop
 
 git checkout -b hotfix/1.4.1 main
-open-sdd gates run                                        # fix, merge to main + develop, tag
-open-sdd delta init checkout-flow "post-merge hotfix"     # the fix is written back
+steelfoundry gates run                                        # fix, merge to main + develop, tag
+steelfoundry delta init checkout-flow "post-merge hotfix"     # the fix is written back
 
-open-sdd gitflow                                          # any branch: role, base, policy, gates
+steelfoundry gitflow                                          # any branch: role, base, policy, gates
 ```
 
 `branch → delta → tasks/evidence → gates → PR → release → merge to main with the pivot green`.

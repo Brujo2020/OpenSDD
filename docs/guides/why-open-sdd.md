@@ -1,10 +1,10 @@
-# Why Open-SDD? A philosophy note
+# Why SteelFoundry? A philosophy note
 
-This is the long version of "why does Open-SDD exist and what trade-off is it making". If you just want to install and try it, the project [README](../../README.md) is the faster path. Come here when you want to understand the design rationale.
+This is the long version of "why does SteelFoundry exist and what trade-off is it making". If you just want to install and try it, the project [README](../../README.md) is the faster path. Come here when you want to understand the design rationale.
 
 ## The short version
 
-open-sdd treats the spec as a contract between parts of the system, not a master command document to be handed to the agent. Code remains the source of truth. Specs make the contracts between parts of the code explicit, so humans and agents can work in parallel without constant synchronization.
+steelfoundry treats the spec as a contract between parts of the system, not a master command document to be handed to the agent. Code remains the source of truth. Specs make the contracts between parts of the code explicit, so humans and agents can work in parallel without constant synchronization.
 
 The bet is simple. Explicit contracts at the right granularity let AI-driven development at team scale move faster, not slower. Boundaries are not overhead. They are what lets you move freely inside while protecting the outside.
 
@@ -15,16 +15,16 @@ It helps to separate two things that often get collapsed together.
 - **Specification**: the contract, the boundary, the pre-conditions a piece of work must respect.
 - **Design**: the free exploration space *inside* that contract. Components, interfaces, implementation decisions.
 
-open-sdd treats this distinction as first-class:
+steelfoundry treats this distinction as first-class:
 
 - `requirements.md`, the File Structure Plan, and boundary annotations (`_Boundary:_`, `_Depends:_`) define the **specification**, the contract that must be respected.
 - `design.md` internals, `tasks.md` sequencing, and the implementation inside each task are the **design**, free territory for the agent, bounded by the contract.
 
 The human reviews and approves at the specification layer. The agent is free inside the design layer.
 
-## How open-sdd thinks about speed
+## How steelfoundry thinks about speed
 
-The usual assumption about specs is that they slow you down. open-sdd is built on the opposite assumption: explicit contracts at the right granularity make AI-driven development at team scale faster, not slower. Four things follow from that stance.
+The usual assumption about specs is that they slow you down. steelfoundry is built on the opposite assumption: explicit contracts at the right granularity make AI-driven development at team scale faster, not slower. Four things follow from that stance.
 
 ### Right-sized specs, not monolithic plans
 
@@ -46,11 +46,11 @@ Every phase is agent-driven. You do not author `requirements.md`, `design.md`, o
 
 Agents are fast. They will happily generate thousands of lines of code in parallel, across multiple modules, in a single session. The bottleneck is not capability. It is coordination.
 
-When an agent changes module A in one spec and module B in another, and nobody has written down what the contract between A and B is, you get silent breakage that only surfaces later. This is the same pain large engineering teams have been solving for decades with explicit interfaces, contract tests, and modular boundaries. open-sdd applies those principles to agent-authored work.
+When an agent changes module A in one spec and module B in another, and nobody has written down what the contract between A and B is, you get silent breakage that only surfaces later. This is the same pain large engineering teams have been solving for decades with explicit interfaces, contract tests, and modular boundaries. steelfoundry applies those principles to agent-authored work.
 
 Inside a boundary, you are free to refactor, invent, and iterate. Across boundaries, you have contracts, so nobody else's work silently breaks when you move.
 
-## When open-sdd is the right tool
+## When steelfoundry is the right tool
 
 - Your work decomposes into multiple specs shipped at medium grain. Not one monolith, not individual line changes.
 - Multiple humans, agents, or streams are touching the codebase, and "did your change break mine?" is starting to cost real time.
@@ -63,12 +63,12 @@ Inside a boundary, you are free to refactor, invent, and iterate. Across boundar
 - Prototype or throwaway code where writing down boundaries is overkill.
 - Work where "vibe coding" is genuinely faster than making the contract explicit.
 
-Even inside open-sdd, `/sdd-discovery` can legitimately return *"no spec needed, implement directly"* as a valid route. open-sdd is not trying to put a formal spec around every change, only the ones where the contract between parts of the system actually earns its cost.
+Even inside open-sdd, `/sdd-discovery` can legitimately return *"no spec needed, implement directly"* as a valid route. steelfoundry is not trying to put a formal spec around every change, only the ones where the contract between parts of the system actually earns its cost.
 
 > If the discipline feels like overhead, your specs are probably too big. Break them smaller.
 
 ## See also
 
-- [Spec-Driven Development Workflow](spec-driven.md): how the ideas here are implemented as an end-to-end workflow in open-sdd.
+- [Spec-Driven Development Workflow](spec-driven.md): how the ideas here are implemented as an end-to-end workflow in steelfoundry.
 - [Skill Reference](skill-reference.md): the skills-mode surface, including `/sdd-impl` dispatch internals.
-- [Upgrade](upgrade.md): moving between open-sdd releases.
+- [Upgrade](upgrade.md): moving between steelfoundry releases.

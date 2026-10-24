@@ -1,7 +1,7 @@
 {
   "$schema": "./playbook.schema.json",
   "name": "brownfield-aidlc-inception",
-  "description": "Recipe: AI-DLC inception on existing code, then open-sdd delta, contracts and gates for construction.",
+  "description": "Recipe: AI-DLC inception on existing code, then steelfoundry delta, contracts and gates for construction.",
   "lead": "aidlc",
   "phases": [
     { "id": "inception", "steps": [{ "use": "aidlc:stage/reverse-engineering" }, { "use": "aidlc:stage/requirements-analysis", "review": "human" }, { "use": "aidlc:stage/units-generation" }] },

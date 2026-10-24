@@ -1,6 +1,6 @@
 # Existing projects (brownfield)
 
-The on-ramp for a real codebase you did not start with `open-sdd`. The rule that governs everything
+The on-ramp for a real codebase you did not start with `steelfoundry`. The rule that governs everything
 below:
 
 > The existing code is the de-facto source of truth: **do not reinvent the architecture, govern it.**
@@ -17,13 +17,13 @@ every command from the root of the repository you are governing.
 
 | Step | Command | What it produces |
 |---|---|---|
-| 1. Recon | `open-sdd brownfield bootstrap .` | stack, module map, evidence, and the ordered plan (add `--write` to store the intelligence document) |
-| 2. Constitution draft | `open-sdd brownfield constitution . --draft --write` | a **descriptive** constitution: the principles the code already obeys, each with evidence; desired-but-absent practices become proposed amendments |
-| 3. Ratify | `open-sdd govern constitution --ratify --by "<name>" --rationale "<text>" --write` | the constitution enters into force with a named human behind it |
-| 4. Delta | `open-sdd delta init <feature> "what changes"` then `open-sdd delta validate <feature>` | the contract of change (ADSR sections, delta-scoped `REQ-<AREA>-<NNN>` ids) |
-| 5. Check | `open-sdd status <feature> --check`, `open-sdd brownfield impact\|contracts\|reuse <feature>`, `open-sdd govern rigor` | constitutional alignment, blast radius, regression oracle, reuse candidates, rigor verdict |
+| 1. Recon | `steelfoundry brownfield bootstrap .` | stack, module map, evidence, and the ordered plan (add `--write` to store the intelligence document) |
+| 2. Constitution draft | `steelfoundry brownfield constitution . --draft --write` | a **descriptive** constitution: the principles the code already obeys, each with evidence; desired-but-absent practices become proposed amendments |
+| 3. Ratify | `steelfoundry govern constitution --ratify --by "<name>" --rationale "<text>" --write` | the constitution enters into force with a named human behind it |
+| 4. Delta | `steelfoundry delta init <feature> "what changes"` then `steelfoundry delta validate <feature>` | the contract of change (ADSR sections, delta-scoped `REQ-<AREA>-<NNN>` ids) |
+| 5. Check | `steelfoundry status <feature> --check`, `steelfoundry brownfield impact\|contracts\|reuse <feature>`, `steelfoundry govern rigor` | constitutional alignment, blast radius, regression oracle, reuse candidates, rigor verdict |
 
-Then `open-sdd status` is the single dashboard: constitution, every spec, the delta, the contracts,
+Then `steelfoundry status` is the single dashboard: constitution, every spec, the delta, the contracts,
 the constitutional alignment, the rigor level and the next command to run.
 
 The expanded version — real output from this repository, the FAQ and the honest limits — is
@@ -40,10 +40,10 @@ force, and `status --check` says so instead of pretending otherwise.
 
 ### The constitution is the pivot
 
-Every spec is validated against the constitution with `open-sdd status <feature> --check`. A spec
+Every spec is validated against the constitution with `steelfoundry status <feature> --check`. A spec
 that cites a principle which is not in force is a **phantom authority** (error, exit 1); a spec that
 cites none leaves the pivot unused (warning); a requirement that contradicts a `MUST` is reported as
-such. `open-sdd govern constitution --matrix` publishes the principle → artifact coverage so you can
+such. `steelfoundry govern constitution --matrix` publishes the principle → artifact coverage so you can
 see which principles are backed by a real `file:line` and which are not.
 
 ## What it reads, and what it never touches
@@ -66,7 +66,7 @@ The repository publishes no brownfield timing benchmark, and inventing one would
 so here is the structural answer instead of a number:
 
 - **Machine time** is one command per step. Recon, constitution draft, delta validation and the
-  reports are deterministic console runs; run `open-sdd brownfield survey .` and it prints exactly
+  reports are deterministic console runs; run `steelfoundry brownfield survey .` and it prints exactly
   what it scanned.
 - **Human time** is the real cost, and it is deliberate: reviewing the constitution draft before
   ratifying it, and reviewing the delta before writing code. That review *is* the gate; skipping it

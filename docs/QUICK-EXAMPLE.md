@@ -14,7 +14,7 @@ npm install open-sdd
 
 ## Write a Spec (2 min)
 
-Open-SDD is installed. Now tell it what to build:
+SteelFoundry is installed. Now tell it what to build:
 
 ```bash
 /sdd-spec-init "Add JWT authentication with refresh tokens"
@@ -29,7 +29,7 @@ Answer these questions (takes ~1 min):
 - Who's the user? → `Backend engineers, need to integrate into Express app`
 - Constraints? → `Use RS256 for JWT, store refresh token in Redis`
 
-Open-SDD generates:
+SteelFoundry generates:
 ```
 .sdd/specs/jwt-auth/
 ├── requirements.md  (what it does)
@@ -57,7 +57,7 @@ vim .sdd/specs/jwt-auth/design.md
 /sdd-impl jwt-auth
 ```
 
-Open-SDD reads your spec and generates the code:
+SteelFoundry reads your spec and generates the code:
 - Task 1: Data models (runs in parallel)
 - Task 2: Auth endpoints (runs in parallel)
 - Task 3: Middleware (runs in parallel)

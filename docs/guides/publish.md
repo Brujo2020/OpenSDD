@@ -1,4 +1,4 @@
-# Publishing `@brujo2020/open-sdd`
+# Publishing `@brujo2020/steelfoundry`
 
 > **This document prepares the release. The owner performs it.** The publish needs the owner's npm
 > credential — a granular access token, or the owner's OIDC trusted-publisher decision — and an
@@ -9,10 +9,10 @@ The repository has **two manifests and only one is publishable**:
 
 | Manifest | Package | Publishable? |
 |---|---|---|
-| `package.json` (repository root) | `@brujo2020/open-sdd` | **Yes** — this is what users install |
+| `package.json` (repository root) | `@brujo2020/steelfoundry` | **Yes** — this is what users install |
 | `tools/open-sdd/package.json` | build toolchain, `"private": true` | No — never publish it |
 
-Publishing from `tools/open-sdd` would ship an unscoped `open-sdd` that is **not** this project.
+Publishing from `tools/open-sdd` would ship an unscoped `steelfoundry` that is **not** this project.
 Always publish from the repository root.
 
 ---
@@ -49,15 +49,15 @@ git push origin main
 npm publish --access public --otp <code>
 
 # 5. Prove it, before tagging. THIS is the step that decides success.
-npm view @brujo2020/open-sdd version                 # must print $V
-npm view @brujo2020/open-sdd dist-tags.latest        # must print $V
+npm view @brujo2020/steelfoundry version                 # must print $V
+npm view @brujo2020/steelfoundry dist-tags.latest        # must print $V
 
 # 6. Record the release in git.
 git tag -a "v$V" -m "v$V"
 git push origin "v$V"
 ```
 
-**Which step proves success: step 5.** `npm view @brujo2020/open-sdd version` must print the version
+**Which step proves success: step 5.** `npm view @brujo2020/steelfoundry version` must print the version
 **and** `dist-tags.latest` must move to it. A zero exit from `npm publish` or a green `git push` is not
 the proof — the registry is. If step 4 fails, apply the matching row of the table in §7 and re-run step
 4; never create a tag for a version that is not on the registry.
@@ -199,12 +199,12 @@ recorded workflow run has ever published through it. The versions that actually 
 3.1.1 — went out by hand with `npm publish --access public --otp <code>`. Setting route A up is the
 **owner's** action, once:
 
-1. Sign in to [npmjs.com](https://www.npmjs.com/) as the owner of `@brujo2020/open-sdd`.
+1. Sign in to [npmjs.com](https://www.npmjs.com/) as the owner of `@brujo2020/steelfoundry`.
 2. Click the account avatar → **Access Tokens** → **Generate New Token** → **Granular Access
    Token**.
 3. Give it a name (for example `open-sdd-ci-publish`) and an expiry you are willing to rotate.
 4. Under **Packages and scopes**, choose **Only select packages and scopes**, pick the `@brujo2020`
-   scope, then `@brujo2020/open-sdd`, and set the permission to **Read and write**. (`read-only` is
+   scope, then `@brujo2020/steelfoundry`, and set the permission to **Read and write**. (`read-only` is
    not enough to publish.)
 5. Enable **Bypass 2FA**. This is the field that matters: the account has 2FA enabled, and a granular
    token without bypass 2FA falls under `auth-and-writes`, which requires a one-time password that
@@ -228,11 +228,11 @@ The secret-free route. This is the reproducible one; it has **never yet gone gre
 repository** — every run on it has failed with a 404 from npm (see §7), so treat it as set up but
 unproven.
 
-1. Open the **package** settings for `@brujo2020/open-sdd` on npmjs.com — the package's own settings
+1. Open the **package** settings for `@brujo2020/steelfoundry` on npmjs.com — the package's own settings
    page, **not** the `@brujo2020` scope/organisation settings page.
 2. Under **Trusted Publisher**, choose **GitHub Actions** and fill in the three fields:
    - Organization/user: `Brujo2020`
-   - Repository: `open-sdd`
+   - Repository: `steelfoundry`
    - Workflow filename: `publish.yml`
    - Environment: leave empty unless the workflow is later given one.
 3. Save. Then make sure **no `NPM_TOKEN` secret exists** (`gh secret delete NPM_TOKEN` if it does),
@@ -287,24 +287,24 @@ version **and** the moving `latest` tag:
 
 ```bash
 # The version that is actually on the registry — must print 3.2.0
-npm view @brujo2020/open-sdd version
+npm view @brujo2020/steelfoundry version
 
-# The dist-tag that `npx @brujo2020/open-sdd@latest` resolves — must have moved to 3.2.0
-npm view @brujo2020/open-sdd dist-tags
+# The dist-tag that `npx @brujo2020/steelfoundry@latest` resolves — must have moved to 3.2.0
+npm view @brujo2020/steelfoundry dist-tags
 
 # The exact artifact digest and any attestations
-npm view @brujo2020/open-sdd dist.integrity
-npm view @brujo2020/open-sdd dist.attestations
+npm view @brujo2020/steelfoundry dist.integrity
+npm view @brujo2020/steelfoundry dist.attestations
 
 # Run the published CLI in a throwaway directory and read its version
 WORK="$(mktemp -d)"; cd "$WORK"
-npx --yes @brujo2020/open-sdd@latest --version
+npx --yes @brujo2020/steelfoundry@latest --version
 ```
 
-Expected for this release: `npm view @brujo2020/open-sdd version` prints **`3.2.0`** and
+Expected for this release: `npm view @brujo2020/steelfoundry version` prints **`3.2.0`** and
 `dist-tags.latest` is **`3.2.0`** (before the publish it is `3.1.1`, the last published version). If
 the version printed is not the version you published, you are resolving a different package or a
-cached one — check `npm view @brujo2020/open-sdd version` again rather than assuming the release
+cached one — check `npm view @brujo2020/steelfoundry version` again rather than assuming the release
 failed.
 
 To verify a **CI run** rather than a hand publish:
@@ -319,9 +319,9 @@ Read the log of the `Publish` step: it prints `Publish route: NPM_TOKEN …` or
 is never a guess. A green run on route B is the only thing that turns the trusted-publishing path
 from "configured" into "proven".
 
-Finally, confirm the *unscoped* trap is still documented and still true: `npx open-sdd@latest` is
+Finally, confirm the *unscoped* trap is still documented and still true: `npx steelfoundry@latest` is
 **not** this project. The correct invocation is always the scoped name
-`@brujo2020/open-sdd`.
+`@brujo2020/steelfoundry`.
 
 ---
 
@@ -348,7 +348,7 @@ green, use the manual command and treat the CI routes as configured but unproven
 npm does not allow re-publishing the same version. If a published version is wrong:
 
 ```bash
-npm deprecate @brujo2020/open-sdd@latest "superseded by 3.2.1: <reason>"
+npm deprecate @brujo2020/steelfoundry@latest "superseded by 3.2.1: <reason>"
 ```
 
 then fix, bump, and publish a new patch version. Never try to overwrite history; deprecate and move

@@ -20,12 +20,12 @@ not by looking reasonable.
 ## The console
 
 ```bash
-open-sdd standards list                    # every entry: id, severity, advisory, title
-open-sdd standards show REQ-EARS-001       # the full entry, including its source
-open-sdd standards explain REQ-EARS-001    # offline; the same, for a reader in a hurry
-open-sdd standards check                   # run the catalogue over the declared artifacts
-open-sdd standards check --json            # the same inside the single JSON envelope
-open-sdd standards fix REQ-EARS-010        # preview the remedy; --apply writes only safe ones
+steelfoundry standards list                    # every entry: id, severity, advisory, title
+steelfoundry standards show REQ-EARS-001       # the full entry, including its source
+steelfoundry standards explain REQ-EARS-001    # offline; the same, for a reader in a hurry
+steelfoundry standards check                   # run the catalogue over the declared artifacts
+steelfoundry standards check --json            # the same inside the single JSON envelope
+steelfoundry standards fix REQ-EARS-010        # preview the remedy; --apply writes only safe ones
 ```
 
 `check` reports, per finding: the standard id, the severity, `file:line:column`, the span, a message

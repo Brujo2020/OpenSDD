@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Brujo2020/OpenSDD/tools/open-sdd/templates/playbooks/playbook.schema.json",
-  "title": "open-sdd playbook",
-  "description": "A case-specific SDD process. Checked by `open-sdd playbook check`; the checker is the authority, this schema helps editors.",
+  "title": "steelfoundry playbook",
+  "description": "A case-specific SDD process. Checked by `steelfoundry playbook check`; the checker is the authority, this schema helps editors.",
   "type": "object",
   "additionalProperties": false,
   "required": ["name", "phases"],

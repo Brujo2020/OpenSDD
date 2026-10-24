@@ -93,7 +93,7 @@ control.
 
 ## 4. Un sensor ausente aprueba en silencio (C5 *fail-open*) 🔴
 
-**Evidencia.** `open-sdd check` en este repositorio imprime «Auto-autorizados por sensor no
+**Evidencia.** `steelfoundry check` en este repositorio imprime «Auto-autorizados por sensor no
 disponible: C5». No se distribuye ningún backend de modelo, así que la alineación de intención nunca
 se evalúa y aun así no bloquea.
 

@@ -38,13 +38,13 @@ const STATE = { on: colors.green('on '), opt: colors.yellow('opt'), off: colors.
 
 const usage = (io: CliIO, message: string): number => {
   io.error(message);
-  io.error('usage: open-sdd modes [--level explore|spec-first|spec-anchored|spec-as-source] [--brownfield] [--governance solo|team|enterprise] [--json]');
-  io.error('       open-sdd modes --projects | --project <greenfield|brownfield-extension|legacy-untested|bug|refactor|spike|fuzzy-idea|multi-feature> [--json]');
-  io.error('       open-sdd stages <feature> [--json]');
-  io.error('       open-sdd gherkin <feature> [--lang es|en] [--write] [--json]');
-  io.error('       open-sdd archive <feature> [--confirm] [--json]');
-  io.error('       open-sdd discovery lint <feature> [--json] | discovery log <feature> <type> <text>');
-  io.error('       open-sdd steering check [--json]');
+  io.error('usage: steelfoundry modes [--level explore|spec-first|spec-anchored|spec-as-source] [--brownfield] [--governance solo|team|enterprise] [--json]');
+  io.error('       steelfoundry modes --projects | --project <greenfield|brownfield-extension|legacy-untested|bug|refactor|spike|fuzzy-idea|multi-feature> [--json]');
+  io.error('       steelfoundry stages <feature> [--json]');
+  io.error('       steelfoundry gherkin <feature> [--lang es|en] [--write] [--json]');
+  io.error('       steelfoundry archive <feature> [--confirm] [--json]');
+  io.error('       steelfoundry discovery lint <feature> [--json] | discovery log <feature> <type> <text>');
+  io.error('       steelfoundry steering check [--json]');
   return 2;
 };
 
@@ -82,7 +82,7 @@ const runModes = async (argv: string[], io: CliIO, cwd: string): Promise<number>
   for (const f of FLOWS) io.log(`  ${colors.cyan(f.label.padEnd(11))} ${f.skill.padEnd(24)} writes ${f.writes.padEnd(9)} ${colors.dim(f.about)}`);
   io.log(colors.bold('  Modules'));
   for (const m of modules) io.log(`  ${STATE[m.state]} ${m.label.padEnd(13)} ${colors.dim(m.origin.padEnd(10))} ${m.run}`);
-  io.log(colors.dim('  ¿Qué skills usar según el tipo de proyecto? open-sdd modes --projects'));
+  io.log(colors.dim('  ¿Qué skills usar según el tipo de proyecto? steelfoundry modes --projects'));
   io.log('');
   return 0;
 };

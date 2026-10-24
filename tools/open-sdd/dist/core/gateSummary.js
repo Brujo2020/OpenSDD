@@ -8,7 +8,7 @@ const ICON = { pass: '✅', fail: '❌', 'self-authorized': '⚠️', advisory: 
 const cell = (text) => text.replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim();
 export const renderGateSummary = (report, meta) => {
     const lines = [
-        `### open-sdd gates — ${report.passed ? '✅ the chain passes' : '❌ the chain does NOT pass'}`,
+        `### steelfoundry gates — ${report.passed ? '✅ the chain passes' : '❌ the chain does NOT pass'}`,
         '',
         `Profile \`${meta.profile}\` · regime ${meta.strict ? 'strict' : 'flexible'} · ${meta.mode}`,
         '',

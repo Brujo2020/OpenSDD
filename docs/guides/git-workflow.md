@@ -6,7 +6,7 @@
 
 In traditional software development, Git tracks code while specifications remain scattered across wikis, issue trackers, or chat histories. Over time, code and specifications inevitably drift apart.
 
-Open-SDD's **Strict Git Mode** (*SpecOps*) bridges this divide by making specifications **living source code** in Git:
+SteelFoundry's **Strict Git Mode** (*SpecOps*) bridges this divide by making specifications **living source code** in Git:
 - Specifications reside in `.sdd/specs/<feature>/`.
 - Every SDLC phase gate is tied to deterministic Git actions: branch creation, spec approval commit/push, and implementation validation commit/push.
 - Generative coding without an approved specification is strictly blocked.
@@ -39,9 +39,9 @@ Configure Git automation behavior in your project:
 ### Operational Modes
 - `assisted` (**default**): Branches and commits for you at each phase gate; never pushes. Safe starting point.
 - `strict`: Implementation without an approved spec is blocked. Pairs with the `enterprise` profile.
-- `off`: Manual Git management; Open-SDD writes files to disk without invoking Git commands.
+- `off`: Manual Git management; SteelFoundry writes files to disk without invoking Git commands.
 
-> **`auto_push` ships as `false` on purpose.** Nothing reaches your remote unless you turn it on. Set `"auto_push": true` only when the branch protection on your remote is what you want Open-SDD pushing into.
+> **`auto_push` ships as `false` on purpose.** Nothing reaches your remote unless you turn it on. Set `"auto_push": true` only when the branch protection on your remote is what you want SteelFoundry pushing into.
 
 ### Relationship to profiles
 

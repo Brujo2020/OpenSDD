@@ -1,6 +1,6 @@
-# Open-SDD: Agentic SDLC and Spec-Driven Development
+# SteelFoundry: Agentic SDLC and Spec-Driven Development
 
-Open-SDD: Model-agnostic Spec-Driven Development on an enterprise agentic SDLC.
+SteelFoundry: Model-agnostic Spec-Driven Development on an enterprise agentic SDLC.
 Living specifications, Zero-Trust validation, and auditable architecture.
 
 ## Project Context
@@ -39,11 +39,11 @@ Do not look for steering or memory under `.sdd/` in this checkout until a skill 
 - Phase 0 (Steering): `/sdd-steering`, `/sdd-steering-custom`
 - **Brownfield Bootstrap** (existing codebase, no `.sdd/` specs): `/sdd-getspecs [focus]` — reverse-engineers steering + roadmap + unapproved spec seeds from code; seeds must be reviewed, edited, and validated before approval.
 - **Brownfield governance** (the existing code is the source of truth): run the console before specifying a change —
-  - recon: `open-sdd brownfield survey .` — what the project already is (stack, tooling, modules, evidence)
-  - constitution: `open-sdd brownfield constitution . --write` — the descriptive constitution in `.sdd/steering/constitution.md` (principles the code already obeys, each with evidence; desired-but-absent practices become proposed amendments)
-  - delta: `open-sdd delta init <feature> "what changes"` then `open-sdd delta validate <feature>` — the contract of change (ADDED/MODIFIED/REMOVED/RENAMED, delta-scoped `REQ-<AREA>-<NNN>` ids)
-  - analysis: `open-sdd brownfield contracts <feature> [--verify]` — the regression oracle (which tests protect the changed files, which files no contract covers; a green run with a declared contract missing is not a pass); `brownfield impact` for the blast radius and breaking changes; `brownfield reuse` for reuse-first candidates
-  - rigor: declare the level in `.sdd/settings/rigor.json`; `open-sdd govern rigor` assesses the repository against it. The three levels are a **cumulative ladder** whose default is deliberately fluid: `spec-first` (the default) demands a valid constitution, requirements in checkable EARS form and gates C1+C2; each step up only *adds* (Spec-Anchored → +delta/traceability/evidence/drift, C1+C2+C3+C6; Spec-as-Source → +contracts/regeneration, C1…C6). The constitution is the authority a blocking verdict cites, so it is **required (blocking) at every level**, and you raise the bar in `.sdd/settings/rigor.json`, never by lowering what the floor already checks.
+  - recon: `steelfoundry brownfield survey .` — what the project already is (stack, tooling, modules, evidence)
+  - constitution: `steelfoundry brownfield constitution . --write` — the descriptive constitution in `.sdd/steering/constitution.md` (principles the code already obeys, each with evidence; desired-but-absent practices become proposed amendments)
+  - delta: `steelfoundry delta init <feature> "what changes"` then `steelfoundry delta validate <feature>` — the contract of change (ADDED/MODIFIED/REMOVED/RENAMED, delta-scoped `REQ-<AREA>-<NNN>` ids)
+  - analysis: `steelfoundry brownfield contracts <feature> [--verify]` — the regression oracle (which tests protect the changed files, which files no contract covers; a green run with a declared contract missing is not a pass); `brownfield impact` for the blast radius and breaking changes; `brownfield reuse` for reuse-first candidates
+  - rigor: declare the level in `.sdd/settings/rigor.json`; `steelfoundry govern rigor` assesses the repository against it. The three levels are a **cumulative ladder** whose default is deliberately fluid: `spec-first` (the default) demands a valid constitution, requirements in checkable EARS form and gates C1+C2; each step up only *adds* (Spec-Anchored → +delta/traceability/evidence/drift, C1+C2+C3+C6; Spec-as-Source → +contracts/regeneration, C1…C6). The constitution is the authority a blocking verdict cites, so it is **required (blocking) at every level**, and you raise the bar in `.sdd/settings/rigor.json`, never by lowering what the floor already checks.
 - Discovery (new work/ideas): `/sdd-discovery "idea"` — identifies action path (Greenfield or Brownfield extension), writes `brief.md` and `roadmap.md`
 - Phase 1 (Specification):
   - Single spec: `/sdd-spec-quick {feature} [--auto]` or step-by-step:
@@ -120,7 +120,7 @@ Non-negotiables when using that model:
 - Human review required each phase; use `-y` only for intentional fast-track
 - Karpathy Guidelines (Think before coding, Simplicity first, Surgical changes, Goal-driven execution) are mandatory.
 - Validation and review are done by a human or, if not, by a model different from the one that generated the code (constitution `C-INDEPENDENT-REVIEW`; `review record --by-model <id> --author-model <id>` refuses the same model).
-- A task or implementation goes to HIL at the first critical failure, when the same failure repeats twice in a row (no progress), or after more than 3 failed iterations; the engine prepares the decision card (`open-sdd decide`).
+- A task or implementation goes to HIL at the first critical failure, when the same failure repeats twice in a row (no progress), or after more than 3 failed iterations; the engine prepares the decision card (`steelfoundry decide`).
 - Autonomous Quality Engineering: Agentic QE (`agentic-qe.dev`, PACTS framework) enabled for boundary-scoped metamorphic invariant testing.
 - Strict Git Mode: specs are mandatory and implementation without an approved specification is
   blocked **under the `team` and `enterprise` governance profiles**; the default `solo` profile runs

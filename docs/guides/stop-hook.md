@@ -9,7 +9,7 @@ an unverified mechanism.
 
 ## The exit-code fact that shapes the hook
 
-`open-sdd gates run C1 C2 C3 --staged --strict` exits **1** on a gate failure and **2** only when the
+`steelfoundry gates run C1 C2 C3 --staged --strict` exits **1** on a gate failure and **2** only when the
 run itself could not execute. Both verified hosts block on **exit 2** and read any other non-zero code
 as a failed hook — i.e. **fail-open**. This repository's own `DEFAULT_SENTINEL`
 (`tools/open-sdd/src/core/enforcement.ts`) names exit 1 `hook-failed-open`.

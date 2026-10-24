@@ -1,5 +1,5 @@
 /**
- * `open-sdd import` — absorbing spec-kit.
+ * `steelfoundry import` — absorbing spec-kit.
  *
  * Fixtures live in `mkdtemp` and are removed in `afterEach`: the suite NEVER writes inside the
  * repository. The contract under test is deliberately pessimistic, because the importer is:
@@ -116,7 +116,7 @@ describe('importers — spec-kit', () => {
 
     await applyImport(dir, plan, { write: true });
     const requirements = await readText(path.join(dir, '.sdd/specs/001-auth/requirements.md'));
-    expect(requirements.startsWith('<!-- Importado por open-sdd')).toBe(true);
+    expect(requirements.startsWith('<!-- Importado por steelfoundry')).toBe(true);
     expect(requirements).toContain('A user signs in.');
     expect(plan.detail).toContain('MAPEO');
   });

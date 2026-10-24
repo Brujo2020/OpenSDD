@@ -3,7 +3,7 @@
 **What this is.** The stored best practice behind workstreams W2 (standards engine) and W3
 (requirements coach) of [`docs/EVOLUTION-PLAN.md`](../EVOLUTION-PLAN.md). It is the **source of the
 register, not a second copy of the implementation**: the deterministic subset runs today under
-`open-sdd requirements review`, and which checks are in that subset is whatever `BUILT_IN_CHECK_IDS`
+`steelfoundry requirements review`, and which checks are in that subset is whatever `BUILT_IN_CHECK_IDS`
 reports — the count is derived from the code and verified by `CLM-067`, never hand-written here. The
 remaining entries are delegated (model critique) or, where a defect cannot be decided mechanically,
 a question with a named human on the other end.

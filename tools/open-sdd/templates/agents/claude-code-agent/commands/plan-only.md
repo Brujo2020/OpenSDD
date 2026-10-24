@@ -13,13 +13,13 @@ read-only, so the user can explore safely.
 
 ## Rules (hard)
 - Do NOT write, edit, move or delete files. Do NOT run commands that change state (installs, migrations, git
-  commits, formatters with --write). Read-only commands only (`open-sdd status`, `open-sdd modes`, `git log`, reading code).
+  commits, formatters with --write). Read-only commands only (`steelfoundry status`, `steelfoundry modes`, `git log`, reading code).
 
 ## Output (in the chat)
 1. Goal, in the user's words.
 2. Ordered steps; for each: what it touches (files or modules) and how it will be verified.
 3. Risks and how each is mitigated.
 4. Open questions (max 5, each with options).
-5. The recommended flow and level to execute it (`open-sdd modes`), and the exact next command
+5. The recommended flow and level to execute it (`steelfoundry modes`), and the exact next command
    (`/sdd:spec-quick`, `/sdd:spec-requirements`, `/sdd:bugfix` or `/sdd:tiny`).
 </instructions>

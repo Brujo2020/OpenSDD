@@ -17,13 +17,13 @@ parallelSafe: true
 moves:
   - traceability
 commands:
-  - "open-sdd status <feature> --json"
-  - "open-sdd delta validate <feature> --json"
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
+  - "steelfoundry status <feature> --json"
+  - "steelfoundry delta validate <feature> --json"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
 scripts:
-  - "open-sdd status <feature> --json"
-  - "open-sdd delta validate <feature> --json"
+  - "steelfoundry status <feature> --json"
+  - "steelfoundry delta validate <feature> --json"
 ---
 
 # Tasks to issues — one task, one trackable unit, no information lost
@@ -46,9 +46,9 @@ unknown, ask before publishing anywhere.
 - **Identified — produces:** one issue payload per task under `.sdd/specs/<feature>/issues/`, and the tracker entries when a tracker is configured and reachable.
 - **Identified — refuses:** it refuses to edit `tasks.md` or any spec artifact, and refuses to report a publication that did not occur.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd status <feature> --json` confirms the task set in scope and `open-sdd delta validate <feature> --json` **exits 1** on a broken requirement id (BLOCKS publication); publication is proven by the tracker's returned id, otherwise the report says `NOT PUBLISHED`.
-- **Measured — components:** `traceability` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: issues carry the constitution's constraints as acceptance criteria, an issue that would violate a principle is not published, and `open-sdd status --check --json` is the pivot check.
+- **Assured — backing check:** `steelfoundry status <feature> --json` confirms the task set in scope and `steelfoundry delta validate <feature> --json` **exits 1** on a broken requirement id (BLOCKS publication); publication is proven by the tracker's returned id, otherwise the report says `NOT PUBLISHED`.
+- **Measured — components:** `traceability` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: issues carry the constitution's constraints as acceptance criteria, an issue that would violate a principle is not published, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -74,13 +74,13 @@ unknown, ask before publishing anywhere.
 1. Read the feature state and confirm the task set is the approved one:
 
 ```bash
-open-sdd status <feature> --json
+steelfoundry status <feature> --json
 ```
 
 2. For a change to existing code, confirm the delta is valid so every issue's requirement id is real:
 
 ```bash
-open-sdd delta validate <feature> --json
+steelfoundry delta validate <feature> --json
 ```
 
 3. Write one payload per task under `.sdd/specs/<feature>/issues/`, named by task id, containing:

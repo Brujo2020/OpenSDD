@@ -77,7 +77,7 @@ export const renderCard = (card) => {
         '',
         `**If nobody answers in ${card.deadlineHours} h:** ${card.default} (${card.options.find((o) => o.key === card.default)?.effect}). Nothing is approved by silence.`,
         '',
-        `Answer: \`open-sdd hil answer ${card.feature} ${card.id} <option> --by "<name>"\``,
+        `Answer: \`steelfoundry hil answer ${card.feature} ${card.id} <option> --by "<name>"\``,
         '',
     ];
     return lines.join('\n');
@@ -146,7 +146,7 @@ export const recordAnswer = async (cwd, feature, id, option, by, opts = {}) => {
     const confirmed = needsPerson && opts.agent ? (typeof opts.ttyConfirmed === 'function' ? opts.ttyConfirmed() : opts.ttyConfirmed === true) : false;
     if (needsPerson && opts.agent && !confirmed) {
         await auditRefusal(cwd, feature, card, picked.key, by, 'agent', 'AGENT_SESSION: una sesión de agente intentó otorgar una aprobación');
-        return { ok: false, message: `AGENT_SESSION: this decision cannot come from an agent session. A person takes it from their own terminal: open-sdd decide ${feature} ${id} ${picked.key} --by "<name>"` };
+        return { ok: false, message: `AGENT_SESSION: this decision cannot come from an agent session. A person takes it from their own terminal: steelfoundry decide ${feature} ${id} ${picked.key} --by "<name>"` };
     }
     const answer = {
         id,
@@ -206,7 +206,7 @@ export const renderReviewHtml = (feature, cards, diffs = {}) => {
     const body = cards
         .map((c) => {
         const opts = c.options
-            .map((o) => `<tr${o.key === c.recommend ? ' class="rec"' : ''}><td><b>${o.key}</b></td><td>${esc(o.label)}</td><td>${esc(o.consequence)}</td><td><code>${o.effect}</code></td><td><code>open-sdd hil answer ${esc(feature)} ${c.id} ${o.key} --by "&lt;name&gt;"${o.effect === 'approve' || o.effect === 'override' || o.effect === 'accept-as-is' ? ` --confirm ${c.id}` : ''}</code></td></tr>`)
+            .map((o) => `<tr${o.key === c.recommend ? ' class="rec"' : ''}><td><b>${o.key}</b></td><td>${esc(o.label)}</td><td>${esc(o.consequence)}</td><td><code>${o.effect}</code></td><td><code>steelfoundry hil answer ${esc(feature)} ${c.id} ${o.key} --by "&lt;name&gt;"${o.effect === 'approve' || o.effect === 'override' || o.effect === 'accept-as-is' ? ` --confirm ${c.id}` : ''}</code></td></tr>`)
             .join('');
         const diff = diffs[c.id] ?? c.diff;
         return `<section><h2>${c.id} · ${esc(c.step)} <small>${esc(c.trigger)}</small></h2><p class="q">${esc(c.question)}</p>

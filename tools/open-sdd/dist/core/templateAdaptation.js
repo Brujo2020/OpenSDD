@@ -238,7 +238,7 @@ const sourceDirForModule = (facts, module) => {
 const commonUnobserved = (facts) => {
     const items = [
         '`{{TÍTULO}}`, `{{DESCRIPCIÓN_DEL_CAMBIO}}`, `{{FICHERO}}` y `{{CRITERIO_VERIFICABLE}}`: no son observables desde el código; los rellena quien especifica el cambio.',
-        'el id del requisito `REQ-AREA-NNN` de cada tarea: la delta del cambio lo define; sustitúyelo por el real (mientras no lo hagas, `open-sdd brownfield analyze` lo reporta como id inexistente, que es lo correcto).',
+        'el id del requisito `REQ-AREA-NNN` de cada tarea: la delta del cambio lo define; sustitúyelo por el real (mientras no lo hagas, `steelfoundry brownfield analyze` lo reporta como id inexistente, que es lo correcto).',
     ];
     if (!facts.runner.hasCycle) {
         items.push('el ciclo rojo-verde y el comando de test: no se emiten porque ningún manifiesto declara un runner ejecutable (ver la sección «Disciplina rojo-verde»).');
@@ -264,7 +264,7 @@ const buildRequirementsTemplate = (facts) => {
     const lines = [];
     lines.push(`# Plantilla de requisitos (adaptada) — ${project.name}`);
     lines.push('');
-    lines.push('<!-- Adaptada por `open-sdd brownfield templates` de la evidencia observada. No es genérica:');
+    lines.push('<!-- Adaptada por `steelfoundry brownfield templates` de la evidencia observada. No es genérica:');
     lines.push('     cada valor nombra el fichero que lo demuestra. Lo no observable está al final, declarado. -->');
     lines.push('');
     lines.push('## Contexto observado');
@@ -355,7 +355,7 @@ const buildPlanTemplate = (facts) => {
     const lines = [];
     lines.push(`# Plantilla de plan (adaptada) — ${project.name}`);
     lines.push('');
-    lines.push('<!-- Adaptada por `open-sdd brownfield templates` de la evidencia observada. En brownfield el plan');
+    lines.push('<!-- Adaptada por `steelfoundry brownfield templates` de la evidencia observada. En brownfield el plan');
     lines.push('     parte de la arquitectura que YA existe: los módulos de abajo son los que el código muestra. -->');
     lines.push('');
     lines.push('## Stack observado (hechos, no propuestas)');
@@ -446,7 +446,7 @@ const buildTasksTemplate = (facts) => {
     const lines = [];
     lines.push(`# Plantilla de tareas (adaptada) — ${project.name}`);
     lines.push('');
-    lines.push('<!-- Adaptada por `open-sdd brownfield templates` de la evidencia observada. Cada tarea lleva el');
+    lines.push('<!-- Adaptada por `steelfoundry brownfield templates` de la evidencia observada. Cada tarea lleva el');
     lines.push('     ciclo rojo-verde cuando el repositorio declara un runner; si no, se dice por qué no lo lleva. -->');
     lines.push('');
     lines.push('## Disciplina rojo-verde (TDD)');

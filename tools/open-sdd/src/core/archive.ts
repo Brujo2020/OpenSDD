@@ -3,7 +3,7 @@
  * provably done, so `.sdd/specs/` lists only live work and the archived triad stays as the record of what shipped.
  *
  * ── Why it is included (ported from SteelForge, research/SDD-PARA-OPENSDD.md §6; idea from OpenSpec) ──────
- * open-sdd had no end of life for a spec: finished features stayed in `.sdd/specs/` forever, inflating
+ * steelfoundry had no end of life for a spec: finished features stayed in `.sdd/specs/` forever, inflating
  * `status`, `waves` and every scan that walks specs. OpenSpec's `archive` closes the loop; this keeps its safety
  * rules and maps "validated" onto open-sdd's own state instead of a new file:
  *   - every task in tasks.md is `[x]` (an archived spec with open work hides that work);

@@ -14,7 +14,7 @@ export const handleGapCommand = async (
 
   const featureArg = argv.find((a) => !a.startsWith('-'));
   if (!featureArg) {
-    io.error(colors.red('Usage: open-sdd gap <feature-slug> [--json]'));
+    io.error(colors.red('Usage: steelfoundry gap <feature-slug> [--json]'));
     return 1;
   }
 

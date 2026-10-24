@@ -91,7 +91,7 @@ const makeChangeRepo = async (): Promise<string> => {
   await seedSpec(root);
   git(root, ['init', '-q']);
   git(root, ['config', 'user.email', 'gate@open-sdd.test']);
-  git(root, ['config', 'user.name', 'open-sdd gate']);
+  git(root, ['config', 'user.name', 'steelfoundry gate']);
   git(root, ['config', 'commit.gpgsign', 'false']);
   git(root, ['add', '-A']);
   git(root, ['commit', '-qm', 'base']);

@@ -89,7 +89,7 @@ export const advance = async (cwd, input) => {
         if (cs.pendingCard && cs.pendingCard.stage === input.to) {
             const answer = await readAnswer(cwd, cs.pendingCard.feature, cs.pendingCard.card);
             if (!answer)
-                return { ok: false, code: 'AWAITING_APPROVAL', message: `waiting for ${cs.pendingCard.card}: open-sdd hil answer ${cs.pendingCard.feature} ${cs.pendingCard.card} <option> --by "<name>"`, card: cs.pendingCard.card, stage: from };
+                return { ok: false, code: 'AWAITING_APPROVAL', message: `waiting for ${cs.pendingCard.card}: steelfoundry hil answer ${cs.pendingCard.feature} ${cs.pendingCard.card} <option> --by "<name>"`, card: cs.pendingCard.card, stage: from };
             if (answer.effect !== 'approve') {
                 delete cs.pendingCard;
                 s.components[input.component.id] = cs;
@@ -101,7 +101,7 @@ export const advance = async (cwd, input) => {
         }
         const feature = input.feature ?? s.feature;
         if (!feature)
-            return { ok: false, code: 'NO_FEATURE', message: 'no migration run: pass --feature or run `open-sdd migrate plan <feature>`', stage: from };
+            return { ok: false, code: 'NO_FEATURE', message: 'no migration run: pass --feature or run `steelfoundry migrate plan <feature>`', stage: from };
         const irreversible = trigger === 'irreversible-damage';
         const prepared = await prepareCard(cwd, {
             feature,
@@ -126,7 +126,7 @@ export const advance = async (cwd, input) => {
         cs.pendingCard = { stage: input.to, card: prepared.card.id, feature };
         s.components[input.component.id] = cs;
         await writeModState(cwd, s);
-        return { ok: false, code: 'AWAITING_APPROVAL', message: `${input.to} of ${input.component.id} needs a person: ${prepared.card.id} (open-sdd hil review ${feature} --html)`, card: prepared.card.id, stage: from };
+        return { ok: false, code: 'AWAITING_APPROVAL', message: `${input.to} of ${input.component.id} needs a person: ${prepared.card.id} (steelfoundry hil review ${feature} --html)`, card: prepared.card.id, stage: from };
     }
     await save(input.to, input.metrics ? 'canary criteria met' : 'advanced');
     return { ok: true, code: 'ADVANCED', message: `${input.component.id}: ${from} → ${input.to}`, stage: input.to };

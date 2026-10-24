@@ -29,12 +29,12 @@ Project memory keeps persistent guidance (steering, specs notes, component docs)
 
 ## Five verbs (terminal)
 - `open-sdd` — where you are and the one next action
-- `open-sdd setup` — install into this repo (plan first, `--write` applies)
-- `open-sdd start "<intent>"` — start any work; level, rigor and playbook are chosen for you
-- `open-sdd check` — one verdict: the whole gate chain
-- `open-sdd decide` — human decisions waiting, with the exact command
+- `steelfoundry setup` — install into this repo (plan first, `--write` applies)
+- `steelfoundry start "<intent>"` — start any work; level, rigor and playbook are chosen for you
+- `steelfoundry check` — one verdict: the whole gate chain
+- `steelfoundry decide` — human decisions waiting, with the exact command
 
-Everything else still works: `open-sdd help --all`.
+Everything else still works: `steelfoundry help --all`.
 
 ## Minimal Workflow
 - Phase 0 (optional): `$sdd-steering`, `$sdd-steering-custom`
@@ -89,8 +89,8 @@ Skills with "Parallel Research" sections list independent work items that benefi
 - Human review required each phase; use `-y` only for intentional fast-track
 <!-- open-sdd:rules:start (generated from templates/shared/always-on-rules.md; run npm run sync:templates) -->
 - Always apply the Karpathy guidelines (skill `karpathy-guidelines`, or `{{SDD_DIR}}/settings/rules/karpathy-guidelines.md`): think before coding, simplicity first, surgical changes, goal-driven execution
-- Validation and review are done by a human or, if not, by a model different from the one that generated the code (constitution `C-INDEPENDENT-REVIEW`; `open-sdd review record --by-model <id> --author-model <id>`)
-- Stop and hand the decision to a person (HIL, `open-sdd decide`) at the first critical failure, when the same failure repeats twice in a row, or after more than 3 failed iterations
+- Validation and review are done by a human or, if not, by a model different from the one that generated the code (constitution `C-INDEPENDENT-REVIEW`; `steelfoundry review record --by-model <id> --author-model <id>`)
+- Stop and hand the decision to a person (HIL, `steelfoundry decide`) at the first critical failure, when the same failure repeats twice in a row, or after more than 3 failed iterations
 <!-- open-sdd:rules:end -->
 - Keep steering current and verify alignment with `$sdd-spec-status`
 - Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
@@ -107,19 +107,19 @@ than an opinion, run it from the project root:
 
 | Command | What it answers |
 |---|---|
-| `open-sdd gates chain` | Which controls are declared for this project, and which are executable |
-| `open-sdd gates crosswalk` | Which logical gates each executable check imposes, and the residue no check covers |
-| `open-sdd gates run --base <ref>` | Run the declared chain against a change; exits 1 when it fails |
-| `open-sdd floor status` | Is the commit/merge enforcement floor installed? |
-| `open-sdd govern conformance` | The conformity level (C0–C3) with per-invariant evidence |
-| `open-sdd govern hitl` | The quantified human-in-the-loop escalation thresholds |
-| `open-sdd assure claims --verify` | Decide every documentation claim by its verifier's exit code |
-| `open-sdd waves <feature>` | The transactional wave plan and the git commands that materialise it |
-| `open-sdd brownfield survey [target]` | What the existing project already is: stack, tooling, modules and the evidence for each |
-| `open-sdd brownfield constitution [target] [--write]` | The descriptive constitution (principles the code obeys + proposed amendments) |
-| `open-sdd delta init\|validate\|status <feature>` | The contract of change (ADSR): scaffold, validate ids/EARS/contracts, traceability and strangulation |
-| `open-sdd brownfield contracts <feature> [--verify]` | The regression oracle: which tests protect the changed files, and which changed files no contract covers |
-| `open-sdd brownfield impact \| reuse <feature>` | The change's reachable set and breaking changes; the symbols a reuse-first search would have found first |
+| `steelfoundry gates chain` | Which controls are declared for this project, and which are executable |
+| `steelfoundry gates crosswalk` | Which logical gates each executable check imposes, and the residue no check covers |
+| `steelfoundry gates run --base <ref>` | Run the declared chain against a change; exits 1 when it fails |
+| `steelfoundry floor status` | Is the commit/merge enforcement floor installed? |
+| `steelfoundry govern conformance` | The conformity level (C0–C3) with per-invariant evidence |
+| `steelfoundry govern hitl` | The quantified human-in-the-loop escalation thresholds |
+| `steelfoundry assure claims --verify` | Decide every documentation claim by its verifier's exit code |
+| `steelfoundry waves <feature>` | The transactional wave plan and the git commands that materialise it |
+| `steelfoundry brownfield survey [target]` | What the existing project already is: stack, tooling, modules and the evidence for each |
+| `steelfoundry brownfield constitution [target] [--write]` | The descriptive constitution (principles the code obeys + proposed amendments) |
+| `steelfoundry delta init\|validate\|status <feature>` | The contract of change (ADSR): scaffold, validate ids/EARS/contracts, traceability and strangulation |
+| `steelfoundry brownfield contracts <feature> [--verify]` | The regression oracle: which tests protect the changed files, and which changed files no contract covers |
+| `steelfoundry brownfield impact \| reuse <feature>` | The change's reachable set and breaking changes; the symbols a reuse-first search would have found first |
 
 Brownfield rigor comes in three levels — Spec-First, Spec-Anchored and Spec-as-Source — and from
 Spec-Anchored upward a valid constitution is required (blocking), because it is the authority every
@@ -128,7 +128,7 @@ blocking verdict cites. The three levels are a cumulative ladder and the default
 Two caveats to state rather than paper over: **C7/Karpathy is reported as vacuous** (it runs without
 inspecting anything, so it is activation without measurement, not a passing control), and with **no
 model backend configured, intent alignment (C5) reports `mode=degraded`** and is explicitly not
-evidence. Install the enforcement floor into this project with `open-sdd floor install . --ci`
+evidence. Install the enforcement floor into this project with `steelfoundry floor install . --ci`
 (commit hook + pull-request gate matrix).
 
-Run `open-sdd --help` for the full command surface, or invoke the `sdd-help` skill.
+Run `steelfoundry --help` for the full command surface, or invoke the `sdd-help` skill.
