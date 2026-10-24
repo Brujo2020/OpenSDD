@@ -14,6 +14,14 @@ All notable changes to this project will be documented in this file.
 - Progress-aware escalation to a person: at the 1st critical failure (`RECEIPT_TAMPERED`, `QUESTIONS_CHANGED`), when it repeats an earlier failure or fixed nothing (no progress, from the 2nd attempt), or after more than 3 failures while progressing. The engine prepares the decision card (retry · park · exception) and only a person retries or approves.
 - Karpathy guidelines in every project: `karpathy-guidelines` skill in every skills tree, `.sdd/settings/rules/karpathy-guidelines.md` written by `setup`, and the three rules in every installed command.
 
+### Chain of trust (spec `trust-floor`, sprint 1 of docs/REVISION-EXPERTO.md)
+- `setup` writes `.sdd/settings/approvers.json` from the git identity, and installs the PR gate workflow for `team`/`enterprise` (offered for `solo`).
+- HIL approvals need an approvers list in `team`/`enterprise` (`APPROVERS_REQUIRED`).
+- The engine audit log is a hash chain (`prev`); an edited line fails gate runs with `AUDIT_CHAIN_BROKEN`, a critical code.
+- In `team`/`enterprise`, a self-authorized C5 without a fresh review receipt fails with `REVIEW_REQUIRED`.
+- `check` feeds the progress-aware escalation and stays stopped while a person has not decided (not under `CI`).
+- `gates run` accepts the global `--no-footer`.
+
 ### Security (QC 2026-10-23)
 - An agent session can no longer approve a HIL card, adopt a learned rule or confirm a reverse-engineered rule with `--confirm <id>`: grants need the id typed on the controlling terminal. Residual: a pty can be simulated; see `docs/GUIA.md` §7.
 - An agent session can no longer record a "human" review receipt.

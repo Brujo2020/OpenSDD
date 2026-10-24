@@ -610,3 +610,10 @@
   statement_en: 'An agent cannot approve its own HIL card nor sign a human review; an escalated step comes with a ready card and only a person grants a retry; setup installs the always-on rules; the door speaks in the five verbs.'
   verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/qcCritical.test.ts >/dev/null 2>&1'
   expectation: pass
+
+- id: CLM-085
+  section: "v3.9.x / spec trust-floor (sprint 1 of the expert review)"
+  statement_es: 'setup registra los aprobadores y, en team/enterprise, el PR gate; el log de auditoría es una cadena de hashes; un sensor C5 ausente exige revisión independiente en team/enterprise; un check atascado escala a una persona y queda detenido hasta su decisión.'
+  statement_en: 'setup records the approvers and, in team/enterprise, the PR gate; the audit log is a hash chain; a missing C5 sensor needs an independent review in team/enterprise; a stuck check escalates to a person and stays stopped until they decide.'
+  verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/trustFloor.test.ts >/dev/null 2>&1'
+  expectation: pass

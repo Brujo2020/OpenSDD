@@ -5,6 +5,8 @@ Cada punto tiene **evidencia reproducible en este repositorio**, por qué import
 **reutiliza piezas ya definidas** (marcadas con ♻️). Nada de esto está implementado todavía: es la
 propuesta para decidir.
 
+> **Estado (2026-10-23):** el sprint 1 (puntos 1–5) está implementado en la spec `trust-floor`: aprobadores en `setup` y obligatorios en `team`/`enterprise`, cadena de hashes en la auditoría, PR gate en `setup` para `team`/`enterprise`, `REVIEW_REQUIRED` cuando falta el sensor de C5, y `check` que escala y se detiene. Pendiente del punto 1: verificar las aprobaciones mediante revisión de PR (CODEOWNERS). Límites declarados al final de este documento.
+
 ## Resumen
 
 | # | Punto | Gravedad | Esfuerzo | Reutiliza |
@@ -215,3 +217,13 @@ El sprint 1 cierra la cadena de confianza de extremo a extremo:
 - ningún bucle escapa al escalado (5).
 
 Son cinco cambios pequeños, y cada uno reutiliza piezas que ya existen.
+
+## Límites declarados tras el sprint 1
+
+| Límite | Mitigación propuesta |
+|---|---|
+| Borrar las últimas líneas de un log de auditoría no se detecta (nada ancla la cabeza de la cadena) | anclar el hash de cabeza fuera del log: trailer del commit o comparación en CI contra la rama base |
+| Dos escrituras concurrentes pueden romper la cadena | escribir bajo el bloqueo que el motor ya usa para su estado |
+| Logs commiteados en dos ramas se rompen al fusionarse | logs por rama o driver de merge `union` |
+| Sin spec, la feature de `REVIEW_REQUIRED` cae a `governance` | exigir la feature real y fallar cerrado cuando no se conoce |
+| `.sdd/engine/_check*` commiteado lleva una tarjeta abierta a otra máquina | ignorarlo en git; en CI `check` no bloquea |

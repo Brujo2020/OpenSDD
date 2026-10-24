@@ -309,7 +309,7 @@ const dispatchSubcommand = async (
     return handleInitCommand(subArgv, io, targetCwd);
   }
   // The five verbs (REQ-SX-003/004): thin routes onto the existing handlers.
-  if (cmd === 'check') return handleGatesCommand(['run', ...subArgv.filter((a) => a !== SCORE_FOOTER_FLAG)], io, targetCwd);
+  if (cmd === 'check') return handleGatesCommand(['run', ...subArgv.filter((a) => a !== SCORE_FOOTER_FLAG)], io, targetCwd, { escalate: true });
   if (cmd === 'decide') return handleDecideCommand(subArgv, io, targetCwd);
   // Adoption surface: the machine-checked integration matrix (`integrate`) and the importer that
   // absorbs spec-kit (`import`). Both live in the init command module.
@@ -339,7 +339,8 @@ const dispatchSubcommand = async (
   }
   // Reference architecture: the Zero-Trust chain and its supporting models.
   if (cmd === 'gates') {
-    return handleGatesCommand(subArgv, io, targetCwd);
+    // The global footer flag is not a gate option (it used to be refused as one).
+    return handleGatesCommand(subArgv.filter((a) => a !== SCORE_FOOTER_FLAG), io, targetCwd);
   }
   if (cmd === 'govern') {
     return handleGovernCommand(subArgv, io, targetCwd);

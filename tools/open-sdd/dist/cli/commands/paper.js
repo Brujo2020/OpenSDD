@@ -11,6 +11,8 @@
  * implemented is reported as such, and a judgement that needs a model backend says it is not
  * evidence rather than returning a green light.
  */
+import { CHECK_FEATURE, auditChainIssues, checkBlock, escalationApplies, freshReviewReceipt, recordCheckOutcome } from '../../core/trustFloor.js';
+import { loadGovernanceSettings } from '../../core/governance.js';
 import { appendFile, chmod, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { renderGateSummary } from '../../core/gateSummary.js';
 import { fileURLToPath } from 'node:url';
@@ -249,7 +251,7 @@ const parseGatesRunArgs = (args) => {
 // ---------------------------------------------------------------------------------------------
 // gates
 // ---------------------------------------------------------------------------------------------
-export const handleGatesCommand = async (args, io, cwd) => {
+export const handleGatesCommand = async (args, io, cwd, opts = {}) => {
     const sub = args[0] ?? 'chain';
     const profile = parseProfile(args);
     const { signals, evidence } = await detectRepoSignals(cwd);
@@ -438,14 +440,47 @@ export const handleGatesCommand = async (args, io, cwd) => {
             io.log(`  ${colors.yellow('!')} ${allowlist.rejected.length} entrada(s) inválida(s) en la lista de excepciones: ${allowlist.rejected.map((r) => r.path).join(', ')}`);
         }
         io.log('');
+        // `check` (REQ-TF-005): while a person has not decided, the loop stays stopped.
+        const escalate = opts.escalate === true && escalationApplies();
+        if (escalate) {
+            const blocked = await checkBlock(root);
+            if (blocked) {
+                io.log(`  ${colors.red('Esperando a una persona')}: ${blocked.question}`);
+                io.log(`      open-sdd decide ${CHECK_FEATURE} ${blocked.id} <${blocked.options.map((o) => o.key).join('|')}> --by "<name>"`);
+                io.log('');
+                return 1;
+            }
+        }
         const report = await runChain(gateIds, ctx, strict ? 'strict' : 'flexible');
+        // The chain of trust (spec trust-floor): an edited audit log, or a missing sensor with nobody
+        // reviewing in its place, fails the run instead of approving it.
+        const trustProblems = await auditChainIssues(root);
+        const governance = await loadGovernanceSettings(root);
+        if (governance.profile !== 'solo' && report.unavailable.includes('C5') && !(await freshReviewReceipt(root, feature))) {
+            trustProblems.push(`REVIEW_REQUIRED: C5 has no sensor, so ${feature} needs an independent review receipt (a person, or a model different from the author): open-sdd review record ${feature} <step> --by "<name>" --artifact <path>`);
+        }
+        if (trustProblems.length > 0)
+            report.passed = false;
         for (const f of report.findings) {
             const gate = getExecutableGate(f.gateId);
             io.log(`  ${f.gateId.padEnd(4)} ${(gate?.name ?? '').padEnd(42)} ${outcomeColor(f.outcome)}`);
             io.log(`       ${dim((f.outcome === 'fail' ? f.detail : f.detail.slice(0, 180)))}${f.detail.length > 180 ? '…' : ''}`);
         }
         io.log('');
+        for (const problem of trustProblems)
+            io.log(`  ${colors.red('✖')} ${problem}`);
         io.log(`  ${report.passed ? colors.green('La cadena pasa') : colors.red('La cadena NO pasa')}`);
+        if (escalate) {
+            const failing = [...report.findings.filter((f) => f.outcome === 'fail').map((f) => `${f.gateId}: ${f.detail.slice(0, 160)}`), ...trustProblems];
+            const outcome = await recordCheckOutcome(root, report.passed, failing);
+            if (outcome.card) {
+                io.log(`  ${colors.red('Escalado a una persona')} (${outcome.verdict?.why}):`);
+                io.log(`      open-sdd decide ${CHECK_FEATURE} ${outcome.card.id} <${outcome.card.options.map((o) => o.key).join('|')}> --by "<name>"`);
+            }
+            else if (outcome.verdict) {
+                io.log(`  ${dim(outcome.verdict.why)}`);
+            }
+        }
         if (report.unavailable.length > 0) {
             io.log(`  ${colors.yellow('Auto-autorizados por sensor no disponible')}: ${report.unavailable.join(', ')} ${dim('(requieren recibo I6)')}`);
         }

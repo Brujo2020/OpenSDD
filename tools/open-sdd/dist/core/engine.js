@@ -25,7 +25,7 @@ import { capture } from './memoryStore.js';
 import { topologicalWaves } from './waveReferee.js';
 import { readPack, readRecall, resolveArtifact, staleItems } from './handoff.js';
 import { checkPlaybook, findPlaybook, stepCatalogue } from './playbook.js';
-import { checkQuestions, parseQuestions, questionFile, readConfirmation, unstampedArtifacts } from './questions.js';
+import { checkQuestions, parseQuestions, questionFile, readConfirmation, sha256, unstampedArtifacts } from './questions.js';
 import { readReceipt, receiptFreshness } from './reviewReceipts.js';
 export const DIRECTIVE_SCHEMA = {
     'run-step': ['kind', 'feature', 'step', 'use', 'phase', 'gate', 'checks', 'pack', 'restate', 'stale'],
@@ -100,7 +100,37 @@ const writeState = async (cwd, state) => withLock(cwd, state.feature, async () =
 });
 export const appendAudit = async (cwd, feature, event) => {
     await mkdir(engineDir(cwd), { recursive: true });
-    await appendFile(auditFile(cwd, feature), `${JSON.stringify({ at: new Date().toISOString(), ...event })}\n`, 'utf8');
+    const file = auditFile(cwd, feature);
+    const lines = (await readFile(file, 'utf8').catch(() => '')).split('\n').filter(Boolean);
+    const last = lines[lines.length - 1];
+    const prev = last === undefined ? sha256('') : sha256(last);
+    await appendFile(file, `${JSON.stringify({ at: new Date().toISOString(), ...event, prev })}\n`, 'utf8');
+};
+/**
+ * Verify the hash chain of one audit log (REQ-TF-002). Lines written before the chain existed (no
+ * `prev`) are accepted only before the first chained line; after it, every line must chain.
+ */
+export const verifyAuditChain = (text) => {
+    const lines = text.split('\n').filter(Boolean);
+    let chained = false;
+    for (let i = 0; i < lines.length; i += 1) {
+        let prev;
+        try {
+            prev = JSON.parse(lines[i]).prev;
+        }
+        catch {
+            return { ok: false, brokenAt: i + 1 };
+        }
+        if (prev === undefined) {
+            if (chained)
+                return { ok: false, brokenAt: i + 1 };
+            continue;
+        }
+        chained = true;
+        if (prev !== sha256(i === 0 ? '' : lines[i - 1]))
+            return { ok: false, brokenAt: i + 1 };
+    }
+    return { ok: true };
 };
 export const readAudit = async (cwd, feature) => (await readFile(auditFile(cwd, feature), 'utf8').catch(() => ''))
     .split('\n')
@@ -259,6 +289,10 @@ const gateGuards = async (cwd, state, step, produced) => {
         if (st && !st.done)
             problems.push(`REVERSE_STAGE_OPEN: ${st.id} ${st.name} (${st.metric}): ${st.unmet.join('; ')}`);
     }
+    const auditText = await readFile(auditFile(cwd, state.feature), 'utf8').catch(() => '');
+    const chain = verifyAuditChain(auditText);
+    if (!chain.ok)
+        problems.push(`AUDIT_CHAIN_BROKEN: ${path.relative(cwd, auditFile(cwd, state.feature))} line ${chain.brokenAt} was edited or removed`);
     const receipt = await readReceipt(cwd, state.feature, step.id);
     if (receipt) {
         const f = await receiptFreshness(cwd, receipt);
@@ -300,15 +334,17 @@ const complete = async (cwd, state, step, event, by, extra = {}) => {
  */
 export const MAX_FAILED_ITERATIONS = 3;
 /** Integrity failures: retrying cannot fix them, so a person decides at the first one. */
-export const CRITICAL_CODES = new Set(['RECEIPT_TAMPERED', 'QUESTIONS_CHANGED']);
-const RESET_EVENTS = new Set(['ESCALATED_TO_HIL', 'DECISION_RECORDED', 'STEP_COMPLETED']);
+export const CRITICAL_CODES = new Set(['RECEIPT_TAMPERED', 'QUESTIONS_CHANGED', 'AUDIT_CHAIN_BROKEN']);
+const RESET_EVENTS = new Set(['ESCALATED_TO_HIL', 'DECISION_RECORDED', 'STEP_COMPLETED', 'CHECK_PASSED']);
+/** Refusals that count towards escalation: the engine's gate and the `check` verb (REQ-TF-005). */
+const REFUSAL_EVENTS = new Set(['GATE_REFUSED', 'CHECK_FAILED']);
 /** The gate refusals of a step since its last human decision, escalation or completion, in order. */
 const refusalsSinceReset = (audit, stepId) => {
     let out = [];
     for (const e of audit) {
         if (e.step !== stepId)
             continue;
-        if (e.event === 'GATE_REFUSED')
+        if (REFUSAL_EVENTS.has(e.event))
             out.push((e.problems ?? (e.detail ?? '').split(' | ')).map((p) => p.trim()).filter(Boolean));
         else if (RESET_EVENTS.has(e.event))
             out = [];

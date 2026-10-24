@@ -23,6 +23,8 @@
  *
  * Los textos visibles son español, como el resto del CLI.
  */
+import { gitIdentity } from '../../core/hilIdentity.js';
+import { loadGovernanceSettings } from '../../core/governance.js';
 import { planVscodeTasks } from '../../core/vscodeTasks.js';
 import { AXET_HOOKS_DIR, applyAxetHooks, detectInstallSource, planAxetHooks } from '../../core/axetHook.js';
 import { findRepoRoot } from '../../core/status.js';
@@ -313,6 +315,37 @@ export const planInit = async (input) => {
             ? 'las guías Karpathy ya están instaladas: no se sobrescriben'
             : 'guías Karpathy (pensar antes, simplicidad, cambios quirúrgicos, objetivos verificables): rigen en todo proyecto',
     });
+    // ── Cadena de confianza (spec trust-floor) ─────────────────────────────────────────────────
+    // Aprobadores conocidos: sin lista, cualquier `--by "<texto>"` aprobaría (REQ-TF-001).
+    const identity = gitIdentity(target);
+    if (await exists(path.join(target, APPROVERS_PATH))) {
+        artifacts.push({ kind: 'approvers', path: APPROVERS_PATH, action: 'keep', reason: 'la lista de aprobadores ya existe: no se sobrescribe' });
+    }
+    else if (identity.name || identity.email) {
+        artifacts.push({
+            kind: 'approvers',
+            path: APPROVERS_PATH,
+            action: 'create',
+            reason: `quién puede aprobar: tu identidad git (${identity.name || identity.email}); añade a las demás personas en el mismo fichero`,
+        });
+    }
+    // El suelo en el servidor: un hook local se salta con --no-verify; el PR gate no (REQ-TF-003).
+    const isGitRepo = await exists(path.join(target, '.git'));
+    if (isGitRepo) {
+        const governance = await loadGovernanceSettings(target);
+        const ciExists = await exists(path.join(target, CI_WORKFLOW_PATH));
+        const wanted = governance.profile !== 'solo';
+        artifacts.push({
+            kind: 'ci',
+            path: CI_WORKFLOW_PATH,
+            action: ciExists || !wanted ? 'keep' : 'create',
+            reason: ciExists
+                ? 'el PR gate ya está instalado: no se sobrescribe'
+                : wanted
+                    ? `perfil ${governance.profile}: el suelo va al servidor (el hook local se salta con --no-verify)`
+                    : 'perfil solo: el PR gate se ofrece, no se instala; instálalo con `open-sdd floor install . --ci` (el hook local se salta con --no-verify)',
+        });
+    }
     // ── Hook de commit: se delega en el instalador existente, nunca se reimplementa ─────────────
     const hook = await inspectCommitHook(target);
     const hookReason = {
@@ -501,6 +534,9 @@ export const planInit = async (input) => {
 // Escritura
 // ---------------------------------------------------------------------------------------------
 const KARPATHY_RULES_PATH = posixJoin('.sdd', 'settings', 'rules', 'karpathy-guidelines.md');
+const APPROVERS_PATH = posixJoin('.sdd', 'settings', 'approvers.json');
+const CI_WORKFLOW_PATH = posixJoin('.github', 'workflows', 'open-sdd-gates.yml');
+const CI_WORKFLOW_SOURCE = fileURLToPath(new URL('../../../templates/hooks/open-sdd-gates.yml', import.meta.url));
 const KARPATHY_RULES_SOURCE = fileURLToPath(new URL('../../../templates/shared/settings/rules/karpathy-guidelines.md', import.meta.url));
 const writeRigorSettings = async (plan) => {
     const artifact = plan.artifacts.find((item) => item.kind === 'rigor');
@@ -612,6 +648,33 @@ const applyInit = async (plan) => {
         else
             outcome.kept.push(constitutionArtifact.path);
     }
+    const approversArtifact = plan.artifacts.find((item) => item.kind === 'approvers' && item.action === 'create');
+    if (approversArtifact) {
+        const resolved = path.join(plan.root, approversArtifact.path);
+        const identity = gitIdentity(plan.root);
+        try {
+            await mkdir(path.dirname(resolved), { recursive: true });
+            await writeFile(resolved, `${JSON.stringify({ approvers: [{ ...(identity.name ? { name: identity.name } : {}), ...(identity.email ? { email: identity.email } : {}) }] }, null, 2)}\n`, 'utf8');
+            outcome.written.push(approversArtifact.path);
+        }
+        catch (error) {
+            outcome.failures.push(`no se pudo escribir ${approversArtifact.path} (${error.message})`);
+        }
+    }
+    const ciArtifact = plan.artifacts.find((item) => item.kind === 'ci');
+    if (ciArtifact?.action === 'create') {
+        const resolved = path.join(plan.root, ciArtifact.path);
+        try {
+            await mkdir(path.dirname(resolved), { recursive: true });
+            await writeFile(resolved, await readFile(CI_WORKFLOW_SOURCE, 'utf8'), 'utf8');
+            outcome.written.push(ciArtifact.path);
+        }
+        catch (error) {
+            outcome.failures.push(`no se pudo escribir ${ciArtifact.path} (${error.message})`);
+        }
+    }
+    else if (ciArtifact)
+        outcome.kept.push(ciArtifact.path);
     const rulesArtifact = plan.artifacts.find((item) => item.kind === 'rules');
     if (rulesArtifact) {
         const resolved = path.join(plan.root, rulesArtifact.path);

@@ -6,6 +6,7 @@
  * Toda la lógica vive en `src/core`; aquí solo se leen flags, se llama al core y se traduce el
  * resultado a texto o JSON y a un código de salida (0 ok, 1 refusado por un gate, 2 uso).
  */
+import { loadGovernanceSettings } from '../../core/governance.js';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { EXIT } from './help.js';
@@ -401,7 +402,8 @@ export const handleHilCommand = async (args, io, cwd) => {
             agent,
             ttyConfirmed: () => confirmOnTty(id),
             confirm: flag(args, 'confirm'),
-            requireApprovers: state?.ceremony === 'strict',
+            // REQ-TF-001: strict ceremony, or a team/enterprise profile, needs a declared list of approvers.
+            requireApprovers: state?.ceremony === 'strict' || (await loadGovernanceSettings(cwd)).profile !== 'solo',
         });
         if (!r.ok || !r.card || !r.answer) {
             io.error(r.message);
