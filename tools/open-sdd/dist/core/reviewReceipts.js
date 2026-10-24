@@ -80,6 +80,19 @@ export const recordReview = async (cwd, input) => {
     const receipt = { ...body, digest: sha256(JSON.stringify(body)) };
     await mkdir(receiptDir(cwd, input.feature), { recursive: true });
     await writeFile(path.join(receiptDir(cwd, input.feature), `${input.step}.json`), `${JSON.stringify(receipt, null, 2)}\n`, 'utf8');
+    // Registro de auditoría: quién revisó qué (con el hash de cada artefacto) y si fue una persona o un modelo.
+    const { appendAudit } = await import('./engine.js');
+    await appendAudit(cwd, input.feature, {
+        event: 'REVIEW_RECORDED',
+        step: input.step,
+        by: input.reviewer,
+        actor: { name: models.reviewerModel ?? input.reviewer, kind: models.reviewerModel ? 'agent' : 'human' },
+        why: models.reviewerModel
+            ? `revisión por modelo ${models.reviewerModel} de un artefacto escrito por ${models.authorModel} (C-INDEPENDENT-REVIEW)`
+            : `revisión humana de ${input.reviewer}`,
+        principles: ['C-INDEPENDENT-REVIEW'],
+        evidence: artifacts.map((a) => `${a.path} sha256:${a.sha256.slice(0, 12)}`),
+    });
     return { ok: true, message: `receipt ${receipt.digest.slice(0, 12)} for ${input.step}`, receipt };
 };
 export const readReceipt = async (cwd, feature, step) => {

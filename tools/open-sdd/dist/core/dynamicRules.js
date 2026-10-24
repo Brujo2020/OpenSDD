@@ -316,7 +316,15 @@ export const applyEvent = async (cwd, feature, raw, opts = {}) => {
         ? { ...prev, decision, revisions: [...prev.revisions, { digest: decision.digest, at: new Date().toISOString(), inserted, cards, reason: opts.reason ?? 're-evaluated' }] }
         : { decision, appliedAt: new Date().toISOString(), revisions: [{ digest: decision.digest, at: new Date().toISOString(), inserted, cards, reason: 'applied' }], proposals: [] };
     await writeEventRecord(cwd, feature, rec);
-    await appendAudit(cwd, feature, { event: prev ? 'EVENT_REVISED' : 'EVENT_APPLIED', detail: `${v.event.id} ${v.event.type} ${decision.severity} · ${inserted.length} step(s) · ${frozen.length} frozen · ${cards.length} card(s) · digest ${decision.digest.slice(0, 12)}` });
+    const fired = [...new Set(decision.evaluated.filter((e) => e.matched).map((e) => e.rule))];
+    await appendAudit(cwd, feature, {
+        event: prev ? 'EVENT_REVISED' : 'EVENT_APPLIED',
+        detail: `${v.event.id} ${v.event.type} ${decision.severity} · ${inserted.length} step(s) · ${frozen.length} frozen · ${cards.length} card(s) · digest ${decision.digest.slice(0, 12)}`,
+        actor: { name: fired.join(', ') || 'dynamic-rules', kind: 'rule' },
+        rule: fired.join(', '),
+        why: `evento ${v.event.id} (${v.event.type}, ${decision.severity}) de ${v.event.source}: ${v.event.title ?? ''}`.trim(),
+        evidence: v.event.evidence ?? [],
+    });
     return { ok: true, code: prev ? 'REVISED' : 'APPLIED', messages: [], decision, inserted, frozen, cards };
 };
 /** All steps of the event done or skipped → unfreeze and mark resolved. */

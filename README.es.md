@@ -454,7 +454,9 @@ Tiene dos orígenes, y el archivo registra cuál aplica:
   que explícitamente no está en vigor. `open-sdd govern constitution --evidence-pack` da a un modelo o a
   un revisor lo que necesita para mejorarlo, y
   `open-sdd govern constitution --ratify --by "<nombre>" --rationale "<por qué>" --write` lo pone en
-  vigor, registrando quién lo ratificó y por qué. Una ratificación sin persona nombrada y sin motivo se rechaza.
+  vigor, registrando quién lo ratificó y por qué. Una ratificación sin persona nombrada y sin motivo se rechaza,
+  y hay que confirmarla tecleando `RATIFICAR` en la terminal (una sesión de agente no puede); ver
+  [Manual §16.1](docs/MANUAL.md#161-ratifying-the-constitution-mandatory-terminal-confirmation).
 
 `open-sdd govern constitution --matrix` muestra cómo está cada spec frente a cada principio, y
 `open-sdd status` informa de la alineación constitucional junto al resto del score.

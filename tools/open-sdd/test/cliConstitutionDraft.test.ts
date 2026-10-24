@@ -7,7 +7,8 @@
  * fixtures `mkdtemp`: nada se escribe en este repositorio.
  */
 
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeEach } from 'vitest';
+import { setTerminalConfirmerForTests } from '../src/core/hilIdentity.js';
 import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -26,7 +27,10 @@ const makeTemp = async (prefix: string): Promise<string> => {
   return dir;
 };
 
+// La ratificación exige teclear RATIFICAR en la terminal; aquí lo «teclea» la persona del test.
+beforeEach(() => setTerminalConfirmerForTests((id) => id === 'RATIFICAR'));
 afterEach(async () => {
+  setTerminalConfirmerForTests(null);
   await Promise.all(temps.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
 });
 
@@ -197,6 +201,23 @@ describe('cli/constitutionDraft — govern constitution --ratify', () => {
     expect(code).toBe(1);
     expect(errors.join('\n')).toMatch(/--rationale|motivo/i);
     expect(existsSync(inForcePathOf(dir))).toBe(false);
+  });
+
+  it('--ratify --write sin confirmación en la terminal no escribe nada y deja el intento registrado', async () => {
+    const dir = await fixture();
+    await writeDraft(dir);
+    setTerminalConfirmerForTests(() => false);
+    const { io, logs, errors } = makeIO();
+    const code = await handleGovernCommand(['constitution', '--ratify', '--by', 'Ada Lovelace', '--rationale', RATIONALE, '--write'], io, dir);
+    expect(code).toBe(1);
+    const out = [...logs, ...errors].join('\n');
+    expect(out).toContain('Objetivo');
+    expect(out).toContain('Alcance');
+    expect(out).toContain('.sdd/engine/_governance.audit.jsonl');
+    expect(out).toContain('Ratificación NO confirmada');
+    expect(existsSync(inForcePathOf(dir)) ? await readFile(inForcePathOf(dir), 'utf8') : '').not.toContain('AMD-RATIFY');
+    const audit = await readFile(path.join(dir, '.sdd/engine/_governance.audit.jsonl'), 'utf8');
+    expect(audit).toContain('CONSTITUTION_RATIFY_REFUSED');
   });
 
   it('--ratify --write promueve el borrador: sin marca y con el ratificador registrado', async () => {

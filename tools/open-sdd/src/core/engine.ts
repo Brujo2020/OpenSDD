@@ -158,6 +158,16 @@ export interface AuditEvent {
   durationS?: number;
   /** GATE_REFUSED: the problems as a list (the `detail` join is for people, not for parsing). */
   problems?: string[];
+  /**
+   * Decision record (what an auditor asks): who decided — a named person, an agent, a deterministic
+   * rule or the system —, why, and on which requirements and constitution principles it rests.
+   */
+  actor?: { name: string; kind: 'human' | 'agent' | 'rule' | 'system'; email?: string };
+  why?: string;
+  requirements?: string[];
+  principles?: string[];
+  rule?: string;
+  evidence?: string[];
   /** sha256 of the previous line of the same log: an edited or deleted line breaks the chain. */
   prev?: string;
 }
@@ -589,7 +599,20 @@ export const applyDecision = async (cwd: string, card: DecisionCard, answer: Car
   if (!state) return { ok: true, message: 'answer recorded (no engine run for this feature)' };
   const step = state.steps.find((s) => s.id === card.step);
   if (!step) return { ok: true, message: `answer recorded (step ${card.step} not in the run)` };
-  await appendAudit(cwd, card.feature, { event: 'DECISION_RECORDED', step: step.id, detail: `${card.id} ${answer.option} ${answer.effect}`, by: answer.by });
+  const chosen = card.options.find((option) => option.key === answer.option);
+  await appendAudit(cwd, card.feature, {
+    event: 'DECISION_RECORDED',
+    step: step.id,
+    detail: `${card.id} ${answer.option} ${answer.effect}`,
+    by: answer.by,
+    actor: {
+      name: answer.by,
+      kind: answer.channel === 'deadline' ? 'system' : answer.channel === 'agent-confirmed' ? 'agent' : 'human',
+      ...(answer.identity?.email ? { email: answer.identity.email } : {}),
+    },
+    why: `${card.question} → ${answer.option}${chosen ? ` (${chosen.label}: ${chosen.consequence})` : ''}${answer.changed ? ' · distinta de la recomendada' : ''}`,
+    evidence: card.evidence,
+  });
   if (answer.effect === 'park') return report(cwd, card.feature, step.id, 'park', { reason: `${card.id}: parked by ${answer.by}` });
   if (answer.effect === 'reject') {
     if (step.status !== 'awaiting') return { ok: true, message: 'answer recorded' };

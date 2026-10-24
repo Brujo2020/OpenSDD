@@ -104,3 +104,31 @@ describe('start — reparto de una petición grande', () => {
     ]);
   });
 });
+
+describe('validación por reglas — determinismo', () => {
+  it('el orden de las reglas no cambia el plan y una regla solo sube la exigencia', async () => {
+    const { planValidation, DEFAULT_VALIDATION_RULES } = await import('../src/core/validationRules.js');
+    const input = {
+      requirements: [{ id: 'REQ-P-001', title: 'Pago', statements: ['When paid, the [ledger] shall debit the account with the amount.'] }],
+      tasks: [{ id: '1', title: 'Asiento', status: 'completed' as const, requirements: ['REQ-P-001'], boundary: ['src/api/pay.ts'], evidence: ['[unit]'] }],
+    };
+    const a = planValidation({ rules: DEFAULT_VALIDATION_RULES, ...input });
+    const b = planValidation({ rules: [...DEFAULT_VALIDATION_RULES].reverse(), ...input });
+    expect(b).toEqual(a);
+    expect(a[0].required).toEqual(['unit', 'integration', 'contract', 'property', 'independent-review']);
+    expect(a[0].blocking).toBe(true);
+    const none = planValidation({ rules: [], ...input });
+    expect(none[0].required).toEqual(['unit']);
+    expect(none[0].blocking).toBe(false);
+  });
+
+  it('«avisar de una transferencia» no es mover dinero', async () => {
+    const { planValidation, DEFAULT_VALIDATION_RULES } = await import('../src/core/validationRules.js');
+    const [t] = planValidation({
+      rules: DEFAULT_VALIDATION_RULES,
+      requirements: [{ id: 'REQ-N-001', title: 'Aviso', statements: ['When a transfer is posted, the [notifier] shall send a receipt.'] }],
+      tasks: [{ id: '1', title: 'Aviso', status: 'pending', requirements: ['REQ-N-001'], boundary: [], evidence: [] }],
+    });
+    expect(t.matches.map((m) => m.rule)).not.toContain('VR-MONEY');
+  });
+});

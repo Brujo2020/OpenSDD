@@ -287,6 +287,17 @@
       "actor": "spec:expert-review-2",
       "owner": "mantenimiento (spec de registro)",
       "expires": "2027-03-31"
+    },
+    {
+      "path": "tools/open-sdd/test/e2eAssuranceFlow.test.ts",
+      "ids": [
+        "guardrail-bypass",
+        "self-approval"
+      ],
+      "reason": "The E2E plants an agent-targeting instruction in a spec to prove C2 stops it.",
+      "actor": "spec:assurance-flow",
+      "owner": "mantenimiento (spec de registro)",
+      "expires": "2027-03-31"
     }
   ]
 }
