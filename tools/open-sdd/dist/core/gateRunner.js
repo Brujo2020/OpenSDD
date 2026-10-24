@@ -297,6 +297,10 @@ export const runGate = async (gateId, ctx, regime = 'flexible') => {
             const findings = artifacts.flatMap((artifact) => entries
                 .filter((entry) => appliesToArtifact(entry, artifact.file))
                 .flatMap((entry) => runStandard(entry, artifact)));
+            // REQ-S2-003: judging a change, only the findings on the files that change are shown.
+            const norm = (p) => (path.isAbsolute(p) ? path.relative(ctx.cwd, p) : p).split(path.sep).join('/').replace(/\\/g, '/');
+            const changed = new Set(ctx.changedFiles.map(norm));
+            const inScope = changed.size > 0 ? findings.filter((f) => changed.has(norm(f.file))) : findings;
             const blockingIds = new Set(entries.filter((entry) => isBlocking(entry)).map((entry) => entry.id));
             const blocking = findings.filter((finding) => blockingIds.has(finding.standardId));
             const verdict = applyDefaultFail({
@@ -312,13 +316,17 @@ export const runGate = async (gateId, ctx, regime = 'flexible') => {
             // junto a doce hallazgos sería la clase de contradicción que este proyecto quita.
             const detail = findings.length === 0
                 ? `${artifacts.length} artefacto(s) inspeccionado(s) por ${entries.length} estándar(es): sin hallazgos.${rejectedNote}`
-                : `${findings.length} hallazgo(s) de ${entries.length} estándar(es) sobre ${artifacts.length} artefacto(s): ${blocking.length} bloqueante(s), ${findings.length - blocking.length} advisory (no bloquean hasta que un corpus mida su precisión).${rejectedNote}`;
+                : changed.size > 0
+                    ? `${inScope.length} hallazgo(s) en lo que cambia (${findings.length} en todo el repositorio); ${blocking.length} bloqueante(s) en todo el repositorio; los avisos no bloquean hasta que un corpus mida su precisión.${rejectedNote}`
+                    : `${blocking.length} bloqueante(s) y ${findings.length - blocking.length} aviso(s) en todo el repositorio; usa --staged o --base <ref> para ver solo los de lo que cambia.${rejectedNote}`;
             return {
                 gateId,
                 outcome: verdict.outcome,
                 detail,
                 authority: gateId,
-                evidence: findings.slice(0, 8).map((finding) => `${finding.standardId} ${finding.file}:${finding.line} — ${finding.message}`),
+                evidence: [...blocking, ...inScope.filter((f) => !blockingIds.has(f.standardId))]
+                    .slice(0, 3)
+                    .map((finding) => `${finding.standardId} ${finding.file}:${finding.line} — ${finding.message}`),
             };
         }
         case 'O1': {

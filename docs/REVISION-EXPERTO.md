@@ -6,6 +6,8 @@ Cada punto tiene **evidencia reproducible en este repositorio**, por qué import
 propuesta para decidir.
 
 > **Estado (2026-10-23):** el sprint 1 (puntos 1–5) está implementado en la spec `trust-floor`: aprobadores en `setup` y obligatorios en `team`/`enterprise`, cadena de hashes en la auditoría, PR gate en `setup` para `team`/`enterprise`, `REVIEW_REQUIRED` cuando falta el sensor de C5, y `check` que escala y se detiene. Pendiente del punto 1: verificar las aprobaciones mediante revisión de PR (CODEOWNERS). Límites declarados al final de este documento.
+>
+> **Sprint 2 (puntos 6, 7, 9) implementado** en la spec `clarity`: el nivel fija el perfil mínimo (`profileFloor`, nunca por debajo de lo declarado); el titular de la puntuación es el eslabón más débil; el gate de estándares muestra solo lo que cambia, máximo 3. Pendiente del punto 6: que el hook de commit y el bloqueo de código sin spec también lean el perfil efectivo.
 
 ## Resumen
 

@@ -8,6 +8,32 @@ import path from 'node:path';
 import { appendAudit, escalationVerdict, readAudit, verifyAuditChain } from './engine.js';
 import { listCards, prepareCard } from './hilCards.js';
 import { allReceipts, receiptFreshness } from './reviewReceipts.js';
+import { loadGovernanceSettings } from './governance.js';
+import { listRuns, readState } from './engine.js';
+import { profileFloor } from './levels.js';
+const PROFILE_RANK = { solo: 0, team: 1, enterprise: 2 };
+/**
+ * The profile in force (REQ-S2-001): the declared `governance.json`, raised by the level of any open
+ * run (L3–L4 → team, L5–L6 → enterprise). A declaration can raise the bar, never lower it.
+ */
+export const effectiveProfile = async (cwd) => {
+    const declared = (await loadGovernanceSettings(cwd)).profile;
+    let profile = declared;
+    let raisedBy;
+    for (const run of await listRuns(cwd)) {
+        const level = (await readState(cwd, run.feature))?.level;
+        // Finished runs keep their floor: the feature they shipped is still on this branch (archived
+        // runs leave .sdd/engine and stop counting).
+        if (!level)
+            continue;
+        const floor = profileFloor(level);
+        if (PROFILE_RANK[floor] > PROFILE_RANK[profile]) {
+            profile = floor;
+            raisedBy = `${run.feature} (${level})`;
+        }
+    }
+    return { profile, declared, ...(raisedBy ? { raisedBy } : {}) };
+};
 /** The audit log that `check` writes to: one per repository, like a run with a single step. */
 export const CHECK_FEATURE = '_check';
 export const CHECK_STEP = 'check';

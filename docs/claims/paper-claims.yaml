@@ -617,3 +617,10 @@
   statement_en: 'setup records the approvers and, in team/enterprise, the PR gate; the audit log is a hash chain; a missing C5 sensor needs an independent review in team/enterprise; a stuck check escalates to a person and stays stopped until they decide.'
   verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/trustFloor.test.ts >/dev/null 2>&1'
   expectation: pass
+
+- id: CLM-086
+  section: "v3.9.x / spec clarity (sprint 2 of the expert review)"
+  statement_es: 'El nivel fija el perfil mínimo (L3–L4 team, L5–L6 enterprise) sin bajar nunca lo declarado; la puntuación titula el eslabón más débil; el gate de estándares muestra solo lo que cambia, como máximo 3.'
+  statement_en: 'The level sets the minimum profile (L3–L4 team, L5–L6 enterprise) without ever lowering the declared one; the score headlines the weakest link; the standards gate shows only what changes, at most 3.'
+  verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/sprint2.test.ts >/dev/null 2>&1'
+  expectation: pass

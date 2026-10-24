@@ -14,6 +14,11 @@ All notable changes to this project will be documented in this file.
 - Progress-aware escalation to a person: at the 1st critical failure (`RECEIPT_TAMPERED`, `QUESTIONS_CHANGED`), when it repeats an earlier failure or fixed nothing (no progress, from the 2nd attempt), or after more than 3 failures while progressing. The engine prepares the decision card (retry · park · exception) and only a person retries or approves.
 - Karpathy guidelines in every project: `karpathy-guidelines` skill in every skills tree, `.sdd/settings/rules/karpathy-guidelines.md` written by `setup`, and the three rules in every installed command.
 
+### Clarity (spec `clarity`, sprint 2 of docs/REVISION-EXPERTO.md)
+- One knob: the level sets the governance floor (L3–L4 `team`, L5–L6 `enterprise`); `governance.json` can raise it, never lower it. `start` prints `profile ≥ …`.
+- The score footer headlines the weakest measured link (`SDD 53% · … · eslabón débil: evidencia · compuesto 93%`).
+- The standards gate shows only the findings on the files that change, at most 3, blocking first.
+
 ### Chain of trust (spec `trust-floor`, sprint 1 of docs/REVISION-EXPERTO.md)
 - `setup` writes `.sdd/settings/approvers.json` from the git identity, and installs the PR gate workflow for `team`/`enterprise` (offered for `solo`).
 - HIL approvals need an approvers list in `team`/`enterprise` (`APPROVERS_REQUIRED`).

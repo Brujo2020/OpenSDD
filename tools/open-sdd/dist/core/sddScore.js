@@ -493,11 +493,26 @@ export const explainNextAction = (report) => {
  * Formato: `SDD <total>% · Fase <n> · <Verbo> · <componente> <pct>% · … · siguiente: <comando>`.
  * Los componentes no medidos se omiten del porcentaje y se agrupan en `sin medir: …`.
  */
+/** The measured component with the lowest score (ties: the heaviest weight). */
+export const weakestLink = (report) => {
+    const measured = report.components.filter((c) => !report.notMeasured.some((name) => name === c.label || name.startsWith(`${c.label} (`)));
+    if (measured.length === 0)
+        return null;
+    return [...measured].sort((a, b) => a.score - b.score || b.weight - a.weight)[0];
+};
 export const renderScoreFooter = (report) => {
-    const parts = [`SDD ${report.total}%`, `Fase ${report.phase}`, PHASE_SHORT[report.phase]];
     // Un componente no medido se omite del porcentaje. El nombre puede llevar un matiz entre
     // paréntesis («gates (no medidos en esta ejecución)»), así que se compara por prefijo.
     const isUnmeasured = (label) => report.notMeasured.some((name) => name === label || name.startsWith(`${label} (`));
+    // REQ-S2-002: the headline is the weakest measured link; the weighted average is detail. A chain
+    // is as trustworthy as its weakest component, and a high average reassures exactly when it should not.
+    const weakest = weakestLink(report);
+    const parts = [
+        `SDD ${weakest ? Math.round(weakest.score * 100) : report.total}%`,
+        `Fase ${report.phase}`,
+        PHASE_SHORT[report.phase],
+        ...(weakest && Math.round(weakest.score * 100) < report.total ? [`eslabón débil: ${weakest.label}`, `compuesto ${report.total}%`] : []),
+    ];
     for (const component of report.components) {
         if (isUnmeasured(component.label))
             continue;

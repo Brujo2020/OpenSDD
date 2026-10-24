@@ -13,7 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EXIT } from './help.js';
 import { humanDirective, handleHandoffCommand } from './playbook.js';
-import { classifyLevel, LEVELS, ceremonyFor, playbookFor, slugFromIntent, LEVEL_LABEL, effectiveRigor, rigorFloor } from '../../core/levels.js';
+import { classifyLevel, LEVELS, ceremonyFor, playbookFor, slugFromIntent, LEVEL_LABEL, effectiveRigor, profileFloor, rigorFloor } from '../../core/levels.js';
 import { applyRigor } from '../../core/rigorOverlay.js';
 import { detectProfile, profileValues } from '../../core/profile.js';
 import { nextDirective, startRun } from '../../core/engine.js';
@@ -82,7 +82,7 @@ export const handleStartCommand = async (args, io, cwd) => {
     const ceremony = ceremonyFor(level);
     const feature = flag(args, 'feature') || slugFromIntent(intent);
     const head = [
-        `Level ${level} · ${LEVEL_LABEL[level]}${forced ? ` (forced; classifier said ${decision.level})` : ''} · ${variant}${forcedVariant ? ' (forced)' : ` (${decision.variantReason})`} · rigor ${rig.rigor}${rig.rigor !== rigorFloor(level) ? ` (floor ${rigorFloor(level)})` : ''} → playbook ${basePlaybook} · ceremony ${ceremony}`,
+        `Level ${level} · ${LEVEL_LABEL[level]}${forced ? ` (forced; classifier said ${decision.level})` : ''} · ${variant}${forcedVariant ? ' (forced)' : ` (${decision.variantReason})`} · rigor ${rig.rigor}${rig.rigor !== rigorFloor(level) ? ` (floor ${rigorFloor(level)})` : ''} → playbook ${basePlaybook} · ceremony ${ceremony} · profile ≥ ${profileFloor(level)}`,
         ...decision.evidence.map((e) => `  because ${e}`),
         ...decision.raisedBy.map((e) => `  raised: ${e}`),
         ...[...decision.warnings, ...rig.warnings].map((e) => `  ! ${e}`),

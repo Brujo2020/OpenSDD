@@ -47,6 +47,9 @@ export const RIGORS = ['tiny-spec', 'spec-first', 'spec-anchored', 'spec-as-code
 export type Rigor = (typeof RIGORS)[number];
 /** `spec-as-source` (the legacy name of the top rung) is accepted as a synonym of `spec-as-code`. */
 export const normalizeRigor = (r: string): Rigor | null => (r === 'spec-as-source' ? 'spec-as-code' : (RIGORS as readonly string[]).includes(r) ? (r as Rigor) : null);
+/** One knob (REQ-S2-001): the level also sets the governance floor. Declared settings may raise it, never lower it. */
+export const profileFloor = (l: Level): 'solo' | 'team' | 'enterprise' => (rank(l) <= 2 ? 'solo' : rank(l) <= 4 ? 'team' : 'enterprise');
+
 /** The least rigor a level accepts (REQ-VR-005): risk and scale only raise it. */
 export const rigorFloor = (l: Level): Rigor => (rank(l) <= 1 ? 'tiny-spec' : rank(l) <= 4 ? 'spec-first' : 'spec-anchored');
 

@@ -7,7 +7,7 @@
  * resultado a texto o JSON y a un código de salida (0 ok, 1 refusado por un gate, 2 uso).
  */
 
-import { loadGovernanceSettings } from '../../core/governance.js';
+import { effectiveProfile } from '../../core/trustFloor.js';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { CliIO } from '../io.js';
@@ -388,7 +388,7 @@ export const handleHilCommand = async (args: string[], io: CliIO, cwd: string): 
       ttyConfirmed: () => confirmOnTty(id),
       confirm: flag(args, 'confirm'),
       // REQ-TF-001: strict ceremony, or a team/enterprise profile, needs a declared list of approvers.
-      requireApprovers: state?.ceremony === 'strict' || (await loadGovernanceSettings(cwd)).profile !== 'solo',
+      requireApprovers: state?.ceremony === 'strict' || (await effectiveProfile(cwd)).profile !== 'solo',
     });
     if (!r.ok || !r.card || !r.answer) {
       io.error(r.message);

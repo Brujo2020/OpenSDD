@@ -39,6 +39,8 @@ const RULES = [
 export const RIGORS = ['tiny-spec', 'spec-first', 'spec-anchored', 'spec-as-code'];
 /** `spec-as-source` (the legacy name of the top rung) is accepted as a synonym of `spec-as-code`. */
 export const normalizeRigor = (r) => (r === 'spec-as-source' ? 'spec-as-code' : RIGORS.includes(r) ? r : null);
+/** One knob (REQ-S2-001): the level also sets the governance floor. Declared settings may raise it, never lower it. */
+export const profileFloor = (l) => (rank(l) <= 2 ? 'solo' : rank(l) <= 4 ? 'team' : 'enterprise');
 /** The least rigor a level accepts (REQ-VR-005): risk and scale only raise it. */
 export const rigorFloor = (l) => (rank(l) <= 1 ? 'tiny-spec' : rank(l) <= 4 ? 'spec-first' : 'spec-anchored');
 const BROWN_WORDS = /\b(existing|legacy|current (?:system|code|app)|in production|brownfield|our (?:app|system|codebase))\b/i;

@@ -11,8 +11,7 @@
  * implemented is reported as such, and a judgement that needs a model backend says it is not
  * evidence rather than returning a green light.
  */
-import { CHECK_FEATURE, auditChainIssues, checkBlock, escalationApplies, freshReviewReceipt, recordCheckOutcome } from '../../core/trustFloor.js';
-import { loadGovernanceSettings } from '../../core/governance.js';
+import { CHECK_FEATURE, auditChainIssues, checkBlock, effectiveProfile, escalationApplies, freshReviewReceipt, recordCheckOutcome } from '../../core/trustFloor.js';
 import { appendFile, chmod, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { renderGateSummary } from '../../core/gateSummary.js';
 import { fileURLToPath } from 'node:url';
@@ -455,7 +454,7 @@ export const handleGatesCommand = async (args, io, cwd, opts = {}) => {
         // The chain of trust (spec trust-floor): an edited audit log, or a missing sensor with nobody
         // reviewing in its place, fails the run instead of approving it.
         const trustProblems = await auditChainIssues(root);
-        const governance = await loadGovernanceSettings(root);
+        const governance = await effectiveProfile(root);
         if (governance.profile !== 'solo' && report.unavailable.includes('C5') && !(await freshReviewReceipt(root, feature))) {
             trustProblems.push(`REVIEW_REQUIRED: C5 has no sensor, so ${feature} needs an independent review receipt (a person, or a model different from the author): open-sdd review record ${feature} <step> --by "<name>" --artifact <path>`);
         }
