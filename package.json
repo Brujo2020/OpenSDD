@@ -1,6 +1,6 @@
 {
   "name": "@brujo2020/steelfoundry",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "SteelFoundry — SDD Toolkit: model-agnostic Spec-Driven Development, from a quick PoC to strict, audited delivery",
   "type": "module",
   "bin": {

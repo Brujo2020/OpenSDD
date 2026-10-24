@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [4.0.1] - 2026-10-24
+
+- Documentación: por qué existe SteelFoundry, qué tomó de cada toolkit, por qué los flujos son así, ventajas y alcance (`docs/WHY.md`, `docs/POR-QUE.md`); manual completo en español (`docs/MANUAL.es.md`); el README de npm enlaza ambos.
+
 ## [4.0.0] - 2026-10-24
 
 ### Nuevo nombre: SteelFoundry
