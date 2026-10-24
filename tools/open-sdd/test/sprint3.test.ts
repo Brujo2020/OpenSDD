@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { calibrationCorpus, runCalibration } from '../src/core/calibrate.js';
 import { PREREGISTERED_N, SUBSTANTIAL_KAPPA } from '../src/core/metaEval.js';
-import { ALWAYS_ON_RULES } from '../src/core/commandTemplates.js';
+import { ALWAYS_ON_RULES, alwaysOnRules, installCommandTemplates } from '../src/core/commandTemplates.js';
 
 const repo = path.resolve(__dirname, '..', '..', '..');
 
@@ -78,5 +78,15 @@ describe('one source (point 10)', () => {
     const rules = readFileSync(path.join(repo, 'tools/open-sdd/templates/shared/always-on-rules.md'), 'utf8');
     expect(rules.trim().length).toBeGreaterThan(0);
     expect(ALWAYS_ON_RULES).toContain(rules.replace(/\{\{SDD_DIR\}\}/g, '.sdd'));
+  });
+
+  it('installed commands honour --sdd-dir in the rules', async () => {
+    expect(alwaysOnRules('docs/sdd')).not.toContain('{{SDD_DIR}}');
+    expect(alwaysOnRules('docs/sdd')).toContain('docs/sdd/');
+    const dir = mkdtempSync(path.join(tmpdir(), 'osdd-sdddir-'));
+    await installCommandTemplates({ cwd: dir, hosts: ['claude-code'], write: true, sddDir: 'docs/sdd' });
+    const cmd = readFileSync(path.join(dir, '.claude', 'commands', 'sdd-constitution.md'), 'utf8');
+    expect(cmd).toContain('docs/sdd/');
+    expect(cmd).not.toContain('{{SDD_DIR}}');
   });
 });

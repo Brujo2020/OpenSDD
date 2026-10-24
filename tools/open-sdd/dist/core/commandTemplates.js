@@ -671,9 +671,12 @@ const adaptFrontmatter = (raw, host, format) => {
  * The three rules that apply to every workflow in every project (user requirement): carried by each
  * installed command so the default path (no skills) enforces them too.
  */
-export const ALWAYS_ON_RULES = `\n## Always-on rules\n${readFileSync(fileURLToPath(new URL('../../templates/shared/always-on-rules.md', import.meta.url)), 'utf8').replace(/\{\{SDD_DIR\}\}/g, '.sdd')}`;
-export const renderCommandTemplate = async (id, host, templatesRoot) => {
-    const raw = `${(await readFile(commandTemplatePath(id, templatesRoot), 'utf8')).replace(/\s*$/, '\n')}${ALWAYS_ON_RULES}`;
+const ALWAYS_ON_RULES_SOURCE = readFileSync(fileURLToPath(new URL('../../templates/shared/always-on-rules.md', import.meta.url)), 'utf8');
+/** The rules with `{{SDD_DIR}}` resolved to the project's SDD directory (`--sdd-dir`). */
+export const alwaysOnRules = (sddDir = '.sdd') => `\n## Always-on rules\n${ALWAYS_ON_RULES_SOURCE.replace(/\{\{SDD_DIR\}\}/g, sddDir)}`;
+export const ALWAYS_ON_RULES = alwaysOnRules();
+export const renderCommandTemplate = async (id, host, templatesRoot, sddDir) => {
+    const raw = `${(await readFile(commandTemplatePath(id, templatesRoot), 'utf8')).replace(/\s*$/, '\n')}${alwaysOnRules(sddDir)}`;
     const translated = adaptFrontmatter(translateInput(raw, host), host, host.format);
     const { frontmatter, body } = splitFrontmatter(translated);
     const description = frontmatterDescription(frontmatter);
@@ -752,7 +755,7 @@ export const installCommandTemplates = async (input) => {
         const cached = rendered.get(key);
         if (cached)
             return cached;
-        const value = await renderCommandTemplate(id, host, input.templatesRoot);
+        const value = await renderCommandTemplate(id, host, input.templatesRoot, input.sddDir);
         rendered.set(key, value);
         return value;
     };

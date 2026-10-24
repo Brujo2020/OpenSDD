@@ -225,6 +225,219 @@ flowchart LR
 
 </details>
 
+## Cómo funciona, en imágenes
+
+Todos los diagramas se renderizan en GitHub. Los colores significan lo mismo en todas partes:
+🟦 motor (determinista) · 🟨 agente (propone) · 🟪 persona (decide) · 🟩 artefacto · 🟥 parada / bloqueado.
+
+### Quién decide qué, paso a paso
+
+El agente propone, el motor determinista comprueba y una persona con nombre aprueba. `approved`
+nunca sale de un agente.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant A as 🟨 Agente
+  participant E as 🟦 Motor (open-sdd)
+  participant G as 🟦 Gates C1–C6
+  participant H as 🟪 Persona
+  A->>E: open-sdd next
+  E-->>A: un paso + contrato (entradas, salidas, hecho-cuando)
+  A->>A: hace el trabajo
+  A->>E: open-sdd report (evidencia, tokens, modelo)
+  E->>G: ejecuta los gates del rigor declarado
+  alt los gates fallan
+    G-->>E: ❌ bloqueado (motivo + fichero)
+    E-->>A: corrige y vuelve a reportar
+  else los gates pasan y el paso requiere HIL
+    E->>H: tarjeta HIL (por defecto: aparcar / rechazar)
+    H->>E: hil answer --by <nombre> (identidad git + approvers.json)
+  end
+  E-->>A: siguiente paso o terminado
+```
+
+### Las dos escaleras: nivel y rigor
+
+Elige **cuánto** trabajo es (L0–L6) y **cuán estricto** (rigor). Cada peldaño solo añade comprobaciones.
+
+```mermaid
+flowchart LR
+  subgraph LEVEL["Nivel · cuánto"]
+    direction LR
+    L0["L0<br/>mínimo"] --> L1["L1<br/>PoC / spike"] --> L2["L2<br/>feature · bug"] --> L3["L3<br/>proyecto pequeño"] --> L4["L4<br/>multi-feature"] --> L5["L5<br/>multi-unidad"] --> L6["L6<br/>modernización"]
+  end
+  subgraph RIGOR["Rigor · cuán estricto"]
+    direction LR
+    R1["tiny-spec<br/>objetivo · hecho-cuando · fuera de alcance"] --> R2["spec-first<br/>EARS + constitución<br/>C1 + C2"] --> R3["spec-anchored<br/>+ delta · trazabilidad · deriva<br/>C1 C2 C3 C6"] --> R4["spec-as-code<br/>+ contratos · regeneración<br/>C1 … C6"]
+  end
+  LEVEL ~~~ RIGOR
+  classDef lv fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+  classDef r1 fill:#e9ecef,stroke:#868e96,color:#1e1e1e
+  classDef r2 fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef r3 fill:#ffec99,stroke:#f08c00,color:#1e1e1e
+  classDef r4 fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  class L0,L1,L2,L3,L4,L5,L6 lv
+  class R1 r1
+  class R2 r2
+  class R3 r3
+  class R4 r4
+```
+
+La ceremonia (`minimal` · `standard` · `strict`) y la variante (`greenfield` · `brownfield`) se
+eligen por ejecución: `open-sdd start "<intención>" --level L2 --variant brownfield --rigor spec-anchored`.
+
+### Greenfield frente a brownfield
+
+```mermaid
+flowchart TB
+  S{"¿Ya hay<br/>código?"}
+  S -- no --> G1["🟨 discovery (roles BMAD)<br/>brief · no-objetivos · resultado"]
+  G1 --> G2["🟩 borrador de constitución"] --> G3["🟩 requisitos (EARS)"] --> G4["diseño → tareas"] --> IMPL
+  S -- sí --> B1["🟦 survey brownfield<br/>stack · módulos · evidencia"]
+  B1 --> B2["🟩 constitución descriptiva<br/>lo que el código ya cumple"]
+  B2 --> B3["🟩 delta spec<br/>ADDED · MODIFIED · REMOVED · RENAMED"]
+  B3 --> B4["🟦 contratos + impacto<br/>oráculo de regresión · radio de impacto"] --> IMPL
+  IMPL["🟨 implementar"] --> V["🟦 gates + 🟪 aprobación"]
+  classDef q fill:#fff3bf,stroke:#f08c00,color:#1e1e1e
+  classDef g fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef b fill:#ffd8a8,stroke:#e8590c,color:#1e1e1e
+  classDef e fill:#d0bfff,stroke:#7048e8,color:#1e1e1e
+  class S q
+  class G1,G2,G3,G4 g
+  class B1,B2,B3,B4 b
+  class IMPL,V e
+```
+
+### Modo reverse engineering (brownfield, por etapas)
+
+Cada etapa tiene un gate; solo las reglas que confirmó una persona llegan a la línea base de la spec.
+
+```mermaid
+flowchart LR
+  RE1["RE-1<br/>inventario"] --> RE2["RE-2<br/>arquitectura"]
+  RE2 --> RE3["RE-3<br/>caracterización<br/>tests congelan el comportamiento"]
+  RE3 --> RE4["RE-4<br/>reglas<br/>candidatas con evidencia"]
+  RE4 --> H{{"🟪 RE-5 confirmación"}}
+  H -- confirmada --> RE6
+  H -- rechazada --> RE4
+  RE6["RE-6<br/>línea base de la spec<br/>REQ cita ids RULE"]
+  classDef st fill:#ffd8a8,stroke:#e8590c,color:#1e1e1e
+  classDef hp fill:#d0bfff,stroke:#7048e8,color:#1e1e1e
+  classDef ok fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  class RE1,RE2,RE3,RE4 st
+  class H hp
+  class RE6 ok
+```
+
+### Conversor EARS
+
+Entra texto libre, salen requisitos comprobables — o una pregunta precisa. Nunca adivina.
+
+```mermaid
+flowchart LR
+  T["texto libre<br/>notas · tickets · --file"] --> SPLIT["separa enunciados<br/>y acciones múltiples"]
+  SPLIT --> REP["reparaciones<br/>must/should → shall · negativas → shall not<br/>when/if al final → al inicio · pasiva → activa"]
+  REP --> CHK{"🟦 checker EARS<br/>revalida"}
+  CHK -- limpio --> C["✅ convertido"]
+  CHK -- cambió la redacción --> N["~ needs-confirmation<br/>(--accept para escribir)"]
+  CHK -- vago / sin actor / sin respuesta --> Q["❓ pregunta<br/>nombra la medida a usar"]
+  C --> W["🟩 requirements.md<br/>### REQ-AREA-NNN + fuente"]
+  N -. --accept .-> W
+  classDef ok fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef warn fill:#ffec99,stroke:#f08c00,color:#1e1e1e
+  classDef bad fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  classDef eng fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+  class C,W ok
+  class N warn
+  class Q bad
+  class SPLIT,REP,CHK eng
+```
+
+### Reglas dinámicas (sin LLM)
+
+Los eventos (los lanza una persona, un escáner, un monitor o un pipeline — nunca el agente) cambian el plan de forma determinista; un evento repetido no hace nada.
+
+```mermaid
+flowchart LR
+  EV["evento<br/>security-advisory · incident · wave-start<br/>signal · regulatory-change · scope-change"] --> RULE{"🟦 regla coincide"}
+  RULE --> A1["insert-steps"]
+  RULE --> A2["patch-both"]
+  RULE --> A3["freeze"]
+  RULE --> A4["require-hil"]
+  RULE --> A5["set-deadline"]
+  RULE --> A6["raise-level"]
+  A1 & A2 & A3 & A4 & A5 & A6 --> PLAN["🟩 plan actualizado<br/>+ registro de auditoría"]
+  classDef ev fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  classDef r fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+  classDef act fill:#e9ecef,stroke:#868e96,color:#1e1e1e
+  classDef p fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  class EV ev
+  class RULE r
+  class A1,A2,A3,A4,A5,A6 act
+  class PLAN p
+```
+
+### Modernize Kit
+
+```mermaid
+flowchart TB
+  P["🟩 portafolio<br/>apps · dueños · riesgo"] --> R{"7 Rs (AWS)<br/>retire · retain · rehost · relocate<br/>replatform · repurchase · refactor"}
+  R --> W1["ola 1<br/>bajo riesgo"] --> W2["ola 2"] --> W3["ola N<br/>core / banca"]
+  W3 --> SF["ciclo strangler (refactor)<br/>characterized → facade → parallel-run<br/>→ canary 5/25/50 → cut-over → decommissioned"]
+  SF --> D{"🟦 decisión canary<br/>error budget · mismatch · p95 · muestra"}
+  D -- avanzar --> OK["✅ siguiente etapa"]
+  D -- mantener --> SF
+  D -- rollback --> RB["🟥 rollback"]
+  classDef a fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef r fill:#fff3bf,stroke:#f08c00,color:#1e1e1e
+  classDef w fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+  classDef bad fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  classDef d fill:#d0bfff,stroke:#7048e8,color:#1e1e1e
+  class P,OK a
+  class R r
+  class W1,W2,W3,SF w
+  class RB bad
+  class D d
+```
+
+### ¿Dónde estoy?
+
+`open-sdd where` muestra la fase, el progreso ponderado por coste de paso, los pasos pendientes y
+las decisiones en espera; `--save` escribe un checkpoint reanudable en `.sdd/state/checkpoint.md`.
+
+```mermaid
+pie showData title Progreso ponderado por coste de paso (ejemplo)
+  "hecho" : 11
+  "en curso" : 3
+  "pendiente" : 5
+  "esperando a una persona" : 2
+```
+
+### Plugin AI-DLC
+
+```mermaid
+flowchart LR
+  subgraph AIDLC["AWS AI-DLC"]
+    IN["inception /<br/>requirements-analysis"]
+    CO["construction /<br/>code-generation"]
+  end
+  IN -- sensor --> S1["aidlc-opensdd-ears"]
+  CO -- sensor --> S2["aidlc-opensdd-gates"]
+  CO -- sensor --> S3["aidlc-opensdd-steering"]
+  S1 & S2 & S3 --> CLI{"CLI open-sdd<br/>OPEN_SDD_CLI o PATH"}
+  CLI -- encontrado --> RES["pasa · hallazgos"]
+  CLI -- ausente --> FC["🟥 fail closed"]
+  classDef aw fill:#ffd8a8,stroke:#e8590c,color:#1e1e1e
+  classDef s fill:#a5d8ff,stroke:#1971c2,color:#1e1e1e
+  classDef ok fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
+  classDef bad fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
+  class IN,CO aw
+  class S1,S2,S3,CLI s
+  class RES ok
+  class FC bad
+```
+
 ## La constitución
 
 La constitución es la autoridad ante la que responde cada spec. Vive en `.sdd/steering/constitution.md`

@@ -837,17 +837,22 @@ const adaptFrontmatter = (raw: string, host: HostCommandConvention, format: Comm
  * The three rules that apply to every workflow in every project (user requirement): carried by each
  * installed command so the default path (no skills) enforces them too.
  */
-export const ALWAYS_ON_RULES = `\n## Always-on rules\n${readFileSync(
+const ALWAYS_ON_RULES_SOURCE = readFileSync(
   fileURLToPath(new URL('../../templates/shared/always-on-rules.md', import.meta.url)),
   'utf8',
-).replace(/\{\{SDD_DIR\}\}/g, '.sdd')}`;
+);
+/** The rules with `{{SDD_DIR}}` resolved to the project's SDD directory (`--sdd-dir`). */
+export const alwaysOnRules = (sddDir = '.sdd'): string =>
+  `\n## Always-on rules\n${ALWAYS_ON_RULES_SOURCE.replace(/\{\{SDD_DIR\}\}/g, sddDir)}`;
+export const ALWAYS_ON_RULES = alwaysOnRules();
 
 export const renderCommandTemplate = async (
   id: CommandTemplateId,
   host: HostCommandConvention,
   templatesRoot?: string,
+  sddDir?: string,
 ): Promise<RenderedTemplate> => {
-  const raw = `${(await readFile(commandTemplatePath(id, templatesRoot), 'utf8')).replace(/\s*$/, '\n')}${ALWAYS_ON_RULES}`;
+  const raw = `${(await readFile(commandTemplatePath(id, templatesRoot), 'utf8')).replace(/\s*$/, '\n')}${alwaysOnRules(sddDir)}`;
   const translated = adaptFrontmatter(translateInput(raw, host), host, host.format);
   const { frontmatter, body } = splitFrontmatter(translated);
   const description = frontmatterDescription(frontmatter);
@@ -893,6 +898,8 @@ export interface InstallCommandTemplatesInput {
   hosts: string[];
   write?: boolean;
   templatesRoot?: string;
+  /** SDD directory written into the always-on rules (default `.sdd`). */
+  sddDir?: string;
 }
 
 export interface CommandTemplatesOutcome {
@@ -974,7 +981,7 @@ export const installCommandTemplates = async (
     const key = `${host.id}:${id}`;
     const cached = rendered.get(key);
     if (cached) return cached;
-    const value = await renderCommandTemplate(id, host, input.templatesRoot);
+    const value = await renderCommandTemplate(id, host, input.templatesRoot, input.sddDir);
     rendered.set(key, value);
     return value;
   };

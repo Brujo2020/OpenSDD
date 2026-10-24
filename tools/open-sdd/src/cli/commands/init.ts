@@ -109,6 +109,8 @@ export interface InitLanguageChoice {
 
 export interface InitPlan {
   root: string;
+  /** SDD directory (`--sdd-dir` or detected). */
+  sddDir: string;
   cwd: string;
   agent: InitAgentChoice;
   level: {
@@ -689,6 +691,7 @@ export const planInit = async (input: PlanInitInput): Promise<InitPlan> => {
 
   return {
     root: target,
+    sddDir,
     cwd,
     agent,
     level: {
@@ -930,7 +933,7 @@ const applyInit = async (plan: InitPlan): Promise<InitOutcome> => {
   const templatesArtifact = plan.artifacts.find((item) => item.kind === 'command-templates');
   const templatesHost = plan.commandTemplates.host;
   if (templatesArtifact && templatesHost && plan.commandTemplates.verified) {
-    const result = await installCommandTemplates({ cwd: plan.root, hosts: [templatesHost], write: true });
+    const result = await installCommandTemplates({ cwd: plan.root, hosts: [templatesHost], write: true, sddDir: plan.sddDir });
     outcome.written.push(...result.written);
     outcome.kept.push(...result.kept);
     outcome.failures.push(...result.failures);
