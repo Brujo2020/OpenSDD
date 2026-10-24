@@ -1,8 +1,19 @@
-# open-sdd — User Manual (v3.10.0)
+# SteelFoundry — SDD Toolkit · User Manual
 
-Model-agnostic Spec-Driven Development: one CLI that scales the process to the work — from a typo to
-the modernization of a banking portfolio — where a **deterministic engine decides**, **agents
-propose**, and **named people approve**.
+Model-agnostic Spec-Driven Development: one toolkit that scales the process to the work — from a typo
+or a quick PoC to a strict, audited migration programme — where a **deterministic engine decides**,
+**agents propose**, and **named people approve**.
+
+> **Why "SteelFoundry".** A foundry melts many raw materials into standard, repeatable steel parts.
+> SteelFoundry does that with SDD: it consolidates the whole range of cases (PoC → spike → small
+> project → programme with strict rigor) in one toolkit, works with any agent and model, and takes the
+> best of other toolkits — Spec Kit's constitution, BMAD's role-based discovery, Kiro's EARS and
+> steering, OpenSpec's delta specs — cast into one deterministic engine.
+>
+> Formerly **open-sdd**: the `open-sdd`, `sdd-open` and `sdd` commands still work, and `.sdd/` folders,
+> `OPEN_SDD_*` variables, `open-sdd.*/1` schemas and `open_sdd_*` MCP tools are unchanged.
+>
+> 📘 Spanish edition: [MANUAL.es.md](MANUAL.es.md).
 
 ---
 
@@ -100,10 +111,10 @@ flowchart TB
 13. [Progress and checkpoints: `where`](#13-progress-and-checkpoints-where)
 14. [Multi-unit work and waves](#14-multi-unit-work-and-waves)
 15. [Agent hosts, skills and MCP](#15-agent-hosts-skills-and-mcp)
-16. [Governance: gates, constitution, claims](#16-governance)
+16. [Governance: gates, constitution, claims](#16-governance) — [16.1 Ratifying the constitution](#161-ratifying-the-constitution-mandatory-terminal-confirmation)
 17. [Files and folders](#17-files-and-folders)
 18. [Command reference](#18-command-reference)
-19. [Worked scenarios](#19-worked-scenarios)
+19. [Worked scenarios](#19-worked-scenarios) — [19b Offers](#19b-for-offers-and-client-acceptance) · [19c Assurance](#19c-assurance-validation-by-rule-flow-and-audit-trail) · [19d Operating it](#19d-operating-it-cost-telemetry-mcp-attestation-pr-status)
 20. [Troubleshooting and FAQ](#20-troubleshooting-and-faq)
 21. [Limits and what is not verified](#21-limits-and-what-is-not-verified)
 
@@ -116,7 +127,7 @@ flowchart TB
 | **Spec** | `.sdd/specs/<feature>/`: `requirements.md` (EARS), `plan.md` (or `design.md`), `tasks.md`. |
 | **Steering** | `.sdd/steering/`: project memory — `product.md`, `tech.md`, `structure.md`, `constitution.md`. |
 | **Constitution** | Principles every spec is checked against; the authority a blocking verdict cites. |
-| **Level** | Size of the work: L0 tiny … L6 modernization. Decides playbook and ceremony. |
+| **Level** | Size of the work: L0 tiny … L6 migration. Decides playbook and ceremony. |
 | **Variant** | `greenfield` (new) or `brownfield` (existing code). |
 | **Rigor** | Strictness: `tiny-spec` → `spec-first` → `spec-anchored` → `spec-as-code` (legacy name `spec-as-source` accepted). |
 | **Playbook** | Ordered phases of steps for one kind of case (`.playbook.json`). |
@@ -157,7 +168,7 @@ From a checkout: `npm install && npm run build`, then `node tools/open-sdd/dist/
 
 ```json
 // .sdd/settings/approvers.json
-{ "approvers": [ { "name": "Ana Rojas", "email": "ana.rojas@bank.example" } ] }
+{ "approvers": [ { "name": "Ana Rojas", "email": "ana.rojas@acme.example" } ] }
 ```
 
 An answer's `--by` must name a listed approver **and** match the git identity of the shell in use.
@@ -181,7 +192,7 @@ steelfoundry start "<what you want to do>" --dry-run
 | deliver several features | `steelfoundry start "platform with onboarding, billing and notifications"` | L4 `multi-feature` |
 | change several services | `steelfoundry start "split billing into 3 microservices"` | L5 `multi-unit`, strict |
 | understand legacy code | `steelfoundry start "reverse engineer the billing system"` | `reverse-engineering`, see §8 |
-| modernize a portfolio | `steelfoundry migrate init --example banking` | see §9 |
+| migrate a portfolio | `steelfoundry migrate init --example datacenter-exit` | see §9 |
 | not sure | `steelfoundry assist` | recommends assistants from the repo state |
 
 Then loop: `steelfoundry next <feature>` → do the step → `steelfoundry report …` (see §5). Check progress any
@@ -201,7 +212,7 @@ time with `steelfoundry where`.
 | L3 small project | from scratch, new app/service/project, build an app | standard |
 | L4 medium | platform, roadmap, several features, ≥ 3 features listed | standard |
 | L5 large | ≥ 2 services/repos/units named, or several repos in the workspace | strict |
-| L6 modernization | modernize, mainframe, COBOL, monolith to microservices, strangler, portfolio migration | strict |
+| L6 migration | migrate/modernize a portfolio, mainframe, COBOL, data-center exit, Oracle → PostgreSQL, cloud migration, monolith to microservices, strangler | strict |
 
 Rules that never bend:
 - **Risk only raises the level.** Payments, auth, PII, migration, infra or data in a "tiny" change make it L2. A PoC with personal data is L2.
@@ -595,7 +606,9 @@ steelfoundry where --save --note "before CAB"   # .sdd/state/checkpoint.md and .
 Progress is weighted by step cost (count also shown). A remaining-time estimate appears after three
 timed steps and is labelled uncalibrated. Resume in any session by reading
 `.sdd/state/checkpoint.md` and running the `next` command it lists. Also: `engine list`,
-`engine status <f> --mermaid`, `modernize status --html`, `reverse status`.
+`engine status <f> --mermaid`, `migrate status --html`, `reverse status`.
+
+For a clear status (state, stage n/9, blockers, next command) and dashboards use `steelfoundry flow` (§19c).
 
 ---
 
@@ -620,7 +633,8 @@ The wave referee refuses a merge when a unit's check fails or a protected file c
 - Hard rules for agents: never report `approved`, never answer cards, never add `--confirm`, never adopt
   rules or promote lessons, never raise events, propose only with evidence.
 - MCP (`steelfoundry mcp`): tools include `open_sdd_next`, `open_sdd_report` (with tokens/model),
-  `open_sdd_status`, `open_sdd_context_pack`, `open_sdd_gates_run` and the constitution resources.
+  `open_sdd_status`, `open_sdd_context_pack`, `open_sdd_gates_run`, `open_sdd_flow`,
+  `open_sdd_validation`, `open_sdd_audit_trail` and the constitution resources.
 - AI-DLC: `aidlc:stage/*` step types, `import aidlc`, plugin template
   `templates/integrations/aidlc-plugin/opensdd/` in the AI-DLC plugin layout:
   `.aidlc-plugin/plugin.json`, sensors `aidlc-opensdd-{ears,gates,steering}` (deterministic,
@@ -688,9 +702,10 @@ git email recorded with it.
 |---|---|
 | `.sdd/specs/<f>/` | `requirements.md`, `plan.md`/`design.md`, `tasks.md`, `brief.md`, `delta.md` |
 | `.sdd/steering/` | `product.md`, `tech.md`, `structure.md`, `constitution.md` |
-| `.sdd/settings/` | `approvers.json`, `rigor.json`, `dynamic-rules.json`, `reverse.json`, `hitl.json`, `security-allowlist.json` |
+| `.sdd/settings/` | `approvers.json`, `rigor.json`, `dynamic-rules.json`, `reverse.json`, `hitl.json`, `security-allowlist.json`, `validation-rules.json`, `estimate.json`, `migration-estimate.json`, `finops.json` |
 | `.sdd/playbooks/` | project and generated playbooks |
-| `.sdd/engine/` | `<f>.state.json`, `<f>.audit.jsonl`, `<f>.lock` |
+| `.sdd/engine/` | `<f>.state.json`, `<f>.audit.jsonl` (hash-chained decision log), `_governance.audit.jsonl` (ratifications), `<f>.lock` |
+| `.sdd/attestations/` | `<f>.intoto.json` (in-toto Statement v1) |
 | `.sdd/handoff/<f>/` | context packs, recall records |
 | `.sdd/questions/<f>/` | question files (including `discovery.md`) |
 | `.sdd/hil/<f>/` | cards, answers, `review.html` |
@@ -725,6 +740,12 @@ git email recorded with it.
 | `waves <f> [--baseline\|--verify]` | wave plan / referee |
 | `brownfield …`, `delta …` | brownfield console and deltas |
 | `gates`, `govern`, `assure`, `audit`, `status --check`, `doctor` | governance |
+| `flow [f] [--json\|--markdown]` | clear status, stages, metrics |
+| `validation <f> [--record]` | tests each task must show, by rule |
+| `audit trail [f] [--requirement\|--principle\|--actor\|--who] [--csv\|--otlp f]` | decision log |
+| `attest <f> [--write]` / `attest --verify <file>` | in-toto attestation |
+| `estimate <f> [--sow --write]`, `migrate estimate` | estimates and offer scope |
+| `trace <f> [--mermaid\|--csv]` | requirement → task traceability |
 
 Every command answers `--help`; `steelfoundry help <command>` shows usage and examples;
 `steelfoundry help exit-codes` documents exit codes (0 ok, 1 refused by a gate, 2 usage).
@@ -888,6 +909,9 @@ MCP tools: `open_sdd_flow`, `open_sdd_validation`, `open_sdd_audit_trail`.
 | `LOCK_HELD` | another writer is updating the run; retry |
 | `STARVED_STEP` | a step needs an output whose producer is skipped or later |
 | `cannot report «x» while it is y` | follow the step lifecycle: pending → started → completed/awaiting-approval |
+| `Ratificación NO confirmada` | type `RATIFICAR` on your own terminal; an agent session or a CI script cannot ratify (§16.1) |
+| `validation` exits 1 | a done task lacks a kind its rules require: add the test and its `[kind]` tag to `_Evidence:_` |
+| `audit trail` exits 1 / flow `blocked` by the audit log | a line of a hash-chained log was edited or removed; investigate before trusting it |
 
 **Why did my tiny change become L2?** It names a risk (auth, payments, personal data…). Use `--level`
 only if you accept the recorded override.
@@ -906,6 +930,9 @@ be typed by the person.
 - The 7 Rs table encodes AWS guidance as rules; it does not replace an assessment with the owners.
 - The AI-DLC plugin template has not been run through the AI-DLC validator.
 - EARS disciplines the statement of a requirement, not its correctness.
+- Estimates (`estimate`, `migrate estimate`) and FinOps cost use declared starting factors and prices; they are not calibrated.
+- Typing `RATIFICAR` raises the bar but is not proof of identity; the attestation is unsigned until you sign it (e.g. Sigstore).
+- Validation rules match text and paths: they can over- or under-fire; tune them in `validation-rules.json`.
 
 Sources: AWS Prescriptive Guidance — *About the migration strategies* (7 Rs);
 AWS DevOps Blog — *AI-Driven Development Life Cycle*.

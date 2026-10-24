@@ -12,6 +12,8 @@ requirements and steering, OpenSpec's delta specs — cast into one deterministi
 `steelfoundry` is the layer that makes an AI coding agent's "done" verifiable: executable gates, delta
 specs for code that already exists, and a constitution that validates every spec.
 
+> 📘 Manual: [English](docs/MANUAL.md) · [Español](docs/MANUAL.es.md)
+
 > **SteelFoundry** was called **open-sdd**. The `open-sdd`, `sdd-open` and `sdd` commands still work as aliases of `steelfoundry`, and existing `.sdd/` folders need no change.
 
 [![License: MIT](https://img.shields.io/github/license/Brujo2020/OpenSDD)](https://github.com/Brujo2020/OpenSDD/blob/main/LICENSE)
