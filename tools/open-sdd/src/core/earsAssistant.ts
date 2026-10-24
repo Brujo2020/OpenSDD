@@ -242,6 +242,28 @@ const VAGUE_TERMS: readonly string[] = [
   'user-friendly',
   'fácil de usar',
   'facil de usar',
+  'rápidamente',
+  'rapidamente',
+  // Inglés: alineado con AMB-001/AMB-002 del coach de requisitos, que ya los marcaba mientras clarify no.
+  'quick',
+  'quickly',
+  'fast',
+  'rapidly',
+  'appropriate',
+  'appropriately',
+  'adequate',
+  'adequately',
+  'robust',
+  'efficient',
+  'efficiently',
+  'easy',
+  'easily',
+  'intuitive',
+  'seamless',
+  'seamlessly',
+  'reasonable',
+  'acceptable',
+  'securely',
 ];
 
 /**

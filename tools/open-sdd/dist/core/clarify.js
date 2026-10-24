@@ -467,6 +467,9 @@ export const planClarify = async (input) => {
     if (artifacts.length === 0) {
         detailParts.push(`No hay requirements.md, delta.md ni tasks.md para "${feature}": no hay nada que clarificar y NO se declara limpia (no se analizó nada).`);
     }
+    else if (analysedRequirements === 0 && questions.length === 0) {
+        detailParts.push(`${artifacts.join(', ')} no contiene ningún requisito reconocible para "${feature}": NO se declara limpia (no se analizó ningún requisito). Escríbelos con \`open-sdd brownfield specify ${feature} "<descripción>"\` o \`open-sdd assist ears\`.`);
+    }
     else if (questions.length === 0 && fromEvidence.length === 0 && unresolvable.length === 0) {
         detailParts.push(`La especificación de "${feature}" está limpia: 0 preguntas de clarificación sobre ${artifacts.join(', ')} (${analysedRequirements} requisito(s) analizado(s), ninguno ambiguo). Nada que preguntar.`);
     }

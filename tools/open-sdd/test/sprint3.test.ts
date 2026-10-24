@@ -25,7 +25,8 @@ describe('calibration (point 8)', () => {
   it('the misses are exactly the declared gaps (measured, not hidden)', () => {
     expect(row('audit-chain').misses.every((id) => id.startsWith('AC-truncate'))).toBe(true);
     expect(row('escalation').misses).toEqual(['ES-fake-progress']);
-    expect(row('ears').misses.length).toBeGreaterThan(0);
+    // fix/clarify-ambiguity: los términos vagos en inglés (fast, quick, appropriately…) ya se detectan → recall 1.
+    expect(row('ears').misses).toEqual([]);
   });
 
   it('nothing may block on calibration alone until the preregistered size is reached', () => {
