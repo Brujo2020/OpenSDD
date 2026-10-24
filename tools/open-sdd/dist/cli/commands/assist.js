@@ -13,6 +13,7 @@ import { convertText, nextRequirementIds } from '../../core/earsConvert.js';
 import { readFile as rf } from 'node:fs/promises';
 import { composeBrief, draftSteering, planDiscovery, suggestAssistants, writeDiscovery } from '../../core/guidedAssistants.js';
 import { slugFromIntent } from '../../core/levels.js';
+import { isInteractive } from '../ui/prompt.js';
 const BOOL = new Set(['--json', '--write', '--force', '--draft', '--interview', '--accept']);
 const flag = (args, name) => {
     const at = args.indexOf(`--${name}`);
@@ -142,8 +143,14 @@ export const handleAssistCommand = async (args, io, cwd) => {
         return EXIT.PASSED;
     }
     if (sub === 'constitution') {
-        const mode = args.includes('--interview') ? '--interview' : '--draft';
-        return handleBrownfieldCommand(['constitution', '.', mode, ...args.filter((a) => ['--write', '--json'].includes(a))], io, cwd);
+        // Sin bandera y en una terminal: la entrevista guiada (pregunta, guarda y ofrece ratificar).
+        const guided = args.includes('--interview') || (!args.includes('--draft') && !args.includes('--json') && isInteractive());
+        const answers = args.indexOf('--answers');
+        const passthrough = [
+            ...args.filter((a) => ['--write', '--json'].includes(a)),
+            ...(answers >= 0 && args[answers + 1] ? ['--answers', args[answers + 1]] : []),
+        ];
+        return handleBrownfieldCommand(['constitution', '.', guided ? '--interview' : '--draft', ...passthrough], io, cwd);
     }
     io.error('error[usage]: assist [discover|brief|ears|steering|constitution]');
     return EXIT.USAGE;

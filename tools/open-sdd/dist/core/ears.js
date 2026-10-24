@@ -50,6 +50,32 @@ const KEYWORD_PATTERNS = [
     { pattern: 'unwanted', re: /^\s*IF\b/i },
 ];
 /** Ambiguous terms that make a requirement unfalsifiable. */
+/**
+ * Términos vagos en inglés. Una sola lista para C1 (`validateEarsRequirement`), el asistente EARS y
+ * clarify: antes clarify y C1 aceptaban «quickly» mientras `requirements review` lo marcaba.
+ */
+const VAGUE_TERMS_EN_LIST = [
+    'quick',
+    'quickly',
+    'fast',
+    'rapidly',
+    'appropriate',
+    'appropriately',
+    'adequate',
+    'adequately',
+    'robust',
+    'efficient',
+    'efficiently',
+    'easy',
+    'easily',
+    'intuitive',
+    'seamless',
+    'seamlessly',
+    'reasonable',
+    'acceptable',
+    'securely',
+];
+export const VAGUE_TERMS_EN = VAGUE_TERMS_EN_LIST;
 const VAGUE_TERMS = [
     'apropiado',
     'adecuado',
@@ -70,6 +96,9 @@ const VAGUE_TERMS = [
     'as needed',
     'si es necesario',
     'cuando sea posible',
+    'rápidamente',
+    'rapidamente',
+    ...VAGUE_TERMS_EN_LIST,
 ];
 const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 /**

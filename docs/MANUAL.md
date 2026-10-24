@@ -755,6 +755,19 @@ The whole story runs in `tools/open-sdd/test/mkBankingScenario.test.ts` (20 orde
 
 ---
 
+## 19b. For offers and client acceptance
+
+```bash
+open-sdd estimate <feature>               # effort P50/P90 + calendar with parallel waves (declared factors)
+open-sdd estimate <feature> --sow --write # .sdd/specs/<feature>/sow.md: scope, exclusions, deliverables, acceptance, assumptions, risks
+open-sdd migrate estimate                 # person-weeks per wave from the 7 Rs
+open-sdd trace <feature> --csv --out matrix.csv   # requirement × task × status × evidence
+open-sdd assist constitution              # guided constitution: one question at a time, draft, ratify with your name
+```
+
+Factors live in `.sdd/settings/estimate.json` and `.sdd/settings/migration-estimate.json`; every output says
+whether it used defaults (not calibrated) or yours.
+
 ## 20. Troubleshooting and FAQ
 
 | Message | Meaning / fix |

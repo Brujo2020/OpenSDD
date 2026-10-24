@@ -13,6 +13,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { colors } from '../ui/colors.js';
 import { offerClarify } from '../ui/clarifyOffer.js';
+import { isInteractive, promptConfirm } from '../ui/prompt.js';
 import { scanProject } from '../../core/reverseEngineering.js';
 import { buildDescriptiveConstitution, collectRepoFacts } from '../../core/reverseConstitution.js';
 import { buildConstitutionDraft, constitutionArtifactPaths, RATIFY_INSTRUCTION } from '../../core/constitutionDraft.js';
@@ -456,6 +457,7 @@ const handleIdsAudit = async (args, io, root) => {
         return 2;
     return report.findings.length > 0 ? 1 : 0;
 };
+const blockingCount = (text) => validateConstitution(parseConstitution(text)).filter((issue) => issue.severity === 'error').length;
 export const handleBrownfieldCommand = async (args, io, cwd) => {
     const sub = args[0] ?? 'survey';
     const positional = args.slice(1).filter((a) => !a.startsWith('-'));
@@ -693,9 +695,45 @@ export const handleBrownfieldCommand = async (args, io, cwd) => {
                 : await findRepoRoot(cwd);
             const answersPath = flagValue(args, '--answers');
             const interview = await planConstitutionInterview(interviewTarget, { sddDir: '.sdd' });
-            if (answersPath) {
-                const absolute = path.resolve(cwd, answersPath);
-                const rawAnswers = await readIfExists(absolute);
+            // Asistente guiado (terminal interactiva, sin --answers ni --json): una pregunta cada vez, Enter
+            // acepta el valor por defecto, se guarda el borrador y se ofrece ratificarlo con nombre. Las
+            // mismas respuestas siguen el mismo camino que un fichero --answers: no hay una segunda lógica.
+            const wizard = !answersPath && !json && isInteractive() && interview.questions.length > 0;
+            let wizardAnswers = null;
+            if (wizard) {
+                io.log('');
+                io.log(heading(`Constitución guiada — ${interview.project}`));
+                io.log(dim(`  ${interview.decidedByEvidence.length} decisión(es) ya salen del código y no se preguntan. Enter = valor por defecto · «?» = por qué.`));
+                wizardAnswers = {};
+                const readline = await import('node:readline/promises');
+                const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+                try {
+                    for (const [index, question] of interview.questions.entries()) {
+                        io.log('');
+                        io.log(`  ${colors.bold(`${index + 1}/${interview.questions.length}`)} ${question.question}`);
+                        if (question.options)
+                            io.log(dim(`      opciones: ${question.options.join(' | ')}`));
+                        if (question.fromEvidence)
+                            io.log(dim(`      el código dice: ${question.fromEvidence}`));
+                        let answer = '';
+                        for (;;) {
+                            answer = (await rl.question(`      respuesta${question.default !== undefined ? ` [${question.default}]` : ''}: `)).trim();
+                            if (answer !== '?')
+                                break;
+                            io.log(dim(`      por qué se pregunta: ${question.why}`));
+                        }
+                        const value = answer.length > 0 ? answer : question.default;
+                        if (value !== undefined && value.length > 0)
+                            wizardAnswers[question.id] = value;
+                    }
+                }
+                finally {
+                    rl.close();
+                }
+            }
+            if (answersPath || wizardAnswers) {
+                const absolute = answersPath ? path.resolve(cwd, answersPath) : '';
+                const rawAnswers = wizardAnswers ? JSON.stringify(wizardAnswers) : await readIfExists(absolute);
                 if (rawAnswers === null) {
                     io.error(colors.red(`No se puede leer el fichero de respuestas: ${absolute}`));
                     return 1;
@@ -718,7 +756,8 @@ export const handleBrownfieldCommand = async (args, io, cwd) => {
                 // es el contrato sin severidad, y el veredicto de esta puerta no puede depender de la forma.
                 const blocking = validateConstitution(parseConstitution(application.text)).filter((issue) => issue.severity === 'error');
                 const paths = constitutionArtifactPaths(interviewTarget);
-                const write = args.includes('--write');
+                const write = args.includes('--write') ||
+                    (wizardAnswers !== null && (await promptConfirm(`  ¿Guardar el borrador (${application.applied.length} decisión(es), ${blockingCount(application.text)} error(es))?`, true)));
                 let draftPath = null;
                 if (write) {
                     await mkdir(path.dirname(paths.draft), { recursive: true });
@@ -777,6 +816,23 @@ export const handleBrownfieldCommand = async (args, io, cwd) => {
                     }
                     io.log('');
                     io.log(dim(`  Autoridad: ${RATIFY_INSTRUCTION}`));
+                    if (wizardAnswers !== null && blocking.length === 0 && (await promptConfirm('  ¿Ratificarla ahora con tu nombre? (la deja en vigor)', false))) {
+                        const rl = (await import('node:readline/promises')).createInterface({ input: process.stdin, output: process.stdout });
+                        let by = '';
+                        let rationale = '';
+                        try {
+                            by = (await rl.question('  tu nombre: ')).trim();
+                            rationale = (await rl.question('  motivo (una línea): ')).trim() || 'Constitución acordada en la entrevista guiada';
+                        }
+                        finally {
+                            rl.close();
+                        }
+                        if (by.length > 0) {
+                            const { handleGovernCommand } = await import('./paper.js');
+                            return handleGovernCommand(['constitution', '--ratify', '--by', by, '--rationale', rationale, '--write'], io, interviewTarget);
+                        }
+                        io.log(dim('  sin nombre no hay ratificación: el borrador queda guardado.'));
+                    }
                 }
                 else {
                     io.log(dim('  El borrador no se escribe: añade --write para guardarlo en .sdd/steering/constitution.draft.md (nunca toca constitution.md). A continuación se imprime el texto producido.'));

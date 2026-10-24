@@ -185,7 +185,7 @@ describe('core/sddScore — el número compuesto', () => {
     await mkdir(path.join(root, '.sdd', 'settings'), { recursive: true });
     await writeFile(path.join(root, '.sdd', 'settings', 'rigor.json'), '{"level":"spec-first"}');
     // Installed but without a constitution (greenfield): the constitution, not setup again.
-    expect((await computeSddScore(root)).nextAction).toBe('open-sdd brownfield constitution . --write');
+    expect((await computeSddScore(root)).nextAction).toBe('open-sdd assist constitution');
   });
 
   it('no puntúa 0 ni 1 lo que no pudo inspeccionar: lo declara y excluye su peso del total', async () => {
@@ -245,7 +245,7 @@ describe('core/sddScore — el número compuesto', () => {
 
     expect(report.phase).toBe(1);
     expect(report.components.find((component) => component.id === 'constitution')?.score).toBe(0);
-    expect(report.nextAction).toBe('open-sdd brownfield constitution . --write');
+    expect(report.nextAction).toBe('open-sdd assist constitution');
   });
 
   it('sin requirements.md la especificación está incompleta: Fase 1 y la acción de crearla', async () => {

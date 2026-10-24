@@ -33,6 +33,7 @@ import { existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { homedir } from 'node:os';
 import path from 'node:path';
+import { isInteractive, promptConfirm } from '../ui/prompt.js';
 import { colors } from '../ui/colors.js';
 import { INSTALL_COMMAND, VERSION } from '../packageIdentity.js';
 import { fileURLToPath } from 'node:url';
@@ -923,7 +924,7 @@ const handleSingleProjectInit = async (args, io, cwd) => {
     io.log(`    · ${colors.cyan('open-sdd doctor')}${plan.level.level === 'spec-first' ? '' : ' (comprueba el hook, el CLI, la constitución y el entorno)'}`);
     if (!plan.artifacts.some((artifact) => artifact.kind === 'constitution')) {
         io.log('');
-        io.log(colors.yellow('  ! No se observó código: no hay constitución que derivar del repositorio. Escríbela a mano en .sdd/steering/constitution.md antes de especificar (el nivel declarado la exige).'));
+        io.log(colors.yellow('  ! No se observó código: no hay constitución que derivar del repositorio. Constrúyela con el asistente guiado (preguntas con valores por defecto, borrador y ratificación): open-sdd assist constitution'));
     }
     if (plan.skills && outcome.failures.length > 0) {
         io.log('');
@@ -932,6 +933,16 @@ const handleSingleProjectInit = async (args, io, cwd) => {
     io.log('');
     io.log(colors.dim(`  ${plan.detail}`));
     io.log('');
+    // La constitución desde el inicio: en una terminal, tras instalar, se ofrece el asistente guiado.
+    if (write && outcome.failures.length === 0 && isInteractive() && !args.includes('--yes') && !args.includes('-y')) {
+        if (await promptConfirm('  ¿Construir ahora la constitución con el asistente guiado?', true)) {
+            const { handleBrownfieldCommand } = await import('./brownfield.js');
+            await handleBrownfieldCommand(["constitution", plan.root, "--interview"], io, cwd);
+        }
+        else {
+            io.log(colors.dim('  cuando quieras: open-sdd assist constitution'));
+        }
+    }
     return outcome.failures.length > 0 ? 1 : 0;
 };
 // ---------------------------------------------------------------------------------------------

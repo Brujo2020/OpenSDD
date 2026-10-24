@@ -12,12 +12,14 @@ import { asPerson } from './support/asPerson.js';
 
 const runtime = { platform: 'linux', env: {} } as const;
 let cwd = '';
-const run = async (...argv: string[]) => {
+const runIn = async (env: Record<string, string>, ...argv: string[]) => {
   const logs: string[] = [];
   const io = { log: (m: string) => logs.push(m), error: (m: string) => logs.push(m), exit: () => {} };
-  const code = await runCli([...argv, '--no-footer'], runtime, io, {}, { cwd });
+  const code = await runCli([...argv, '--no-footer'], { ...runtime, env }, io, {}, { cwd });
   return { code, out: logs.join('\n') };
 };
+// The runtime env is the contract: the host's own CI variable must not leak into these tests.
+const run = (...argv: string[]) => runIn({}, ...argv);
 const git = (...args: string[]) => spawnSync('git', args, { cwd, encoding: 'utf8' });
 const profile = (p: 'solo' | 'team') => {
   mkdirSync(path.join(cwd, '.sdd', 'settings'), { recursive: true });
@@ -109,12 +111,7 @@ describe('trust-floor', () => {
     expect(again.out).toContain('failed iteration 1/3');
  
     // CI has nobody to answer: check neither blocks nor escalates there.
-    process.env.CI = 'true';
-    try {
-      for (let i = 0; i < 3; i += 1) expect((await run('check')).out).not.toMatch(/Escalado|Esperando/);
-    } finally {
-      delete process.env.CI;
-    }
+    for (let i = 0; i < 3; i += 1) expect((await runIn({ CI: 'true' }, 'check')).out).not.toMatch(/Escalado|Esperando/);
   });
 
   it('AC-05b a parked _check is never a dead end: a fresh card lets a person decide', async () => {

@@ -301,6 +301,7 @@ const dispatchSubcommand = async (
   subArgv: string[],
   io: CliIO,
   targetCwd: string,
+  env: NodeJS.ProcessEnv = process.env,
 ): Promise<number | undefined> => {
   if (cmd === 'status' || cmd === 'spec-status') {
     return handleStatusCommand(subArgv, io, targetCwd);
@@ -309,7 +310,7 @@ const dispatchSubcommand = async (
     return handleInitCommand(subArgv, io, targetCwd);
   }
   // The five verbs (REQ-SX-003/004): thin routes onto the existing handlers.
-  if (cmd === 'check') return handleGatesCommand(['run', ...subArgv.filter((a) => a !== SCORE_FOOTER_FLAG)], io, targetCwd, { escalate: true });
+  if (cmd === 'check') return handleGatesCommand(['run', ...subArgv.filter((a) => a !== SCORE_FOOTER_FLAG)], io, targetCwd, { escalate: true, env });
   if (cmd === 'decide') return handleDecideCommand(subArgv, io, targetCwd);
   // Adoption surface: the machine-checked integration matrix (`integrate`) and the importer that
   // absorbs spec-kit (`import`). Both live in the init command module.
@@ -333,6 +334,10 @@ const dispatchSubcommand = async (
   }
   if (cmd === 'impl') {
     return handleImplCommand(subArgv, io, targetCwd);
+  }
+  if (cmd === 'estimate') {
+    const { handleEstimateCommand } = await import('./cli/commands/estimate.js');
+    return handleEstimateCommand(subArgv, io, targetCwd);
   }
   if (cmd === 'help') {
     return handleHelpCommand(subArgv, io);
@@ -638,7 +643,7 @@ export const runCli = async (
       return EXIT.USAGE;
     }
 
-    const code = await dispatchSubcommand(cmd, subArgv, io, targetCwd);
+    const code = await dispatchSubcommand(cmd, subArgv, io, targetCwd, runtime.env);
     if (code !== undefined) {
       // El pie de puntuación se emite aquí, en el despachador, y en ningún otro sitio: ningún
       // comando tiene que acordarse. `--json`, `--quiet` y `--no-footer` lo suprimen.

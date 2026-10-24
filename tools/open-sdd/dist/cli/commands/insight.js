@@ -14,7 +14,7 @@ import path from 'node:path';
 import { colors } from '../ui/colors.js';
 import { findRepoRoot } from '../../core/status.js';
 import { resolveSddDir } from '../../core/specManager.js';
-import { listFeatures, loadFeatureTrace, renderHtmlReport, renderMermaid } from '../../core/trace.js';
+import { listFeatures, loadFeatureTrace, renderHtmlReport, renderMermaid, renderCsv } from '../../core/trace.js';
 import { computeSddScore } from '../../core/sddScore.js';
 import { renderBadge } from '../../core/badge.js';
 const flagValue = (args, name) => {
@@ -120,6 +120,10 @@ export const handleInsightCommand = async (cmd, args, io, cwd) => {
     }
     if (args.includes('--mermaid')) {
         await emit(io, cwd, renderMermaid(trace), out);
+        return 0;
+    }
+    if (args.includes('--csv')) {
+        await emit(io, cwd, renderCsv(trace), out);
         return 0;
     }
     io.log(colors.bold(`Trazabilidad — ${feature}`));

@@ -27,6 +27,8 @@ import { advance, readModState, writeModState, STAGES } from '../../core/moderni
 import { modernizeDir, portfolioFile, readPortfolio, riskScore } from '../../core/modernize/portfolio.js';
 import { buildStatus, statusHtml, statusMermaid, statusText } from '../../core/modernize/report.js';
 import { approverAllowed, confirmOnTty, gitIdentity, isAgentSession, readApprovers } from '../../core/hilIdentity.js';
+import { estimateMigration, loadMigrationEstimateSettings } from '../../core/modernize/estimate.js';
+import { splitFeatures } from '../../core/playbookPlanner.js';
 const TEMPLATES = fileURLToPath(new URL('../../../templates/modernize', import.meta.url));
 const BOOLEAN = new Set(['--json', '--dry-run', '--force', '--mermaid', '--html', '--reflect']);
 const flag = (args, name) => {
@@ -87,6 +89,13 @@ export const handleStartCommand = async (args, io, cwd) => {
         ...decision.raisedBy.map((e) => `  raised: ${e}`),
         ...[...decision.warnings, ...rig.warnings].map((e) => `  ! ${e}`),
     ];
+    // Petición grande: propone el reparto en features (una spec cada una), sin decidirlo.
+    const parts = splitFeatures(intent);
+    if (parts.length >= 3) {
+        head.push(`  ${parts.length} candidate features — one spec each:`);
+        for (const part of parts)
+            head.push(`    open-sdd start "${part}" --feature ${slugFromIntent(part)}`);
+    }
     let playbook = basePlaybook;
     if (args.includes('--dry-run')) {
         out(io, json, { ...decision, level, variant, rigor: rig.rigor, playbook, ceremony, feature }, [...head, `  dry run: open-sdd start "${intent}" --feature ${feature}`]);
@@ -209,6 +218,28 @@ export const handleModernizeCommand = async (args, io, cwd) => {
             ...plan.retained.map((t) => `  retained ${t.id}${t.hybridDependents.length ? ` (hybrid: ${t.hybridDependents.join(', ')})` : ''}`),
             ...plan.warnings.map((x) => `  ! ${x}`),
             '  wrote .sdd/modernize/waves.json · next: open-sdd migrate plan <feature>',
+        ]);
+        return EXIT.PASSED;
+    }
+    if (sub === 'estimate') {
+        const all = await loadAll(cwd);
+        if (!('portfolio' in all) || !all.portfolio) {
+            io.error(all.errors.join('\n'));
+            return EXIT.GATE_FAILED;
+        }
+        const plan = planWaves(all.portfolio, all.ds, { max: Number(flag(args, 'max') ?? 3) || 3 });
+        if (plan.error) {
+            io.error(plan.error);
+            return EXIT.GATE_FAILED;
+        }
+        const { settings, source } = await loadMigrationEstimateSettings(cwd);
+        const e = estimateMigration(all.portfolio, all.ds, plan, settings, source);
+        out(io, json, e, [
+            `Migration estimate · ${all.portfolio.name}: P50 ${e.totalP50Weeks} · P90 ${e.totalP90Weeks} person-weeks`,
+            ...e.waves.map((w) => `  wave ${w.n} · ${w.kind.padEnd(11)} P50 ${String(w.p50Weeks).padStart(5)} · P90 ${String(w.p90Weeks).padStart(5)}  ${w.components.map((c) => `${c.id} (${c.r} ${c.weeks})`).join(', ')}`),
+            source === 'default'
+                ? '  · default weights (not calibrated): set your own in .sdd/settings/migration-estimate.json'
+                : '  · weights from .sdd/settings/migration-estimate.json',
         ]);
         return EXIT.PASSED;
     }

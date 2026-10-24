@@ -44,6 +44,7 @@
     {
       "path": "tools/open-sdd/src/cli/commands/paper.ts",
       "ids": [
+        "guardrail-bypass",
         "ignore-previous"
       ],
       "reason": "The `assure memory` command demonstrates the injection scanner with a probe string.",
@@ -54,7 +55,9 @@
     {
       "path": "tools/open-sdd/src/core/gateRunner.ts",
       "ids": [
+        "guardrail-bypass",
         "rm-rf-root",
+        "self-approval",
         "system-prompt-exfil"
       ],
       "reason": "The scanner's own pattern table: these literals ARE the detector, not an occurrence of the threat.",
@@ -101,7 +104,9 @@
     {
       "path": "tools/open-sdd/dist/core/gateRunner.js",
       "ids": [
+        "guardrail-bypass",
         "rm-rf-root",
+        "self-approval",
         "system-prompt-exfil"
       ],
       "reason": "Compiled twin of tools/open-sdd/src/core/gateRunner.ts: the emitted artifact contains the same detector pattern table (dist is committed so the package ships the CLI).",
@@ -112,6 +117,7 @@
     {
       "path": "tools/open-sdd/dist/cli/commands/paper.js",
       "ids": [
+        "guardrail-bypass",
         "ignore-previous"
       ],
       "reason": "Compiled twin of tools/open-sdd/src/cli/commands/paper.ts: the assure-memory demo probe string.",
@@ -269,6 +275,17 @@
       "reason": "FIXTURE de la horda zombie (nivel 4 de QA): cien ataques contra un contrato de supervivencia, entre ellos tres formas de instruccion dirigida a un agente, un comando destructivo y un comentario oculto. Los literales son el OBJETO de la prueba —se comprueba que AI-002 los escala, que nada se obedece y que ningun fichero se escribe—, no instrucciones dirigidas a un modelo; se declaran con motivo, dueno y caducidad en vez de silenciarse, y no se repiten aqui para no reintroducirlos en el indice.",
       "owner": "mantenimiento (bateria QA)",
       "actor": "spec:requirements-coach",
+      "expires": "2027-03-31"
+    },
+    {
+      "path": "tools/open-sdd/test/expertReview2.test.ts",
+      "ids": [
+        "guardrail-bypass",
+        "self-approval"
+      ],
+      "reason": "Unit test fixtures for the agent-targeting injection patterns.",
+      "actor": "spec:expert-review-2",
+      "owner": "mantenimiento (spec de registro)",
       "expires": "2027-03-31"
     }
   ]

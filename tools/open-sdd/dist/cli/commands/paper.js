@@ -441,7 +441,7 @@ export const handleGatesCommand = async (args, io, cwd, opts = {}) => {
         }
         io.log('');
         // `check` (REQ-TF-005): while a person has not decided, the loop stays stopped.
-        const escalate = opts.escalate === true && escalationApplies();
+        const escalate = opts.escalate === true && escalationApplies(opts.env);
         if (escalate) {
             const blocked = await checkBlock(root);
             if (blocked) {
