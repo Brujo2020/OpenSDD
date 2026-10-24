@@ -1,7 +1,7 @@
 # Install
 
 Every way to get `open-sdd` onto a machine and into a repository, least friction first. The version
-this documentation describes is **v3.9.0** (`package.json` at the repository root). The package is
+this documentation describes is **v3.10.0** (`package.json` at the repository root). The package is
 published on npm as `@brujo2020/open-sdd` (v3.7.0 onward); check what the registry serves with
 `npm view @brujo2020/open-sdd version`.
 
@@ -26,7 +26,7 @@ the registry, so `npx open-sdd@latest` is never this project.
 ```bash
 npx --yes @brujo2020/open-sdd@latest --version     # prints the published version
 npx @brujo2020/open-sdd@latest --claude-skills -y  # install the skills into the current directory
-npx @brujo2020/open-sdd@3.9.0 --cursor-skills -y   # pin a version
+npx @brujo2020/open-sdd@3.10.0 --cursor-skills -y   # pin a version
 ```
 
 If `--version` prints an older number than this document, the newest release has not reached the
@@ -43,7 +43,7 @@ it on your `PATH`:
 git clone https://github.com/Brujo2020/OpenSDD
 cd opensdd
 npm run install:global     # npm --prefix tools/open-sdd run build && npm install -g .
-open-sdd --version         # open-sdd v3.9.0
+open-sdd --version         # open-sdd v3.10.0
 ```
 
 **From the registry** (installs the published v2.0.0 today):
@@ -200,7 +200,7 @@ environment — and exits non-zero on a failure. Real shape on this repository:
 
 ```text
 ✓ [ok] Versión de Node: Node v26.7.0 cumple el rango ">=20" declarado en package.json.
-✓ [ok] CLI alcanzable: El CLI responde desde tools/open-sdd/dist/cli.js y reporta la versión 3.9.0.
+✓ [ok] CLI alcanzable: El CLI responde desde tools/open-sdd/dist/cli.js y reporta la versión 3.10.0.
 ✓ [ok] Hook de commit: Hook instalado en .git/hooks/pre-commit (.git/hooks), ejecutable e idéntico a la plantilla vigente pre-commit.mjs.
 ✓ [ok] Rigor declarado: nivel spec-first · gates activos: C1, C2 · rationale declarado (…).
 ✓ [ok] Sin modelo y sin red: No se requiere backend de modelo ni acceso a red: el CLI es determinista y funciona offline.
@@ -257,20 +257,20 @@ The CLI has **no runtime dependencies**, so one tarball is enough. On a connecte
 checkout:
 
 ```bash
-npm pack          # produces brujo2020-open-sdd-3.9.0.tgz
+npm pack          # produces brujo2020-open-sdd-3.10.0.tgz
 ```
 
 Transfer that file and install it without a registry:
 
 ```bash
-npm install -g /path/to/brujo2020-open-sdd-3.9.0.tgz
+npm install -g /path/to/brujo2020-open-sdd-3.10.0.tgz
 open-sdd --version
 ```
 
 Or into a single project instead of globally:
 
 ```bash
-npm install /path/to/brujo2020-open-sdd-3.9.0.tgz
+npm install /path/to/brujo2020-open-sdd-3.10.0.tgz
 ./node_modules/.bin/open-sdd --version
 ```
 

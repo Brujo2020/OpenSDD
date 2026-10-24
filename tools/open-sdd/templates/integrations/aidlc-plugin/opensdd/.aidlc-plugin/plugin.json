@@ -1,6 +1,6 @@
 {
   "name": "opensdd",
-  "version": "3.9.0",
+  "version": "3.10.0",
   "description": "open-sdd deterministic sensors for AI-DLC: EARS check on requirements, open-sdd gates C1-C3 and steering readiness on generated code. Sensors report verdicts only (advisory) and fail closed when the open-sdd CLI is absent.",
   "author": {
     "name": "open-sdd"

@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [3.10.0] - 2026-10-24
+
+### Fixes
+- Always-on rules honour `--sdd-dir` (were fixed to `.sdd`); `README.es.md` gains the diagrams.
+
 ### One door, five verbs (spec `simple-experience`)
 - `--help` is now five verbs (`open-sdd`, `setup`, `start`, `check`, `decide`); the full catalogue is `help --all`. Nothing removed.
 - `setup` = `init`; `check` = `gates run`; `decide` lists every decision waiting for a person and answers it.

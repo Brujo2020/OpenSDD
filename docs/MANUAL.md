@@ -1,4 +1,4 @@
-# open-sdd — User Manual (v3.9.0)
+# open-sdd — User Manual (v3.10.0)
 
 Model-agnostic Spec-Driven Development: one CLI that scales the process to the work — from a typo to
 the modernization of a banking portfolio — where a **deterministic engine decides**, **agents
