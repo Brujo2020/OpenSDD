@@ -26,7 +26,7 @@ import { planWaves } from '../../core/modernize/wavePlan.js';
 import { advance, readModState, writeModState, STAGES } from '../../core/modernize/lifecycle.js';
 import { modernizeDir, portfolioFile, readPortfolio, riskScore } from '../../core/modernize/portfolio.js';
 import { buildStatus, statusHtml, statusMermaid, statusText } from '../../core/modernize/report.js';
-import { approverAllowed, gitIdentity, isAgentSession, readApprovers } from '../../core/hilIdentity.js';
+import { approverAllowed, confirmOnTty, gitIdentity, isAgentSession, readApprovers } from '../../core/hilIdentity.js';
 const TEMPLATES = fileURLToPath(new URL('../../../templates/modernize', import.meta.url));
 const BOOLEAN = new Set(['--json', '--dry-run', '--force', '--mermaid', '--html', '--reflect']);
 const flag = (args, name) => {
@@ -132,8 +132,8 @@ const identityChecks = async (cwd, args, id) => {
         return { ok: false, message: 'a person must be named: --by "<name>"', by, email: ident.email };
     if (!approverAllowed(await readApprovers(cwd), by, ident))
         return { ok: false, message: `APPROVER_NOT_LISTED: «${by}» is not in .sdd/settings/approvers.json`, by, email: ident.email };
-    if (isAgentSession() && flag(args, 'confirm') !== id)
-        return { ok: false, message: `AGENT_SESSION: adopting ${id} from an agent session needs \`--confirm ${id}\` typed by the person`, by, email: ident.email };
+    if (isAgentSession() && !confirmOnTty(id))
+        return { ok: false, message: `AGENT_SESSION: an agent cannot adopt ${id}; a person adopts it from their own terminal`, by, email: ident.email };
     return { ok: true, message: '', by, email: ident.email };
 };
 export const handleModernizeCommand = async (args, io, cwd) => {

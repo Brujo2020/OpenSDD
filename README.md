@@ -10,6 +10,8 @@ specs for code that already exists, and a constitution that validates every spec
 
 ## Five verbs: all you need
 
+> 📘 One-page visual guide with a small end-to-end example and the QC report: [docs/GUIA.md](docs/GUIA.md) (Spanish).
+
 You do not need the other 50 commands to use open-sdd. Five verbs cover the whole lifecycle; the
 tool decides everything that evidence can decide (agent, greenfield or brownfield, level, rigor,
 playbook) and asks a person only for a human decision. Every other command still works and is listed
@@ -29,8 +31,8 @@ flowchart LR
   B --> C["agent works<br/>next → report"]:::advisory
   C --> D{"open-sdd check"}:::block
   D -- passes --> E["done ✔"]:::auto
-  D -- refused ≤ 3 times --> C
-  D -- 4th refusal --> F["open-sdd decide<br/>(HIL)"]:::human
+  D -- refused, progressing --> C
+  D -- "stuck · critical · > 3" --> F["open-sdd decide<br/>(HIL)"]:::human
   F --> C
   G["open-sdd<br/>where am I?"]:::auto -.-> B
   classDef auto fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
@@ -57,7 +59,7 @@ flowchart TB
     P2["reviews, or a DIFFERENT model reviews"]:::human
   end
   E1 --> E2 --> A1 --> E3
-  E3 -- blocked 4 times --> P1
+  E3 -- "stuck or critical" --> P1
   A1 --> P2
   classDef auto fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
   classDef advisory fill:#ffec99,stroke:#f08c00,color:#1e1e1e
@@ -79,8 +81,8 @@ flowchart TB
 | Rule | How it is enforced |
 |---|---|
 | Karpathy guidelines (think, simplicity, surgical changes, goal-driven) | `karpathy-guidelines` skill installed in every project |
-| Review is human, or by a model **different** from the author | constitution `C-INDEPENDENT-REVIEW`; `review record --by-model … --author-model …` refuses the same model |
-| More than 3 failed iterations → a person decides | the engine turns the step into a human gate on the 4th refusal (`open-sdd decide`) |
+| Review is human, or by a model **different** from the author | constitution `C-INDEPENDENT-REVIEW`; an agent session cannot sign a human review, and `--by-model` must differ from `--author-model` |
+| A stuck task → a person decides | escalates at the 1st critical failure, the 2nd identical failure (no progress) or after more than 3 failures; the engine prepares a card (retry · park · exception) and only a person retries or approves (`open-sdd decide`) |
 
 
 ## The problem

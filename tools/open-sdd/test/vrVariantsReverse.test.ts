@@ -1,5 +1,6 @@
 /** variants-reverse: greenfield/brownfield variants, rigor ladder, reverse engineering stages (AC-01…AC-04). */
 import { describe, it, expect, beforeEach } from 'vitest';
+import { asPerson } from './support/asPerson.js';
 import { mkdtempSync, writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -149,16 +150,17 @@ describe('AC-02…AC-04 reverse engineering mode', () => {
     expect(r.stages[3].done).toBe(false);
     expect(r.stages[3].unmet[0]).toContain('RE-3');
   });
-  it('confirm needs a listed person of this git identity and --confirm from an agent session', async () => {
+  it('confirm needs a listed person of this git identity and a person, never an agent session', async () => {
     src();
     await initInventory(cwd);
     w('.sdd/reverse/rules.md', '- RULE-PAY-001 [payments] refunds within 30 days — inferred\n');
     w('.sdd/settings/approvers.json', JSON.stringify({ approvers: [{ name: 'Ana', email: 'ana@x.test' }] }));
     expect((await run('reverse', 'confirm', 'RULE-PAY-001', '--by', 'Bob')).out).toContain('APPROVER_NOT_LISTED');
     expect((await run('reverse', 'confirm', 'RULE-PAY-001', '--by', 'Ana')).out).toContain('AGENT_SESSION');
-    expect((await run('reverse', 'confirm', 'RULE-PAY-001', '--by', 'Ana', '--confirm', 'RULE-PAY-001')).code).toBe(0);
+    expect((await run('reverse', 'confirm', 'RULE-PAY-001', '--by', 'Ana', '--confirm', 'RULE-PAY-001')).out).toContain('AGENT_SESSION');
+    expect((await asPerson(() => run('reverse', 'confirm', 'RULE-PAY-001', '--by', 'Ana'))).code).toBe(0);
     expect(readFileSync(path.join(cwd, '.sdd/reverse/rules.md'), 'utf8')).toMatch(/— confirmed by Ana \(\d{4}-\d{2}-\d{2}\)/);
-    expect((await run('reverse', 'confirm', 'RULE-PAY-001', '--by', 'Ana', '--confirm', 'RULE-PAY-001')).code).toBe(1);
+    expect((await asPerson(() => run('reverse', 'confirm', 'RULE-PAY-001', '--by', 'Ana'))).code).toBe(1);
   });
   it('the engine refuses to complete a reverse step whose stage is open', async () => {
     src();

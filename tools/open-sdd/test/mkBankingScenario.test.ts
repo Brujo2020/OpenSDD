@@ -7,6 +7,7 @@
  * The `it` blocks run in order and share one repository: each is one moment of the story.
  */
 import { describe, it, expect, beforeAll } from 'vitest';
+import { asPerson } from './support/asPerson.js';
 import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -141,10 +142,12 @@ describe('AC-11 banking modernization with an unplanned critical CVE', () => {
     expect((await run('hil', 'review', F, '--html')).code).toBe(0);
     expect(readFileSync(path.join(cwd, '.sdd/hil', F, 'review.html'), 'utf8')).toContain('Approve the emergency change');
     expect((await run('hil', 'answer', F, card.id, 'A', '--by', 'Ana Rojas')).out).toContain('AGENT_SESSION');
-    expect((await run('hil', 'answer', F, card.id, 'A', '--by', 'Mallory', '--confirm', card.id)).out).toContain('APPROVER_NOT_LISTED');
+    expect((await asPerson(() => run('hil', 'answer', F, card.id, 'A', '--by', 'Mallory'))).out).toContain('APPROVER_NOT_LISTED');
     // Typing a listed name from someone else's git identity is refused too.
-    expect((await run('hil', 'answer', F, card.id, 'A', '--by', 'CAB', '--confirm', card.id)).out).toContain('APPROVER_NOT_LISTED');
-    expect((await run('hil', 'answer', F, card.id, 'A', '--by', 'Ana Rojas', '--confirm', card.id)).code).toBe(0);
+    expect((await asPerson(() => run('hil', 'answer', F, card.id, 'A', '--by', 'CAB'))).out).toContain('APPROVER_NOT_LISTED');
+    // `--confirm <id>` is text the agent can read and type: from an agent session it proves nothing.
+    expect((await run('hil', 'answer', F, card.id, 'A', '--by', 'Ana Rojas', '--confirm', card.id)).out).toContain('AGENT_SESSION');
+    expect((await asPerson(() => run('hil', 'answer', F, card.id, 'A', '--by', 'Ana Rojas'))).code).toBe(0);
   });
 
   it('12 · the agent works the lane; approvals given early complete the gates; the rest wait for people', async () => {
@@ -154,7 +157,7 @@ describe('AC-11 banking modernization with an unplanned critical CVE', () => {
     }
     const open = (await laneSteps(cve1.id)).filter((s) => s.status !== 'done');
     expect(open.map((s) => s.id).sort()).toEqual(['emergency-change@auth-service', 'emergency-change@crm']);
-    for (const c of (await listCards(cwd, F)).filter((x) => !x.answer && x.card.step.startsWith('emergency-change@'))) await run('hil', 'answer', F, c.card.id, 'A', '--by', 'Ana Rojas', '--confirm', c.card.id);
+    for (const c of (await listCards(cwd, F)).filter((x) => !x.answer && x.card.step.startsWith('emergency-change@'))) await asPerson(() => run('hil', 'answer', F, c.card.id, 'A', '--by', 'Ana Rojas'));
     expect((await laneSteps(cve1.id)).every((s) => s.status === 'done')).toBe(true);
   });
 
@@ -169,7 +172,7 @@ describe('AC-11 banking modernization with an unplanned critical CVE', () => {
     const a = await run('modernize', 'advance', 'auth-service', '--to', 'cut-over', '--metrics', path.join(cwd, 'metrics.json'), '--by', 'Ana Rojas', '--json');
     const card = JSON.parse(a.out).card as string;
     expect(JSON.parse(a.out).code).toBe('AWAITING_APPROVAL');
-    await run('hil', 'answer', F, card, 'A', '--by', 'Ana Rojas', '--confirm', card);
+    await asPerson(() => run('hil', 'answer', F, card, 'A', '--by', 'Ana Rojas'));
     expect((await run('modernize', 'advance', 'auth-service', '--to', 'cut-over', '--metrics', path.join(cwd, 'metrics.json'), '--by', 'Ana Rojas')).code).toBe(0);
   });
 
@@ -186,7 +189,8 @@ describe('AC-11 banking modernization with an unplanned critical CVE', () => {
   it('16 · only a listed, confirmed person adopts the learned rule', async () => {
     expect((await run('modernize', 'rules', 'adopt', 'LEARNED-SBOM-AT-WAVE-START')).code).toBe(1);
     expect((await run('modernize', 'rules', 'adopt', 'LEARNED-SBOM-AT-WAVE-START', '--by', 'Ana Rojas')).out).toContain('AGENT_SESSION');
-    expect((await run('modernize', 'rules', 'adopt', 'LEARNED-SBOM-AT-WAVE-START', '--by', 'Ana Rojas', '--confirm', 'LEARNED-SBOM-AT-WAVE-START')).code).toBe(0);
+    expect((await run('modernize', 'rules', 'adopt', 'LEARNED-SBOM-AT-WAVE-START', '--by', 'Ana Rojas', '--confirm', 'LEARNED-SBOM-AT-WAVE-START')).out).toContain('AGENT_SESSION');
+    expect((await asPerson(() => run('modernize', 'rules', 'adopt', 'LEARNED-SBOM-AT-WAVE-START', '--by', 'Ana Rojas'))).code).toBe(0);
     expect((await run('modernize', 'rules', 'list')).out).toContain('LEARNED-SBOM-AT-WAVE-START');
   });
 

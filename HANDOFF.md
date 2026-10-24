@@ -11,10 +11,11 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - Post-release (`70ea828`): `docs/MANUAL.md` §7.2 EARS v2 y sección AI-DLC; README con diagramas Mermaid.
 - Post-3.9.0 (2026-10-23):
   - **C-INDEPENDENT-REVIEW** (invariante MUST, enmienda en vigor `AMD-INDEPENDENT-REVIEW`): toda constitución generada lo incluye; `validateConstitution` avisa si falta; `review record --by-model <id> --author-model <id>` rechaza que revise el mismo modelo que generó.
-  - **HIL tras >3 iteraciones fallidas**: `engine.report` escala el paso a puerta humana en el 4.º `GATE_REFUSED` (`ESCALATED_TO_HIL`); el contador se reinicia con decisión humana, escalado o compleción.
+  - **Escalado a HIL por falta de progreso** (`escalationVerdict`): 1.er fallo crítico (`RECEIPT_TAMPERED`, `QUESTIONS_CHANGED`), 2.º fallo idéntico sin menos problemas, o más de 3 fallos con progreso; el contador se reinicia con decisión humana, escalado o compleción. Motivo: un número fijo corta a un agente que converge y deja que uno atascado gaste intentos; «3» es el tope pedido por Mario, sin respaldo empírico medido.
   - **Karpathy siempre**: skill `karpathy-guidelines` (copia literal de github.com/multica-ai/andrej-karpathy-skills, MIT, con `NOTICE.md`) en los 9 árboles de skills + workflow Axet; regla en `settings/rules/karpathy-guidelines.md`; las 3 reglas en los 19 quickstarts (CLAUDE/AGENTS/GEMINI/QWEN.md).
   - REQ-STD-012 cerrada: `delta validate` reporta como **consultivo** el símbolo nuevo sin `reuse:` y su candidato `fichero:línea`; nunca cambia el exit.
   - Spec `multi-unit-playbooks`: ejemplo del plan §4 pasado de YAML a JSON.
+  - **QC 2026-10-23 (5 fallos críticos, `test/qcCritical.test.ts`: 9 tests rojos con el código anterior → verdes):** (1) el agente ya no aprueba tarjetas HIL / adopta reglas / confirma reglas RE con `--confirm <id>`: hace falta teclear el id en `/dev/tty` (`confirmOnTty`, 60 s; nunca pregunta bajo vitest); (2) una sesión de agente no firma revisiones «humanas»; (3) el escalado prepara la tarjeta (A reintentar=solo persona · B aparcar=default · C excepción, no en autónomo) y se re-presenta al reanudar; (4) `setup` instala `.sdd/settings/rules/karpathy-guidelines.md` y cada comando lleva las 3 reglas; (5) la puerta sugiere `setup`/`start`/`check`. Guía visual `docs/GUIA.md`. Residual: un pty programático pasa `confirmOnTty` (documentado).
   - **Experiencia simple «una puerta, cinco verbos»** (spec `simple-experience`, REQ-SX-001…005): `--help`/`help` = 5 verbos en 15 líneas; `help --all` = catálogo completo; `setup` = `init`; `check` = `gates run`; `decide` = decisiones humanas pendientes (tarjetas HIL y gates escalados) con el comando exacto. Nada eliminado. README/README.es/MANUAL abren con los 5 verbos, 2 diagramas Mermaid, leyenda de colores 🟢🟡🔴🔵 y las 3 reglas; 19 quickstarts y `sdd-help` presentan los verbos primero.
 
 ## Contexto y decisiones
@@ -51,6 +52,7 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 
 ## Evidencia
 - 2026-10-23 (post-3.9.0), en copia Linux del repo (el `node_modules` local es de macOS): `tsc` OK; `vitest run` → **170 ficheros, 2477 tests en verde, 1 skipped**; `assure claims --verify` → 82 claims, 0 rotas (nuevas CLM-081 revisión independiente, CLM-082 escalado HIL; CLM-049 excluye la enmienda invariante); `gates run` → la cadena pasa.
+- QC + escalado por progreso: `vitest run` → **172 ficheros, 2503 tests en verde**; claims 84, 0 rotas (CLM-084); `check` en este repo → «La cadena pasa»; `confirmOnTty` probado: sin terminal → false, con pty + id → true; 4 diagramas de `docs/GUIA.md` renderizados con `mmdc`; revisión independiente (Sonnet) aplicada.
 - simple-experience: `vitest run` → **171 ficheros, 2483 tests en verde**; claims 83, 0 rotas (CLM-083); en este repo `check` → «La cadena pasa» exit 0, `decide` → «Nada que decidir.»; los 4 diagramas nuevos renderizados con `mmdc` sin error; revisión independiente (Sonnet) aplicada (error de uso en `decide f card`, pruebas de pie de `check`, ruta de respuesta y gate escalado).
 - `delta validate` manual: `getUsers` → candidato `getUser` en `src/session.ts:1`, exit 0.
 - `npx -y @brujo2020/open-sdd@3.9.0 --version` → `open-sdd v3.9.0`. `npm view … dist.attestations` vacío: 3.9.0 **sin provenance**.
@@ -64,6 +66,7 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 
 ## Pendiente
 1. AC-10 (v3.6): validar el plugin AI-DLC con su validador — requiere checkout de AI-DLC + `bun` (no accesibles en esta sesión). Esquema de dependencias de unidades AI-DLC sigue sin verificar.
+1b. El umbral «3» y la definición de progreso no están calibrados con datos reales: medir en uso (eventos `ESCALATED_TO_HIL` por motivo en `.sdd/engine/*.audit.jsonl`).
 2. RQC tarea 5 (calibración): bloqueada hasta tener un corpus etiquetado de defectos; no inventar etiquetas.
 3. MAT tarea 11: publicar vía `publish.yml` para obtener provenance y construir la imagen Docker.
 4. Publicar una versión nueva (p. ej. 3.10.0) con los cambios post-3.9.0 si Mario lo decide.

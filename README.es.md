@@ -10,6 +10,8 @@ specs delta para el código que ya existe y una constitución que valida cada sp
 
 ## Cinco verbos: todo lo que necesitas
 
+> 📘 Guía visual de una página, con un ejemplo pequeño de principio a fin y el control de calidad: [docs/GUIA.md](docs/GUIA.md).
+
 No necesitas los otros 50 comandos para usar open-sdd. Cinco verbos cubren todo el ciclo; la
 herramienta decide todo lo que la evidencia permite decidir (agente, greenfield o brownfield, nivel,
 rigor, playbook) y solo pregunta a una persona cuando la decisión es humana. Todos los demás comandos
@@ -29,8 +31,8 @@ flowchart LR
   B --> C["el agente trabaja<br/>next → report"]:::advisory
   C --> D{"open-sdd check"}:::block
   D -- pasa --> E["hecho ✔"]:::auto
-  D -- rechazo ≤ 3 veces --> C
-  D -- 4.º rechazo --> F["open-sdd decide<br/>(HIL)"]:::human
+  D -- rechazo con progreso --> C
+  D -- "atascado · crítico · más de 3" --> F["open-sdd decide<br/>(HIL)"]:::human
   F --> C
   G["open-sdd<br/>¿dónde estoy?"]:::auto -.-> B
   classDef auto fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
@@ -57,7 +59,7 @@ flowchart TB
     P2["revisa, o revisa un modelo DISTINTO"]:::human
   end
   E1 --> E2 --> A1 --> E3
-  E3 -- bloqueado 4 veces --> P1
+  E3 -- "atascado o crítico" --> P1
   A1 --> P2
   classDef auto fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
   classDef advisory fill:#ffec99,stroke:#f08c00,color:#1e1e1e
@@ -79,8 +81,8 @@ flowchart TB
 | Regla | Cómo se hace cumplir |
 |---|---|
 | Guías Karpathy (pensar, simplicidad, cambios quirúrgicos, objetivos verificables) | skill `karpathy-guidelines` instalada en cada proyecto |
-| La revisión es humana, o la hace un modelo **distinto** al autor | constitución `C-INDEPENDENT-REVIEW`; `review record --by-model … --author-model …` rechaza el mismo modelo |
-| Más de 3 iteraciones fallidas → decide una persona | el motor convierte el paso en gate humano al 4.º rechazo (`open-sdd decide`) |
+| La revisión es humana, o la hace un modelo **distinto** al autor | constitución `C-INDEPENDENT-REVIEW`; una sesión de agente no puede firmar una revisión humana, y `--by-model` debe ser distinto de `--author-model` |
+| Tarea atascada → decide una persona | escala al 1.er fallo crítico, al 2.º fallo idéntico (sin progreso) o tras más de 3 fallos; el motor prepara una tarjeta (reintentar · aparcar · excepción) y solo una persona reintenta o aprueba (`open-sdd decide`) |
 
 
 ## El problema

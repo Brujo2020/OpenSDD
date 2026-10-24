@@ -59,6 +59,9 @@ export const independentReviewViolation = (reviewerModel, authorModel) => {
 export const recordReview = async (cwd, input) => {
     if (!input.reviewer.trim())
         return { ok: false, message: 'a review receipt needs --by "<reviewer>"' };
+    // An agent session cannot sign a HUMAN review: it must declare which model reviewed and which wrote.
+    if (input.agent && input.reviewerModel === undefined)
+        return { ok: false, message: 'C-INDEPENDENT-REVIEW: an agent session cannot record a human review; declare --by-model "<reviewer>" --author-model "<author>" (they must differ), or let a person record it from their own terminal' };
     const violation = independentReviewViolation(input.reviewerModel, input.authorModel);
     if (violation)
         return { ok: false, message: violation };

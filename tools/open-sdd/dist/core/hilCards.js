@@ -20,6 +20,8 @@ import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 export const EVIDENCE_LINE = /^(kept|revised|dropped)\s*->\s*.+\s*->\s*.*\d.*$/i;
 export const IRREVERSIBLE = 'irreversible-damage';
+/** Trigger of the card the engine prepares when a step fails more than 3 iterations. */
+export const REPEATED_FAILURE = 'repeated-failure';
 const hilDir = (cwd, feature) => path.join(cwd, '.sdd', 'hil', feature);
 export const validateCard = (card, ctx = {}) => {
     const errors = [];
@@ -129,8 +131,14 @@ export const recordAnswer = async (cwd, feature, id, option, by, opts = {}) => {
     if (opts.channel !== 'deadline' && !approverAllowed(opts.approvers ?? null, by, identity))
         return { ok: false, message: `APPROVER_NOT_LISTED: «${by}» (${identity.email || 'no git email'}) is not in .sdd/settings/approvers.json` };
     const grants = picked.effect === 'approve' || picked.effect === 'override' || picked.effect === 'accept-as-is';
-    if (grants && opts.agent && opts.confirm !== id)
-        return { ok: false, message: `AGENT_SESSION: an approval from an agent session needs \`--confirm ${id}\` typed by the person (set OPEN_SDD_HUMAN=1 in a human shell without TTY)` };
+    // An agent can type any id it has read, so `--confirm <id>` cannot prove a person. From an agent
+    // session an approval needs the id typed on the controlling terminal, which the agent does not have.
+    // After repeated failures, "retry" restarts the agent's own budget: only a person may grant it,
+    // otherwise the agent could loop forever past the more-than-3-iterations rule.
+    const needsPerson = grants || (card.trigger === REPEATED_FAILURE && picked.effect === 'reject');
+    const confirmed = needsPerson && opts.agent ? (typeof opts.ttyConfirmed === 'function' ? opts.ttyConfirmed() : opts.ttyConfirmed === true) : false;
+    if (needsPerson && opts.agent && !confirmed)
+        return { ok: false, message: `AGENT_SESSION: this decision cannot come from an agent session. A person takes it from their own terminal: open-sdd decide ${feature} ${id} ${picked.key} --by "<name>"` };
     const answer = {
         id,
         option: picked.key,
@@ -140,7 +148,7 @@ export const recordAnswer = async (cwd, feature, id, option, by, opts = {}) => {
         recommended: picked.key === card.recommend,
         changed: Boolean(opts.changed),
         ...(opts.identity ? { identity: opts.identity } : {}),
-        channel: opts.channel ?? (opts.agent ? 'agent-confirmed' : 'human'),
+        channel: opts.channel ?? (confirmed ? 'tty-confirmed' : opts.agent ? 'agent-confirmed' : 'human'),
     };
     await writeFile(path.join(hilDir(cwd, feature), `${id}.answer.json`), `${JSON.stringify(answer, null, 2)}\n`, 'utf8');
     return { ok: true, message: `${id}: ${picked.key} (${picked.effect}) by ${by}`, answer, card };

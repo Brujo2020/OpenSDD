@@ -1,5 +1,6 @@
 /** One fixture per acceptance criterion of `.sdd/specs/playbooks-v3-7` (AC-01…AC-10). */
 import { describe, it, expect, beforeEach } from 'vitest';
+import { asPerson } from './support/asPerson.js';
 import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -51,12 +52,13 @@ beforeEach(() => {
 });
 
 describe('playbooks-v3-7 acceptance', () => {
-  it('AC-01 git identity stored; unlisted approver refused; agent approval needs --confirm', async () => {
+  it('AC-01 git identity stored; unlisted approver refused; agent approval is refused even with --confirm; a person approves', async () => {
     const c = (await prepareCard(cwd, card())).card!;
     const noConfirm = await run('hil', 'answer', 'f', c.id, 'A', '--by', 'Ana');
     expect(noConfirm.code).toBe(1);
     expect(noConfirm.out).toContain('AGENT_SESSION');
-    expect((await run('hil', 'answer', 'f', c.id, 'A', '--by', 'Ana', '--confirm', c.id)).code).toBe(0);
+    expect((await run('hil', 'answer', 'f', c.id, 'A', '--by', 'Ana', '--confirm', c.id)).out).toContain('AGENT_SESSION');
+    expect((await asPerson(() => run('hil', 'answer', 'f', c.id, 'A', '--by', 'Ana'))).code).toBe(0);
     expect((await readAnswer(cwd, 'f', c.id))?.identity?.email).toBe('ana@example.com');
     w('.sdd/settings/approvers.json', JSON.stringify({ approvers: [{ name: 'Luis', email: 'luis@example.com' }] }));
     const c2 = (await prepareCard(cwd, card())).card!;
@@ -107,7 +109,7 @@ describe('playbooks-v3-7 acceptance', () => {
     await report(cwd, 'f', 'sdd-bugfix', 'started');
     expect((await report(cwd, 'f', 'sdd-bugfix', 'completed', { produced: ['missing.ts'] })).ok).toBe(false);
     w('spec.md', 'v1');
-    await run('review', 'record', 'f', 's', '--by', 'Ana', '--artifact', 'spec.md');
+    await asPerson(() => run('review', 'record', 'f', 's', '--by', 'Ana', '--artifact', 'spec.md'));
     w('spec.md', 'v2');
     await run('review', 'freeze-check', 'spec.md');
     const kinds = (await readInbox(cwd)).map((i) => i.kind);

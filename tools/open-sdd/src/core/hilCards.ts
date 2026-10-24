@@ -54,11 +54,13 @@ export interface CardAnswer {
   /** Git identity of the shell that answered (REQ-V37-001); absent for deadline defaults. */
   identity?: { name: string; email: string };
   /** `human`, `agent-confirmed` or `deadline`. */
-  channel?: 'human' | 'agent-confirmed' | 'deadline';
+  channel?: 'human' | 'agent-confirmed' | 'tty-confirmed' | 'deadline';
 }
 
 export const EVIDENCE_LINE = /^(kept|revised|dropped)\s*->\s*.+\s*->\s*.*\d.*$/i;
 export const IRREVERSIBLE = 'irreversible-damage';
+/** Trigger of the card the engine prepares when a step fails more than 3 iterations. */
+export const REPEATED_FAILURE = 'repeated-failure';
 
 const hilDir = (cwd: string, feature: string): string => path.join(cwd, '.sdd', 'hil', feature);
 
@@ -160,7 +162,13 @@ export const recordAnswer = async (
     identity?: { name: string; email: string };
     approvers?: { name?: string; email?: string }[] | null;
     agent?: boolean;
+    /** Kept for compatibility; an id the agent can read is no longer proof of a person. */
     confirm?: string;
+    /**
+     * Whether a person typed the card id on the controlling terminal (`confirmOnTty`). A function is
+     * called only when it matters — a grant from an agent session that passed every other check.
+     */
+    ttyConfirmed?: boolean | (() => boolean);
     channel?: CardAnswer['channel'];
     /** Strict ceremony (L5–L6): an approvers list must exist (REQ-MK-002). */
     requireApprovers?: boolean;
@@ -179,8 +187,14 @@ export const recordAnswer = async (
   if (opts.channel !== 'deadline' && !approverAllowed(opts.approvers ?? null, by, identity))
     return { ok: false, message: `APPROVER_NOT_LISTED: «${by}» (${identity.email || 'no git email'}) is not in .sdd/settings/approvers.json` };
   const grants = picked.effect === 'approve' || picked.effect === 'override' || picked.effect === 'accept-as-is';
-  if (grants && opts.agent && opts.confirm !== id)
-    return { ok: false, message: `AGENT_SESSION: an approval from an agent session needs \`--confirm ${id}\` typed by the person (set OPEN_SDD_HUMAN=1 in a human shell without TTY)` };
+  // An agent can type any id it has read, so `--confirm <id>` cannot prove a person. From an agent
+  // session an approval needs the id typed on the controlling terminal, which the agent does not have.
+  // After repeated failures, "retry" restarts the agent's own budget: only a person may grant it,
+  // otherwise the agent could loop forever past the more-than-3-iterations rule.
+  const needsPerson = grants || (card.trigger === REPEATED_FAILURE && picked.effect === 'reject');
+  const confirmed = needsPerson && opts.agent ? (typeof opts.ttyConfirmed === 'function' ? opts.ttyConfirmed() : opts.ttyConfirmed === true) : false;
+  if (needsPerson && opts.agent && !confirmed)
+    return { ok: false, message: `AGENT_SESSION: this decision cannot come from an agent session. A person takes it from their own terminal: open-sdd decide ${feature} ${id} ${picked.key} --by "<name>"` };
   const answer: CardAnswer = {
     id,
     option: picked.key,
@@ -190,7 +204,7 @@ export const recordAnswer = async (
     recommended: picked.key === card.recommend,
     changed: Boolean(opts.changed),
     ...(opts.identity ? { identity: opts.identity } : {}),
-    channel: opts.channel ?? (opts.agent ? 'agent-confirmed' : 'human'),
+    channel: opts.channel ?? (confirmed ? 'tty-confirmed' : opts.agent ? 'agent-confirmed' : 'human'),
   };
   await writeFile(path.join(hilDir(cwd, feature), `${id}.answer.json`), `${JSON.stringify(answer, null, 2)}\n`, 'utf8');
   return { ok: true, message: `${id}: ${picked.key} (${picked.effect}) by ${by}`, answer, card };

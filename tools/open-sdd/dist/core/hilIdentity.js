@@ -35,3 +35,21 @@ export const approverAllowed = (list, by, id) => {
         return false;
     return !(entry.email && id.email) || lc(entry.email) === lc(id.email);
 };
+/**
+ * Ask on the controlling terminal for the card id, with a timeout. An agent's tool shell normally has
+ * no controlling terminal, so this raises the bar from "type an id you just read" to "a person at the
+ * terminal types it". It is NOT a proof of a person: an agent can allocate a pty (`script`, `expect`).
+ * Every failure (no /dev/tty, Windows, timeout, wrong id) is a refusal, and it never prompts under the
+ * test runner — that can only refuse, so it opens no bypass.
+ */
+export const confirmOnTty = (id, ttyPath = '/dev/tty', timeoutMs = 60_000) => {
+    if (process.env.VITEST || process.platform === 'win32')
+        return false;
+    try {
+        const r = spawnSync('sh', ['-c', 'printf "%s" "$1" > "$2" && IFS= read -r answer < "$2" && printf "%s" "$answer"', 'confirm', `Escribe ${id} para confirmar la aprobación: `, ttyPath], { encoding: 'utf8', timeout: timeoutMs, stdio: ['ignore', 'pipe', 'ignore'] });
+        return r.status === 0 && (r.stdout ?? '').trim() === id;
+    }
+    catch {
+        return false;
+    }
+};

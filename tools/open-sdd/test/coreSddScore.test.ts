@@ -174,8 +174,18 @@ describe('core/sddScore — el número compuesto', () => {
     expect(report.phaseLabel).toBe('Fase 1 · Especificar');
     expect(report.notMeasured).toContain('trazabilidad');
     expect(report.notMeasured).toContain('evidencia');
-    expect(report.nextAction).toBe('open-sdd brownfield constitution . --write');
-    expect(explainNextAction(report)).toContain('no hay constitución');
+    // Not installed yet: the door points at the first verb, `setup` (REQ-SX).
+    expect(report.nextAction).toBe('open-sdd setup --write');
+    expect(explainNextAction(report)).toContain('no está instalado');
+  });
+
+  it('la puerta habla en los cinco verbos: setup antes de instalar, start sin especificaciones', async () => {
+    const root = await makeTmp();
+    expect((await computeSddScore(root)).nextAction).toBe('open-sdd setup --write');
+    await mkdir(path.join(root, '.sdd', 'settings'), { recursive: true });
+    await writeFile(path.join(root, '.sdd', 'settings', 'rigor.json'), '{"level":"spec-first"}');
+    // Installed but without a constitution (greenfield): the constitution, not setup again.
+    expect((await computeSddScore(root)).nextAction).toBe('open-sdd brownfield constitution . --write');
   });
 
   it('no puntúa 0 ni 1 lo que no pudo inspeccionar: lo declara y excluye su peso del total', async () => {
@@ -308,7 +318,7 @@ describe('core/sddScore — el pie y el comando no pueden contradecirse en los g
     expect(report.components.find((component) => component.id === 'gates')?.score).toBe(0.5);
     expect(footer).not.toContain('gates OK');
     expect(footer).toContain('gates 50%');
-    expect(report.nextAction).toBe('open-sdd gates run C1 C2');
+    expect(report.nextAction).toBe('open-sdd check C1 C2');
   });
 
   it('con una cadena APROBADA inyectada el pie sí puede decir «gates OK»', async () => {

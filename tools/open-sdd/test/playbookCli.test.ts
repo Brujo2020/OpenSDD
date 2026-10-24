@@ -4,6 +4,7 @@
  * recibos de revisión + freeze, árbitro de olas.
  */
 import { describe, it, expect, beforeEach } from 'vitest';
+import { asPerson } from './support/asPerson.js';
 import { mkdtempSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -100,7 +101,7 @@ describe('engine next/report and the HIL gate', () => {
     expect((await run('hil', 'answer', 'fix1', id, 'A')).code).toBe(1);
     // No TTY under vitest → agent session: an approval needs the card id repeated (REQ-V37-001).
     expect((await run('hil', 'answer', 'fix1', id, 'A', '--by', 'Ana')).out + '').not.toContain('approved');
-    expect((await run('hil', 'answer', 'fix1', id, 'A', '--by', 'Ana', '--confirm', id)).code).toBe(0);
+    expect((await asPerson(() => run('hil', 'answer', 'fix1', id, 'A', '--by', 'Ana'))).code).toBe(0);
     expect(JSON.parse((await run('next', 'fix1', '--json')).out).kind).toBe('done');
     expect((await run('hil', 'list', 'fix1')).out).toContain('by Ana');
     expect((await run('memory', 'list', '--json')).out).toContain('hil-answer');
@@ -136,8 +137,8 @@ describe('questions, memory, review receipts, wave referee', () => {
 
   it('a reviewed artifact is frozen until re-reviewed', async () => {
     writeFileSync(path.join(cwd, 'spec.md'), 'v1');
-    expect((await run('review', 'record', 'f', 's', '--artifact', 'spec.md')).code).toBe(1);
-    expect((await run('review', 'record', 'f', 's', '--by', 'Ana', '--artifact', 'spec.md')).code).toBe(0);
+    expect((await asPerson(() => run('review', 'record', 'f', 's', '--artifact', 'spec.md'))).code).toBe(1);
+    expect((await asPerson(() => run('review', 'record', 'f', 's', '--by', 'Ana', '--artifact', 'spec.md'))).code).toBe(0);
     expect((await run('review', 'freeze-check', 'spec.md')).code).toBe(0);
     writeFileSync(path.join(cwd, 'spec.md'), 'v2');
     expect((await run('review', 'freeze-check', 'spec.md')).out).toContain('FROZEN');

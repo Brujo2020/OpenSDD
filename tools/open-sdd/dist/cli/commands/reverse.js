@@ -1,6 +1,6 @@
 import { EXIT } from './help.js';
 import { confirmRule, initInventory, reverseStages } from '../../core/reverse.js';
-import { approverAllowed, gitIdentity, isAgentSession, readApprovers } from '../../core/hilIdentity.js';
+import { approverAllowed, confirmOnTty, gitIdentity, isAgentSession, readApprovers } from '../../core/hilIdentity.js';
 const flag = (args, name) => {
     const at = args.indexOf(`--${name}`);
     if (at < 0)
@@ -44,8 +44,8 @@ export const handleReverseCommand = async (args, io, cwd) => {
             io.error(`APPROVER_NOT_LISTED: «${by}» is not in .sdd/settings/approvers.json for this git identity`);
             return EXIT.GATE_FAILED;
         }
-        if (isAgentSession() && flag(args, 'confirm') !== id) {
-            io.error(`AGENT_SESSION: confirming ${id} from an agent session needs \`--confirm ${id}\` typed by the person`);
+        if (isAgentSession() && !confirmOnTty(id)) {
+            io.error(`AGENT_SESSION: an agent cannot confirm ${id}; a person confirms it from their own terminal`);
             return EXIT.GATE_FAILED;
         }
         const r = await confirmRule(cwd, id, by);

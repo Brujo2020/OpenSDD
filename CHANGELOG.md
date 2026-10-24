@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### One door, five verbs (spec `simple-experience`)
+- `--help` is now five verbs (`open-sdd`, `setup`, `start`, `check`, `decide`); the full catalogue is `help --all`. Nothing removed.
+- `setup` = `init`; `check` = `gates run`; `decide` lists every decision waiting for a person and answers it.
+- The door's next action speaks in verbs (`setup --write`, `start "<…>"`, `check`).
+
+### Always-on rules
+- `C-INDEPENDENT-REVIEW` in every generated constitution: review is human or by a different model.
+- Progress-aware escalation to a person: at the 1st critical failure (`RECEIPT_TAMPERED`, `QUESTIONS_CHANGED`), when it repeats an earlier failure or fixed nothing (no progress, from the 2nd attempt), or after more than 3 failures while progressing. The engine prepares the decision card (retry · park · exception) and only a person retries or approves.
+- Karpathy guidelines in every project: `karpathy-guidelines` skill in every skills tree, `.sdd/settings/rules/karpathy-guidelines.md` written by `setup`, and the three rules in every installed command.
+
+### Security (QC 2026-10-23)
+- An agent session can no longer approve a HIL card, adopt a learned rule or confirm a reverse-engineered rule with `--confirm <id>`: grants need the id typed on the controlling terminal. Residual: a pty can be simulated; see `docs/GUIA.md` §7.
+- An agent session can no longer record a "human" review receipt.
+- `delta validate` reports new symbols without `reuse:` evidence as advisory, with candidates.
+
 ## [3.9.0] — 2026-10-23
 
 ### Every flavour (spec `variants-reverse`)

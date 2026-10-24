@@ -3,6 +3,7 @@
  * large → modernization, decided without a model, with metamorphic invariants (risk/scale never lower it).
  */
 import { describe, it, expect, beforeEach } from 'vitest';
+import { asPerson } from './support/asPerson.js';
 import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -146,11 +147,11 @@ describe('AC-02 start: one command, ceremony by level', () => {
     await run('start', 'split billing into 3 microservices', '--feature', 'big');
     expect((await readState(cwd, 'big'))?.ceremony).toBe('strict');
     const c = (await prepareCard(cwd, { feature: 'big', step: 's', trigger: 't', question: 'Ok?', options: [{ key: 'A', label: 'a', consequence: 'c', effect: 'approve' }, { key: 'B', label: 'b', consequence: 'c', effect: 'park' }], recommend: 'A', default: 'B', evidence: ['kept -> x -> 1 run'], deadlineHours: 24 })).card!;
-    const r = await run('hil', 'answer', 'big', c.id, 'A', '--by', 'Ana', '--confirm', c.id);
+    const r = await asPerson(() => run('hil', 'answer', 'big', c.id, 'A', '--by', 'Ana'));
     expect(r.out).toContain('APPROVERS_REQUIRED');
     mkdirSync(path.join(cwd, '.sdd', 'settings'), { recursive: true });
     writeFileSync(path.join(cwd, '.sdd', 'settings', 'approvers.json'), JSON.stringify({ approvers: [{ name: 'Ana', email: 'ana@bank.test' }] }));
-    expect((await run('hil', 'answer', 'big', c.id, 'A', '--by', 'Ana', '--confirm', c.id)).code).toBe(0);
+    expect((await asPerson(() => run('hil', 'answer', 'big', c.id, 'A', '--by', 'Ana'))).code).toBe(0);
   });
   it('a tiny run escalates to L2 when a signal says it touches something risky', async () => {
     await run('start', 'fix typo in README', '--feature', 't');

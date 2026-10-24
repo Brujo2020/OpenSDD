@@ -18,7 +18,7 @@ import { nextDirective, readState, report, startRun, applyDecision, listRuns, ru
 import { checkRecall, readPack, recordRecall, staleItems, writePack } from '../../core/handoff.js';
 import { checkQuestions, confirmQuestions, parseQuestions, questionFile } from '../../core/questions.js';
 import { listCards, overdueCards, prepareCard, recordAnswer, renderReviewHtml, thresholdProposals, triggerStats } from '../../core/hilCards.js';
-import { gitIdentity, isAgentSession, readApprovers } from '../../core/hilIdentity.js';
+import { confirmOnTty, gitIdentity, isAgentSession, readApprovers } from '../../core/hilIdentity.js';
 import { capture, listCandidates, listLessons, promote, readInbox, reflect, withdrawByOrigin } from '../../core/memoryStore.js';
 import { freezeViolations, recordReview } from '../../core/reviewReceipts.js';
 import { finalizeWave, recordBaseline } from '../../core/waveReferee.js';
@@ -392,12 +392,14 @@ export const handleHilCommand = async (args, io, cwd) => {
         if (!id || !option)
             return usage(io, 'hil answer <feature> <card-id> <option> --by "<name>"');
         const state = await readState(cwd, feature);
+        const agent = isAgentSession();
         const r = await recordAnswer(cwd, feature, id, option, flag(args, 'by') ?? '', {
             autonomous: state?.autonomous,
             changed: args.includes('--changed'),
             identity: gitIdentity(cwd),
             approvers: await readApprovers(cwd),
-            agent: isAgentSession(),
+            agent,
+            ttyConfirmed: () => confirmOnTty(id),
             confirm: flag(args, 'confirm'),
             requireApprovers: state?.ceremony === 'strict',
         });
@@ -488,7 +490,7 @@ export const handleReviewReceiptCommand = async (args, io, cwd) => {
     if (sub === 'record') {
         if (!feature || !step)
             return usage(io, 'review record <feature> <step> --by "<name>" [--by-model <id> --author-model <id>] --artifact <path> [--root <dir>]');
-        const r = await recordReview(cwd, { feature, step, reviewer: flag(args, 'by') ?? '', reviewerModel: flag(args, 'by-model'), authorModel: flag(args, 'author-model'), artifacts: flags(args, 'artifact'), roots: flags(args, 'root') });
+        const r = await recordReview(cwd, { feature, step, reviewer: flag(args, 'by') ?? '', reviewerModel: flag(args, 'by-model'), authorModel: flag(args, 'author-model'), agent: isAgentSession(), artifacts: flags(args, 'artifact'), roots: flags(args, 'root') });
         out(io, json, r, r.message);
         return r.ok ? EXIT.PASSED : EXIT.GATE_FAILED;
     }

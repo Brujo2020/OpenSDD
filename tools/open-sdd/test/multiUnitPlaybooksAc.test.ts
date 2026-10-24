@@ -3,6 +3,7 @@
  * AC-10 needs the AI-DLC runtime and validator: reported as not run (see the skipped test).
  */
 import { describe, it, expect, beforeEach } from 'vitest';
+import { asPerson } from './support/asPerson.js';
 import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
@@ -143,7 +144,7 @@ describe('multi-unit-playbooks acceptance', () => {
     expect(r.ok).toBe(false);
     expect(r.message).toContain('ARTIFACT_MISSING');
     w('spec.md', 'v1');
-    await run('review', 'record', 'f', step, '--by', 'Ana', '--artifact', 'spec.md');
+    await asPerson(() => run('review', 'record', 'f', step, '--by', 'Ana', '--artifact', 'spec.md'));
     w('spec.md', 'v2');
     expect((await run('review', 'freeze-check', 'spec.md')).code).toBe(1);
   });

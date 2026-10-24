@@ -20,7 +20,7 @@ import { appendFile, mkdir, open, readFile, readdir, stat, unlink, writeFile } f
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { checkConsistency } from './consistency.js';
-import { listCards, overdueCards, recordAnswer } from './hilCards.js';
+import { listCards, overdueCards, prepareCard, recordAnswer, REPEATED_FAILURE } from './hilCards.js';
 import { capture } from './memoryStore.js';
 import { topologicalWaves } from './waveReferee.js';
 import { readPack, readRecall, resolveArtifact, staleItems } from './handoff.js';
@@ -192,7 +192,11 @@ export const nextDirective = async (cwd, feature) => {
     if (!s)
         return { kind: 'done', feature, summary: { done: state.steps.filter((x) => x.status === 'done').length, skipped: state.steps.filter((x) => x.status === 'skipped').length } };
     if (s.status === 'awaiting') {
-        const cards = (await listCards(cwd, feature)).filter((c) => c.card.step === s.id && !c.answer);
+        let cards = (await listCards(cwd, feature)).filter((c) => c.card.step === s.id && !c.answer);
+        if (!cards.length && s.reason?.startsWith('escalated to HIL')) {
+            await prepareEscalationCard(cwd, state, s, s.reason.replace(/^escalated to HIL — /, ''));
+            cards = (await listCards(cwd, feature)).filter((c) => c.card.step === s.id && !c.answer);
+        }
         const card = cards.length ? rel(path.join(cwd, '.sdd', 'hil', feature, `${cards[cards.length - 1].card.id}.md`)) : null;
         return { kind: 'present-gate', feature, step: s.id, card, prepare: `open-sdd hil prepare ${feature} --step ${s.id} --card <card.json>`, revisions: s.revisions };
     }
@@ -258,8 +262,10 @@ const gateGuards = async (cwd, state, step, produced) => {
     const receipt = await readReceipt(cwd, state.feature, step.id);
     if (receipt) {
         const f = await receiptFreshness(cwd, receipt);
-        if (!f.fresh)
-            problems.push(`RECEIPT_STALE: ${f.tampered ? 'receipt tampered; ' : ''}${[...f.changedArtifacts, ...f.changedSources].slice(0, 5).join(', ')} changed after review`);
+        if (f.tampered)
+            problems.push(`RECEIPT_TAMPERED: the review receipt no longer matches its own digest`);
+        else if (!f.fresh)
+            problems.push(`RECEIPT_STALE: ${[...f.changedArtifacts, ...f.changedSources].slice(0, 5).join(', ')} changed after review`);
     }
     return problems;
 };
@@ -289,22 +295,94 @@ const complete = async (cwd, state, step, event, by, extra = {}) => {
     return { ok: true, message: `${step.id} → done` };
 };
 /**
- * Failed iterations a step may accumulate before a human must decide (user rule): on the next
- * failure the step leaves the loop and becomes a HIL gate. The budget resets after that decision.
+ * Failed iterations a step may accumulate while it is still making progress (user rule: more than 3
+ * failures → a person decides). It is the safety net, not the first trigger: see `escalationVerdict`.
  */
 export const MAX_FAILED_ITERATIONS = 3;
-/** Gate refusals for a step since its last human decision, escalation or completion. */
-export const failedIterations = (audit, stepId) => {
-    let n = 0;
+/** Integrity failures: retrying cannot fix them, so a person decides at the first one. */
+export const CRITICAL_CODES = new Set(['RECEIPT_TAMPERED', 'QUESTIONS_CHANGED']);
+const RESET_EVENTS = new Set(['ESCALATED_TO_HIL', 'DECISION_RECORDED', 'STEP_COMPLETED']);
+/** The gate refusals of a step since its last human decision, escalation or completion, in order. */
+const refusalsSinceReset = (audit, stepId) => {
+    let out = [];
     for (const e of audit) {
         if (e.step !== stepId)
             continue;
         if (e.event === 'GATE_REFUSED')
-            n += 1;
-        else if (e.event === 'ESCALATED_TO_HIL' || e.event === 'DECISION_RECORDED' || e.event === 'STEP_COMPLETED')
-            n = 0;
+            out.push((e.problems ?? (e.detail ?? '').split(' | ')).map((p) => p.trim()).filter(Boolean));
+        else if (RESET_EVENTS.has(e.event))
+            out = [];
     }
-    return n;
+    return out;
+};
+/** Gate refusals for a step since its last human decision, escalation or completion. */
+export const failedIterations = (audit, stepId) => refusalsSinceReset(audit, stepId).length;
+const codesOf = (problems) => [...new Set(problems.map((p) => p.match(/^[A-Z][A-Z0-9_]+/)?.[0] ?? 'UNKNOWN'))].sort();
+const sameSet = (a, b) => a.size === b.size && [...a].every((x) => b.has(x));
+/**
+ * Escalate on whichever comes first: a critical failure (1st), no progress — the same failure codes
+ * with no fewer problems than the previous attempt (2nd) — or more than MAX_FAILED_ITERATIONS
+ * failures while progressing. A fixed count alone cuts an agent that is converging and lets a stuck
+ * one burn attempts that bring no new information.
+ */
+export const escalationVerdict = (audit, stepId) => {
+    const refusals = refusalsSinceReset(audit, stepId);
+    const failures = refusals.length;
+    const last = refusals[failures - 1] ?? [];
+    const codes = codesOf(last);
+    const critical = codes.filter((c) => CRITICAL_CODES.has(c));
+    if (critical.length > 0)
+        return { escalate: true, reason: 'critical', failures, codes, why: `critical failure on attempt ${failures} (${critical.join(', ')}), retrying cannot fix it` };
+    if (failures >= 2) {
+        // No progress = it repeats ANY earlier failure (catches A,B,A,B) or fixed nothing (every previous
+        // problem is still there). Whole messages are compared, not counts or codes.
+        const current = new Set(last);
+        const earlier = refusals.slice(0, -1).map((r) => new Set(r));
+        const previous = earlier[earlier.length - 1];
+        const repeats = earlier.some((r) => sameSet(r, current));
+        const fixedNothing = [...previous].every((p) => current.has(p));
+        if (repeats || fixedNothing)
+            return {
+                escalate: true,
+                reason: 'no-progress',
+                failures,
+                codes,
+                why: `no progress after ${failures} attempts, ${repeats ? 'it repeats an earlier failure' : 'nothing from the previous attempt was fixed'} (${codes.join(', ')})`,
+            };
+    }
+    if (failures > MAX_FAILED_ITERATIONS)
+        return { escalate: true, reason: 'budget', failures, codes, why: `${failures} failed iterations (${codes.join(', ')})` };
+    return {
+        escalate: false,
+        failures,
+        codes,
+        why: failures >= 2 ? `failed iteration ${failures}/${MAX_FAILED_ITERATIONS}, progressing` : `failed iteration ${failures}/${MAX_FAILED_ITERATIONS}`,
+    };
+};
+/**
+ * The decision card of an escalated step: retry (reject), park (the default — nothing is approved by
+ * silence) and, outside autonomous runs, a recorded exception (override). Also used to re-present
+ * the decision when an escalated step is still waiting and its card was already answered (park).
+ */
+export const prepareEscalationCard = async (cwd, state, step, why) => {
+    const options = [
+        { key: 'A', label: 'Retry with new guidance', consequence: 'back to revising with a fresh budget of 3 iterations', effect: 'reject' },
+        { key: 'B', label: 'Park the run', consequence: 'nothing continues until someone resumes it', effect: 'park' },
+        ...(state.autonomous
+            ? []
+            : [{ key: 'C', label: 'Accept as an exception', consequence: 'the step completes with a recorded override of the refused gate', effect: 'override' }]),
+    ];
+    return prepareCard(cwd, {
+        feature: state.feature,
+        step: step.id,
+        trigger: REPEATED_FAILURE,
+        question: `${step.id} is stuck — ${why.replace(/\?/g, '')}: how do we continue?`,
+        options,
+        recommend: 'A',
+        default: 'B',
+        evidence: [`revised -> ${step.id} escalated -> ${why.replace(/\?/g, '')}`],
+        deadlineHours: 24,
+    }, { revisions: step.revisions });
 };
 export const report = async (cwd, feature, stepId, result, opts = {}) => {
     const telemetry = {
@@ -346,20 +424,24 @@ export const report = async (cwd, feature, stepId, result, opts = {}) => {
             return { ok: false, message: `${step.id} is a human gate: report awaiting-approval and answer its card` };
         const problems = await gateGuards(cwd, state, step, opts.produced ?? []);
         if (problems.length) {
-            await appendAudit(cwd, feature, { event: 'GATE_REFUSED', step: step.id, detail: problems.join(' | '), ...telemetry });
+            await appendAudit(cwd, feature, { event: 'GATE_REFUSED', step: step.id, detail: problems.join(' | '), problems, ...telemetry });
             // Learning without being asked (REQ-V37-005): every refusal reaches the memory inbox.
             await capture(cwd, { kind: 'gate-block', origin: `gate:${feature}/${step.id}`, author: opts.by || 'open-sdd', feature, step: step.id, text: problems.map((p) => p.split(':')[0]).join(', ') });
-            const failures = failedIterations(await readAudit(cwd, feature), step.id);
-            if (failures > MAX_FAILED_ITERATIONS) {
-                // More than MAX_FAILED_ITERATIONS failed iterations: stop iterating, a human decides.
+            const verdict = escalationVerdict(await readAudit(cwd, feature), step.id);
+            if (verdict.escalate) {
+                // Stop iterating: a person decides (critical failure, no progress, or more than 3 failures).
                 step.status = 'awaiting';
-                step.review = 'human';
-                step.reason = `escalated to HIL after ${failures} failed iterations`;
+                step.reason = `escalated to HIL — ${verdict.why}`;
                 await writeState(cwd, state);
-                await appendAudit(cwd, feature, { event: 'ESCALATED_TO_HIL', step: step.id, detail: step.reason });
-                return { ok: false, message: `gate refused for ${step.id} (${failures} failed iterations > ${MAX_FAILED_ITERATIONS}): escalated to HIL — answer its card with \`open-sdd hil\`:\n  ${problems.join('\n  ')}` };
+                await appendAudit(cwd, feature, { event: 'ESCALATED_TO_HIL', step: step.id, detail: `${verdict.reason}: ${verdict.why}`, ...telemetry });
+                // The person gets a ready card, never a JSON to write: retry, park, or a recorded exception.
+                const prepared = await prepareEscalationCard(cwd, state, step, verdict.why);
+                const how = prepared.card
+                    ? `a person answers: open-sdd decide ${feature} ${prepared.card.id} <${prepared.card.options.map((o) => o.key).join('|')}> --by "<name>"`
+                    : `the decision card could not be prepared (${prepared.errors.join('; ')}); a person decides with \`open-sdd decide\``;
+                return { ok: false, message: `gate refused for ${step.id} — escalated to HIL (${verdict.why}): ${how}:\n  ${problems.join('\n  ')}` };
             }
-            return { ok: false, message: `gate refused for ${step.id} (failed iteration ${failures}/${MAX_FAILED_ITERATIONS}):\n  ${problems.join('\n  ')}` };
+            return { ok: false, message: `gate refused for ${step.id} (${verdict.why}):\n  ${problems.join('\n  ')}` };
         }
         if (result === 'completed')
             return complete(cwd, state, step, 'STEP_COMPLETED', opts.by, telemetry);

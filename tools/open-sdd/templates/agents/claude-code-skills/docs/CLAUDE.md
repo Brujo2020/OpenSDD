@@ -77,7 +77,7 @@ Projects differ; pick the row first (`open-sdd modes --projects` prints the full
 - Human review required each phase; use `-y` only for intentional fast-track
 - Always apply the Karpathy guidelines (skill `karpathy-guidelines`, or `{{SDD_DIR}}/settings/rules/karpathy-guidelines.md`): think before coding, simplicity first, surgical changes, goal-driven execution
 - Validation and review are done by a human or, if not, by a model different from the one that generated the code (constitution `C-INDEPENDENT-REVIEW`; `open-sdd review record --by-model <id> --author-model <id>`)
-- If a task or implementation fails more than 3 iterations, stop and send it to human review (HIL): `open-sdd hil`
+- Stop and hand the decision to a person (HIL, `open-sdd decide`) at the first critical failure, when the same failure repeats twice in a row, or after more than 3 failed iterations
 - Keep steering current and verify alignment with `/sdd-spec-status`
 - Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
 

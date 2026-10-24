@@ -86,7 +86,7 @@ export interface InitArtifact {
   action: 'create' | 'keep' | 'update';
   reason: string;
   /** Qué artefacto es: permite consumir el plan por máquina sin interpretar la prosa del motivo. */
-  kind: 'rigor' | 'constitution' | 'hook' | 'agent-skills' | 'command-templates' | 'mcp-config';
+  kind: 'rigor' | 'constitution' | 'rules' | 'hook' | 'agent-skills' | 'command-templates' | 'mcp-config';
 }
 
 export interface InitAgentChoice {
@@ -477,6 +477,17 @@ export const planInit = async (input: PlanInitInput): Promise<InitPlan> => {
     });
   }
 
+  // ── Reglas permanentes: las guías Karpathy se instalan en TODO proyecto, con o sin skills ────
+  const rulesExists = await exists(path.join(target, KARPATHY_RULES_PATH));
+  artifacts.push({
+    kind: 'rules',
+    path: KARPATHY_RULES_PATH,
+    action: rulesExists ? 'keep' : 'create',
+    reason: rulesExists
+      ? 'las guías Karpathy ya están instaladas: no se sobrescriben'
+      : 'guías Karpathy (pensar antes, simplicidad, cambios quirúrgicos, objetivos verificables): rigen en todo proyecto',
+  });
+
   // ── Hook de commit: se delega en el instalador existente, nunca se reimplementa ─────────────
   const hook = await inspectCommitHook(target);
   const hookReason: Record<typeof hook.state, string> = {
@@ -678,6 +689,9 @@ export const planInit = async (input: PlanInitInput): Promise<InitPlan> => {
 // Escritura
 // ---------------------------------------------------------------------------------------------
 
+const KARPATHY_RULES_PATH = posixJoin('.sdd', 'settings', 'rules', 'karpathy-guidelines.md');
+const KARPATHY_RULES_SOURCE = fileURLToPath(new URL('../../../templates/shared/settings/rules/karpathy-guidelines.md', import.meta.url));
+
 const writeRigorSettings = async (plan: InitPlan): Promise<{ action: 'create' | 'keep'; failure?: string }> => {
   const artifact = plan.artifacts.find((item) => item.kind === 'rigor');
   const resolved = path.join(plan.root, artifact?.path ?? posixJoin('.sdd', 'settings', 'rigor.json'));
@@ -800,6 +814,21 @@ const applyInit = async (plan: InitPlan): Promise<InitOutcome> => {
     if (constitution.failure) outcome.failures.push(constitution.failure);
     else if (constitution.action === 'create') outcome.written.push(constitutionArtifact.path);
     else outcome.kept.push(constitutionArtifact.path);
+  }
+
+  const rulesArtifact = plan.artifacts.find((item) => item.kind === 'rules');
+  if (rulesArtifact) {
+    const resolved = path.join(plan.root, rulesArtifact.path);
+    if (await exists(resolved)) outcome.kept.push(rulesArtifact.path);
+    else {
+      try {
+        await mkdir(path.dirname(resolved), { recursive: true });
+        await writeFile(resolved, await readFile(KARPATHY_RULES_SOURCE, 'utf8'), 'utf8');
+        outcome.written.push(rulesArtifact.path);
+      } catch (error) {
+        outcome.failures.push(`no se pudo escribir ${rulesArtifact.path} (${(error as Error).message})`);
+      }
+    }
   }
 
   const hookArtifact = plan.artifacts.find((item) => item.kind === 'hook');

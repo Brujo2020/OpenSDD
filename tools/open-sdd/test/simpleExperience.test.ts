@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { runCli } from '../src/index.js';
@@ -89,16 +89,25 @@ describe('simple-experience — one door, five verbs', () => {
     expect((await run('decide')).out).toContain('Nada que decidir.');
   });
 
-  it('AC-04b decide surfaces a step escalated to a human gate that has no card yet', async () => {
+  it('AC-04b an escalated step arrives with a ready card; a human gate without card points to next', async () => {
     writeFileSync(path.join(cwd, 'pb.playbook.json'), JSON.stringify({ name: 'req', phases: [{ id: 'spec', steps: [{ use: 'opensdd:skill/sdd-spec-requirements', review: 'auto' }] }] }));
     const s = await startRun(cwd, 'f', path.join(cwd, 'pb.playbook.json'), profileValues(await detectProfile(cwd)));
     const step = s.state!.steps[0].id;
     await report(cwd, 'f', step, 'started');
-    for (let i = 0; i < 4; i += 1) await report(cwd, 'f', step, 'completed');
+    for (let i = 0; i < 2; i += 1) await report(cwd, 'f', step, 'completed');
     const out = (await run('decide')).out;
-    expect(out).toContain(`f · ${step} — escalated to HIL after 4 failed iterations`);
-    expect(out).toContain('open-sdd next f');
-    expect(JSON.parse((await run('decide', '--json')).out)).toEqual([expect.objectContaining({ feature: 'f', kind: 'gate', id: step })]);
+    expect(out).toContain(`f · HIL-0001 — ${step} is stuck — no progress after 2 attempts`);
+    expect(out).toContain('open-sdd decide f HIL-0001 <A|B|C> --by "<name>"');
+
+    writeFileSync(path.join(cwd, 'gate.playbook.json'), JSON.stringify({ name: 'gate', phases: [{ id: 'spec', steps: [{ use: 'opensdd:skill/sdd-spec-requirements', review: 'human' }] }] }));
+    mkdirSync(path.join(cwd, '.sdd', 'specs', 'g'), { recursive: true });
+    writeFileSync(path.join(cwd, '.sdd', 'specs', 'g', 'requirements.md'), '# Requirements\n\n### REQ-G-001 — A\n- Statement: WHEN x the system shall y.\n');
+    const g = await startRun(cwd, 'g', path.join(cwd, 'gate.playbook.json'), profileValues(await detectProfile(cwd)));
+    const gstep = g.state!.steps[0].id;
+    await report(cwd, 'g', gstep, 'started');
+    await report(cwd, 'g', gstep, 'awaiting-approval');
+    const all = JSON.parse((await run('decide', '--json')).out) as { feature: string; kind: string; command: string }[];
+    expect(all).toEqual(expect.arrayContaining([expect.objectContaining({ feature: 'g', kind: 'gate', id: gstep, command: 'open-sdd next g' })]));
   });
 
   it('AC-05 the docs open with the five verbs, diagrams and the colour legend', () => {

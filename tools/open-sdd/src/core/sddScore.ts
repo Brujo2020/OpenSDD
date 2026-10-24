@@ -524,6 +524,7 @@ export const computeSddScore = async (
   const phaseLabel = PHASE_LABELS[phase];
 
   const nextAction = chooseNextAction({
+    setUp: existsSync(path.join(cwd, opts.sddDir ?? '.sdd', 'settings', 'rigor.json')),
     constitutionState: !constitutionRead.exists ? 'missing' : !constitution ? 'unreadable' : constitutionValid ? 'valid' : 'invalid',
     feature,
     requirementsMissing: !inspection || inspection.requirements === null,
@@ -567,6 +568,8 @@ export const computeSddScore = async (
  * porque la traza sin medir no entra en este cálculo.
  */
 const chooseNextAction = (input: {
+  /** `.sdd/settings/rigor.json` exists: `setup` already ran. Absent means the tool is not installed. */
+  setUp?: boolean;
   constitutionState: 'valid' | 'invalid' | 'missing' | 'unreadable';
   feature: string | null;
   requirementsMissing: boolean;
@@ -581,18 +584,20 @@ const chooseNextAction = (input: {
   gatesPassed: boolean;
   gates: string[];
 }): string => {
+  // The five verbs first (REQ-SX): a fresh repository is set up, an empty one is started.
+  if (input.setUp === false && input.constitutionState === 'missing') return 'open-sdd setup --write';
   if (input.constitutionState === 'missing' || input.constitutionState === 'invalid') {
     return 'open-sdd brownfield constitution . --write';
   }
   if (input.constitutionState === 'unreadable') return 'open-sdd brownfield constitution .';
-  if (!input.feature) return 'open-sdd init <feature>';
+  if (!input.feature) return 'open-sdd start "<lo que quieres>"';
   if (input.requirementsMissing) return `open-sdd init ${input.feature}`;
   if (input.earsErrors > 0) return `open-sdd govern --advise-ears ${input.feature}`;
   if (input.traceabilityMeasured && input.traceGap > 0) return `open-sdd delta validate ${input.feature}`;
   if (input.evidenceMeasured && input.evidenceScore < 1) return `open-sdd impl ${input.feature}`;
   if (input.contractsMeasured && input.contractsScore < 1) return `open-sdd brownfield contracts ${input.feature}`;
   if (input.gatesMeasured && !input.gatesPassed) {
-    return input.gates.length > 0 ? `open-sdd gates run ${input.gates.join(' ')}` : 'open-sdd gates run';
+    return input.gates.length > 0 ? `open-sdd check ${input.gates.join(' ')}` : 'open-sdd check';
   }
   return 'open-sdd status --check';
 };
@@ -605,6 +610,12 @@ export const explainNextAction = (report: SddScoreReport): string => {
   }
   if (action.includes('brownfield constitution')) {
     return 'la constitución existe pero no se pudo leer: se re-deriva sin --write para no perder trabajo.';
+  }
+  if (action === 'open-sdd setup --write') {
+    return 'open-sdd no está instalado en este repositorio: setup declara el rigor, la constitución y el hook de commit.';
+  }
+  if (action.startsWith('open-sdd start ')) {
+    return 'no hay ninguna especificación: start elige nivel, rigor y playbook por ti.';
   }
   if (action === 'open-sdd init <feature>' || action.startsWith('open-sdd init ')) {
     return 'no hay ninguna especificación que inspeccionar.';
@@ -621,7 +632,7 @@ export const explainNextAction = (report: SddScoreReport): string => {
   if (action.includes('brownfield contracts')) {
     return 'hay contratos declarados que el repositorio no respalda.';
   }
-  if (action.includes('gates run')) {
+  if (action.includes('gates run') || action.startsWith('open-sdd check')) {
     return 'la cadena de gates del nivel declarado no pasa.';
   }
   if (action.includes('status --check')) {

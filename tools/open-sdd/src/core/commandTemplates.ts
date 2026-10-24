@@ -832,12 +832,23 @@ const adaptFrontmatter = (raw: string, host: HostCommandConvention, format: Comm
  * included, because `description` is meaningful to them); TOML hosts receive the `description` key
  * plus the body as the multi-line `prompt` value. In both cases the input is translated first.
  */
+/**
+ * The three rules that apply to every workflow in every project (user requirement): carried by each
+ * installed command so the default path (no skills) enforces them too.
+ */
+export const ALWAYS_ON_RULES = `
+## Always-on rules
+- Apply the Karpathy guidelines (\`.sdd/settings/rules/karpathy-guidelines.md\`): think before coding, simplicity first, surgical changes, goal-driven execution.
+- Validation and review are done by a person or by a model DIFFERENT from the one that wrote the code (constitution \`C-INDEPENDENT-REVIEW\`).
+- Stop and hand the decision to a person (\`open-sdd decide\`) at the first critical failure, when the same failure repeats twice in a row, or after more than 3 failed iterations.
+`;
+
 export const renderCommandTemplate = async (
   id: CommandTemplateId,
   host: HostCommandConvention,
   templatesRoot?: string,
 ): Promise<RenderedTemplate> => {
-  const raw = await readFile(commandTemplatePath(id, templatesRoot), 'utf8');
+  const raw = `${(await readFile(commandTemplatePath(id, templatesRoot), 'utf8')).replace(/\s*$/, '\n')}${ALWAYS_ON_RULES}`;
   const translated = adaptFrontmatter(translateInput(raw, host), host, host.format);
   const { frontmatter, body } = splitFrontmatter(translated);
   const description = frontmatterDescription(frontmatter);

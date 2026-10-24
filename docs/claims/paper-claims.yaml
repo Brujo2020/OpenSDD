@@ -592,8 +592,8 @@
 
 - id: CLM-082
   section: "v3.9.x / HIL after more than 3 failed iterations"
-  statement_es: 'Un paso cuyo gate rechaza más de 3 iteraciones sale del bucle y pasa a puerta humana (HIL).'
-  statement_en: 'A step whose gate refuses more than 3 iterations leaves the loop and becomes a human (HIL) gate.'
+  statement_es: 'Un paso pasa a decisión humana (HIL) en el 1.er fallo crítico, en el 2.º fallo idéntico (sin progreso) o tras más de 3 fallos con progreso.'
+  statement_en: 'A step goes to a human decision (HIL) at the 1st critical failure, the 2nd identical failure (no progress), or after more than 3 failures while progressing.'
   verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/escalateToHil.test.ts >/dev/null 2>&1'
   expectation: pass
 
@@ -602,4 +602,11 @@
   statement_es: 'La ayuda por defecto son cinco verbos en ≤ 40 líneas; setup = init, check = gates run, decide lista las decisiones humanas; el catálogo completo sigue en help --all.'
   statement_en: 'The default help is five verbs in ≤ 40 lines; setup = init, check = gates run, decide lists the human decisions; the full catalogue stays behind help --all.'
   verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/simpleExperience.test.ts >/dev/null 2>&1'
+  expectation: pass
+
+- id: CLM-084
+  section: "v3.9.x / QC 2026-10-23 (five critical findings)"
+  statement_es: 'Un agente no puede aprobar su propia tarjeta HIL ni firmar una revisión humana; un paso escalado trae su tarjeta lista y el reintento lo decide una persona; setup instala las reglas permanentes; la puerta habla en los cinco verbos.'
+  statement_en: 'An agent cannot approve its own HIL card nor sign a human review; an escalated step comes with a ready card and only a person grants a retry; setup installs the always-on rules; the door speaks in the five verbs.'
+  verifier: 'npx --prefix tools/open-sdd vitest run --root tools/open-sdd test/qcCritical.test.ts >/dev/null 2>&1'
   expectation: pass
