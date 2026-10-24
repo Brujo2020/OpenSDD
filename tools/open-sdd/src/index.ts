@@ -323,6 +323,10 @@ const dispatchSubcommand = async (
     const { handleAuditTrailCommand } = await import('./cli/commands/assurance.js');
     return handleAuditTrailCommand(subArgv, io, targetCwd);
   }
+  if (cmd === 'attest') {
+    const { handleAttestCommand } = await import('./cli/commands/assurance.js');
+    return handleAttestCommand(subArgv, io, targetCwd);
+  }
   if (cmd === 'validation' || cmd === 'flow') {
     const m = await import('./cli/commands/assurance.js');
     return cmd === 'flow' ? m.handleFlowCommand(subArgv, io, targetCwd) : m.handleValidationCommand(subArgv, io, targetCwd);

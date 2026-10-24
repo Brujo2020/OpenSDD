@@ -629,6 +629,68 @@ const TOOL_DEFINITIONS = [
             return { data: r, isError: !r.ok, detail: r.message };
         },
     },
+    {
+        name: 'open_sdd_flow',
+        title: 'Estado claro y flujo de una feature (flow)',
+        description: 'Devuelve el estado claro (`status.state`: not-started|in-progress|waiting-decision|blocked|done, la frase, qué lo bloquea y la siguiente orden), las 9 etapas, los pasos del playbook, las decisiones pendientes y las métricas (incluidos tokens y coste declarados). Solo lee. Mismo contrato que `open-sdd flow <feature> --json` (open-sdd.flow/1).',
+        inputSchema: {
+            type: 'object',
+            properties: { feature: { type: 'string', description: 'Feature (carpeta en .sdd/specs).' } },
+            required: ['feature'],
+            additionalProperties: false,
+        },
+        handler: async (args, context) => {
+            const { buildFlow } = await import('../core/flow.js');
+            const flow = await buildFlow(context.cwd, String(args.feature ?? ''), context.sddDir);
+            return { data: flow, isError: flow.status.state === 'blocked', detail: flow.status.headline };
+        },
+    },
+    {
+        name: 'open_sdd_validation',
+        title: 'Validación exigida por tarea (reglas deterministas)',
+        description: 'Devuelve, por tarea, las clases de prueba que exigen las reglas (con la regla, el texto que la disparó y el principio que cita), lo demostrado en la evidencia y lo que falta. `isError` cuando una tarea hecha no tiene una clase bloqueante. Solo lee: registrar en la auditoría es `open-sdd validation <feature> --record`.',
+        inputSchema: {
+            type: 'object',
+            properties: { feature: { type: 'string', description: 'Feature (carpeta en .sdd/specs).' } },
+            required: ['feature'],
+            additionalProperties: false,
+        },
+        handler: async (args, context) => {
+            const { featureValidation } = await import('../core/validationRules.js');
+            const result = await featureValidation(context.cwd, context.sddDir, String(args.feature ?? ''));
+            if (!result)
+                return { data: null, isError: true, detail: 'no hay spec para esa feature' };
+            const blocking = result.plan.filter((t) => t.blocking).map((t) => t.task);
+            return { data: result, isError: blocking.length > 0 || result.errors.length > 0, detail: blocking.length ? `bloquean: ${blocking.join(', ')}` : 'sin tareas bloqueadas' };
+        },
+    },
+    {
+        name: 'open_sdd_audit_trail',
+        title: 'Registro de decisiones para auditoría',
+        description: 'Quién decidió (persona con email git, agente, regla o sistema), por qué y sobre qué requisitos y principios, con la integridad de cada cadena de hashes. Filtros opcionales. Solo lee. Mismo contrato que `open-sdd audit trail --json`.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                feature: { type: 'string', description: 'Feature; vacío = todas.' },
+                requirement: { type: 'string', description: 'Solo decisiones sobre este requisito.' },
+                principle: { type: 'string', description: 'Solo decisiones sobre este principio.' },
+                actor: { type: 'string', enum: ['human', 'agent', 'rule', 'system'], description: 'Tipo de actor.' },
+            },
+            required: [],
+            additionalProperties: false,
+        },
+        handler: async (args, context) => {
+            const { readAuditTrail, filterTrail } = await import('../core/auditTrail.js');
+            const trail = await readAuditTrail(context.cwd, typeof args.feature === 'string' && args.feature ? { feature: args.feature } : {});
+            const records = filterTrail(trail, {
+                ...(typeof args.requirement === 'string' ? { requirement: args.requirement } : {}),
+                ...(typeof args.principle === 'string' ? { principle: args.principle } : {}),
+                ...(typeof args.actor === 'string' ? { actor: args.actor } : {}),
+            });
+            const broken = trail.chains.filter((c) => !c.ok).map((c) => c.feature);
+            return { data: { ...trail, records }, isError: broken.length > 0, detail: broken.length ? `cadena rota: ${broken.join(', ')}` : `${records.length} registro(s), cadenas íntegras` };
+        },
+    },
 ];
 /**
  * `assessRigor` con el import perezoso del módulo ya hecho: se aísla aquí para que el handler de

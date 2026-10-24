@@ -35,7 +35,7 @@ export interface Flow {
   generatedAt: string;
   current: { stage: string; index: number; of: number; label: string };
   /** El estado claro: una palabra, una frase, qué lo bloquea y la siguiente orden exacta. */
-  status: { state: FlowState; headline: string; blockedBy: string[]; next: string };
+  status: { state: FlowState; headline: string; blockedBy: string[]; warnings: string[]; next: string };
   stages: FlowStage[];
   run: { playbook: string; percent: number; steps: { phase: string; id: string; status: string; current: boolean; humanGate: boolean }[] } | null;
   tasks: { id: string; title: string; status: TaskValidation['status']; requirements: string[]; required: string[]; missing: string[]; blocking: boolean }[];
@@ -51,7 +51,15 @@ export interface Flow {
     decisions: { human: number; agent: number; rule: number };
     auditChainsIntact: boolean;
     leadTimeHours: number | null;
+    /** FinOps: lo que los pasos declararon (tokens, modelos, duración) y su coste si hay precio declarado. */
+    usage: { tokens: number; models: string[]; durationS: number; costUsd: number | null; budgetTokens: number | null; overBudget: boolean };
   };
+}
+
+/** `.sdd/settings/finops.json`: { "budgetTokens": 2000000, "usdPerMillionTokens": { "<modelo>": 15, "default": 10 } } */
+interface FinOps {
+  budgetTokens?: number;
+  usdPerMillionTokens?: Record<string, number>;
 }
 
 const has = async (file: string, re?: RegExp): Promise<boolean> => {
@@ -110,6 +118,21 @@ export const buildFlow = async (cwd: string, feature: string, sddDir = '.sdd'): 
   const last = decided[decided.length - 1]?.at;
 
   const chainsIntact = trail.chains.every((c) => c.ok);
+  const finops = JSON.parse((await readFile(path.join(cwd, sddDir, 'settings', 'finops.json'), 'utf8').catch(() => '{}')) || '{}') as FinOps;
+  const metered = decided.filter((r) => typeof r.tokens === 'number');
+  const tokens = metered.reduce((sum, r) => sum + (r.tokens ?? 0), 0);
+  const price = finops.usdPerMillionTokens;
+  const costUsd = price
+    ? Math.round(metered.reduce((sum, r) => sum + ((r.tokens ?? 0) / 1e6) * (price[r.model ?? ''] ?? price.default ?? 0), 0) * 100) / 100
+    : null;
+  const usage = {
+    tokens,
+    models: [...new Set(metered.map((r) => r.model).filter((m): m is string => !!m))].sort(),
+    durationS: decided.reduce((sum, r) => sum + (r.durationS ?? 0), 0),
+    costUsd,
+    budgetTokens: finops.budgetTokens ?? null,
+    overBudget: typeof finops.budgetTokens === 'number' && tokens > finops.budgetTokens,
+  };
   const blockedBy = [
     ...(blocking > 0 ? [`${blocking} tarea(s) hechas sin la validación que exigen las reglas`] : []),
     ...(!chainsIntact ? ['el registro de auditoría está manipulado'] : []),
@@ -155,7 +178,7 @@ export const buildFlow = async (cwd: string, feature: string, sddDir = '.sdd'): 
     feature,
     generatedAt: new Date().toISOString(),
     current: { stage: stages[currentIndex].id, index: currentIndex + 1, of: stages.length, label: stages[currentIndex].label },
-    status: { state: flowState, headline, blockedBy, next },
+    status: { state: flowState, headline, blockedBy, warnings: usage.overBudget ? [`consumo ${usage.tokens} tokens > presupuesto ${usage.budgetTokens}`] : [], next },
     stages,
     run: progress && state
       ? {
@@ -183,6 +206,31 @@ export const buildFlow = async (cwd: string, feature: string, sddDir = '.sdd'): 
       },
       auditChainsIntact: chainsIntact,
       leadTimeHours: first && last ? Math.round(((Date.parse(last) - Date.parse(first)) / 36e5) * 10) / 10 : null,
+      usage,
     },
   };
+};
+
+const STATE_EMOJI: Record<FlowState, string> = {
+  'not-started': '⚪',
+  'in-progress': '🔵',
+  'waiting-decision': '🟣',
+  blocked: '🔴',
+  done: '🟢',
+};
+
+/** Estado en Markdown para un PR o el resumen de un job de CI (`$GITHUB_STEP_SUMMARY`). */
+export const flowMarkdown = (flows: Flow[]): string => {
+  const rows = flows.map(
+    (f) =>
+      `| ${STATE_EMOJI[f.status.state]} \`${f.feature}\` | ${f.status.state} | ${f.current.index}/${f.current.of} ${f.current.label} | ${f.metrics.tasksDone}/${f.metrics.tasksTotal} | ${f.status.blockedBy.join('; ') || '—'} | \`${f.status.next}\` |`,
+  );
+  return [
+    '## Estado de las specs',
+    '',
+    '| Feature | Estado | Etapa | Tareas | Bloqueado por | Siguiente |',
+    '|---|---|---|---|---|---|',
+    ...(rows.length ? rows : ['| — | sin specs | | | | `open-sdd start "<lo que quieres>"` |']),
+    '',
+  ].join('\n');
 };
