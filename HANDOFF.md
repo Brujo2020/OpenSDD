@@ -68,12 +68,7 @@ Implementar la spec `.sdd/specs/multi-unit-playbooks/` (18 requisitos REQ-PB-001
 - `git status` sobre la carpeta montada dejó `.git/index.lock` vacíos dos veces → todo git se hace en la copia del sandbox; si ves un `index.lock` vacío, bórralo.
 
 ## Pendiente
-0. **Revisión independiente del sprint 3 (Sonnet) — arreglos NO aplicados todavía** (la edición se interrumpió):
-   - `scripts/sync-templates.mjs`: detectar/borrar ficheros que existen en una copia y no en `_shared` (hoy no se detectan); normalizar CRLF (`\r?\n` en el marcador y comparar en LF, reescribir con los finales originales).
-   - `test/sprint3.test.ts`: la aserción `rules.split('\n')[2]` es frágil → comparar el fichero completo con `{{SDD_DIR}}` → `.sdd`.
-   - `core/calibrate.ts` y `docs/MEASUREMENTS.md`: declarar que en escalado y EARS κ mide conformidad con nuestra spec (corpus circular), no validez real; siguiente paso: casos de logs reales hasta n ≥ 120.
-   - `ALWAYS_ON_RULES` sustituye `{{SDD_DIR}}` por `.sdd` fijo (ignora `--sdd-dir`): menor.
-   - Descartado tras verificar: el riesgo de ruta en `dist` (no está empaquetado en un único fichero y `npm pack` incluye `templates/shared/always-on-rules.md`).
+0. ~~Revisión del sprint 3~~ **cerrada** (2026-10-24): arreglos ya en `92ccdb3` (huérfanos + CRLF en `sync-templates.mjs`, test compara fichero completo, límites de κ en `MEASUREMENTS.md`). El detector de huérfanos halló `codex-skills/.../sdd-help/agents/openai.yaml` fuera de `_shared` → movido a `_shared` y sincronizado a 8 árboles. Evidencia: `sync-templates --check` OK; vitest 175 ficheros / 2519 verdes; claims 87, 0 rotas. Menor sin tocar: `ALWAYS_ON_RULES` fija `.sdd` (ignora `--sdd-dir`).
 1. AC-10 (v3.6): validar el plugin AI-DLC con su validador — requiere checkout de AI-DLC + `bun` (no accesibles en esta sesión). Esquema de dependencias de unidades AI-DLC sigue sin verificar.
 1b. El umbral «3» y la definición de progreso no están calibrados con datos reales: medir en uso (eventos `ESCALATED_TO_HIL` por motivo en `.sdd/engine/*.audit.jsonl`).
 2. RQC tarea 5 (calibración): bloqueada hasta tener un corpus etiquetado de defectos; no inventar etiquetas.
