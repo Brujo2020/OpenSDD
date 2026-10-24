@@ -1,4 +1,4 @@
-# How strict is Open-SDD?
+# How strict is SteelForge?
 
 > **Short answer:** by default, not at all. It runs its checks, tells you what it found, and gets out of your way.
 
@@ -62,7 +62,7 @@ Safe to drop straight into CI.
 Without changing the file:
 
 ```bash
-open-sdd audit my-feature --strict
+steelforge audit my-feature --strict
 ```
 
 ## Fine-grained control
@@ -93,7 +93,7 @@ Explicit fields always beat the profile. A typo in an id is dropped rather than 
 
 ## Git side effects
 
-`governance.json` decides what blocks. `.sdd/settings/git.json` decides what Open-SDD does to your repo — and it **never pushes** unless you set `auto_push: true`.
+`governance.json` decides what blocks. `.sdd/settings/git.json` decides what SteelForge does to your repo — and it **never pushes** unless you set `auto_push: true`.
 
 | Profile | Suggested `git.mode` |
 |---|---|
@@ -105,5 +105,5 @@ Explicit fields always beat the profile. A typo in an id is dropped rather than 
 EU AI Act (Art. 11/12/14) and NIST AI RMF reporting is opt-in, not part of the normal flow:
 
 ```bash
-open-sdd audit my-feature --regulatory
+steelforge audit my-feature --regulatory
 ```

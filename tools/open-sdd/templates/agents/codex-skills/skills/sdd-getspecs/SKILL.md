@@ -1,6 +1,6 @@
 ---
 name: sdd-getspecs
-description: Brownfield entry point for existing codebases. Reverse-engineers project structure into .sdd/ steering, roadmap, and spec seeds (brief.md + spec.json). Use when adopting open-sdd on a project that has code but no specs, or when onboarding to an unfamiliar brownfield repo.
+description: Brownfield entry point for existing codebases. Reverse-engineers project structure into .sdd/ steering, roadmap, and spec seeds (brief.md + spec.json). Use when adopting steelforge on a project that has code but no specs, or when onboarding to an unfamiliar brownfield repo.
 metadata:
   shared-rules: "getspecs-principles.md"
 ---
@@ -9,7 +9,7 @@ metadata:
 # Get Specs (Brownfield Reverse Engineering)
 
 <background_information>
-**Role**: Bootstrap open-sdd on brownfield (existing) projects without rewriting the codebase.
+**Role**: Bootstrap steelforge on brownfield (existing) projects without rewriting the codebase.
 
 **Mission**:
 - Understand what the project already is (tech, architecture, modules, conventions)
@@ -24,7 +24,7 @@ metadata:
 
 **When to use instead of `$sdd-discovery`**:
 - Project has substantial code but empty or missing `.sdd/specs/`
-- Team is adopting open-sdd mid-flight on an existing repo
+- Team is adopting steelforge mid-flight on an existing repo
 - You need project memory and spec backlog from code, not from a new feature idea
 
 **When NOT to use**:
@@ -164,12 +164,12 @@ Present to user:
 ## Console reconnaissance (optional, deterministic)
 
 The `open-sdd` console can do the reconnaissance deterministically before (or instead of) the
-manual analysis: `open-sdd brownfield survey .` reports the stack, tooling, module boundaries and
-the evidence for each; `open-sdd brownfield constitution . --write` writes the descriptive
+manual analysis: `steelforge brownfield survey .` reports the stack, tooling, module boundaries and
+the evidence for each; `steelforge brownfield constitution . --write` writes the descriptive
 constitution to `{{SDD_DIR}}/steering/constitution.md` (principles the code already obeys, each
 with evidence; desired-but-absent practices become proposed amendments). Once the seeds exist, a
-change to existing behaviour is specified as a delta — `open-sdd delta init <feature> "<title>"`,
-then `open-sdd delta validate <feature>` — with ADDED/MODIFIED/REMOVED/RENAMED sections and
+change to existing behaviour is specified as a delta — `steelforge delta init <feature> "<title>"`,
+then `steelforge delta validate <feature>` — with ADDED/MODIFIED/REMOVED/RENAMED sections and
 delta-scoped `REQ-<AREA>-<NNN>` ids. Three rigor levels (Spec-First, Spec-Anchored,
 Spec-as-Source) govern how much of that is required. They are a cumulative ladder and the default
 is fluid: Spec-First demands a valid constitution and requirements in checkable EARS form, and each

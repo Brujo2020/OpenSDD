@@ -15,7 +15,7 @@ export const handleReverseCommand = async (args, io, cwd) => {
     const show = (data, text) => io.log(json ? JSON.stringify(data, null, 2) : text.join('\n'));
     if (sub === 'init') {
         const r = await initInventory(cwd, { scope: list(flag(args, 'scope')), critical: list(flag(args, 'critical')) });
-        show(r, [`inventory: ${r.inventory.modules.length} module(s)${r.added.length ? `; added ${r.added.join(', ')}` : ''}`, ...r.inventory.modules.map((m) => `  ${m.critical ? '★' : ' '} ${m.id.padEnd(20)} ${m.path} (${m.files ?? '?'} files)`), ...r.unknown.map((u) => `  ! no module ${u} found`), '  next: open-sdd reverse status']);
+        show(r, [`inventory: ${r.inventory.modules.length} module(s)${r.added.length ? `; added ${r.added.join(', ')}` : ''}`, ...r.inventory.modules.map((m) => `  ${m.critical ? '★' : ' '} ${m.id.padEnd(20)} ${m.path} (${m.files ?? '?'} files)`), ...r.unknown.map((u) => `  ! no module ${u} found`), '  next: steelforge reverse status']);
         return r.unknown.length ? EXIT.GATE_FAILED : EXIT.PASSED;
     }
     if (sub === 'status' || sub === 'next') {

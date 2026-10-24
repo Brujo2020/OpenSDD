@@ -1,7 +1,7 @@
 /**
  * Identidad del paquete (W0/W1, day 1).
  *
- * El defecto: el CLI anunciaba `npx open-sdd@latest` en sus mensajes de runtime, pero ese nombre
+ * El defecto: el CLI anunciaba `npx steelforge@latest` en sus mensajes de runtime, pero ese nombre
  * (sin scope) NO existe en npm. La prueba escanea el árbol de `src/` para que la forma incorrecta no
  * pueda volver, y comprueba que el comando anunciado se DERIVA del `package.json` de la raíz.
  */
@@ -35,7 +35,7 @@ const walk = async (dir: string): Promise<string[]> => {
 describe('package identity — one source for the install command', () => {
   it('derives the scoped name and the version from the root manifest', async () => {
     const root = JSON.parse(await readFile(rootManifest, 'utf8')) as { name: string; version: string };
-    expect(PACKAGE_NAME).toBe('@brujo2020/open-sdd');
+    expect(PACKAGE_NAME).toBe('@brujo2020/steelforge');
     expect(PACKAGE_NAME).toBe(root.name);
     expect(VERSION).toBe(root.version);
     expect(INSTALL_COMMAND).toBe(`npx ${PACKAGE_NAME}@latest`);
@@ -43,7 +43,7 @@ describe('package identity — one source for the install command', () => {
 
   it('resolves the root manifest, not the private workspace manifest', () => {
     const identity = readPackageIdentity();
-    expect(identity.name).toBe('@brujo2020/open-sdd');
+    expect(identity.name).toBe('@brujo2020/steelforge');
     expect(identity.source).toContain('package.json');
   });
 
@@ -63,6 +63,6 @@ describe('package identity — one source for the install command', () => {
     const io = { log: (m: string) => logs.push(m), error: () => {}, exit: () => {} };
     const code = await runCli(['--version'], { platform: 'darwin', env: {} }, io, {});
     expect(code).toBe(0);
-    expect(logs.join('\n')).toContain(`open-sdd v${VERSION}`);
+    expect(logs.join('\n')).toContain(`steelforge v${VERSION}`);
   });
 });

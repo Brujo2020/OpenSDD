@@ -120,8 +120,8 @@ describe('AC-10 status projections', () => {
 
 describe('CLI surface', () => {
   it('help exists for start and modernize, and unknown subcommands are usage errors', async () => {
-    expect((await run('help', 'modernize')).out).toContain('Command: open-sdd migrate');
-    expect((await run('help', 'start')).out).toContain('Command: open-sdd start');
+    expect((await run('help', 'modernize')).out).toContain('Command: steelforge migrate');
+    expect((await run('help', 'start')).out).toContain('Command: steelforge start');
     expect((await run('modernize', 'teleport')).code).toBe(2);
   });
   it('init refuses to overwrite without --force', async () => {

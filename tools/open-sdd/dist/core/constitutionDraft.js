@@ -33,7 +33,7 @@ export const DRAFT_MARKER = 'Status: draft';
 export const DRAFT_FILE_NAME = 'constitution.draft.md';
 export const IN_FORCE_FILE_NAME = 'constitution.md';
 /** How the artifact tells a human to turn it into authority. */
-export const RATIFY_INSTRUCTION = 'Para ratificar: open-sdd govern constitution --ratify --by "<nombre>" --rationale "<texto>" --write';
+export const RATIFY_INSTRUCTION = 'Para ratificar: steelforge govern constitution --ratify --by "<nombre>" --rationale "<texto>" --write';
 /** Recorded as the amendment proposer while the document is still a draft. */
 export const DRAFT_PROPOSED_BY = 'constitution-draft';
 /** `steering/constitution.draft.md` and `steering/constitution.md` for a resolved SDD directory. */

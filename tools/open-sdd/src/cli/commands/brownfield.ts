@@ -264,7 +264,7 @@ export const handleDeltaCommand = async (args: string[], io: CliIO, cwd: string)
   if (raw === null) {
     io.error(
       colors.red(
-        `No hay delta para "${feature}". Créala con: open-sdd delta init ${feature} "<título del cambio>"`,
+        `No hay delta para "${feature}". Créala con: steelforge delta init ${feature} "<título del cambio>"`,
       ),
     );
     return 1;
@@ -523,7 +523,7 @@ const handleIdsAudit = async (args: string[], io: CliIO, root: string): Promise<
 
   if (!feature || !base) {
     io.error(colors.red('error[usage]: `brownfield ids <feature> --base <ref>` necesita la feature y la base.'));
-    io.error('  = help: open-sdd brownfield ids tool-maturity --base main');
+    io.error('  = help: steelforge brownfield ids tool-maturity --base main');
     return 2;
   }
 
@@ -995,7 +995,7 @@ export const handleBrownfieldCommand = async (args: string[], io: CliIO, cwd: st
       io.log(`  ${dim(interview.detail)}`);
       io.log('');
       io.log(dim('  Responde en un fichero JSON { "<id>": "<respuesta>" } y ejecuta:'));
-      io.log(dim('  open-sdd brownfield constitution . --interview --answers <path> --write'));
+      io.log(dim('  steelforge brownfield constitution . --interview --answers <path> --write'));
       io.log('');
       return 0;
     }
@@ -1142,7 +1142,7 @@ export const handleBrownfieldCommand = async (args: string[], io: CliIO, cwd: st
     if (feature.length === 0 || description.length === 0) {
       io.error(
         colors.red(
-          'Faltan argumentos: open-sdd brownfield specify <feature> "<descripción en lenguaje natural>" [--area A] [--json] [--write] [--questions-file <path>]',
+          'Faltan argumentos: steelforge brownfield specify <feature> "<descripción en lenguaje natural>" [--area A] [--json] [--write] [--questions-file <path>]',
         ),
       );
       return 1;
@@ -1406,7 +1406,7 @@ export const handleBrownfieldCommand = async (args: string[], io: CliIO, cwd: st
         // reescribiría requisitos que nadie revisó.
         io.error(
           colors.red(
-            '--write exige una selección explícita: open-sdd brownfield requirements <feature> --apply <índice|código> --write. Nada se ha escrito.',
+            '--write exige una selección explícita: steelforge brownfield requirements <feature> --apply <índice|código> --write. Nada se ha escrito.',
           ),
         );
         return 1;
@@ -1814,7 +1814,7 @@ export const handleBrownfieldCommand = async (args: string[], io: CliIO, cwd: st
       .join(' ')
       .trim();
     if (description.length === 0) {
-      io.error(colors.red('Falta la descripción del cambio: open-sdd brownfield forecast "<qué cambia>" [--symbols A,B]'));
+      io.error(colors.red('Falta la descripción del cambio: steelforge brownfield forecast "<qué cambia>" [--symbols A,B]'));
       return 1;
     }
     const symbolsIdx = args.findIndex((a) => a === '--symbols');

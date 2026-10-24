@@ -2,7 +2,7 @@
 #
 # The repository has two manifests and only one of them is publishable:
 #
-#   package.json                -> @brujo2020/open-sdd  (the artifact users install)
+#   package.json                -> @brujo2020/steelforge  (the artifact users install)
 #   tools/open-sdd/package.json   -> the build toolchain, marked "private": true
 #
 # Publishing ran from `tools/open-sdd` before the rename, which would have shipped an unscoped
@@ -73,7 +73,7 @@ jobs:
           VERSION="$(node -p "require('./package.json').version")"
           TAG="${GITHUB_REF_NAME:-manual}"
           echo "publishing $NAME@$VERSION (ref: $TAG)"
-          test "$NAME" = "@brujo2020/open-sdd"
+          test "$NAME" = "@brujo2020/steelforge"
 
       # The single publish step, with both credential routes.
       #

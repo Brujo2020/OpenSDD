@@ -14,7 +14,7 @@ export const handleVerifyCommand = async (
 
   const featureArg = argv.find((a) => !a.startsWith('-'));
   if (!featureArg) {
-    io.error(colors.red('Usage: open-sdd verify <feature-slug> [--json]'));
+    io.error(colors.red('Usage: steelforge verify <feature-slug> [--json]'));
     return 1;
   }
 

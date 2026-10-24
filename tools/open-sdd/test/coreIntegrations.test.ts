@@ -1,5 +1,5 @@
 /**
- * `open-sdd integrate` — the adoption surface, machine-checked.
+ * `steelforge integrate` — the adoption surface, machine-checked.
  *
  * Everything runs over `mkdtemp` fixtures and is cleaned in `afterEach`: the suite NEVER writes
  * inside the repository. The observable contract under test is the one the matrix promises:

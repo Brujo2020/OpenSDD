@@ -1,5 +1,5 @@
 /**
- * `open-sdd standards` — la consola del motor de estándares (W2, REQ-STD-003).
+ * `steelforge standards` — la consola del motor de estándares (W2, REQ-STD-003).
  *
  * Cuatro verbos de lectura y uno de escritura:
  *   list              — el catálogo cargado, con su postura (advisoria o no)
@@ -25,7 +25,7 @@ import { colors } from '../ui/colors.js';
 import { jsonEnvelope } from '../jsonOut.js';
 import { STANDARDS_DIR, appliesToArtifact, discoverArtifacts, isBlocking, loadStandards, runStandard, } from '../../core/standards.js';
 import { detectDrift } from '../../core/standardsRender.js';
-const USAGE = 'Usage: open-sdd standards <list|show <id>|explain <id>|check|fix <id>> [--json] [--apply]';
+const USAGE = 'Usage: steelforge standards <list|show <id>|explain <id>|check|fix <id>> [--json] [--apply]';
 /**
  * Transformaciones que el motor sabe aplicar sin juicio. Se indexan por id de estándar y reciben el
  * hallazgo para localizar el tramo exacto que se reescribe. Un remedio `machine-applicable` sin
@@ -170,7 +170,7 @@ export const handleStandardsCommand = async (args, io, cwd = process.cwd()) => {
         const entry = byId.get(id);
         if (entry === undefined) {
             io.error(colors.red(`estándar desconocido: ${id}`));
-            io.error(colors.dim('open-sdd standards list'));
+            io.error(colors.dim('steelforge standards list'));
             return 1;
         }
         if (json) {
@@ -276,7 +276,7 @@ export const handleStandardsCommand = async (args, io, cwd = process.cwd()) => {
         const entry = byId.get(id);
         if (entry === undefined) {
             io.error(colors.red(`estándar desconocido: ${id}`));
-            io.error(colors.dim('open-sdd standards list'));
+            io.error(colors.dim('steelforge standards list'));
             return 1;
         }
         const artifacts = await discoverArtifacts(cwd, [entry]);
@@ -317,7 +317,7 @@ export const handleStandardsCommand = async (args, io, cwd = process.cwd()) => {
                 return 1;
             }
             io.error(colors.red(`\`${entry.id}\` no se aplica solo: ${question}`));
-            io.log(colors.dim('responde la pregunta y vuelve a ejecutar `open-sdd standards check`'));
+            io.log(colors.dim('responde la pregunta y vuelve a ejecutar `steelforge standards check`'));
             return 1;
         }
         const transform = MACHINE_APPLICABLE_FIXES[entry.id];

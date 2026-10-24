@@ -1,5 +1,5 @@
 #!/bin/bash
-# Open-SDD | One-command install into an existing repository
+# SteelForge | One-command install into an existing repository
 #
 # Usage:
 #   bash install.sh /path/to/your/repo [agent flags...]
@@ -43,7 +43,7 @@ if [ ! -f "$CLI" ]; then
   exit 1
 fi
 
-echo "Installing open-sdd into $REPO ..."
+echo "Installing steelforge into $REPO ..."
 echo ""
 
 # The CLI resolves the target from its working directory, so run it inside the target repo.

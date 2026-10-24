@@ -4,14 +4,14 @@
  * `runMcpServer` lee mensajes JSON-RPC de stdin, los despacha contra el registro de herramientas y
  * recursos (`./tools.js`) y escribe SOLO protocolo en stdout; cualquier diagnóstico va a stderr. No
  * hay backend de modelo, ni claves de API, ni llamadas de red: el servidor expone el motor local de
- * open-sdd a cualquier host que hable MCP.
+ * steelforge a cualquier host que hable MCP.
  *
  * ── Decisiones que el código hace explícitas ────────────────────────────────────────────────────
  *  1. LOS FLUJOS SON INYECTABLES. `stdin`/`stdout`/`stderr` se pueden pasar en las opciones; en
  *     producción son los del proceso. Eso permite conducir el servidor entero desde un test sin
  *     arrancar un subproceso y sin tocar el protocolo.
  *  2. NADA SE ESCRIBE EN stdout QUE NO SEA PROTOCOLO. `log` escribe en stderr con el prefijo
- *     `[open-sdd mcp]`. Un `console.log` perdido corrompería el stream del host.
+ *     `[steelforge mcp]`. Un `console.log` perdido corrompería el stream del host.
  *  3. EL DESPACHO ES SECUENCIAL. Las líneas se encadenan en una promesa (`queue`) en el orden en que
  *     llegan, para que dos peticiones no se respondan fuera de orden ni compartan estado a medias.
  *  4. `shutdown` SE CONTESTA ANTES DE PARAR. El handler devuelve `{}`, la respuesta se escribe y
@@ -124,7 +124,7 @@ export const runMcpServer = async (options) => {
     const output = options.stdout ?? process.stdout;
     const diagnostic = options.stderr ?? process.stderr;
     const log = (message) => {
-        diagnostic.write(`[open-sdd mcp] ${message}\n`);
+        diagnostic.write(`[steelforge mcp] ${message}\n`);
     };
     const root = await findRepoRoot(options.cwd);
     const context = { cwd: root, sddDir: await resolveSddDir(root) };

@@ -131,7 +131,7 @@ export const reverseStages = async (cwd: string, feature?: string): Promise<{ st
   const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
   const stages: Stage[] = [];
 
-  stages.push({ id: 'RE-1', name: 'inventory', done: modules.length > 0, metric: `${modules.length} module(s)`, unmet: modules.length ? [] : ['no modules: open-sdd reverse init'], next: 'open-sdd reverse init [--scope a,b] [--critical a]' });
+  stages.push({ id: 'RE-1', name: 'inventory', done: modules.length > 0, metric: `${modules.length} module(s)`, unmet: modules.length ? [] : ['no modules: steelforge reverse init'], next: 'steelforge reverse init [--scope a,b] [--critical a]' });
 
   const arch = (await read(reverseDir(cwd, 'architecture.md'))) ?? '';
   const missingArch = ids.filter((id) => !new RegExp(`\\b${id.replace(/-/g, '[-_ ]?')}\\b`, 'i').test(arch));
@@ -167,11 +167,11 @@ export const reverseStages = async (cwd: string, feature?: string): Promise<{ st
     ...(cshare < policy.minConfirmed ? [`confirmed ${pct(confirmed.length, real.length)} % < ${Math.round(policy.minConfirmed * 100)} %`] : []),
     ...critInferred.map((r) => `${r.id} on critical module ${r.module} is still inferred`),
   ];
-  stages.push({ id: 'RE-5', name: 'confirmation', done: rules.length > 0 && confUnmet.length === 0, metric: `${confirmed.length}/${real.length} confirmed`, unmet: confUnmet, next: 'a person confirms: open-sdd reverse confirm <RULE-ID> --by "<name>"' });
+  stages.push({ id: 'RE-5', name: 'confirmation', done: rules.length > 0 && confUnmet.length === 0, metric: `${confirmed.length}/${real.length} confirmed`, unmet: confUnmet, next: 'a person confirms: steelforge reverse confirm <RULE-ID> --by "<name>"' });
 
   const req = feature ? ((await read(path.join(cwd, '.sdd', 'specs', feature, 'requirements.md'))) ?? '') : '';
   const untraced = confirmed.filter((r) => !req.includes(r.id)).map((r) => r.id);
-  stages.push({ id: 'RE-6', name: 'spec baseline', done: Boolean(feature) && Boolean(req) && confirmed.length > 0 && untraced.length === 0, metric: `${confirmed.length - untraced.length}/${confirmed.length} confirmed rules traced${feature ? '' : ' (no feature)'}`, unmet: !feature ? ['pass the feature whose requirements.md is the baseline'] : !req ? [`write .sdd/specs/${feature}/requirements.md`] : untraced.map((id) => `${id} is not cited in requirements.md`), next: `cite each confirmed RULE id in the EARS requirement that captures it (open-sdd ears convert helps)` });
+  stages.push({ id: 'RE-6', name: 'spec baseline', done: Boolean(feature) && Boolean(req) && confirmed.length > 0 && untraced.length === 0, metric: `${confirmed.length - untraced.length}/${confirmed.length} confirmed rules traced${feature ? '' : ' (no feature)'}`, unmet: !feature ? ['pass the feature whose requirements.md is the baseline'] : !req ? [`write .sdd/specs/${feature}/requirements.md`] : untraced.map((id) => `${id} is not cited in requirements.md`), next: `cite each confirmed RULE id in the EARS requirement that captures it (steelforge ears convert helps)` });
 
   // A stage is not done while an earlier one is not (REQ-VR-003).
   for (let i = 1; i < stages.length; i += 1) if (!stages[i - 1].done && stages[i].done) {

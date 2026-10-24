@@ -54,7 +54,7 @@ export const validatePortfolio = (raw) => {
 export const readPortfolio = async (cwd) => {
     const raw = await readFile(portfolioFile(cwd), 'utf8').catch(() => null);
     if (raw === null)
-        return { ok: false, errors: [`no portfolio: run \`open-sdd migrate init\` (${path.relative(cwd, portfolioFile(cwd))})`] };
+        return { ok: false, errors: [`no portfolio: run \`steelforge migrate init\` (${path.relative(cwd, portfolioFile(cwd))})`] };
     try {
         return validatePortfolio(JSON.parse(raw));
     }

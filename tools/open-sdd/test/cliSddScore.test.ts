@@ -139,8 +139,8 @@ describe('cli/sddScore — el pie aparece en cada comando', () => {
     const lines = footerLines(ctx.logs);
     expect(lines).toHaveLength(1);
     expect(lines[0]).toMatch(/^SDD \d+% · Fase \d · (Especificar|Implementar|Verificar) · /);
-    expect(lines[0]).toContain('siguiente: open-sdd ');
-    expect(lines[0].match(/open-sdd [a-z-]/g)).toHaveLength(1);
+    expect(lines[0]).toContain('siguiente: steelforge ');
+    expect(lines[0].match(/steelforge [a-z-]/g)).toHaveLength(1);
   });
 
   it('--no-footer lo apaga sin tocar el veredicto del comando', async () => {
@@ -176,9 +176,9 @@ describe('cli/sddScore — el pie aparece en cada comando', () => {
     expect(code).toBe(0);
     expect(ctx.logs).toHaveLength(3);
     expect(ctx.logs[0]).toMatch(/^SDD \d+% · Fase 1 · Especificar/);
-    expect(ctx.logs[0]).toContain('siguiente: open-sdd setup --write');
+    expect(ctx.logs[0]).toContain('siguiente: steelforge setup --write');
     expect(ctx.logs[1]).toContain('Por qué:');
-    expect(ctx.logs[2]).toBe('los cinco verbos: open-sdd --help · todos los comandos: open-sdd help --all');
+    expect(ctx.logs[2]).toBe('los cinco verbos: steelforge --help · todos los comandos: steelforge help --all');
     const text = ctx.logs.join('\n');
     expect(text).not.toContain('Usage: open-sdd');
     expect(text).not.toContain('/sdd-');
@@ -192,7 +192,7 @@ describe('cli/sddScore — el pie aparece en cada comando', () => {
 
     expect(code).toBe(0);
     expect(ctx.logs[0]).toMatch(/^SDD \d+%/);
-    expect(ctx.logs.at(-1)).toBe('los cinco verbos: open-sdd --help · todos los comandos: open-sdd help --all');
+    expect(ctx.logs.at(-1)).toBe('los cinco verbos: steelforge --help · todos los comandos: steelforge help --all');
   });
 });
 

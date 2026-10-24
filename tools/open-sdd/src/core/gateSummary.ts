@@ -16,7 +16,7 @@ export const renderGateSummary = (
   meta: { profile: string; strict: boolean; mode: string; names: Record<string, string> },
 ): string => {
   const lines = [
-    `### open-sdd gates — ${report.passed ? '✅ the chain passes' : '❌ the chain does NOT pass'}`,
+    `### steelforge gates — ${report.passed ? '✅ the chain passes' : '❌ the chain does NOT pass'}`,
     '',
     `Profile \`${meta.profile}\` · regime ${meta.strict ? 'strict' : 'flexible'} · ${meta.mode}`,
     '',

@@ -29,7 +29,7 @@ const positional = (args: string[], skip: string[] = []): string | undefined =>
 export const handleValidationCommand = async (args: string[], io: CliIO, cwd: string): Promise<number> => {
   const feature = positional(args);
   if (!feature) {
-    io.error('usage: open-sdd validation <feature> [--record] [--json]');
+    io.error('usage: steelforge validation <feature> [--record] [--json]');
     return 2;
   }
   const sddDir = await resolveSddDir(cwd);
@@ -117,7 +117,7 @@ export const handleFlowCommand = async (args: string[], io: CliIO, cwd: string):
       return 0;
     }
     io.log('');
-    if (flows.length === 0) io.log('  no hay specs todavía: open-sdd start "<lo que quieres>"');
+    if (flows.length === 0) io.log('  no hay specs todavía: steelforge start "<lo que quieres>"');
     for (const f of flows) {
       io.log(`  ${STATE_ICON[f.status.state]} ${colors.bold(f.feature)} — ${f.status.headline}`);
       io.log(colors.dim(`      siguiente: ${f.status.next}`));
@@ -154,7 +154,7 @@ export const handleFlowCommand = async (args: string[], io: CliIO, cwd: string):
   if (u.tokens > 0) io.log(`  consumo: ${u.tokens.toLocaleString('es-CL')} tokens${u.models.length ? ` (${u.models.join(', ')})` : ''}${u.costUsd !== null ? ` · ≈ USD ${u.costUsd}` : ''}${u.budgetTokens !== null ? ` · presupuesto ${u.budgetTokens.toLocaleString('es-CL')}` : ''}`);
   for (const w of flow.status.warnings) io.log(`  ${colors.yellow('!')} ${w}`);
   for (const d of flow.pendingDecisions) io.log(`  ${colors.magenta('?')} ${d.id} (${d.step}): ${d.question}`);
-  io.log(colors.dim(`  para un tablero: open-sdd flow ${feature} --json  (schema open-sdd.flow/1)`));
+  io.log(colors.dim(`  para un tablero: steelforge flow ${feature} --json  (schema open-sdd.flow/1)`));
   io.log('');
   return 0;
 };
@@ -223,7 +223,7 @@ export const handleAttestCommand = async (args: string[], io: CliIO, cwd: string
   }
   const feature = positional(args, ['--verify', '--out']);
   if (!feature) {
-    io.error('usage: open-sdd attest <feature> [--write [--out <file>]] | attest --verify <file>');
+    io.error('usage: steelforge attest <feature> [--write [--out <file>]] | attest --verify <file>');
     return 2;
   }
   const sddDir = await resolveSddDir(cwd);
@@ -237,6 +237,6 @@ export const handleAttestCommand = async (args: string[], io: CliIO, cwd: string
   await mkdir(path.dirname(path.resolve(cwd, out)), { recursive: true });
   await writeFile(path.resolve(cwd, out), text, 'utf8');
   io.log(`${colors.green('✓')} ${out} · ${statement.subject.length} artefacto(s) · estado ${statement.predicate.status.state} · commit ${statement.predicate.commit?.slice(0, 12) ?? '—'}`);
-  io.log(colors.dim(`  verificar: open-sdd attest --verify ${out}   ·   firmar (opcional): cosign sign-blob --bundle ${out}.sigstore.json ${out}`));
+  io.log(colors.dim(`  verificar: steelforge attest --verify ${out}   ·   firmar (opcional): cosign sign-blob --bundle ${out}.sigstore.json ${out}`));
   return 0;
 };

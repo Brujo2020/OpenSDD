@@ -7,12 +7,12 @@
  * reads files is the host's own **prompt template** convention — a Markdown (or TOML) file the user
  * invokes from chat, whose body is the instructions the agent follows. spec-kit proved the shape;
  * this module makes open-sdd's version of it the default, because our templates can point at a real
- * engine (`open-sdd status --json`, `open-sdd delta validate …`) instead of guessing.
+ * engine (`steelforge status --json`, `steelforge delta validate …`) instead of guessing.
  *
  * ── The rule that is not negotiable ─────────────────────────────────────────────────────────────
  * `verified` is an EVIDENCE field, not a courtesy, exactly as in `integrations.ts`. It is `true`
  * only for the layouts this project confirmed against the host's own documentation (or against the
- * path open-sdd itself already installs its prompt mode into); `evidence` says how we know. An
+ * path steelforge itself already installs its prompt mode into); `evidence` says how we know. An
  * unverified host is printed as unverified and `--write` **refuses** to write into it rather than
  * guessing at a directory the host may never read — a plausible-looking wrong path is worse than an
  * acknowledged gap.
@@ -718,19 +718,19 @@ const decideExisting = (existing, format, current) => {
     if (!match || !signatureIsLastLine) {
         return {
             action: 'keep',
-            reason: 'el archivo existe y no es una plantilla generada por open-sdd (o la firma ya no es la última línea): NO se sobrescribe, porque puede ser una edición del equipo. Bórralo o mézclalo a mano para reinstalar.',
+            reason: 'el archivo existe y no es una plantilla generada por steelforge (o la firma ya no es la última línea): NO se sobrescribe, porque puede ser una edición del equipo. Bórralo o mézclalo a mano para reinstalar.',
         };
     }
     const body = existing.slice(0, existing.indexOf(match[0]));
     if (sha256(body) !== match[2]) {
         return {
             action: 'keep',
-            reason: 'el archivo se generó con open-sdd pero su cuerpo ya no coincide con la firma: alguien lo editó. NO se sobrescribe; mézclalo a mano.',
+            reason: 'el archivo se generó con steelforge pero su cuerpo ya no coincide con la firma: alguien lo editó. NO se sobrescribe; mézclalo a mano.',
         };
     }
     return {
         action: 'update',
-        reason: 'el archivo es una versión anterior generada por open-sdd y no fue editada (la firma coincide): se refresca con la plantilla vigente.',
+        reason: 'el archivo es una versión anterior generada por steelforge y no fue editada (la firma coincide): se refresca con la plantilla vigente.',
     };
 };
 /**
@@ -773,7 +773,7 @@ export const installCommandTemplates = async (input) => {
                 format: host.format,
                 action: 'keep',
                 verified: false,
-                reason: `la convención de plantillas de ${host.label} NO está verificada o no existe: open-sdd no escribe en un directorio que el anfitrión podría no leer. ${host.evidence}`,
+                reason: `la convención de plantillas de ${host.label} NO está verificada o no existe: steelforge no escribe en un directorio que el anfitrión podría no leer. ${host.evidence}`,
             });
             continue;
         }
@@ -860,7 +860,7 @@ export const summarizeCommandTemplates = (artifacts, hostId) => {
         return {
             path: dir,
             action: 'update',
-            reason: `hay plantillas generadas por open-sdd que no fueron editadas y están desactualizadas: se refrescan; las editadas a mano se conservan.`,
+            reason: `hay plantillas generadas por steelforge que no fueron editadas y están desactualizadas: se refrescan; las editadas a mano se conservan.`,
             verified: true,
         };
     }

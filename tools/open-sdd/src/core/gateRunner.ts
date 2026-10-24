@@ -100,7 +100,8 @@ const INJECTION_PATTERNS: { id: string; re: RegExp }[] = [
   // Dirigidas a un agente que lee la spec como instrucciones (inyección indirecta, OWASP LLM01).
   { id: 'guardrail-bypass', re: /(?<!\b(?:never|not|don't|no)\s)\b(disregard|ignore|bypass)\b[^\n]{0,40}\b(constitution|gates?|guardrails?|pre-commit|hooks?|review)\b/i },
   { id: 'self-approval', re: /\b(approve|ratify)\b[^\n]{0,20}\b(yourself|your own)\b/i },
-  { id: 'role-header', re: /^\s*(system|assistant)\s*:/i },
+  // Un rol seguido de prosa (no de un literal o un tipo: `assistant: 'steering' | …` en código no es un mensaje).
+  { id: 'role-header', re: /^\s*(system|assistant)\s*:\s*(?![\s'"`|{(\[<]|$)/i },
 ];
 
 /**

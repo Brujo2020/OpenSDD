@@ -1,5 +1,5 @@
 /**
- * `open-sdd init` — el inicializador de un comando.
+ * `steelforge init` — el inicializador de un comando.
  *
  * ── Qué resuelve ────────────────────────────────────────────────────────────────────────────────
  * El objetivo del proyecto es «instalación y primer uso en minutos, en cualquier sistema operativo,
@@ -207,7 +207,7 @@ const detectLanguage = async (target, sddDir) => {
         evidence: [`marcadores en ${used.join(', ')}: ${spanish} en español · ${english} en inglés`],
     };
 };
-const rationaleFor = (level) => `Nivel declarado por \`open-sdd init\` (${level}): exige requisitos en forma comprobable (EARS) y una constitución válida, y no exige todavía delta, ligado de evidencia ni detección de drift. Se sube editando este archivo, nunca bajando lo que el suelo ya comprueba.`;
+const rationaleFor = (level) => `Nivel declarado por \`steelforge init\` (${level}): exige requisitos en forma comprobable (EARS) y una constitución válida, y no exige todavía delta, ligado de evidencia ni detección de drift. Se sube editando este archivo, nunca bajando lo que el suelo ya comprueba.`;
 /**
  * ¿El CLI instalado soporta `brownfield constitution --draft`? Se comprueba por COMPORTAMIENTO, no
  * leyendo el código del bundle: `--help` no sirve de sonda porque el CLI intercepta `--help` antes
@@ -344,7 +344,7 @@ export const planInit = async (input) => {
                 ? 'el PR gate ya está instalado: no se sobrescribe'
                 : wanted
                     ? `perfil ${governance.profile}: el suelo va al servidor (el hook local se salta con --no-verify)`
-                    : 'perfil solo: el PR gate se ofrece, no se instala; instálalo con `open-sdd floor install . --ci` (el hook local se salta con --no-verify)',
+                    : 'perfil solo: el PR gate se ofrece, no se instala; instálalo con `steelforge floor install . --ci` (el hook local se salta con --no-verify)',
         });
     }
     // ── Hook de commit: se delega en el instalador existente, nunca se reimplementa ─────────────
@@ -352,7 +352,7 @@ export const planInit = async (input) => {
     const hookReason = {
         absent: 'no es un repositorio git: no hay hook que instalar todavía',
         missing: 'no hay hook instalado: se instala el gate de commit de open-sdd',
-        foreign: 'hay un hook ajeno: NO se sobrescribe; sustitúyelo con `open-sdd floor install <target> --force` (hace copia de seguridad)',
+        foreign: 'hay un hook ajeno: NO se sobrescribe; sustitúyelo con `steelforge floor install <target> --force` (hace copia de seguridad)',
         stale: 'el hook instalado es nuestro pero es una versión antigua del gate: se refresca',
         'not-executable': 'el hook instalado no es ejecutable (git lo ignora en silencio): se reinstala',
         current: 'el hook instalado ya es nuestra versión vigente: se conserva',
@@ -376,7 +376,7 @@ export const planInit = async (input) => {
             kind: 'hook',
             path: hookDisplay,
             action: hookAction,
-            reason: `${hookReason[hook.state]} (instalador: open-sdd floor install)`,
+            reason: `${hookReason[hook.state]} (instalador: steelforge floor install)`,
         });
     }
     if (input.skills) {
@@ -390,7 +390,7 @@ export const planInit = async (input) => {
             reason: definition.manifestId
                 ? skillsDirExists
                     ? `el conjunto ya está presente: el instalador existente completa lo ausente y NO sobrescribe lo editado (modo prompt en no-TTY)`
-                    : `instalación delegada al instalador existente: open-sdd ${agent.flag} --lang ${language.lang}`
+                    : `instalación delegada al instalador existente: steelforge ${agent.flag} --lang ${language.lang}`
                 : `sin skills para ${definition.label}: esta versión no trae su árbol de skills (brecha declarada G-35); sus plantillas de comando SÍ se instalan.`,
         });
     }
@@ -465,13 +465,13 @@ export const planInit = async (input) => {
     const targetArg = path.relative(cwd, target) || '.';
     const nextCommands = [
         draftAvailable
-            ? `open-sdd brownfield constitution ${targetArg} --draft`
-            : `open-sdd brownfield constitution ${targetArg} --write`,
-        'open-sdd status',
-        'open-sdd status --check',
+            ? `steelforge brownfield constitution ${targetArg} --draft`
+            : `steelforge brownfield constitution ${targetArg} --write`,
+        'steelforge status',
+        'steelforge status --check',
     ];
     const steps = [
-        '1. Declara el rigor, el andamiaje de steering y el gate de commit: `open-sdd init ' +
+        '1. Declara el rigor, el andamiaje de steering y el gate de commit: `steelforge init ' +
             `${targetArg} --agent ${agent.id} --level ${level} --lang ${language.lang}${input.skills ? ' --skills' : ''} --write\``,
         commandHostId
             ? `2. Plantillas de comando (CAMINO POR DEFECTO, sin MCP ni red): ${COMMAND_TEMPLATE_IDS.length} comandos en ${commandSummary.dir} — invócalos como \`${commandHost?.invocation('constitution') ?? '/sdd-constitution'}\`.`
@@ -482,7 +482,7 @@ export const planInit = async (input) => {
         `4. Constitución (obligatoria en LOS TRES niveles: es el suelo, no un extra): \`${nextCommands[0]}\``,
         `5. Estado del repositorio en una pantalla: \`${nextCommands[1]}\``,
         `6. Gate constitucional de la spec: \`${nextCommands[2]}\``,
-        '7. Diagnóstico de la instalación (hook, CLI, entorno): `open-sdd doctor`',
+        '7. Diagnóstico de la instalación (hook, CLI, entorno): `steelforge doctor`',
     ];
     if (!hasCode) {
         steps.splice(1, 0, '· No se observó código (ni manifiestos, ni directorios de origen ni de tests): no hay nada que reverse-ingeniar, así que la constitución se escribe a mano antes de especificar.');
@@ -612,7 +612,7 @@ export const installAgentSkillSet = async (root, agent, lang) => {
     }
     return {
         action: 'create',
-        detail: `instalado con \`open-sdd --${alias} --lang ${lang} --overwrite=prompt\` (no interactivo: crea lo ausente, conserva lo existente)`,
+        detail: `instalado con \`steelforge --${alias} --lang ${lang} --overwrite=prompt\` (no interactivo: crea lo ausente, conserva lo existente)`,
     };
 };
 const installAgentSkills = async (plan) => {
@@ -697,7 +697,7 @@ const applyInit = async (plan) => {
     if (hookArtifact && (hookArtifact.action === 'create' || hookArtifact.action === 'update')) {
         const cliPath = await resolveCliExecutable(plan.root);
         if (cliPath === null) {
-            outcome.failures.push(`no se pudo instalar el hook de commit (${hookArtifact.path}): el instalador (CLI) no está alcanzable. Ejecútalo tú: open-sdd floor install ${plan.root}`);
+            outcome.failures.push(`no se pudo instalar el hook de commit (${hookArtifact.path}): el instalador (CLI) no está alcanzable. Ejecútalo tú: steelforge floor install ${plan.root}`);
         }
         else {
             const result = spawnSync(process.execPath, [cliPath, 'floor', 'install', plan.root], {
@@ -853,7 +853,7 @@ const handleSingleProjectInit = async (args, io, cwd) => {
         return outcome.failures.length > 0 ? 1 : 0;
     }
     io.log('');
-    io.log(formatHeading(colors.cyan(`Inicialización open-sdd — ${plan.root}`)));
+    io.log(formatHeading(colors.cyan(`Inicialización steelforge — ${plan.root}`)));
     io.log('');
     // Agente: SIEMPRE se dice cuál se eligió y por qué, y qué alternativas había.
     io.log(`  agente: ${colors.bold(`${plan.agent.id} (${plan.agent.label})`)} ${colors.dim(`[${plan.agent.source}]`)}`);
@@ -921,10 +921,10 @@ const handleSingleProjectInit = async (args, io, cwd) => {
     io.log(`  ${colors.bold('Siguientes tres órdenes')}`);
     plan.nextCommands.forEach((command, index) => io.log(`    ${index + 1}. ${colors.cyan(command)}`));
     io.log(`  ${colors.bold('Y el diagnóstico de la instalación')}`);
-    io.log(`    · ${colors.cyan('open-sdd doctor')}${plan.level.level === 'spec-first' ? '' : ' (comprueba el hook, el CLI, la constitución y el entorno)'}`);
+    io.log(`    · ${colors.cyan('steelforge doctor')}${plan.level.level === 'spec-first' ? '' : ' (comprueba el hook, el CLI, la constitución y el entorno)'}`);
     if (!plan.artifacts.some((artifact) => artifact.kind === 'constitution')) {
         io.log('');
-        io.log(colors.yellow('  ! No se observó código: no hay constitución que derivar del repositorio. Constrúyela con el asistente guiado (preguntas con valores por defecto, borrador y ratificación): open-sdd assist constitution'));
+        io.log(colors.yellow('  ! No se observó código: no hay constitución que derivar del repositorio. Constrúyela con el asistente guiado (preguntas con valores por defecto, borrador y ratificación): steelforge assist constitution'));
     }
     if (plan.skills && outcome.failures.length > 0) {
         io.log('');
@@ -940,7 +940,7 @@ const handleSingleProjectInit = async (args, io, cwd) => {
             await handleBrownfieldCommand(["constitution", plan.root, "--interview"], io, cwd);
         }
         else {
-            io.log(colors.dim('  cuando quieras: open-sdd assist constitution'));
+            io.log(colors.dim('  cuando quieras: steelforge assist constitution'));
         }
     }
     return outcome.failures.length > 0 ? 1 : 0;
@@ -951,7 +951,7 @@ const handleSingleProjectInit = async (args, io, cwd) => {
 export const handleSpecInitCommand = async (argv, io, cwd = process.cwd()) => {
     const featureArg = argv.find((a) => !a.startsWith('-'));
     if (!featureArg) {
-        io.error(colors.red('Usage: open-sdd init <feature-slug> [--title="..."] [--lang=en] [--git]'));
+        io.error(colors.red('Usage: steelforge init <feature-slug> [--title="..."] [--lang=en] [--git]'));
         return 1;
     }
     const titleArg = argv.find((a) => a.startsWith('--title='));
@@ -977,7 +977,7 @@ export const handleSpecInitCommand = async (argv, io, cwd = process.cwd()) => {
         io.log(formatHeading('Next Actions:'));
         io.log(`  1. Edit requirements in: ${colors.dim(`${result.specDir}/requirements.md`)}`);
         io.log(`  2. In your agent chat, run: ${colors.bold(`/sdd-spec-requirements ${featureArg}`)}`);
-        io.log(`  3. Check status anytime with: ${colors.bold(`open-sdd status ${featureArg}`)}`);
+        io.log(`  3. Check status anytime with: ${colors.bold(`steelforge status ${featureArg}`)}`);
         io.log('');
         return 0;
     }
@@ -997,7 +997,7 @@ export const handleInitCommand = async (args, io, cwd = process.cwd()) => {
     return handleSpecInitCommand(args, io, cwd);
 };
 // ---------------------------------------------------------------------------------------------
-// `open-sdd integrate` — la superficie de adopción, anfitrión por anfitrión
+// `steelforge integrate` — la superficie de adopción, anfitrión por anfitrión
 // ---------------------------------------------------------------------------------------------
 /**
  * De qué anfitrión instala las skills `integrate --write`. Es la variante NO desaconsejada del
@@ -1082,7 +1082,7 @@ export const mergeMcpConfig = async (host, cliPath, cwd) => {
             action: 'keep',
             resolvedPath: null,
             content: registration.content,
-            reason: 'el anfitrión no declara una ruta de configuración MCP conocida: open-sdd no inventa un archivo. Configúralo desde la interfaz del anfitrión; el snippet se imprime como NO VERIFICADO.',
+            reason: 'el anfitrión no declara una ruta de configuración MCP conocida: steelforge no inventa un archivo. Configúralo desde la interfaz del anfitrión; el snippet se imprime como NO VERIFICADO.',
         };
     }
     if (!registration.verified) {
@@ -1091,7 +1091,7 @@ export const mergeMcpConfig = async (host, cliPath, cwd) => {
             action: 'keep',
             resolvedPath: null,
             content: registration.content,
-            reason: 'el snippet de este anfitrión está NO VERIFICADO: open-sdd no escribe a ciegas una configuración que no puede garantizar. Cópialo y compruébalo contra la documentación del anfitrión.',
+            reason: 'el snippet de este anfitrión está NO VERIFICADO: steelforge no escribe a ciegas una configuración que no puede garantizar. Cópialo y compruébalo contra la documentación del anfitrión.',
         };
     }
     const resolvedPath = expandConfigPath(registration.path, cwd);
@@ -1117,7 +1117,7 @@ export const mergeMcpConfig = async (host, cliPath, cwd) => {
                     action: 'keep',
                     resolvedPath,
                     content: serialized,
-                    reason: 'el servidor open-sdd ya está registrado con esta misma configuración: no se toca.',
+                    reason: 'el servidor steelforge ya está registrado con esta misma configuración: no se toca.',
                 };
             }
             return {
@@ -1125,7 +1125,7 @@ export const mergeMcpConfig = async (host, cliPath, cwd) => {
                 action: 'update',
                 resolvedPath,
                 content: serialized,
-                reason: 'se añade o actualiza SOLO la entrada del servidor open-sdd dentro de su objeto: el resto de claves del archivo se conserva.',
+                reason: 'se añade o actualiza SOLO la entrada del servidor steelforge dentro de su objeto: el resto de claves del archivo se conserva.',
             };
         }
         catch (error) {
@@ -1150,7 +1150,7 @@ export const mergeMcpConfig = async (host, cliPath, cwd) => {
                 action: 'keep',
                 resolvedPath,
                 content: existing,
-                reason: 'el bloque YAML del servidor open-sdd ya está registrado byte a byte: no se toca.',
+                reason: 'el bloque YAML del servidor steelforge ya está registrado byte a byte: no se toca.',
             };
         }
         return {
@@ -1187,7 +1187,7 @@ export const planIntegrate = async (input) => {
     if (input.host !== undefined && input.host.trim().length > 0) {
         const declared = integrationById(input.host.trim());
         if (!declared) {
-            throw new Error(`Anfitrión desconocido: "${input.host}". Admitidos: ${HOST_INTEGRATIONS.map((item) => item.id).join(', ')}. Consulta la matriz con \`open-sdd integrate --list\`.`);
+            throw new Error(`Anfitrión desconocido: "${input.host}". Admitidos: ${HOST_INTEGRATIONS.map((item) => item.id).join(', ')}. Consulta la matriz con \`steelforge integrate --list\`.`);
         }
         host = declared;
         source = 'declarado';
@@ -1244,8 +1244,8 @@ export const planIntegrate = async (input) => {
             path: skillsDir,
             action: present ? 'update' : 'create',
             reason: present
-                ? `el conjunto ya está presente${shared}: el instalador existente completa lo ausente y NO sobrescribe lo editado (\`open-sdd ${alias} --lang ${language} --overwrite=prompt\`)`
-                : `instalación delegada al instalador existente${shared}: \`open-sdd ${alias} --lang ${language} --overwrite=prompt\``,
+                ? `el conjunto ya está presente${shared}: el instalador existente completa lo ausente y NO sobrescribe lo editado (\`steelforge ${alias} --lang ${language} --overwrite=prompt\`)`
+                : `instalación delegada al instalador existente${shared}: \`steelforge ${alias} --lang ${language} --overwrite=prompt\``,
             verified: true,
         });
     }
@@ -1264,7 +1264,7 @@ export const planIntegrate = async (input) => {
             action: 'keep',
             reason: layoutDocumented
                 ? `${host.label} tiene layout de skills ${origin} (${host.skills.layout}) pero esta versión no trae su instalador: brecha declarada G-35. No se escribe a medias.`
-                : `${host.label} no documenta un layout de Agent Skills (modo ${host.skills.mode}): open-sdd no inventa uno.`,
+                : `${host.label} no documenta un layout de Agent Skills (modo ${host.skills.mode}): steelforge no inventa uno.`,
             verified: false,
         });
     }
@@ -1282,14 +1282,14 @@ export const planIntegrate = async (input) => {
     });
     const steps = [
         `1. En el chat de ${host.label}, escribe exactamente: ${host.invocation}`,
-        `2. Comprueba la instalación: \`open-sdd doctor\``,
+        `2. Comprueba la instalación: \`steelforge doctor\``,
         `3. Registro MCP: ${merge.path ?? '(sin ruta documentada)'} — ${merge.verified ? 'forma verificada' : 'forma NO VERIFICADA'}`,
         stopHook.action === 'refused'
             ? `4. Stop hook: NO se instala para ${host.id} — ${stopHook.reason}`
             : `4. Stop hook: ${stopHook.action} en ${stopHook.path} — el agente no podrá declarar «terminado» mientras el gate de commit falle.`,
     ];
     if (source === 'defecto') {
-        steps.push(`ATENCIÓN: no se observó ningún anfitrión; se propone ${host.id} por defecto (igual que \`init\`). Si usas otro, pásalo explícito: \`open-sdd integrate <host>\`.`);
+        steps.push(`ATENCIÓN: no se observó ningún anfitrión; se propone ${host.id} por defecto (igual que \`init\`). Si usas otro, pásalo explícito: \`steelforge integrate <host>\`.`);
     }
     const created = artifacts.filter((artifact) => artifact.action === 'create').length;
     const updated = artifacts.filter((artifact) => artifact.action === 'update').length;
@@ -1324,8 +1324,8 @@ export const planIntegrate = async (input) => {
         artifacts,
         steps,
         nextCommands: [
-            `open-sdd integrate ${host.id} --write`,
-            'open-sdd doctor',
+            `steelforge integrate ${host.id} --write`,
+            'steelforge doctor',
             host.invocation,
         ],
         detail,
@@ -1410,7 +1410,7 @@ export const applyIntegrate = async (plan, cwd) => {
 };
 const printIntegrationMatrix = (io) => {
     io.log('');
-    io.log(formatHeading(colors.cyan('Matriz de integración open-sdd — un anfitrión por fila')));
+    io.log(formatHeading(colors.cyan('Matriz de integración steelforge — un anfitrión por fila')));
     io.log('');
     io.log(`  ${'host'.padEnd(14)} ${'skills layout'.padEnd(34)} ${'invocación'.padEnd(30)} ${'MCP config'.padEnd(46)} verificado`);
     for (const host of HOST_INTEGRATIONS) {
@@ -1499,13 +1499,13 @@ export const handleIntegrateCommand = async (args, io, cwd = process.cwd()) => {
         return outcome.failures.length > 0 ? 1 : 0;
     }
     io.log('');
-    io.log(formatHeading(colors.cyan(`Integración open-sdd — ${plan.host.label} (${plan.host.id})`)));
+    io.log(formatHeading(colors.cyan(`Integración steelforge — ${plan.host.label} (${plan.host.id})`)));
     io.log('');
     io.log(`  anfitrión: ${colors.bold(plan.host.id)} ${colors.dim(`[${plan.host.source}]`)}`);
     for (const item of plan.host.evidence)
         io.log(colors.dim(`      por qué: ${item}`));
     if (plan.host.alternatives.length > 0) {
-        io.log(`      alternativas detectadas: ${plan.host.alternatives.join(', ')} — elige con \`open-sdd integrate <host>\``);
+        io.log(`      alternativas detectadas: ${plan.host.alternatives.join(', ')} — elige con \`steelforge integrate <host>\``);
     }
     io.log('');
     io.log(`  skills: ${colors.bold(plan.skills.layout)} ${colors.dim(`(modo ${plan.skills.mode})`)}`);
@@ -1561,7 +1561,7 @@ export const handleIntegrateCommand = async (args, io, cwd = process.cwd()) => {
     return outcome.failures.length > 0 ? 1 : 0;
 };
 // ---------------------------------------------------------------------------------------------
-// `open-sdd import` — absorber a los incumbentes (spec-kit)
+// `steelforge import` — absorber a los incumbentes (spec-kit)
 // ---------------------------------------------------------------------------------------------
 export const handleImportCommand = async (args, io, cwd = process.cwd()) => {
     const json = args.includes('--json');
@@ -1588,7 +1588,7 @@ export const handleImportCommand = async (args, io, cwd = process.cwd()) => {
         return 0;
     }
     io.log('');
-    io.log(formatHeading(colors.cyan(`Importación open-sdd — ${cwd}`)));
+    io.log(formatHeading(colors.cyan(`Importación steelforge — ${cwd}`)));
     io.log('');
     if (plans.length === 0) {
         io.log(colors.dim('  No se observó ningún incumbente (spec-kit): ni `.specify/`, ni `specs/` con `spec.md`.'));

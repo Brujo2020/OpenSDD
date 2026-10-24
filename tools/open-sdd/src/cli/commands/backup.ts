@@ -1,5 +1,5 @@
 /**
- * `open-sdd backup` — la puerta de consola del respaldo restaurable.
+ * `steelforge backup` — la puerta de consola del respaldo restaurable.
  *
  * `core/backup.ts` copia el árbol de `.sdd/` con un manifiesto verificable y sabe restaurarlo. Este
  * comando expone sus tres operaciones, cada una con su contrato intacto:
@@ -27,7 +27,7 @@ import { jsonEnvelope } from '../jsonOut.js';
 import { createBackup, restoreBackup, verifyBackup } from '../../core/backup.js';
 
 const USAGE =
-  'Usage: open-sdd backup create [--out <dir>] [--force] [--json] | verify <archive> [--json] | restore <archive> [--write] [--only <ruta>]… [--json]';
+  'Usage: steelforge backup create [--out <dir>] [--force] [--json] | verify <archive> [--json] | restore <archive> [--write] [--only <ruta>]… [--json]';
 
 /** Valor de un flag con valor (`--out x` o `--out=x`); `undefined` si no está. */
 const flagValue = (args: string[], name: string): string | undefined => {

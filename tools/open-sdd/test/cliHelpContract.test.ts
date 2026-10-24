@@ -1,7 +1,7 @@
 /**
  * Una sola superficie de ayuda (W1, day 1).
  *
- * El defecto: `open-sdd help` listaba 8 comandos contra los 58 de `--help`, e `help gates` ignoraba
+ * El defecto: `steelforge help` listaba 8 comandos contra los 58 de `--help`, e `help gates` ignoraba
  * su argumento. Aquí se exige que la MISMA tabla sirva las tres proyecciones: el índice de `--help`,
  * la ayuda de cada comando y los temas.
  */
@@ -40,7 +40,7 @@ describe('help contract — one table, three projections', () => {
         const ctx = makeIO();
         const code = await runCli(['help', name], runtime, ctx.io, {});
         expect(code, `help ${name}`).toBe(0);
-        expect(ctx.logs.join('\n'), `help ${name}`).toContain(`Command: open-sdd ${name}`);
+        expect(ctx.logs.join('\n'), `help ${name}`).toContain(`Command: steelforge ${name}`);
       }
     },
     // Una invocación de CLI por comando enrutado: bajo carga paralela esto supera el tope por
@@ -55,7 +55,7 @@ describe('help contract — one table, three projections', () => {
         const ctx = makeIO();
         const code = await runCli([name, '--help'], runtime, ctx.io, {});
         expect(code, `${name} --help`).toBe(0);
-        expect(ctx.logs.join('\n'), `${name} --help`).toContain(`Command: open-sdd ${name}`);
+        expect(ctx.logs.join('\n'), `${name} --help`).toContain(`Command: steelforge ${name}`);
       }
     },
     30_000,
@@ -79,7 +79,7 @@ describe('help contract — one table, three projections', () => {
       const ctx = makeIO();
       expect(await runCli([name, '--help'], runtime, ctx.io, {})).toBe(0);
       const out = ctx.logs.join('\n');
-      expect(out).toContain(`Command: open-sdd ${name}`);
+      expect(out).toContain(`Command: steelforge ${name}`);
       expect(out).not.toContain('Zero-Trust console'); // no es el índice
     }
   });
@@ -88,7 +88,7 @@ describe('help contract — one table, three projections', () => {
     const ctx = makeIO();
     expect(await runCli(['help', 'gates'], runtime, ctx.io, {})).toBe(0);
     const out = ctx.logs.join('\n');
-    expect(out).toContain('Command: open-sdd gates');
+    expect(out).toContain('Command: steelforge gates');
     expect(out).toContain('crosswalk');
     expect(out).not.toContain('Zero-Trust console');
   });
@@ -97,10 +97,10 @@ describe('help contract — one table, three projections', () => {
     const help = renderFullHelp();
     expect(help).toContain('LEARN MORE');
     for (const topic of [
-      'open-sdd help rigor',
-      'open-sdd help exit-codes',
-      'open-sdd help formatting',
-      'open-sdd explain C1',
+      'steelforge help rigor',
+      'steelforge help exit-codes',
+      'steelforge help formatting',
+      'steelforge explain C1',
       'docs/PAPER-ALIGNMENT.md',
     ]) {
       expect(help, topic).toContain(topic);
@@ -135,7 +135,7 @@ describe('help contract — one table, three projections', () => {
 
   it('the install examples use the derived scoped package, never the bare name', () => {
     const help = renderFullHelp();
-    expect(help).toContain('npx @brujo2020/open-sdd@latest');
+    expect(help).toContain('npx @brujo2020/steelforge@latest');
     expect(help).not.toContain('npx open-sdd@');
   });
 

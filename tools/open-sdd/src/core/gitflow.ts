@@ -20,7 +20,7 @@
  *    reparación de una línea de release.
  *  · `blocking` separa lo que HOY puede bloquear de verdad (el suelo: hook de pre-commit nivel B y
  *    workflow de gates en pull_request nivel C) de lo que es consejo. Esta capa es pura y no lee el
- *    disco: nombra el mecanismo y el comando que verifica si está instalado (`open-sdd floor status`)
+ *    disco: nombra el mecanismo y el comando que verifica si está instalado (`steelforge floor status`)
  *    en vez de declarar una branch protection que no ha visto.
  *
  * User-visible strings are Spanish, matching the rest of the CLI (see `src/cli/i18n.ts`).
@@ -331,7 +331,7 @@ const union = (base: string[], extra: string[]): string[] => [
 
 /** El suelo: lo único que HOY puede bloquear de verdad. Se nombra el mecanismo, no se supone. */
 const floorBlocking = (): string[] => [
-  'El hook de pre-commit ejecuta C1/C2/C3 sobre el índice preparado (nivel B, git): el commit falla si el suelo está instalado. Compruébalo con `open-sdd floor status`.',
+  'El hook de pre-commit ejecuta C1/C2/C3 sobre el índice preparado (nivel B, git): el commit falla si el suelo está instalado. Compruébalo con `steelforge floor status`.',
   'El workflow de gates corre la cadena completa en cada pull_request (nivel C, CI): la fusión del PR falla si la cadena no pasa.',
   'Esta herramienta NO instala branch protection, revisiones obligatorias ni bloqueo de push: ningún rol —tampoco main— tiene hoy un candado propio. Lo exigido que no figure en esta lista es consejo, no imposición.',
 ];
@@ -362,7 +362,7 @@ export const branchPolicy = (
           ...blocking,
           'Bajo el perfil team o enterprise, el invariante spec_contract_present bloquea código escrito sin spec/delta aprobada; bajo solo se reporta como advisory y no bloquea.',
         ],
-        nextStep: feature ? `open-sdd delta validate ${feature}` : 'open-sdd status',
+        nextStep: feature ? `steelforge delta validate ${feature}` : 'steelforge status',
         detail: `Rol feature: el contrato del cambio es la delta de ${
           feature ? `"${feature}" (${deltaPath(feature)})` : 'la feature que nombra la rama'
         }; los gates se ejecutan contra "${base}". Lo exigido que no figura en "bloquea hoy" es consejo, no candado.`,
@@ -373,7 +373,7 @@ export const branchPolicy = (
         role: 'release',
         required: union(changeContract(brownfield), [
           `CHANGELOG y versión: el salto${state.version ? ` a "${state.version}"` : ''} viaja en esta rama release/*`,
-          `bundle de auditoría: \`open-sdd audit bundle ${feature ?? '<feature>'}\``,
+          `bundle de auditoría: \`steelforge audit bundle ${feature ?? '<feature>'}\``,
           `CI verde en el pull request antes de fusionar en ${state.base ?? 'main'}`,
           'fusión a main Y retorno a develop: una release no deja develop atrás',
         ]),
@@ -382,7 +382,7 @@ export const branchPolicy = (
           ...blocking,
           'La CI verde del PR es lo que bloquea la fusión; el changelog, la versión y el bundle de auditoría no tienen hoy un gate que los imponga.',
         ],
-        nextStep: 'open-sdd gates run',
+        nextStep: 'steelforge gates run',
         detail: `Rol release${
           state.version ? ` (versión "${state.version}")` : ''
         }: exige todo lo de una rama de cambio MÁS changelog/versión, bundle de auditoría y CI verde; se fusiona en ${
@@ -406,7 +406,7 @@ export const branchPolicy = (
           ...blocking,
           'El post-merge delta y la constitución no tienen hoy un gate que los imponga; el perfil team/enterprise sí bloquea código sin spec aprobada (invariante spec_contract_present).',
         ],
-        nextStep: 'open-sdd gates run',
+        nextStep: 'steelforge gates run',
         detail: `Rol hotfix${
           state.version ? ` (versión "${state.version}")` : ''
         }: la constitución y la evidencia siguen siendo exigibles, y la delta posterior a la fusión es obligatoria para que el arreglo no desaparezca de la especificación. Nada de eso bloquea hoy por sí solo.`,
@@ -426,7 +426,7 @@ export const branchPolicy = (
           ...blocking,
           'En main no hay candado adicional: sin branch protection instalada, un commit directo pasa; el único bloqueo real es la cadena del PR.',
         ],
-        nextStep: 'open-sdd gates run',
+        nextStep: 'steelforge gates run',
         detail:
           'Rol main: pivote de fusiones, no de trabajo. El pivote debe pasar la cadena completa, pero hoy nada impide un commit directo en main.',
       };
@@ -437,16 +437,16 @@ export const branchPolicy = (
         role: 'develop',
         required: [
           'integración primero: las features se fusionan aquí antes de cortar una release',
-          `el pivote pasa en la integración antes de abrir release/*: \`open-sdd gates run\` contra ${base}`,
+          `el pivote pasa en la integración antes de abrir release/*: \`steelforge gates run\` contra ${base}`,
           'cada feature fusionada conserva su delta y su evidencia',
           'sin trabajo directo salvo la resolución de integración',
         ],
         gates: union(chain, ['C6']),
         blocking: [
           ...blocking,
-          'En develop no hay candado adicional: el pivote se comprueba con `open-sdd gates run`, pero nada impide fusionar sin él.',
+          'En develop no hay candado adicional: el pivote se comprueba con `steelforge gates run`, pero nada impide fusionar sin él.',
         ],
-        nextStep: 'open-sdd status',
+        nextStep: 'steelforge status',
         detail:
           'Rol develop: la rama de integración. Las features se fusionan aquí y el pivote debe pasar antes de cortar una release; no hay candado propio más allá del suelo.',
       };
@@ -473,7 +473,7 @@ export const branchPolicy = (
           ...blocking,
           'Sin rol reconocido no se puede exigir nada por encima del suelo: es el propio nombre de la rama el que decide qué bloquea.',
         ],
-        nextStep: feature ? `open-sdd delta validate ${feature}` : 'open-sdd status',
+        nextStep: feature ? `steelforge delta validate ${feature}` : 'steelforge status',
         detail: feature
           ? `Rol other: el nombre declara la feature "${feature}" pero ningún rol; se aplica el suelo común y se puede validar su delta, pero no se finge una gobernanza de rol que la rama no declara.`
           : 'Rol other: el nombre no corresponde a la convención. No se adivina el rol ni se exige un contrato que la rama no declara; solo aplica el suelo.',

@@ -23,17 +23,17 @@ parallelSafe: true
 moves:
   - alignment
 commands:
-  - "open-sdd status <feature> --json"
-  - "open-sdd status --check --json"
-  - "open-sdd brownfield analyze <feature> --json"
-  - "open-sdd brownfield contracts <feature> --json"
-  - "open-sdd delta validate <feature> --json"
-  - "open-sdd gates run"
-  - "open-sdd status --json"
+  - "steelforge status <feature> --json"
+  - "steelforge status --check --json"
+  - "steelforge brownfield analyze <feature> --json"
+  - "steelforge brownfield contracts <feature> --json"
+  - "steelforge delta validate <feature> --json"
+  - "steelforge gates run"
+  - "steelforge status --json"
 scripts:
-  - "open-sdd brownfield analyze <feature> --json"
-  - "open-sdd delta validate <feature> --json"
-  - "open-sdd gates run"
+  - "steelforge brownfield analyze <feature> --json"
+  - "steelforge delta validate <feature> --json"
+  - "steelforge gates run"
 ---
 
 # Analyze — the engine checks, you read the result
@@ -56,9 +56,9 @@ If no feature is named, read the state and ask which feature to analyse.
 - **Identified — produces:** `.sdd/specs/<feature>/analysis.md` — the report of measured, inferred and uninspected findings.
 - **Identified — refuses:** it refuses to edit requirements, plan, tasks, source or the constitution: it reports and routes, it never fixes.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd brownfield analyze <feature> --json` **exits 1** on error findings (BLOCKS release), `open-sdd delta validate <feature> --json` **exits 1** on a broken delta, and `open-sdd gates run` **exits 1** when the chain fails; all three exit codes are quoted verbatim.
-- **Measured — components:** `alignment` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: a blocking finding must cite a ratified principle, an unratified draft downgrades findings to advisory, and `open-sdd status --check --json` is the pivot check.
+- **Assured — backing check:** `steelforge brownfield analyze <feature> --json` **exits 1** on error findings (BLOCKS release), `steelforge delta validate <feature> --json` **exits 1** on a broken delta, and `steelforge gates run` **exits 1** when the chain fails; all three exit codes are quoted verbatim.
+- **Measured — components:** `alignment` — the reader sees the change before/after in `steelforge status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: a blocking finding must cite a ratified principle, an unratified draft downgrades findings to advisory, and `steelforge status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -80,37 +80,37 @@ If no feature is named, read the state and ask which feature to analyse.
 1. Read the feature state:
 
 ```bash
-open-sdd status <feature> --json
+steelforge status <feature> --json
 ```
 
 2. Run the engine's consistency analysis and read the findings verbatim, including severity and code:
 
 ```bash
-open-sdd brownfield analyze <feature> --json
+steelforge brownfield analyze <feature> --json
 ```
 
 3. Ask which changed files are protected by tests, and which are not:
 
 ```bash
-open-sdd brownfield contracts <feature> --json
+steelforge brownfield contracts <feature> --json
 ```
 
 4. For a change to existing code, validate the delta's ids, EARS form, targets and traceability:
 
 ```bash
-open-sdd delta validate <feature> --json
+steelforge delta validate <feature> --json
 ```
 
 5. Validate the repository against the constitution and the declared rigor level:
 
 ```bash
-open-sdd status --check --json
+steelforge status --check --json
 ```
 
 6. Run the enforcement chain so the report carries the repository's own verdict:
 
 ```bash
-open-sdd gates run
+steelforge gates run
 ```
 
 7. Write `analysis.md` with, for every finding: the engine's code and severity, the artifact it

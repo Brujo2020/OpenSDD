@@ -118,7 +118,7 @@ export const renderJsonEnvelope = (envelope) => {
     const { errors, warnings } = envelope.findings;
     const verdict = envelope.ok ? 'ok' : 'error';
     const counts = `${errors.length} error(es)${warnings.length > 0 ? `, ${warnings.length} aviso(s)` : ''}`;
-    return `open-sdd ${envelope.command} · ${verdict} · ${counts} · ${envelope.detail}`;
+    return `steelforge ${envelope.command} · ${verdict} · ${counts} · ${envelope.detail}`;
 };
 /** Flag que apaga el pie para scripts que comparan la salida del comando tal cual. */
 export const SCORE_FOOTER_FLAG = '--no-footer';

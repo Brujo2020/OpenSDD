@@ -152,7 +152,7 @@ describe('Acme Reservas — cobro de reservas (E2E)', () => {
     const stuck = await json<{ status: { state: string; next: string; blockedBy: string[] } }>('flow', 'cobros');
     expect(stuck.status.state).toBe('blocked');
     expect(stuck.status.blockedBy).toEqual(['1 tarea(s) hechas sin la validación que exigen las reglas']);
-    expect(stuck.status.next).toBe('open-sdd validation cobros');
+    expect(stuck.status.next).toBe('steelforge validation cobros');
     expect((await run('validation', 'cobros', '--record')).out).not.toContain('registradas');
 
     write(SPEC + '/tasks.md', tasks('[unit] [integration] [contract] [property] [mutation] npm test → 212 passed · [review: Luis Revisor] · [coverage 80%]'));
@@ -173,7 +173,7 @@ describe('Acme Reservas — cobro de reservas (E2E)', () => {
 
     const waiting = await json<{ status: { state: string; next: string } }>('flow', 'cobros');
     expect(waiting.status.state).toBe('waiting-decision');
-    expect(waiting.status.next).toBe('open-sdd decide cobros');
+    expect(waiting.status.next).toBe('steelforge decide cobros');
     const [{ card }] = (await listCards(cwd, 'cobros')).filter((c) => !c.answer);
     const approve = card.options.find((o) => o.effect === 'approve')!.key;
     const approvers = [{ name: 'Ana Arquitecta', email: 'ana.arquitecta@acme.example' }];
@@ -201,7 +201,7 @@ describe('Acme Reservas — cobro de reservas (E2E)', () => {
     expect(f.current.stage).toBe('implement');
     expect(f.status.state).toBe('in-progress');
     expect(f.status.headline).toBe('EN CURSO · etapa 7/9 Implementación · tareas 1/4');
-    expect(f.status.next).toBe('open-sdd impl cobros');
+    expect(f.status.next).toBe('steelforge impl cobros');
     expect(f.current.of).toBe(9);
     expect(f.run.steps.filter((s) => s.current)).toHaveLength(1);
     expect(f.metrics.tasksDone).toBe(1);
@@ -213,7 +213,7 @@ describe('Acme Reservas — cobro de reservas (E2E)', () => {
     expect(f.metrics.auditChainsIntact).toBe(true);
     const human = await run('flow', 'cobros');
     expect(human.out).toContain('EN CURSO · etapa 7/9 Implementación · tareas 1/4');
-    expect(human.out).toContain('siguiente: open-sdd impl cobros');
+    expect(human.out).toContain('siguiente: steelforge impl cobros');
     const all = await run('flow');
     expect(all.out).toContain('cobros — EN CURSO');
   });
@@ -264,7 +264,7 @@ describe('Acme Reservas — cobro de reservas (E2E)', () => {
     expect(f.metrics.auditChainsIntact).toBe(false);
     expect(f.status.state).toBe('blocked');
     expect(f.status.blockedBy).toContain('el registro de auditoría está manipulado');
-    expect(f.status.next).toBe('open-sdd audit trail cobros');
+    expect(f.status.next).toBe('steelforge audit trail cobros');
   });
 
   it('10. una instrucción plantada en la spec para el agente la detiene C2', async () => {

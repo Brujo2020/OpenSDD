@@ -585,29 +585,29 @@ const chooseNextAction = (input: {
   gates: string[];
 }): string => {
   // The five verbs first (REQ-SX): a fresh repository is set up, an empty one is started.
-  if (input.setUp === false && input.constitutionState === 'missing') return 'open-sdd setup --write';
+  if (input.setUp === false && input.constitutionState === 'missing') return 'steelforge setup --write';
   // La constitución se construye guiada (preguntas con valor por defecto, borrador, ratificación).
   if (input.constitutionState === 'missing' || input.constitutionState === 'invalid') {
-    return 'open-sdd assist constitution';
+    return 'steelforge assist constitution';
   }
-  if (input.constitutionState === 'unreadable') return 'open-sdd brownfield constitution .';
-  if (!input.feature) return 'open-sdd start "<lo que quieres>"';
-  if (input.requirementsMissing) return `open-sdd init ${input.feature}`;
+  if (input.constitutionState === 'unreadable') return 'steelforge brownfield constitution .';
+  if (!input.feature) return 'steelforge start "<lo que quieres>"';
+  if (input.requirementsMissing) return `steelforge init ${input.feature}`;
   // Requisitos no comprobables (vagos, compuestos, sin actor): la acción es preguntar, no reescribir.
-  if (input.earsErrors > 0) return `open-sdd brownfield clarify ${input.feature}`;
-  if (input.traceabilityMeasured && input.traceGap > 0) return `open-sdd delta validate ${input.feature}`;
-  if (input.evidenceMeasured && input.evidenceScore < 1) return `open-sdd impl ${input.feature}`;
-  if (input.contractsMeasured && input.contractsScore < 1) return `open-sdd brownfield contracts ${input.feature}`;
+  if (input.earsErrors > 0) return `steelforge brownfield clarify ${input.feature}`;
+  if (input.traceabilityMeasured && input.traceGap > 0) return `steelforge delta validate ${input.feature}`;
+  if (input.evidenceMeasured && input.evidenceScore < 1) return `steelforge impl ${input.feature}`;
+  if (input.contractsMeasured && input.contractsScore < 1) return `steelforge brownfield contracts ${input.feature}`;
   if (input.gatesMeasured && !input.gatesPassed) {
-    return input.gates.length > 0 ? `open-sdd check ${input.gates.join(' ')}` : 'open-sdd check';
+    return input.gates.length > 0 ? `steelforge check ${input.gates.join(' ')}` : 'steelforge check';
   }
-  return 'open-sdd status --check';
+  return 'steelforge status --check';
 };
 
 /** Por qué ESA acción, en una línea. La usa la puerta sin argumentos. */
 export const explainNextAction = (report: SddScoreReport): string => {
   const action = report.nextAction;
-  if (action === 'open-sdd assist constitution') {
+  if (action === 'steelforge assist constitution') {
     return 'no hay constitución (o no es válida): es el suelo de todos los niveles; el asistente la construye contigo y la ratificas con tu nombre.';
   }
   if (action.includes('brownfield clarify')) {
@@ -616,13 +616,13 @@ export const explainNextAction = (report: SddScoreReport): string => {
   if (action.includes('brownfield constitution')) {
     return 'la constitución existe pero no se pudo leer: se re-deriva sin --write para no perder trabajo.';
   }
-  if (action === 'open-sdd setup --write') {
-    return 'open-sdd no está instalado en este repositorio: setup declara el rigor, la constitución y el hook de commit.';
+  if (action === 'steelforge setup --write') {
+    return 'steelforge no está instalado en este repositorio: setup declara el rigor, la constitución y el hook de commit.';
   }
-  if (action.startsWith('open-sdd start ')) {
+  if (action.startsWith('steelforge start ')) {
     return 'no hay ninguna especificación: start elige nivel, rigor y playbook por ti.';
   }
-  if (action === 'open-sdd init <feature>' || action.startsWith('open-sdd init ')) {
+  if (action === 'steelforge init <feature>' || action.startsWith('steelforge init ')) {
     return 'no hay ninguna especificación que inspeccionar.';
   }
   if (action.includes('--advise-ears')) {
@@ -631,13 +631,13 @@ export const explainNextAction = (report: SddScoreReport): string => {
   if (action.includes('delta validate')) {
     return 'la delta tiene requisitos que no trazan a ninguna tarea.';
   }
-  if (action.startsWith('open-sdd impl ')) {
+  if (action.startsWith('steelforge impl ')) {
     return 'la especificación está sana y quedan tareas sin evidencia capturada.';
   }
   if (action.includes('brownfield contracts')) {
     return 'hay contratos declarados que el repositorio no respalda.';
   }
-  if (action.includes('gates run') || action.startsWith('open-sdd check')) {
+  if (action.includes('gates run') || action.startsWith('steelforge check')) {
     return 'la cadena de gates del nivel declarado no pasa.';
   }
   if (action.includes('status --check')) {

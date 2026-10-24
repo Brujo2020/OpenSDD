@@ -1,6 +1,6 @@
 {
   "name": "multi-unit",
-  "description": "Several units or repositories: AI-DLC drives inception and operation, open-sdd governs every gate.",
+  "description": "Several units or repositories: AI-DLC drives inception and operation, steelforge governs every gate.",
   "lead": "aidlc",
   "budget": {
     "handoff_tokens": 8000,

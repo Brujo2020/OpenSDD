@@ -124,7 +124,7 @@ describe('Core Scheduler - Parallel Wave Engine', () => {
   });
 });
 
-describe('CLI - open-sdd impl command', () => {
+describe('CLI - steelforge impl command', () => {
   it('outputs formatted execution schedule for a feature', async () => {
     const cwd = await mkdtemp(path.join(tmpdir(), 'sdd-cli-impl-'));
     const specDir = path.join(cwd, '.sdd', 'specs', 'parallel-feat');

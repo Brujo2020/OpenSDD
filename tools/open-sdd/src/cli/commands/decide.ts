@@ -34,7 +34,7 @@ export const pendingDecisions = async (cwd: string): Promise<PendingDecision[]> 
         kind: 'card',
         id: card.id,
         question: card.question,
-        command: `open-sdd decide ${feature} ${card.id} <${card.options.map((o) => o.key).join('|')}> --by "<name>"`,
+        command: `steelforge decide ${feature} ${card.id} <${card.options.map((o) => o.key).join('|')}> --by "<name>"`,
       });
     }
   }
@@ -47,7 +47,7 @@ export const pendingDecisions = async (cwd: string): Promise<PendingDecision[]> 
         kind: 'gate',
         id: step.id,
         question: step.reason ?? 'human gate waiting for its decision card',
-        command: `open-sdd next ${run.feature}`,
+        command: `steelforge next ${run.feature}`,
       });
     }
   }
@@ -70,7 +70,7 @@ export const handleDecideCommand = async (args: string[], io: CliIO, cwd: string
   const [feature, card, option] = positional;
   if (feature && card && option) return handleHilCommand(['answer', feature, card, option, ...flags], io, cwd);
   if (feature && card) {
-    io.error(`decide ${feature} ${card} needs the option: open-sdd decide ${feature} ${card} <option> --by "<name>"`);
+    io.error(`decide ${feature} ${card} needs the option: steelforge decide ${feature} ${card} <option> --by "<name>"`);
     return EXIT.USAGE;
   }
   if (feature) return handleHilCommand(['list', feature, ...flags], io, cwd);

@@ -3,15 +3,15 @@
 Practical guide to governing an existing codebase with open-sdd: the delta as the unit of
 specification, the reverse-engineered descriptive constitution, and the three SDD rigor levels.
 
-> Commands below are shown as `open-sdd …` for an installed CLI. In this repository, replace
-> `open-sdd` with `node tools/open-sdd/dist/cli.js`.
+> Commands below are shown as `steelforge …` for an installed CLI. In this repository, replace
+> `steelforge` with `node tools/open-sdd/dist/cli.js`.
 
 ## When to use it
 
 Use this workflow when the code already exists and is the de facto source of truth — that is, any
 repository where a change modifies behaviour rather than creating a system:
 
-- Adopting open-sdd mid-flight on a running product.
+- Adopting steelforge mid-flight on a running product.
 - A change that touches existing contracts, endpoints, schemas or modules.
 - Modernization or strangulation work where old and new implementations coexist.
 - Any repository that must declare how much rigor a change accepts.
@@ -84,9 +84,9 @@ obeys, with the evidence that it does. Its purpose is narrow and concrete — st
 silently "modernizing" code nobody asked it to modernize.
 
 ```bash
-open-sdd brownfield survey .                      # what the project is, and the evidence for each fact
-open-sdd brownfield constitution .                # print the constitution without writing it
-open-sdd brownfield constitution . --write        # write .sdd/steering/constitution.md
+steelforge brownfield survey .                      # what the project is, and the evidence for each fact
+steelforge brownfield constitution .                # print the constitution without writing it
+steelforge brownfield constitution . --write        # write .sdd/steering/constitution.md
 ```
 
 `survey` reports the language, package manager, build tool, test framework, module boundaries and
@@ -175,28 +175,28 @@ not become an invisible lowering of the bar.
 
 ```bash
 # Reconnaissance and constitution
-open-sdd brownfield survey [target]                 # stack, tooling, modules and the evidence for each
-open-sdd brownfield constitution [target]           # print the descriptive constitution
-open-sdd brownfield constitution [target] --write   # write .sdd/steering/constitution.md
+steelforge brownfield survey [target]                 # stack, tooling, modules and the evidence for each
+steelforge brownfield constitution [target]           # print the descriptive constitution
+steelforge brownfield constitution [target] --write   # write .sdd/steering/constitution.md
 
 # Delta lifecycle
-open-sdd delta init <feature> "<title>" [--base <base>]   # scaffold .sdd/specs/<feature>/delta.md
-open-sdd delta validate <feature>                         # ids, EARS, targets, ADSR obligations, traceability
-open-sdd delta status <feature>                           # ADSR counts, strangulation progress, traceability
-open-sdd delta render <feature>                           # normalised markdown
+steelforge delta init <feature> "<title>" [--base <base>]   # scaffold .sdd/specs/<feature>/delta.md
+steelforge delta validate <feature>                         # ids, EARS, targets, ADSR obligations, traceability
+steelforge delta status <feature>                           # ADSR counts, strangulation progress, traceability
+steelforge delta render <feature>                           # normalised markdown
 
 # Analysis over the pending change
-open-sdd brownfield impact <feature>                      # dependents, blast radius, API surface, breaking changes
-open-sdd brownfield contracts <feature>                   # the regression oracle: declared vs discovered, uncovered files
-open-sdd brownfield contracts <feature> --write           # publish contracts.json for CI
-open-sdd brownfield contracts <feature> --verify          # run the test command; exit 1 unless contracts are satisfied
-open-sdd brownfield reuse <feature> [--symbols a,b]       # symbols a reuse-first search would have found first
+steelforge brownfield impact <feature>                      # dependents, blast radius, API surface, breaking changes
+steelforge brownfield contracts <feature>                   # the regression oracle: declared vs discovered, uncovered files
+steelforge brownfield contracts <feature> --write           # publish contracts.json for CI
+steelforge brownfield contracts <feature> --verify          # run the test command; exit 1 unless contracts are satisfied
+steelforge brownfield reuse <feature> [--symbols a,b]       # symbols a reuse-first search would have found first
 
 # Rigor
-open-sdd govern rigor            # compact: level + active gates + what it demands (exit 1 if blocking)
-open-sdd govern rigor --verbose  # the full level table, the rationale and every finding
-open-sdd govern rigor --gates    # the ladder table: what each level adds and its gates
-open-sdd govern rigor --select   # recommend a level from the decision table
+steelforge govern rigor            # compact: level + active gates + what it demands (exit 1 if blocking)
+steelforge govern rigor --verbose  # the full level table, the rationale and every finding
+steelforge govern rigor --gates    # the ladder table: what each level adds and its gates
+steelforge govern rigor --select   # recommend a level from the decision table
 ```
 
 `delta validate` exits `1` on errors (it exits `0` with warnings, which is the honest signal that
@@ -223,7 +223,7 @@ honest report of unfinished work.
 
 Stated here so the workflow is not read as more than it is:
 
-- **Contract verification exists but is not in CI.** `open-sdd brownfield contracts <feature>
+- **Contract verification exists but is not in CI.** `steelforge brownfield contracts <feature>
   [--write] [--verify]` binds the delta's declared tests to the changed files, reports the changed
   files no contract covers, and with `--verify` runs the test command and exits `1` unless the
   contract set is satisfied (exit 0 with a declared contract missing is *not* a pass). But
@@ -235,7 +235,7 @@ Stated here so the workflow is not read as more than it is:
   in the module but has no console command; `brownfield impact` answers the impact question from the
   dependency graph instead of from the constitution's evidence.
 - **Amendment promotion** is modelled but not exposed by a command.
-- **Impact and reuse-first are advisory.** `open-sdd brownfield impact` and `open-sdd brownfield
+- **Impact and reuse-first are advisory.** `steelforge brownfield impact` and `steelforge brownfield
   reuse` report; they do not block (only `error`-severity impact findings exit non-zero, and the
   reuse rule is deliberately unenforced — the generated constitution emits it as a proposed
   amendment).

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Open-SDD | Global install from source
+# SteelForge | Global install from source
 #
 # Clones the repository, installs the workspace, builds the CLI and tells you how to run it.
 #
@@ -14,7 +14,7 @@ REPO_URL="${OPEN_SDD_REPO:-https://github.com/Brujo2020/OpenSDD.git}"
 BRANCH="${OPEN_SDD_BRANCH:-main}"
 CLI="$INSTALL_DIR/tools/open-sdd/dist/cli.js"
 
-echo "Installing open-sdd into $INSTALL_DIR ..."
+echo "Installing steelforge into $INSTALL_DIR ..."
 
 if [ -d "$INSTALL_DIR/.git" ]; then
   echo "Existing checkout found; updating."
@@ -46,5 +46,5 @@ echo ""
 echo "Then:"
 echo "  source ~/.zshrc          # or ~/.bashrc"
 echo "  cd /path/to/your/repo"
-echo "  open-sdd --help"
-echo "  open-sdd gates chain     # resolve the Zero-Trust chain"
+echo "  steelforge --help"
+echo "  steelforge gates chain     # resolve the Zero-Trust chain"

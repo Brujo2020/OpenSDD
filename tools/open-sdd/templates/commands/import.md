@@ -18,13 +18,13 @@ parallelSafe: false
 moves:
   - traceability
 commands:
-  - "open-sdd import --json"
-  - "open-sdd import spec-kit --json"
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
+  - "steelforge import --json"
+  - "steelforge import spec-kit --json"
+  - "steelforge status --json"
+  - "steelforge status --check --json"
 scripts:
-  - "open-sdd import --json"
-  - "open-sdd status --check --json"
+  - "steelforge import --json"
+  - "steelforge status --check --json"
 ---
 
 # Import — absorb the incumbent, keep what maps, name what does not
@@ -45,12 +45,12 @@ report it.
 
 ## Contract — the five guarantees for this template
 
-- **Identified — produces:** the mapped `.sdd/specs/` and `.sdd/steering/` artifacts produced by `open-sdd import`, plus its per-file plan; nothing existing is overwritten.
+- **Identified — produces:** the mapped `.sdd/specs/` and `.sdd/steering/` artifacts produced by `steelforge import`, plus its per-file plan; nothing existing is overwritten.
 - **Identified — refuses:** it refuses to overwrite an existing artifact and refuses to claim a 1:1 conversion: what cannot be mapped is skipped and listed.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd import --json` reports per-file `copy`/`convert`/`skip` (exit 0) — the skips ARE the check and must be reported; `open-sdd status --check --json` **exits 1** until the imported seeds are reconciled with the constitution.
-- **Measured — components:** `traceability` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: imported requirements inherit no authority from their old tool, they are candidates until reconciled, and `open-sdd status --check --json` is the pivot check.
+- **Assured — backing check:** `steelforge import --json` reports per-file `copy`/`convert`/`skip` (exit 0) — the skips ARE the check and must be reported; `steelforge status --check --json` **exits 1** until the imported seeds are reconciled with the constitution.
+- **Measured — components:** `traceability` — the reader sees the change before/after in `steelforge status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: imported requirements inherit no authority from their old tool, they are candidates until reconciled, and `steelforge status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -73,7 +73,7 @@ report it.
 1. Read the plan: every source found, every conversion, and every skip with its reason:
 
 ```bash
-open-sdd import --json
+steelforge import --json
 ```
 
 2. Narrow to one incumbent when more than one is present, so the mapping is unambiguous:
@@ -82,7 +82,7 @@ open-sdd import --json
 ```
 
 ```bash
-open-sdd import spec-kit --json
+steelforge import spec-kit --json
 ```
 
 ```bash
@@ -97,14 +97,14 @@ open-sdd import spec-kit --json
 4. Read the repository state to see what the import produced:
 
 ```bash
-open-sdd status --json
+steelforge status --json
 ```
 
 5. Validate against the constitution and the declared rigor level, because an imported spec is not
    yet governed:
 
 ```bash
-open-sdd status --check --json
+steelforge status --check --json
 ```
 
 6. Report: what was found, what was copied, what was converted, and **every skip with its reason**.
@@ -112,7 +112,7 @@ open-sdd status --check --json
 
 ## The constitution is the pivot
 
-Imported requirements do not inherit authority from their old tool. `open-sdd status --check --json`
+Imported requirements do not inherit authority from their old tool. `steelforge status --check --json`
 is the pivot check; until the imported seeds are reconciled with the ratified constitution, they are
 candidates, and the report says so.
 

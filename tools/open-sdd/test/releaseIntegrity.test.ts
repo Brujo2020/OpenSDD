@@ -23,7 +23,7 @@ const codeBlocks = (markdown: string): string[] =>
 describe('release integrity — one publishable identity', () => {
   it('the root manifest carries the public scope and a public access policy', () => {
     const root = pkg('package.json');
-    expect(root.name).toBe('@brujo2020/open-sdd');
+    expect(root.name).toBe('@brujo2020/steelforge');
     expect(root.version).toMatch(/^\d+\.\d+\.\d+$/);
     // Scoped packages publish as private by default; this is the switch that makes them public.
     expect(root.publishConfig?.access).toBe('public');
@@ -78,7 +78,7 @@ describe('release integrity — the publish pipeline targets the right package',
   });
 
   it('asserts the published name before publishing', () => {
-    expect(workflow).toContain('@brujo2020/open-sdd');
+    expect(workflow).toContain('@brujo2020/steelforge');
     expect(workflow.indexOf('Confirm the published identity')).toBeLessThan(
       workflow.indexOf('npm publish'),
     );
@@ -109,17 +109,17 @@ describe('release integrity — the documentation advertises what actually resol
   });
 
   it('the entry-point documentation names the scoped package', () => {
-    expect(read('README.md')).toContain('@brujo2020/open-sdd');
-    expect(read('docs/INSTALLATION.md')).toContain('@brujo2020/open-sdd');
+    expect(read('README.md')).toContain('@brujo2020/steelforge');
+    expect(read('docs/INSTALLATION.md')).toContain('@brujo2020/steelforge');
   });
 
   it('the root README advertises the scoped package that actually resolves on npm', () => {
     // This assertion used to demand "not published yet": while the registry carried only v2.0.0, a
-    // fenced `npx @brujo2020/open-sdd` command would have run the wrong artifact. The scoped package
-    // now publishes v3.1.0 as `latest` (verified with `npm view @brujo2020/open-sdd dist-tags` and by
+    // fenced `npx @brujo2020/steelforge` command would have run the wrong artifact. The scoped package
+    // now publishes v3.1.0 as `latest` (verified with `npm view @brujo2020/steelforge dist-tags` and by
     // running the published `init`), so that denial is itself the false claim and had to go.
     const readme = read('README.md');
-    expect(readme).toContain('@brujo2020/open-sdd');
+    expect(readme).toContain('@brujo2020/steelforge');
     expect(readme).not.toMatch(/not published yet/i);
   });
 });

@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Nuevo nombre: SteelForge
+- El producto pasa a llamarse **SteelForge — SDD Toolkit**: consolida en un toolkit desde PoCs y spikes hasta programas con exigencia estricta, de forma agnóstica, tomando lo mejor de Spec Kit, BMAD, Kiro y OpenSpec. Paquete npm `@brujo2020/steelforge`; comando `steelforge`.
+- Compatibilidad: `open-sdd`, `sdd-open` y `sdd` siguen siendo alias del mismo CLI; `.sdd/`, las variables `OPEN_SDD_*`, los esquemas `open-sdd.*/1`, las herramientas MCP `open_sdd_*`, los skills `sdd-*` y el hook de commit no cambian, así que ningún proyecto existente tiene que migrar nada.
+- Toda la documentación, la ayuda y los mensajes usan `steelforge`.
+
 ### Cierre — 5 mejoras ([docs/REVISION-EXPERTO-3.md](docs/REVISION-EXPERTO-3.md))
 - FinOps en `flow`: tokens, modelos, duración y coste (`.sdd/settings/finops.json`), con aviso de presupuesto.
 - `audit trail --otlp <file>`: el registro de decisiones como OTLP/JSON para OpenTelemetry.

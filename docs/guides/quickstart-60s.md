@@ -1,6 +1,6 @@
 # Quickstart — the 60-second demo
 
-This is the shortest honest path to seeing what `open-sdd` actually does: it creates a throwaway
+This is the shortest honest path to seeing what `steelforge` actually does: it creates a throwaway
 repository containing real incoherences, runs the CLI against it, and shows the tool naming them.
 No network, no `npm install`, nothing written outside a temp directory.
 
@@ -39,7 +39,7 @@ It takes well under a minute. The script:
    | A declared contract (`test/ledger.test.ts`) that does not exist | `delta.md` |
 
 3. Runs the **pinned** CLI — always `tools/open-sdd/dist/cli.js` from this checkout, never the
-   global `open-sdd` on your `PATH` — and prints three transcripts: `status` (phase, traceability,
+   global `steelforge` on your `PATH` — and prints three transcripts: `status` (phase, traceability,
    evidence), `delta validate` (unmapped requirement, placeholder), and `gates run` (the Zero-Trust
    chain and its verdict).
 4. Prints a verdict per injected incoherence and **exits non-zero if the tool failed to detect any
@@ -76,7 +76,7 @@ If you would rather not install Node locally, build the image once and run the s
 
 ```bash
 docker build -t open-sdd .
-docker run --rm -v "$PWD:/work" open-sdd status
+docker run --rm -v "$PWD:/work" steelforge status
 ```
 
 The image is multi-stage, runs as a non-root user, and ships no dev dependencies. Commands that only

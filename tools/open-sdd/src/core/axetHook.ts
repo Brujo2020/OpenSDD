@@ -40,7 +40,7 @@ export const AXET_HOOK_MARKER = 'open-sdd:axet-hook';
 export const AXET_LEGACY_HOOK = 'PreToolUse';
 const LEGACY_MARKER = 'open-sdd:axet-completion-gate';
 
-export const PACKAGE_NAME = '@brujo2020/open-sdd';
+export const PACKAGE_NAME = '@brujo2020/steelforge';
 
 /** Tools after which the gate is re-checked: the ones that change files or run commands. */
 const CHANGE_TOOLS = ['write_to_file', 'replace_in_file', 'apply_patch', 'execute_command', 'new_rule'];
@@ -84,7 +84,7 @@ const answer = (value) => { process.stdout.write(JSON.stringify(value) + '\\n');
 let input = '';
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (chunk) => { input += chunk; });
-process.stdin.on('end', () => { main().catch((error) => answer({ cancel: false, errorMessage: 'open-sdd hook: ' + String(error) })); });
+process.stdin.on('end', () => { main().catch((error) => answer({ cancel: false, errorMessage: 'steelforge hook: ' + String(error) })); });
 
 async function main() {
   let payload = {};
@@ -107,7 +107,7 @@ async function main() {
   const run = local
     ? spawnSync(process.execPath, [local, ...GATE_ARGS], { cwd: root, env, encoding: 'utf8', timeout: 25000 })
     : spawnSync(win ? 'npx.cmd' : 'npx', ['--yes', SOURCE, ...GATE_ARGS], { cwd: root, env, encoding: 'utf8', timeout: 25000, shell: win });
-  const gateCommand = local ? 'npx open-sdd ' + GATE_ARGS.join(' ') : 'npx --yes ' + SOURCE + ' ' + GATE_ARGS.join(' ');
+  const gateCommand = local ? 'npx steelforge ' + GATE_ARGS.join(' ') : 'npx --yes ' + SOURCE + ' ' + GATE_ARGS.join(' ');
 
   const text = ((run.stdout || '') + '\\n' + (run.stderr || '')).replace(/\\x1b\\[[0-9;]*m/g, '');
   const rows = text.split('\\n').map((line) => line.match(/^\\s*([CO]\\d+)\\s+(.+?)\\s{2,}(pass|fail|advisory|self-authorized)\\s*$/)).filter(Boolean);
@@ -122,7 +122,7 @@ async function main() {
       : 'UNAVAILABLE — the gate could not run (' + (run.error ? run.error.message : run.status === null ? 'timeout' : lastError.slice(0, 300)) + '). Install it in the project: npm i -D ' + SOURCE;
 
   if (EVENT === 'TaskComplete') {
-    process.stderr.write('open-sdd gate after completion: ' + detail + '\\n');
+    process.stderr.write('steelforge gate after completion: ' + detail + '\\n');
     answer({ cancel: false });
   }
 
@@ -133,7 +133,7 @@ async function main() {
     answer({
       cancel: false,
       contextModification: [
-        'SDD_GATE: this repository is governed by open-sdd (Spec-Driven Development).',
+        'SDD_GATE: this repository is governed by steelforge (Spec-Driven Development).',
         '- Use the /sdd-* workflows; each one follows its skill in .axet-plugin/skills/.',
         '- The commit gate is \`' + gateCommand + '\`: a commit is refused while it fails.',
         '- Before attempt_completion, run it and fix what it reports. Do not bypass it with --no-verify.',
@@ -177,7 +177,7 @@ export const planAxetHooks = (root: string, source: string, force: boolean): Axe
     if (existing === null) return { event, file, action: 'create', content };
     if (existing === content) return { event, file, action: 'keep' };
     if (!existing.includes(AXET_HOOK_MARKER) && !force) {
-      return { event, file, action: 'refused', reason: `${AXET_HOOKS_DIR}/${event} existe y no lo escribió open-sdd (usa --force para reemplazarlo).` };
+      return { event, file, action: 'refused', reason: `${AXET_HOOKS_DIR}/${event} existe y no lo escribió steelforge (usa --force para reemplazarlo).` };
     }
     return { event, file, action: 'update', content };
   });

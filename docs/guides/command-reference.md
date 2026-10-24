@@ -1,6 +1,6 @@
 # Command Reference
 
-Complete reference for Open-SDD commands and options with detailed usage, examples, and troubleshooting.
+Complete reference for SteelForge commands and options with detailed usage, examples, and troubleshooting.
 
 If you are using skills mode, start with the [Skill Reference](skill-reference.md) instead.
 
@@ -295,7 +295,7 @@ proper separation of concerns and allow for focused, high-quality requirement an
 |-------|-------|----------|
 | ❌ "Ambiguous feature name" | Vague description | Provide more specific description or choose from AI's suggestions |
 | ❌ "Feature already exists" | Name conflict | AI auto-appends number (e.g., `-2`), or choose different name |
-| ❌ "Template missing" | Corrupted installation | Reinstall open-sdd: `npx @brujo2020/open-sdd@latest` |
+| ❌ "Template missing" | Corrupted installation | Reinstall open-sdd: `npx @brujo2020/steelforge@latest` |
 | ⚠️ Generated name unclear | Short description | Provide longer, more detailed feature description |
 
 **Pro Tips**:
@@ -1691,7 +1691,7 @@ Or implement all remaining tasks:
 
 ### "Template missing"
 **Cause**: Corrupted or incomplete installation  
-**Solution**: Reinstall open-sdd: `npx @brujo2020/open-sdd@latest`
+**Solution**: Reinstall open-sdd: `npx @brujo2020/steelforge@latest`
 
 ### Tasks not completing
 **Cause**: Checkbox format incorrect in tasks.md  

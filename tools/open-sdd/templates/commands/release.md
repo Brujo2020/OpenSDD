@@ -17,22 +17,22 @@ parallelSafe: false
 moves:
   - gates
 commands:
-  - "open-sdd status --check --json"
-  - "open-sdd gates run"
-  - "open-sdd gates chain --profile regulated"
-  - "open-sdd gates crosswalk"
-  - "open-sdd gates enforcement"
-  - "open-sdd govern conformance"
-  - "open-sdd assure claims --verify --json"
-  - "open-sdd assure threats"
-  - "open-sdd audit bundle --json"
-  - "open-sdd floor status"
-  - "open-sdd status --json"
+  - "steelforge status --check --json"
+  - "steelforge gates run"
+  - "steelforge gates chain --profile regulated"
+  - "steelforge gates crosswalk"
+  - "steelforge gates enforcement"
+  - "steelforge govern conformance"
+  - "steelforge assure claims --verify --json"
+  - "steelforge assure threats"
+  - "steelforge audit bundle --json"
+  - "steelforge floor status"
+  - "steelforge status --json"
 scripts:
-  - "open-sdd gates run"
-  - "open-sdd assure claims --verify --json"
-  - "open-sdd audit bundle --json"
-  - "open-sdd floor status"
+  - "steelforge gates run"
+  - "steelforge assure claims --verify --json"
+  - "steelforge audit bundle --json"
+  - "steelforge floor status"
 ---
 
 # Release — the gates decide, the evidence is bundled, then it ships
@@ -55,9 +55,9 @@ from the root manifest and ask before tagging.
 - **Identified — produces:** `CHANGELOG.md`, the release note `.sdd/specs/<feature>/release.md`, the git tag and the published artifact.
 - **Identified — refuses:** it refuses to modify application source, tests, the constitution or the settings, and refuses to ship around a failing gate.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd gates run` **exits 1** when the chain fails (BLOCKS the release), `open-sdd assure claims --verify --json` **exits 1** on a broken claim (BLOCKS), `open-sdd audit bundle --json` **exits 1** when the bundle is not `ok`, and `open-sdd floor status` reports the installed floor.
-- **Measured — components:** `gates` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the release verdict cites the ratified constitution, a draft constitution means the release is not authorised, and `open-sdd status --check --json` is the pivot check.
+- **Assured — backing check:** `steelforge gates run` **exits 1** when the chain fails (BLOCKS the release), `steelforge assure claims --verify --json` **exits 1** on a broken claim (BLOCKS), `steelforge audit bundle --json` **exits 1** when the bundle is not `ok`, and `steelforge floor status` reports the installed floor.
+- **Measured — components:** `gates` — the reader sees the change before/after in `steelforge status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the release verdict cites the ratified constitution, a draft constitution means the release is not authorised, and `steelforge status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -83,61 +83,61 @@ from the root manifest and ask before tagging.
 1. Validate the repository against the constitution and the declared rigor level:
 
 ```bash
-open-sdd status --check --json
+steelforge status --check --json
 ```
 
 2. Run the enforcement chain. Its exit status is the release verdict, not your summary of it:
 
 ```bash
-open-sdd gates run
+steelforge gates run
 ```
 
 3. If the project declares a regulated profile, run the stricter resolved chain and report which
    controls it resolved:
 
 ```bash
-open-sdd gates chain --profile regulated
+steelforge gates chain --profile regulated
 ```
 
 4. Read the crosswalk so the release note can trace implementation to the control that imposes it,
    and read the enforcement levels so the ceiling/floor distinction is stated, not blurred:
 
 ```bash
-open-sdd gates crosswalk
+steelforge gates crosswalk
 ```
 
 ```bash
-open-sdd gates enforcement
+steelforge gates enforcement
 ```
 
 5. Read the invariant conformance report and attach its per-invariant evidence:
 
 ```bash
-open-sdd govern conformance
+steelforge govern conformance
 ```
 
 6. Verify the claims registry. It must report zero broken claims; a broken claim blocks the release:
 
 ```bash
-open-sdd assure claims --verify --json
+steelforge assure claims --verify --json
 ```
 
 7. Read the security posture and include the residual risks it names:
 
 ```bash
-open-sdd assure threats
+steelforge assure threats
 ```
 
 8. Produce the evidence bundle — every artifact with its sha256 — and archive it with the release:
 
 ```bash
-open-sdd audit bundle --json
+steelforge audit bundle --json
 ```
 
 9. Confirm the enforcement floor is actually installed, not merely declared:
 
 ```bash
-open-sdd floor status
+steelforge floor status
 ```
 
 10. Update `CHANGELOG.md` with the version, the changes, and the verification above. Tag the version
@@ -177,7 +177,7 @@ constitution first, then release.
 ## Mandatory Post-Execution Hooks
 
 1. Archive the audit bundle with the release and link it in the release note.
-2. Re-run `open-sdd floor status` after publishing to confirm the gate remained installed.
+2. Re-run `steelforge floor status` after publishing to confirm the gate remained installed.
 
 ## Completion Report
 

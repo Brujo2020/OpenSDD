@@ -4,7 +4,7 @@
 
 ## What it does
 
-`/sdd-getspecs` is the **code-first entry point** for adopting open-sdd on an existing repository.
+`/sdd-getspecs` is the **code-first entry point** for adopting steelforge on an existing repository.
 
 It reverse-engineers the project and writes durable artifacts under `.sdd/`:
 
@@ -16,7 +16,7 @@ It reverse-engineers the project and writes durable artifacts under `.sdd/`:
 | `specs/<slug>/spec.json` | Initialized spec metadata (`phase: initialized`) |
 | `specs/<slug>/requirements.md` | **Stub only** — project description (same as `/sdd-spec-init`); EARS section empty |
 
-It does **not** write EARS acceptance criteria, `design.md`, or `tasks.md`. Those remain gated behind the normal open-sdd workflow.
+It does **not** write EARS acceptance criteria, `design.md`, or `tasks.md`. Those remain gated behind the normal steelforge workflow.
 
 ## Why it exists
 
@@ -29,7 +29,7 @@ It does **not** write EARS acceptance criteria, `design.md`, or `tasks.md`. Thos
 
 `/sdd-discovery` routes **new work**. `/sdd-getspecs` bootstraps **existing work**.
 
-## Position in the open-sdd pipeline
+## Position in the steelforge pipeline
 
 ```mermaid
 flowchart TB
@@ -43,7 +43,7 @@ flowchart TB
     SEED["specs/&lt;slug&gt;/<br/>brief · spec.json · requirements stub"]
   end
 
-  subgraph sdd [Standard open-sdd phases — unchanged gates]
+  subgraph sdd [Standard steelforge phases — unchanged gates]
     REQ["/sdd-spec-requirements<br/>EARS requirements"]
     GAP["/sdd-validate-gap<br/>optional brownfield"]
     DES["/sdd-spec-design"]
@@ -138,7 +138,7 @@ Phase 6  Handoff     /sdd-spec-requirements or /sdd-spec-batch
 1. **Seeds, not EARS** — `requirements.md` stub matches `/sdd-spec-init`; EARS stays in `/sdd-spec-requirements`.
 2. **Sub-agent for exploration** — Heavy codebase reads stay out of main context (same pattern as `/sdd-discovery`).
 3. **Additive steering** — Never silently replace user-authored steering.
-4. **No `.specify/`** — Avoids parallel spec trees incompatible with open-sdd portability.
+4. **No `.specify/`** — Avoids parallel spec trees incompatible with steelforge portability.
 5. **Git as signal, not truth** — Commit themes prioritize seeds; they do not invent features.
 
 ## When to use
@@ -146,7 +146,7 @@ Phase 6  Handoff     /sdd-spec-requirements or /sdd-spec-batch
 **Use `/sdd-getspecs` when:**
 
 - The repo has real implementation but empty or incomplete `.sdd/specs/`
-- The team is adopting open-sdd mid-flight
+- The team is adopting steelforge mid-flight
 - You need steering + a spec backlog from code reality
 
 **Use `/sdd-discovery` instead when:**
@@ -161,8 +161,8 @@ Phase 6  Handoff     /sdd-spec-requirements or /sdd-spec-batch
 ## Typical workflow
 
 ```bash
-# 1. Install open-sdd skills (once)
-npx @brujo2020/open-sdd@latest --cursor-skills
+# 1. Install steelforge skills (once)
+npx @brujo2020/steelforge@latest --cursor-skills
 
 # 2. Bootstrap from existing code
 /sdd-getspecs
@@ -171,7 +171,7 @@ npx @brujo2020/open-sdd@latest --cursor-skills
 /sdd-spec-requirements auth-service
 /sdd-spec-batch
 
-# 4. Continue normal open-sdd pipeline
+# 4. Continue normal steelforge pipeline
 /sdd-spec-design auth-service
 /sdd-spec-tasks auth-service
 /sdd-impl auth-service

@@ -43,7 +43,7 @@ export const validateEvent = (raw) => {
     if (!e.at || Number.isNaN(Date.parse(e.at)))
         errors.push('at must be an ISO date');
     if (e.source === 'agent')
-        errors.push('an agent cannot raise an event: propose on an existing event (open-sdd migrate propose)');
+        errors.push('an agent cannot raise an event: propose on an existing event (steelforge migrate propose)');
     else if (!['human', 'scanner', 'monitor', 'pipeline'].includes(e.source))
         errors.push('source must be human|scanner|monitor|pipeline');
     if (!e.title || !String(e.title).trim())

@@ -1,5 +1,5 @@
 /**
- * `open-sdd status` — la superficie de consola del panel único.
+ * `steelforge status` — la superficie de consola del panel único.
  *
  * Dos decisiones que la forma del comando hace explícitas:
  *

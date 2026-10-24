@@ -2,7 +2,7 @@
 #
 # The paper's own registry (`./bin/sh-claims verify` against `docs/claims/paper-claims.yaml`)
 # pairs every published sentence with a command whose EXIT CODE decides the verdict. This file
-# adopts that format for the open-sdd port of the reference architecture.
+# adopts that format for the steelforge port of the reference architecture.
 #
 # Each entry:
 #   id          stable identifier
@@ -307,21 +307,21 @@
   section: "§2.3 / release identity"
   statement_es: 'Solo hay un paquete publicable: el de la raíz, con scope y acceso público; el workspace de construcción está marcado como privado.'
   statement_en: 'There is exactly one publishable package: the root one, scoped and public; the build workspace is marked private.'
-  verifier: "node -e \"const r=require('./package.json'),w=require('./tools/open-sdd/package.json');process.exit(r.name==='@brujo2020/open-sdd' && r.publishConfig && r.publishConfig.access==='public' && w.private===true ? 0 : 1)\""
+  verifier: "node -e \"const r=require('./package.json'),w=require('./tools/open-sdd/package.json');process.exit(r.name==='@brujo2020/steelforge' && r.publishConfig && r.publishConfig.access==='public' && w.private===true ? 0 : 1)\""
   expectation: pass
 
 - id: CLM-042
   section: "§2.3 / release identity"
   statement_es: 'El pipeline de publicación construye y prueba el workspace y publica el paquete de la raíz con acceso público, nunca el workspace privado.'
   statement_en: 'The publish pipeline builds and tests the workspace and publishes the root package with public access, never the private workspace.'
-  verifier: "node -e \"const fs=require('fs'),t=fs.readFileSync('.github/workflows/publish.yml','utf8'),i=t.indexOf('npm publish');process.exit(t.includes('npm publish --access public') && i>t.indexOf('npm test') && !t.slice(i).includes('working-directory') && t.includes('@brujo2020/open-sdd') ? 0 : 1)\""
+  verifier: "node -e \"const fs=require('fs'),t=fs.readFileSync('.github/workflows/publish.yml','utf8'),i=t.indexOf('npm publish');process.exit(t.includes('npm publish --access public') && i>t.indexOf('npm test') && !t.slice(i).includes('working-directory') && t.includes('@brujo2020/steelforge') ? 0 : 1)\""
   expectation: pass
 
 - id: CLM-043
   section: "§2.3 / documentation truth"
   statement_es: 'Ningún bloque de código de la documentación anuncia el nombre sin scope, que no existe en el registro.'
   statement_en: 'No documentation code block advertises the unscoped name, which does not exist on the registry.'
-  verifier: "node -e \"const fs=require('fs');const files=['README.md','docs/INSTALLATION.md','docs/QUICK-START.md','tools/open-sdd/README.md','docs/guides/brownfield-getspecs.md','docs/guides/universal-brownfield-sdd.md'].filter(f=>fs.existsSync(f));let bad=0;const fence=String.fromCharCode(96,96,96);for(const f of files){const parts=fs.readFileSync(f,'utf8').split(fence);for(let i=1;i<parts.length;i+=2){const bare=parts[i].split('@brujo2020/open-sdd@latest').join('');if(bare.includes('open-sdd@latest'))bad++;}}process.exit(bad===0?0:1)\""
+  verifier: "node -e \"const fs=require('fs');const files=['README.md','docs/INSTALLATION.md','docs/QUICK-START.md','tools/open-sdd/README.md','docs/guides/brownfield-getspecs.md','docs/guides/universal-brownfield-sdd.md'].filter(f=>fs.existsSync(f));let bad=0;const fence=String.fromCharCode(96,96,96);for(const f of files){const parts=fs.readFileSync(f,'utf8').split(fence);for(let i=1;i<parts.length;i+=2){const bare=parts[i].split('@brujo2020/steelforge@latest').join('');if(bare.includes('steelforge@latest'))bad++;}}process.exit(bad===0?0:1)\""
   expectation: pass
 
 - id: CLM-044
@@ -515,7 +515,7 @@
 
 - id: CLM-071
   section: "v3.6.0 / REQ-PB-011 (AI-DLC sensors fail closed)"
-  statement_es: 'El runner de sensores del plugin AI-DLC `opensdd` falla cuando el CLI de open-sdd no está instalado.'
+  statement_es: 'El runner de sensores del plugin AI-DLC `opensdd` falla cuando el CLI de steelforge no está instalado.'
   statement_en: 'The sensor runner of the `opensdd` AI-DLC plugin fails when the open-sdd CLI is not installed.'
   verifier: 'env -i PATH=/nonexistent "$(command -v node)" --experimental-strip-types --no-warnings tools/open-sdd/templates/integrations/aidlc-plugin/opensdd/tools/aidlc-sensor-opensdd-gates.ts --output-path x | grep -q "\"pass\":false"'
   expectation: pass

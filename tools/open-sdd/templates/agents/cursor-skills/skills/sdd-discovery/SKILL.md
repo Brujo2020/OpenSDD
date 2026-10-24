@@ -254,7 +254,7 @@ If the decomposition contains only existing-spec updates plus direct implementat
 
 ## Deterministic helper
 
-`open-sdd assist discover "<idea>" --feature <f>` writes role-based questions (analyst, PM, architect, UX, QA, security) chosen by level, variant and risk; the user answers them, then `open-sdd assist brief <f> --write` composes and lints `brief.md`. Propose answers only as `ASSUMPTION: …`.
+`steelforge assist discover "<idea>" --feature <f>` writes role-based questions (analyst, PM, architect, UX, QA, security) chosen by level, variant and risk; the user answers them, then `steelforge assist brief <f> --write` composes and lints `brief.md`. Propose answers only as `ASSUMPTION: …`.
 </instructions>
 
 ## Critical Constraints

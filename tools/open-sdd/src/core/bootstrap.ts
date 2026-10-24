@@ -79,7 +79,7 @@ export interface BootstrapPlan {
 }
 
 /** Marker that identifies the code-intelligence document as ours, so it is safe to regenerate. */
-export const CODE_INTELLIGENCE_MARKER = '<!-- generated-by: open-sdd brownfield bootstrap -->';
+export const CODE_INTELLIGENCE_MARKER = '<!-- generated-by: steelforge brownfield bootstrap -->';
 
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'out', 'coverage', '.next', '.turbo']);
 const SOURCE_EXT = /\.(ts|tsx|js|jsx|mjs|cjs|py|go|rb|java|kt|rs)$/;
@@ -693,7 +693,7 @@ export const writeCodeIntelligence = async (input: {
   if (!built.complete) notInspected.push(`El mapa de módulos está incompleto: ${built.detail}`);
   if (!constitutionExists) {
     notInspected.push(
-      `No existe ${constitutionRel}: todavía no hay autoridad constitucional que citar. Genera con \`open-sdd brownfield constitution <root> --write\`.`,
+      `No existe ${constitutionRel}: todavía no hay autoridad constitucional que citar. Genera con \`steelforge brownfield constitution <root> --write\`.`,
     );
   }
 
@@ -755,14 +755,14 @@ export const writeCodeIntelligence = async (input: {
   } else {
     lines.push(
       `Todavía no existe \`${constitutionRel}\`. Genérala con ` +
-        '`open-sdd brownfield constitution <root> --write` antes de tratar cualquier regla como autoridad.',
+        '`steelforge brownfield constitution <root> --write` antes de tratar cualquier regla como autoridad.',
     );
   }
   lines.push('');
   lines.push('## Reutilización primero');
   lines.push('');
   lines.push(
-    'Antes de crear un símbolo nuevo, busca uno existente: `open-sdd brownfield reuse <feature> --symbols A,B`. ' +
+    'Antes de crear un símbolo nuevo, busca uno existente: `steelforge brownfield reuse <feature> --symbols A,B`. ' +
       'En brownfield la duplicación es el riesgo dominante: dos copias divergen y la que se olvida es la que sigue en producción.',
   );
   lines.push('');
@@ -877,15 +877,15 @@ export const planBootstrap = async (input: { cwd: string; focus?: string }): Pro
 
   const root = path.resolve(cwd);
   const steps: string[] = [
-    `Reconocimiento — qué es hoy el repositorio: \`open-sdd brownfield survey ${root}\``,
-    `Constitución descriptiva (el stack actual es un hecho establecido): \`open-sdd brownfield constitution ${root} --write\``,
-    `Mapa de módulos y responsabilidades observadas (se imprime con el plan): \`open-sdd brownfield bootstrap ${root}\``,
-    `Documento de inteligencia del código para agentes: \`open-sdd brownfield bootstrap ${root} --write\``,
-    `Plantillas adaptadas al stack observado (se muestran con el plan; se escriben solo donde no haya una propia): \`open-sdd brownfield templates ${root} [--write]\``,
+    `Reconocimiento — qué es hoy el repositorio: \`steelforge brownfield survey ${root}\``,
+    `Constitución descriptiva (el stack actual es un hecho establecido): \`steelforge brownfield constitution ${root} --write\``,
+    `Mapa de módulos y responsabilidades observadas (se imprime con el plan): \`steelforge brownfield bootstrap ${root}\``,
+    `Documento de inteligencia del código para agentes: \`steelforge brownfield bootstrap ${root} --write\``,
+    `Plantillas adaptadas al stack observado (se muestran con el plan; se escriben solo donde no haya una propia): \`steelforge brownfield templates ${root} [--write]\``,
     focus && focusSlug
-      ? `Semilla del contrato de cambio para «${focus}»: \`open-sdd delta init ${focusSlug} "${focus}"\``
-      : 'Sin --focus no se siembra ninguna delta: cuando decidas el primer cambio, `open-sdd delta init <feature> "<qué cambia>"`',
-    `Estado del contrato de cambio: \`open-sdd delta status${focus && focusSlug ? ` ${focusSlug}` : ''}\``,
+      ? `Semilla del contrato de cambio para «${focus}»: \`steelforge delta init ${focusSlug} "${focus}"\``
+      : 'Sin --focus no se siembra ninguna delta: cuando decidas el primer cambio, `steelforge delta init <feature> "<qué cambia>"`',
+    `Estado del contrato de cambio: \`steelforge delta status${focus && focusSlug ? ` ${focusSlug}` : ''}\``,
   ];
 
   const toCreate = artifacts.filter((artifact) => artifact.action === 'create').length;

@@ -70,7 +70,7 @@ After all research completes, synthesize findings in main context before generat
    - If issues are local to the draft, repair the requirements and review again
    - Keep the review bounded to at most 2 repair passes
    - If the draft exposes a real scope ambiguity or contradiction, stop and ask the user to clarify instead of writing guessed requirements
-- After writing, run `open-sdd brownfield clarify {feature}`. If it reports ambiguous requirements (VAGUE_TERM, NO_ACTOR…), tell the user how many and offer to clarify now: ask its questions one at a time and apply only the user's answers with `--answers <file> --write`. Never fill a threshold yourself
+- After writing, run `steelforge brownfield clarify {feature}`. If it reports ambiguous requirements (VAGUE_TERM, NO_ACTOR…), tell the user how many and offer to clarify now: ask its questions one at a time and apply only the user's answers with `--answers <file> --write`. Never fill a threshold yourself
 
 5. **Finalize and Update Metadata**:
    - Write `{{SDD_DIR}}/specs/$1/requirements.md` only after the requirements review gate passes
@@ -114,9 +114,9 @@ question** — never a bare complaint.
 
 Run it, then act on what it says:
 
-- `open-sdd requirements review <feature>` — the review; add `--json` for the machine envelope
-- `open-sdd requirements fix <feature>` — apply only the rewrites that are mechanical
-- `open-sdd standards explain <ID>` — what one check detects, its severity, its basis and its remedy
+- `steelforge requirements review <feature>` — the review; add `--json` for the machine envelope
+- `steelforge requirements fix <feature>` — apply only the rewrites that are mechanical
+- `steelforge standards explain <ID>` — what one check detects, its severity, its basis and its remedy
 
 Non-negotiables:
 

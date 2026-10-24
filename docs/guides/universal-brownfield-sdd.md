@@ -1,18 +1,18 @@
-# Universal Brownfield with Open-SDD: From Solo Developers to Hyperscalers
+# Universal Brownfield with SteelForge: From Solo Developers to Hyperscalers
 
 > **The Reality of Software Engineering**: Over 90% of all real-world development is **Brownfield**. Greenfield projects are the exception; existing code is the rule.
 
-Whether you are a solo developer working on a side project or client repository, an agile startup moving fast without breaking things, or a Fortune 500 bank running on AWS, GCP, or Azure, **Open-SDD provides an adaptive, progressive path to brownfield modernization**.
+Whether you are a solo developer working on a side project or client repository, an agile startup moving fast without breaking things, or a Fortune 500 bank running on AWS, GCP, or Azure, **SteelForge provides an adaptive, progressive path to brownfield modernization**.
 
 ---
 
 ## The Spectrum: One Protocol, Four Tiers of Scale
 
-Open-SDD scales up and down. It never forces enterprise bureaucracy on a solo hacker, nor does it cut corners on a regulated banking core.
+SteelForge scales up and down. It never forces enterprise bureaucracy on a solo hacker, nor does it cut corners on a regulated banking core.
 
 ```mermaid
 flowchart TD
-  subgraph Tiers [Open-SDD Brownfield Spectrum]
+  subgraph Tiers [SteelForge Brownfield Spectrum]
     T1["Tier 1: Solo Developer / Freelance<br/><b>Frictionless Brownfield</b><br/>Zero amnesia · Context grounding · Surgical edits"]
     T2["Tier 2: Startup / Small Team<br/><b>Agile Brownfield</b><br/>Shared memory · No tribal knowledge · Fast onboarding"]
     T3["Tier 3: Scale-Up / Open-Source<br/><b>Modular Brownfield</b><br/>Boundary confinement · Blast radius control · Strangler Fig"]
@@ -31,12 +31,12 @@ flowchart TD
 * When you ask an AI agent to add a feature, it hallucinates libraries you don't use, rewrites working code, or destroys existing patterns.
 * You don't want 20 pages of documentation; you just want the agent to **understand the code, not break anything, and add the feature cleanly**.
 
-### The Open-SDD Flow
+### The SteelForge Flow
 ```bash
 # 1. Inspect existing code and extract project conventions in 30 seconds:
 /sdd-getspecs
 
-# 2. Open-SDD creates .sdd/steering/ (tech.md, structure.md) grounded in reality.
+# 2. SteelForge creates .sdd/steering/ (tech.md, structure.md) grounded in reality.
 # The AI now knows your exact framework, routing, and style.
 
 # 3. Create and implement a new feature surgically:
@@ -57,7 +57,7 @@ flowchart TD
 * "Tribal knowledge": Only the founding engineer knows how authentication was built. When they take time off, velocity grinds to a halt.
 * Onboarding a new hire takes 3 weeks of reading messy code.
 
-### The Open-SDD Flow
+### The SteelForge Flow
 ```bash
 # 1. Reverse engineer the existing services:
 /sdd-getspecs src/services
@@ -86,7 +86,7 @@ flowchart TD
 * Developers are afraid to refactor shared utilities because they don't know who calls them.
 * PRs are huge, hard to review, and create frequent merge conflicts.
 
-### The Open-SDD Flow
+### The SteelForge Flow
 ```bash
 # 1. Analyze blast radius and dependencies before changing code:
 /sdd-validate-gap search-indexer
@@ -112,7 +112,7 @@ flowchart TD
 * Strict regulatory compliance: **EU AI Act (Articles 11, 12, 14)**, **NIST AI RMF**, **SOC 2**, and **ISO/IEC 42001**.
 * Catastrophic cost of failure: Even a 0.01% bug in production causes financial loss or legal liability.
 
-### The Open-SDD Flow
+### The SteelForge Flow
 ```bash
 # 1. AST Dependency Reconnaissance (Tree-Sitter / LSP graph):
 /sdd-getspecs core-transaction-engine
@@ -137,7 +137,7 @@ flowchart TD
 
 ---
 
-## Summary Matrix: Tailoring Open-SDD to Your Scale
+## Summary Matrix: Tailoring SteelForge to Your Scale
 
 | Dimension | Tier 1: Solo Dev | Tier 2: Startup | Tier 3: Scale-Up | Tier 4: Enterprise |
 |---|---|---|---|---|
@@ -155,8 +155,8 @@ flowchart TD
 No matter the size of your project:
 
 ```bash
-# Step 1: Install Open-SDD in your project
-npx @brujo2020/open-sdd@latest
+# Step 1: Install SteelForge in your project
+npx @brujo2020/steelforge@latest
 
 # Step 2: Bootstrap from your existing codebase
 /sdd-getspecs

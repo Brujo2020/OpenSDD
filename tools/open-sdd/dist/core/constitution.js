@@ -37,7 +37,7 @@ export const INDEPENDENT_REVIEW_ID = 'C-INDEPENDENT-REVIEW';
 export const INDEPENDENT_REVIEW_AMENDMENT = {
     id: 'AMD-INDEPENDENT-REVIEW',
     title: 'Revisión independiente: humana o de un modelo distinto al autor',
-    proposedBy: 'open-sdd (invariante del harness)',
+    proposedBy: 'steelforge (invariante del harness)',
     status: 'in-force',
     migrationPlan: 'Los recibos de revisión registran el modelo autor y el revisor; las revisiones previas sin esos campos se tratan como humanas declaradas.',
 };

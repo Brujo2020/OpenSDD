@@ -26,16 +26,16 @@ parallelSafe: false
 moves:
   - constitution
 commands:
-  - "open-sdd brownfield survey ."
-  - "open-sdd brownfield constitution . --draft --write"
-  - "open-sdd brownfield constitution . --interview --answers <path> --write"
-  - "open-sdd govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
+  - "steelforge brownfield survey ."
+  - "steelforge brownfield constitution . --draft --write"
+  - "steelforge brownfield constitution . --interview --answers <path> --write"
+  - "steelforge govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
+  - "steelforge status --json"
+  - "steelforge status --check --json"
 scripts:
-  - "open-sdd brownfield survey ."
-  - "open-sdd brownfield constitution . --draft --write"
-  - "open-sdd govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
+  - "steelforge brownfield survey ."
+  - "steelforge brownfield constitution . --draft --write"
+  - "steelforge govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
 ---
 
 # Constitution — the project's ratified authority
@@ -59,9 +59,9 @@ team wants the code to obey. Do not invent principles from enthusiasm.
 - **Identified — produces:** the constitution **draft** `.sdd/steering/constitution.draft.md` (and proposal material under `.sdd/settings/constitution/`); only the human's ratify command produces the in-force `.sdd/steering/constitution.md`.
 - **Identified — refuses:** it refuses to touch the in-force `constitution.md`, and refuses to create, modify or delete application source, tests or manifests; it also refuses to ratify itself.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd status --check --json` validates the repository against the constitution and **exits 1** when it is absent, unratified or violated (BLOCKS every downstream verdict); `open-sdd status --json` reports the `constitution` component.
-- **Measured — components:** `constitution` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** this template produces the authority itself: requirements it drafts are in EARS form with the pattern named, unknown data becomes a question, and `open-sdd status --check --json` is the pivot check.
+- **Assured — backing check:** `steelforge status --check --json` validates the repository against the constitution and **exits 1** when it is absent, unratified or violated (BLOCKS every downstream verdict); `steelforge status --json` reports the `constitution` component.
+- **Measured — components:** `constitution` — the reader sees the change before/after in `steelforge status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** this template produces the authority itself: requirements it drafts are in EARS form with the pattern named, unknown data becomes a question, and `steelforge status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -74,7 +74,7 @@ team wants the code to obey. Do not invent principles from enthusiasm.
    blank page:
 
 ```bash
-open-sdd brownfield survey .
+steelforge brownfield survey .
 ```
 
 ## Scope guard
@@ -95,13 +95,13 @@ open-sdd brownfield survey .
 1. Run the reconnaissance the engine already implements and read its evidence:
 
 ```bash
-open-sdd brownfield survey .
+steelforge brownfield survey .
 ```
 
 2. Produce a draft constitution derived from the code, with one evidence line per principle:
 
 ```bash
-open-sdd brownfield constitution . --draft
+steelforge brownfield constitution . --draft
 ```
 
 3. Separate the result into three lists and keep them separate in the document:
@@ -114,14 +114,14 @@ open-sdd brownfield constitution . --draft
    `constitution.md`; if an in-force document already exists it is left untouched:
 
 ```bash
-open-sdd brownfield constitution . --draft --write
+steelforge brownfield constitution . --draft --write
 ```
 
    When the draft leaves questions a human must answer, use the interview cycle instead — it applies
    the answers and re-validates the produced text:
 
 ```bash
-open-sdd brownfield constitution . --interview --answers <path> --write
+steelforge brownfield constitution . --interview --answers <path> --write
 ```
 
 6. **Hand over.** Ask the human to ratify, and give them the exact command. Do not run it for them:
@@ -129,7 +129,7 @@ open-sdd brownfield constitution . --interview --answers <path> --write
    the process so it cannot silently re-ratify old text later:
 
 ```bash
-open-sdd govern constitution --ratify --by "<name>" --rationale "<reason>" --write
+steelforge govern constitution --ratify --by "<name>" --rationale "<reason>" --write
 ```
 
 7. A draft carries `Status: DRAFT`; a ratified constitution carries `Status: RATIFIED` with the
@@ -143,13 +143,13 @@ principle of a **ratified** constitution; without one the verdict is an opinion.
 is absent or unratified, say so instead of proceeding as if it existed:
 
 ```bash
-open-sdd status --json
+steelforge status --json
 ```
 
 Finish by validating the repository against the document you just wrote:
 
 ```bash
-open-sdd status --check --json
+steelforge status --check --json
 ```
 
 ## Evidence
@@ -172,7 +172,7 @@ open-sdd status --check --json
 
 ## Mandatory Post-Execution Hooks
 
-1. Re-run `open-sdd status --json` and confirm the constitution component is now measured.
+1. Re-run `steelforge status --json` and confirm the constitution component is now measured.
 2. If the constitution changed, list every other `.sdd/` artifact that now contradicts it and mark
    them for `analyze`.
 

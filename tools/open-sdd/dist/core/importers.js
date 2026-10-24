@@ -51,7 +51,7 @@ const DESIGN_ALIAS_NOTE = () => {
 };
 /** The banner a semantically-mapped document carries: a mapping, not a conversion. */
 const provenanceBanner = (from, extra) => [
-    `<!-- Importado por open-sdd desde ${from}.`,
+    `<!-- Importado por steelforge desde ${from}.`,
     `     Es un MAPEO de formato, no una conversión semántica: el contenido NO está en EARS ni`,
     `     validado como requisitos. ${extra}`,
     `     Revísalo y ejecútalo por la validación correspondiente antes de aprobarlo. -->`,
@@ -103,9 +103,9 @@ const planSpecKit = async (cwd) => {
         const content = (await readIfExists(path.join(cwd, constitutionFrom))) ?? '';
         const parsed = parseConstitution(content);
         const issues = validateConstitution(parsed);
-        conversions.push(convert(constitutionFrom, posix(path.join(IMPORT_TARGET_SDD_DIR, 'steering', 'constitution.md')), 'Misma autoridad (constitución del proyecto). Se copia VERBATIM: open-sdd no «arregla» una constitución ajena, solo reporta lo que su validador encuentra.'));
+        conversions.push(convert(constitutionFrom, posix(path.join(IMPORT_TARGET_SDD_DIR, 'steering', 'constitution.md')), 'Misma autoridad (constitución del proyecto). Se copia VERBATIM: steelforge no «arregla» una constitución ajena, solo reporta lo que su validador encuentra.'));
         if (parsed.principles.length === 0) {
-            warnings.push('La constitución de spec-kit no expone ningún principio con la anatomía de open-sdd (id citable, nivel, restricción, patrón, justificación): se importa verbatim y debe reescribirse a mano antes de que un veredicto bloqueante pueda citarla.');
+            warnings.push('La constitución de spec-kit no expone ningún principio con la anatomía de steelforge (id citable, nivel, restricción, patrón, justificación): se importa verbatim y debe reescribirse a mano antes de que un veredicto bloqueante pueda citarla.');
         }
         for (const issue of issues) {
             warnings.push(`validateConstitution [${issue.severity}${issue.code ? ` ${issue.code}` : ''}] ${issue.id}: ${issue.message}`);
@@ -141,7 +141,7 @@ const planSpecKit = async (cwd) => {
             continue;
         found.push({ kind: dir.includes('templates') ? 'templates' : 'scripts', path: dir });
         conversions.push(skip(dir, dir.includes('templates')
-            ? 'Las plantillas de open-sdd son distintas por diseño (tríada, delta, constitución): importar las de spec-kit produciría documentos que nuestros gates no reconocen.'
+            ? 'Las plantillas de steelforge son distintas por diseño (tríada, delta, constitución): importar las de spec-kit produciría documentos que nuestros gates no reconocen.'
             : 'Los scripts de spec-kit ejecutan su flujo, no el nuestro; no hay equivalencia.'));
     }
     // Other memory documents have no declared role in our steering set.
@@ -235,7 +235,7 @@ export const applyImport = async (cwd, plan, opts) => {
         const source = path.join(cwd, conversion.from);
         const target = path.join(cwd, conversion.to);
         if (await exists(target)) {
-            skipped.push(`${conversion.to} — ya existe: open-sdd NUNCA sobrescribe en una importación.`);
+            skipped.push(`${conversion.to} — ya existe: steelforge NUNCA sobrescribe en una importación.`);
             continue;
         }
         const content = conversion.content ?? (await readIfExists(source));

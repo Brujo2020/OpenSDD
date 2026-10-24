@@ -1,7 +1,7 @@
 /**
  * Pruebas de comportamiento del asesor de constitución POR LA CLI (REQ-MAT-017).
  *
- * `open-sdd govern constitution --advise` imprime el consejo de forma compacta (o JSON con --json)
+ * `steelforge govern constitution --advise` imprime el consejo de forma compacta (o JSON con --json)
  * y sale 1 SOLO cuando un consejo es `severity: 'error'` (violación recurrente o contradicción).
  * Un aviso — evidencia caducada, enmienda vieja, práctica no declarada — no bloquea. Todo ocurre en
  * fixtures `mkdtemp`: nada se toca en este repositorio.
@@ -120,7 +120,7 @@ describe('cli/govern constitution --advise', () => {
     expect(text).toContain('evidence-expired');
     expect(text).toContain('por qué:');
     expect(text).toContain('evidencia:');
-    expect(text).toContain('aplicar: open-sdd brownfield constitution . --write');
+    expect(text).toContain('aplicar: steelforge brownfield constitution . --write');
   });
 
   it('sale 1 SOLO con un consejo de severidad error (violación recurrente)', async () => {

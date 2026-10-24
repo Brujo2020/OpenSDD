@@ -11,12 +11,12 @@
 # `gates run` and the audit bundle both fail the job on a blocking finding; the SARIF report is
 # uploaded to code scanning so the same finding is also visible in the Security tab.
 
-name: 'open-sdd gates'
+name: 'steelforge gates'
 description: >-
-  Run the Open-SDD Zero-Trust gate chain, the constitutional status check and the audit evidence
+  Run the SteelForge Zero-Trust gate chain, the constitutional status check and the audit evidence
   bundle, and publish SARIF 2.1.0 to code scanning. Fails the job on a blocking finding.
 
-author: 'Open-SDD'
+author: 'SteelForge'
 
 branding:
   icon: 'shield'
@@ -89,7 +89,7 @@ runs:
         set -euo pipefail
         CLI_ROOT="${{ github.action_path }}"
         if [ ! -f "$CLI_ROOT/tools/open-sdd/package.json" ]; then
-          echo "::error::tools/open-sdd/package.json not found under $CLI_ROOT; this action must run from an open-sdd checkout."
+          echo "::error::tools/open-sdd/package.json not found under $CLI_ROOT; this action must run from an steelforge checkout."
           exit 2
         fi
         npm ci --prefix "$CLI_ROOT/tools/open-sdd"

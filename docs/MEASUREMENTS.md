@@ -12,7 +12,7 @@ Everything below is reproducible offline from a clone. Nothing here is field dat
 
 | Field | Value |
 |---|---|
-| Tool | `open-sdd v3.1.1` (`tools/open-sdd/dist/cli.js`, pinned) |
+| Tool | `steelforge v3.1.1` (`tools/open-sdd/dist/cli.js`, pinned) |
 | Node | `v26.7.0` |
 | Date | 2026-09-20 (tool version refreshed to v3.1.1; the run was re-executed, the numbers below are unchanged) |
 | Seed | `1` |
@@ -52,7 +52,7 @@ It writes only inside `mktemp -d` and needs no network.
 
 ```text
 open-sdd — synthetic incoherence bench
-  tool     open-sdd v3.1.1 (tools/open-sdd/dist/cli.js)
+  tool     steelforge v3.1.1 (tools/open-sdd/dist/cli.js)
   node     v26.7.0   seed 1   repos 10
   baseline clean (0 error findings)
 
@@ -105,7 +105,7 @@ we put there, and the thing we put there was the only defect.
   a negative. Its value is `detectado por construcción: no` — a statement about the absence of a
   verifier. Presenting it as `0/10` would invent a comparison we did not run.
 - **The bench is a black-box run of the pinned CLI.** It invokes `tools/open-sdd/dist/cli.js` from
-  this checkout. It never resolves the global `open-sdd` on `PATH` (a v2.0.0 binary with different
+  this checkout. It never resolves the global `steelforge` on `PATH` (a v2.0.0 binary with different
   behaviour), so the numbers belong to this source tree.
 - **No model backend ships**, so nothing here is evidence about C5/intent alignment. The bench does
   not measure it.

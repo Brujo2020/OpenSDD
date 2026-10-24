@@ -60,7 +60,7 @@ describe('migrate', () => {
     const rb = await run(b, 'modernize', 'assess');
     expect(ra.code).toBe(0);
     expect(ra.out).toBe(rb.out);
-    expect(ra.out).toContain('open-sdd migrate waves');
+    expect(ra.out).toContain('steelforge migrate waves');
   });
 
   it('rechaza un ejemplo desconocido nombrando los válidos', async () => {

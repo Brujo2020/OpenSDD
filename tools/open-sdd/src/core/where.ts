@@ -109,14 +109,14 @@ export const saveCheckpoint = async (cwd: string, ps: RunProgress[], note?: stri
   const md = [
     '# Checkpoint — where we are',
     '',
-    `Saved ${at}${note ? ` · ${note}` : ''}. Regenerate with \`open-sdd where --save\`.`,
+    `Saved ${at}${note ? ` · ${note}` : ''}. Regenerate with \`steelforge where --save\`.`,
     '',
     ...ps.flatMap((p) => [
       `## ${p.feature} (${p.playbook}) — ${p.weightedPercent}%`,
       '',
       `- Phase: ${p.currentPhase ?? 'done'} · now: ${p.current ? `${p.current.id} (${p.current.status})` : '—'}`,
       `- Progress: ${p.done}/${p.total} steps`,
-      `- Next: \`open-sdd next ${p.feature}\` → ${p.next.kind}${'step' in p.next ? ` ${p.next.step}` : ''}`,
+      `- Next: \`steelforge next ${p.feature}\` → ${p.next.kind}${'step' in p.next ? ` ${p.next.step}` : ''}`,
       ...(p.openCards.length ? [`- Waiting for a person: ${p.openCards.map((c) => `${c.id} — ${c.question}`).join('; ')}`] : []),
       ...(p.openEvents.length ? [`- Open events: ${p.openEvents.join(', ')}`] : []),
       '- Pending:',

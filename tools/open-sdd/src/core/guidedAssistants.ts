@@ -90,7 +90,7 @@ export interface BriefResult {
 /** Compose `brief.md` from the answered discovery file and lint it (REQ-VR-006). */
 export const composeBrief = async (cwd: string, feature: string, opts: { write?: boolean } = {}): Promise<BriefResult> => {
   const text = await readFile(discoveryFile(cwd, feature), 'utf8').catch(() => null);
-  if (text === null) return { ok: false, issues: [`no discovery for ${feature}: open-sdd assist discover "<idea>" --feature ${feature}`] };
+  if (text === null) return { ok: false, issues: [`no discovery for ${feature}: steelforge assist discover "<idea>" --feature ${feature}`] };
   const questions = parseQuestions(text);
   const open = checkQuestions(questions);
   if (open.length) return { ok: false, issues: open.map((i) => i.message) };
@@ -228,15 +228,15 @@ export const suggestAssistants = async (cwd: string): Promise<Suggestion[]> => {
   const prof = await detectProfile(cwd);
   const v = profileValues(prof);
   const steer = path.join(cwd, '.sdd', 'steering');
-  if (!existsSync(path.join(steer, 'product.md'))) out.push({ assistant: 'steering', why: 'no steering yet: hosts load nothing about the project', command: 'open-sdd assist steering --write' });
-  if (!existsSync(path.join(steer, 'constitution.md'))) out.push({ assistant: 'constitution', why: 'no constitution: blocking verdicts have no authority to cite', command: v.terrain === 'brownfield' ? 'open-sdd assist constitution --draft' : 'open-sdd assist constitution --interview' });
-  if (v.terrain === 'brownfield' && !existsSync(path.join(cwd, '.sdd', 'reverse', 'inventory.json'))) out.push({ assistant: 'reverse', why: 'existing code without a recovered inventory', command: 'open-sdd reverse init' });
+  if (!existsSync(path.join(steer, 'product.md'))) out.push({ assistant: 'steering', why: 'no steering yet: hosts load nothing about the project', command: 'steelforge assist steering --write' });
+  if (!existsSync(path.join(steer, 'constitution.md'))) out.push({ assistant: 'constitution', why: 'no constitution: blocking verdicts have no authority to cite', command: v.terrain === 'brownfield' ? 'steelforge assist constitution --draft' : 'steelforge assist constitution --interview' });
+  if (v.terrain === 'brownfield' && !existsSync(path.join(cwd, '.sdd', 'reverse', 'inventory.json'))) out.push({ assistant: 'reverse', why: 'existing code without a recovered inventory', command: 'steelforge reverse init' });
   const specs = (await readdir(path.join(cwd, '.sdd', 'specs'), { withFileTypes: true }).catch(() => [])).filter((d) => d.isDirectory()).map((d) => d.name);
   for (const f of specs) {
     const dir = path.join(cwd, '.sdd', 'specs', f);
-    if (!existsSync(path.join(dir, 'brief.md')) && !existsSync(path.join(dir, 'requirements.md'))) out.push({ assistant: 'discover', why: `${f} has neither brief nor requirements`, command: `open-sdd assist discover "<idea>" --feature ${f}` });
-    else if (existsSync(path.join(dir, 'requirements.md'))) out.push({ assistant: 'ears', why: `review ${f}/requirements.md against EARS`, command: `open-sdd assist ears review ${f}` });
+    if (!existsSync(path.join(dir, 'brief.md')) && !existsSync(path.join(dir, 'requirements.md'))) out.push({ assistant: 'discover', why: `${f} has neither brief nor requirements`, command: `steelforge assist discover "<idea>" --feature ${f}` });
+    else if (existsSync(path.join(dir, 'requirements.md'))) out.push({ assistant: 'ears', why: `review ${f}/requirements.md against EARS`, command: `steelforge assist ears review ${f}` });
   }
-  if (!specs.length) out.push({ assistant: 'start', why: 'no work started', command: 'open-sdd start "<intent>" --dry-run' });
+  if (!specs.length) out.push({ assistant: 'start', why: 'no work started', command: 'steelforge start "<intent>" --dry-run' });
   return out;
 };

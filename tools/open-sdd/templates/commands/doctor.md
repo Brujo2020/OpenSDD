@@ -13,13 +13,13 @@ handoffs:
 parallelSafe: true
 moves: []
 commands:
-  - "open-sdd doctor --json"
-  - "open-sdd status --json"
-  - "open-sdd status --check --json"
-  - "open-sdd floor status"
+  - "steelforge doctor --json"
+  - "steelforge status --json"
+  - "steelforge status --check --json"
+  - "steelforge floor status"
 scripts:
-  - "open-sdd doctor --json"
-  - "open-sdd floor status"
+  - "steelforge doctor --json"
+  - "steelforge floor status"
 ---
 
 # Doctor — one fix per problem, and no green claim it cannot back
@@ -41,9 +41,9 @@ The input may name a directory to diagnose. Without one, diagnose the current re
 - **Identified — produces:** report only — it writes nothing (its `writes` list is empty on purpose).
 - **Identified — refuses:** it refuses to apply any fix, even an obvious one, and refuses to report a check it could not run as a pass.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd doctor --json` **exits 1** on any failed check (BLOCKS a "working install" claim) and each check carries its own state and fix; `open-sdd floor status` reports the enforcement floor's real state.
-- **Measured — components:** none — this template is read-only and changes no SDD score component; `open-sdd status --json` is identical before and after by design.
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: an absent or unratified constitution is a diagnostic finding with the constitution command as its fix, and `open-sdd status --check --json` is the pivot check it points to.
+- **Assured — backing check:** `steelforge doctor --json` **exits 1** on any failed check (BLOCKS a "working install" claim) and each check carries its own state and fix; `steelforge floor status` reports the enforcement floor's real state.
+- **Measured — components:** none — this template is read-only and changes no SDD score component; `steelforge status --json` is identical before and after by design.
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: an absent or unratified constitution is a diagnostic finding with the constitution command as its fix, and `steelforge status --check --json` is the pivot check it points to.
 
 ## Pre-Execution Checks
 
@@ -64,26 +64,26 @@ The input may name a directory to diagnose. Without one, diagnose the current re
 1. Run the self-diagnosis and read every check with its state and fix:
 
 ```bash
-open-sdd doctor --json
+steelforge doctor --json
 ```
 
 2. Read the installation floor's real state — installed, stale, foreign or absent:
 
 ```bash
-open-sdd floor status
+steelforge floor status
 ```
 
 3. Read the repository state and phase, so a diagnosis is not confused with a repository problem:
 
 ```bash
-open-sdd status --json
+steelforge status --json
 ```
 
 4. Validate against the constitution and the declared rigor level; a failing pivot check is the most
    common "it does not work" and must be reported as such:
 
 ```bash
-open-sdd status --check --json
+steelforge status --check --json
 ```
 
 5. Report every check as **ok**, **warning** or **failure**, with the fix command next to each
@@ -92,7 +92,7 @@ open-sdd status --check --json
 
 ## The constitution is the pivot
 
-An absent or unratified constitution is a diagnostic finding, not a silent default. `open-sdd status
+An absent or unratified constitution is a diagnostic finding, not a silent default. `steelforge status
 --check --json` is the pivot check, and when it exits 1 the report names the constitution as the
 cause and the constitution command as the fix.
 

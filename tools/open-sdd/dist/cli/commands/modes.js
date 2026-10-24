@@ -36,13 +36,13 @@ const exists = async (p) => (await stat(p).catch(() => null)) !== null;
 const STATE = { on: colors.green('on '), opt: colors.yellow('opt'), off: colors.dim('off') };
 const usage = (io, message) => {
     io.error(message);
-    io.error('usage: open-sdd modes [--level explore|spec-first|spec-anchored|spec-as-source] [--brownfield] [--governance solo|team|enterprise] [--json]');
-    io.error('       open-sdd modes --projects | --project <greenfield|brownfield-extension|legacy-untested|bug|refactor|spike|fuzzy-idea|multi-feature> [--json]');
-    io.error('       open-sdd stages <feature> [--json]');
-    io.error('       open-sdd gherkin <feature> [--lang es|en] [--write] [--json]');
-    io.error('       open-sdd archive <feature> [--confirm] [--json]');
-    io.error('       open-sdd discovery lint <feature> [--json] | discovery log <feature> <type> <text>');
-    io.error('       open-sdd steering check [--json]');
+    io.error('usage: steelforge modes [--level explore|spec-first|spec-anchored|spec-as-source] [--brownfield] [--governance solo|team|enterprise] [--json]');
+    io.error('       steelforge modes --projects | --project <greenfield|brownfield-extension|legacy-untested|bug|refactor|spike|fuzzy-idea|multi-feature> [--json]');
+    io.error('       steelforge stages <feature> [--json]');
+    io.error('       steelforge gherkin <feature> [--lang es|en] [--write] [--json]');
+    io.error('       steelforge archive <feature> [--confirm] [--json]');
+    io.error('       steelforge discovery lint <feature> [--json] | discovery log <feature> <type> <text>');
+    io.error('       steelforge steering check [--json]');
     return 2;
 };
 const runModes = async (argv, io, cwd) => {
@@ -83,7 +83,7 @@ const runModes = async (argv, io, cwd) => {
     io.log(colors.bold('  Modules'));
     for (const m of modules)
         io.log(`  ${STATE[m.state]} ${m.label.padEnd(13)} ${colors.dim(m.origin.padEnd(10))} ${m.run}`);
-    io.log(colors.dim('  ¿Qué skills usar según el tipo de proyecto? open-sdd modes --projects'));
+    io.log(colors.dim('  ¿Qué skills usar según el tipo de proyecto? steelforge modes --projects'));
     io.log('');
     return 0;
 };

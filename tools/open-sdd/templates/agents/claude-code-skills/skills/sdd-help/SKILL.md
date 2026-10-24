@@ -1,6 +1,6 @@
 ---
 name: sdd-help
-description: Show interactive help guide, cheatsheet, and real-world examples for Open-SDD commands
+description: Show interactive help guide, cheatsheet, and real-world examples for SteelForge commands
 allowed-tools: Read, Glob, Grep
 argument-hint: [command-name]
 ---
@@ -8,12 +8,12 @@ argument-hint: [command-name]
 # sdd-help Skill
 
 ## Core Mission
-Provide an Apple-grade ("It Just Works"), crystal-clear interactive reference with copy-pasteable real-world examples for all Open-SDD commands.
+Provide an Apple-grade ("It Just Works"), crystal-clear interactive reference with copy-pasteable real-world examples for all SteelForge commands.
 
 ## Five verbs first
 Before listing skills, show the user the five terminal verbs and recommend the one that fits:
-`open-sdd` (where am I, the one next action), `open-sdd setup`, `open-sdd start "<intent>"`,
-`open-sdd check` and `open-sdd decide`. Mention `open-sdd help --all` only if they ask for more.
+`open-sdd` (where am I, the one next action), `steelforge setup`, `steelforge start "<intent>"`,
+`steelforge check` and `steelforge decide`. Mention `steelforge help --all` only if they ask for more.
 
 ## Execution Steps
 
@@ -125,24 +125,24 @@ root; inside this repository use `node tools/open-sdd/dist/cli.js` in place of `
 
 | Command | What it answers |
 |---|---|
-| `open-sdd gates chain [--profile solo\|team\|regulated]` | Which controls are declared for this repository, and which are executable |
-| `open-sdd gates crosswalk` | Which logical gates each executable check imposes, and the residue no check covers |
-| `open-sdd gates enforcement` | Per-host enforcement ceiling (levels A–D) versus the floor the organization owns |
-| `open-sdd gates run [--staged \| --base <ref>]` | Runs the declared chain; exits 1 when it fails |
-| `open-sdd govern conformance` | The conformity level (C0–C3) with per-invariant evidence |
-| `open-sdd govern hitl` | The quantified human-in-the-loop thresholds |
-| `open-sdd govern appeal` | The relaxation ledger and override recalibration |
-| `open-sdd govern discipline` | The §9.7 decidable properties over the working diff |
-| `open-sdd assure threats` / `lab` / `skills` / `memory` | Threat and regulatory crosswalks, risk-lab banks, skill privileges, memory quarantine |
-| `open-sdd assure claims --verify` | Decides every documentation claim by its verifier's exit code |
-| `open-sdd standards list\|show\|explain\|check\|fix` | The machine-checkable standards catalogue: what each rule detects, its severity, and a remedy or a question |
-| `open-sdd requirements review <feature>` | The requirements-quality checks over a spec: position, basis, and a graded remedy or an explicit question |
-| `open-sdd requirements checklist <feature> --verify` | Executes the checklist predicates and records the digest each item needs to count as complete |
-| `open-sdd review <feature> --base <ref>` | One page: requirement diffs, their tasks, the tests that would fail, and a risk score |
-| `open-sdd brownfield ids <feature> --base <ref>` | Stable-id audit: `ID-MUTATED` / `ID-LOST` against a base revision |
-| `open-sdd waves <feature>` | The transactional wave plan and the git commands that materialise it |
-| `open-sdd floor status` / `floor install [target] --ci` | Whether the commit/merge floor is installed, and installing it |
-| `open-sdd uninstall` / `restore [--from <receipt>]` | The plan to undo what this tool wrote, and applying it — never `.sdd/` without `--purge-sdd` |
+| `steelforge gates chain [--profile solo\|team\|regulated]` | Which controls are declared for this repository, and which are executable |
+| `steelforge gates crosswalk` | Which logical gates each executable check imposes, and the residue no check covers |
+| `steelforge gates enforcement` | Per-host enforcement ceiling (levels A–D) versus the floor the organization owns |
+| `steelforge gates run [--staged \| --base <ref>]` | Runs the declared chain; exits 1 when it fails |
+| `steelforge govern conformance` | The conformity level (C0–C3) with per-invariant evidence |
+| `steelforge govern hitl` | The quantified human-in-the-loop thresholds |
+| `steelforge govern appeal` | The relaxation ledger and override recalibration |
+| `steelforge govern discipline` | The §9.7 decidable properties over the working diff |
+| `steelforge assure threats` / `lab` / `skills` / `memory` | Threat and regulatory crosswalks, risk-lab banks, skill privileges, memory quarantine |
+| `steelforge assure claims --verify` | Decides every documentation claim by its verifier's exit code |
+| `steelforge standards list\|show\|explain\|check\|fix` | The machine-checkable standards catalogue: what each rule detects, its severity, and a remedy or a question |
+| `steelforge requirements review <feature>` | The requirements-quality checks over a spec: position, basis, and a graded remedy or an explicit question |
+| `steelforge requirements checklist <feature> --verify` | Executes the checklist predicates and records the digest each item needs to count as complete |
+| `steelforge review <feature> --base <ref>` | One page: requirement diffs, their tasks, the tests that would fail, and a risk score |
+| `steelforge brownfield ids <feature> --base <ref>` | Stable-id audit: `ID-MUTATED` / `ID-LOST` against a base revision |
+| `steelforge waves <feature>` | The transactional wave plan and the git commands that materialise it |
+| `steelforge floor status` / `floor install [target] --ci` | Whether the commit/merge floor is installed, and installing it |
+| `steelforge uninstall` / `restore [--from <receipt>]` | The plan to undo what this tool wrote, and applying it — never `.sdd/` without `--purge-sdd` |
 
 Non-negotiables when reporting on this model:
 
@@ -163,14 +163,14 @@ Non-negotiables when reporting on this model:
 ## Which skills to use for which kind of project
 
 Projects differ, and so do the skills that fit them. Before recommending a flow, identify the project type and
-follow its sequence; `open-sdd modes --projects` prints the same table, and `open-sdd modes --project <type>` one row.
+follow its sequence; `steelforge modes --projects` prints the same table, and `steelforge modes --project <type>` one row.
 
 | Project type | Recognise it by | Level · terrain | Skills, in order | Do NOT use |
 |---|---|---|---|---|
-| Fuzzy idea | no one can say who needs it or what "done" is | spec-first · greenfield | `/sdd-discovery` → `open-sdd discovery lint` → `/sdd-spec-quick` or `/sdd-tiny` | `/sdd-spec-requirements` (formalises a guess) |
+| Fuzzy idea | no one can say who needs it or what "done" is | spec-first · greenfield | `/sdd-discovery` → `steelforge discovery lint` → `/sdd-spec-quick` or `/sdd-tiny` | `/sdd-spec-requirements` (formalises a guess) |
 | Spike / POC | throwaway code to test feasibility | explore | `/sdd-tiny` → implement → `/sdd-promote` if it survives | `/sdd-spec-quick`, `/sdd-impl` |
-| New product or feature | no existing code constrains it | spec-first · greenfield | `/sdd-steering` → `/sdd-spec-init` → `/sdd-spec-requirements` → `/sdd-spec-design` → `/sdd-spec-tasks` → `open-sdd gherkin --write` → `/sdd-impl` → `/sdd-validate-impl` → `open-sdd archive --confirm` | `/sdd-getspecs`, `/sdd-characterize` |
-| Several related features | roadmap with dependencies | spec-anchored · greenfield | `/sdd-discovery` → `/sdd-spec-batch` → `open-sdd waves` → `/sdd-impl` per wave | `/sdd-spec-quick` one by one |
+| New product or feature | no existing code constrains it | spec-first · greenfield | `/sdd-steering` → `/sdd-spec-init` → `/sdd-spec-requirements` → `/sdd-spec-design` → `/sdd-spec-tasks` → `steelforge gherkin --write` → `/sdd-impl` → `/sdd-validate-impl` → `steelforge archive --confirm` | `/sdd-getspecs`, `/sdd-characterize` |
+| Several related features | roadmap with dependencies | spec-anchored · greenfield | `/sdd-discovery` → `/sdd-spec-batch` → `steelforge waves` → `/sdd-impl` per wave | `/sdd-spec-quick` one by one |
 | Change to running code | code is the source of truth and has tests | spec-anchored · brownfield | `/sdd-getspecs` (once) → `brownfield constitution` → `steering check` → `delta init/validate` → `brownfield contracts` → `/sdd-spec-tasks` → `/sdd-impl` → `contracts --verify` | a new spec from scratch, `/sdd-tiny` |
 | Legacy without tests | nothing pins the current behaviour | spec-anchored · brownfield | `/sdd-getspecs` → `/sdd-characterize` → `brownfield contracts` → then `/sdd-refactor`, `/sdd-bugfix` or `delta init` | any change before `/sdd-characterize` |
 | Bug | existing behaviour is wrong | spec-first · brownfield | `/sdd-bugfix` → `delta init` only if a spec changes → `/sdd-verify-completion` | `/sdd-spec-quick` |

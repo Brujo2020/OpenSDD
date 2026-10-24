@@ -14,7 +14,7 @@ export const offerClarify = async (io, root, feature, args) => {
     if (questions.length === 0)
         return 0;
     const codes = [...new Set(questions.map((q) => q.code))].join(', ');
-    const command = `open-sdd brownfield clarify ${feature}`;
+    const command = `steelforge brownfield clarify ${feature}`;
     io.log('');
     io.log(colors.yellow(`  ⚠ ${questions.length} requisito(s) ambiguo(s) en «${feature}» (${codes}): un agente los rellenaría inventando.`));
     if (!isInteractive() || isPromptDisabled() || args.includes('--yes') || args.includes('-y')) {

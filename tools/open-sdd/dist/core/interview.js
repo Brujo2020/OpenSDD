@@ -304,7 +304,7 @@ export const planConstitutionInterview = async (cwd, opts = {}) => {
         decided: [...decidedByEvidence],
         answersTemplate,
         commands: {
-            apply: 'open-sdd brownfield constitution . --interview --answers <path> --write',
+            apply: 'steelforge brownfield constitution . --interview --answers <path> --write',
             ratify: RATIFY_INSTRUCTION,
         },
         instructions: 'Rellena `answersTemplate` (una respuesta por id) y pásalo en un fichero JSON con --answers. ' +
@@ -804,7 +804,7 @@ const pad = (value) => String(value).padStart(3, '0');
  * De una descripción en lenguaje natural a requisitos EARS. Es SÍNCRONA y no toca el disco: lee la
  * descripción, usa el analizador compartido, y devuelve requisitos con su patrón o preguntas con el
  * dato que falta. Los requisitos existentes que se pasan en `existing` se conservan intactos:
- * decidir ADDED frente a MODIFIED es competencia de la delta (`open-sdd delta init|validate`).
+ * decidir ADDED frente a MODIFIED es competencia de la delta (`steelforge delta init|validate`).
  */
 export const specifyFromDescription = (input) => {
     const feature = input.feature.trim();
@@ -877,7 +877,7 @@ export const specifyFromDescription = (input) => {
         : [
             `# Requirements — ${feature}`,
             '',
-            '<!-- Derivado por open-sdd brownfield specify a partir de una descripción en lenguaje natural.',
+            '<!-- Derivado por steelforge brownfield specify a partir de una descripción en lenguaje natural.',
             '     Los requisitos existentes no se tocan: ADDED frente a MODIFIED lo decide la delta. -->',
             '',
             ...section,
@@ -903,7 +903,7 @@ export const specifyFromDescription = (input) => {
     detailParts.push(`Plantillas y análisis: ${EARS_ASSISTANT_TEMPLATES.length} plantillas EARS compartidas (no se escribe un segundo analizador).`);
     if (existingText.trim().length > 0) {
         detailParts.push(`Se conservan ${existingStatements.size} enunciado(s) existente(s) palabra por palabra (${kept} de los derivados ya estaban): ` +
-            'decidir ADDED frente a MODIFIED es competencia de la delta (open-sdd delta init|validate), no de esta función.');
+            'decidir ADDED frente a MODIFIED es competencia de la delta (steelforge delta init|validate), no de esta función.');
     }
     if (tidied > 0) {
         detailParts.push(`${tidied} candidato(s) se normalizaron: el analizador compartido dejó un separador vacío tras "shall" y el modal duplicado; se quitaron esas marcas de forma, sin cambiar ninguna palabra.`);
@@ -911,7 +911,7 @@ export const specifyFromDescription = (input) => {
     if (malformed > 0) {
         detailParts.push(`${malformed} comportamiento(s) se rechazaron porque el candidato no quedó en forma de frase: no se fabricó el requisito.`);
     }
-    detailParts.push('La forma verbal tras "shall" se conserva tal como la escribió la descripción (no se conjuga ni se traduce): verifícala con `open-sdd brownfield requirements <feature>`.');
+    detailParts.push('La forma verbal tras "shall" se conserva tal como la escribió la descripción (no se conjuga ni se traduce): verifícala con `steelforge brownfield requirements <feature>`.');
     return {
         feature,
         requirements,

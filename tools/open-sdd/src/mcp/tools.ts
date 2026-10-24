@@ -679,7 +679,7 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     },
     handler: async (args, context) => {
       const requested = optionalString(args, 'feature');
-      // Delegación al motor de `core/contextPack.ts`: el CLI (`open-sdd context`) y esta piel MCP
+      // Delegación al motor de `core/contextPack.ts`: el CLI (`steelforge context`) y esta piel MCP
       // leen el mismo repositorio con el MISMO código, así que no pueden divergir. `pack` conserva
       // clave por clave la forma que este handler construía en línea (`root`, `sddDir`, `feature`,
       // `complete`, `absent`, `constitution`, `spec`, `moduleMap`, `rigor`); ninguna clave se
@@ -695,10 +695,10 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: 'open_sdd_next',
     title: 'Siguiente directiva del motor (next)',
     description:
-      'Devuelve la ÚNICA directiva siguiente de una ejecución de playbook (`run-step`, `ask`, `present-gate`, `handoff`, `parked`, `done` o `error`), con exactamente las claves de su esquema. Solo lee. Mismo contrato que `open-sdd next <feature> --json`.',
+      'Devuelve la ÚNICA directiva siguiente de una ejecución de playbook (`run-step`, `ask`, `present-gate`, `handoff`, `parked`, `done` o `error`), con exactamente las claves de su esquema. Solo lee. Mismo contrato que `steelforge next <feature> --json`.',
     inputSchema: {
       type: 'object',
-      properties: { feature: { type: 'string', description: 'Feature con una ejecución iniciada por `open-sdd engine start`.' } },
+      properties: { feature: { type: 'string', description: 'Feature con una ejecución iniciada por `steelforge engine start`.' } },
       required: ['feature'],
       additionalProperties: false,
     },
@@ -712,7 +712,7 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: 'open_sdd_report',
     title: 'Informar del resultado de un paso (report)',
     description:
-      'Informa al motor de lo que pasó con un paso: started, awaiting-approval, rejected, revised, completed, skipped, park o unpark. `approved` se rechaza siempre: una aprobación solo sale de `open-sdd hil answer --by "<nombre>"`. Mismo contrato que `open-sdd report <feature> --step <id> --result <r>`.',
+      'Informa al motor de lo que pasó con un paso: started, awaiting-approval, rejected, revised, completed, skipped, park o unpark. `approved` se rechaza siempre: una aprobación solo sale de `steelforge hil answer --by "<nombre>"`. Mismo contrato que `steelforge report <feature> --step <id> --result <r>`.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -742,7 +742,7 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: 'open_sdd_flow',
     title: 'Estado claro y flujo de una feature (flow)',
     description:
-      'Devuelve el estado claro (`status.state`: not-started|in-progress|waiting-decision|blocked|done, la frase, qué lo bloquea y la siguiente orden), las 9 etapas, los pasos del playbook, las decisiones pendientes y las métricas (incluidos tokens y coste declarados). Solo lee. Mismo contrato que `open-sdd flow <feature> --json` (open-sdd.flow/1).',
+      'Devuelve el estado claro (`status.state`: not-started|in-progress|waiting-decision|blocked|done, la frase, qué lo bloquea y la siguiente orden), las 9 etapas, los pasos del playbook, las decisiones pendientes y las métricas (incluidos tokens y coste declarados). Solo lee. Mismo contrato que `steelforge flow <feature> --json` (open-sdd.flow/1).',
     inputSchema: {
       type: 'object',
       properties: { feature: { type: 'string', description: 'Feature (carpeta en .sdd/specs).' } },
@@ -759,7 +759,7 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: 'open_sdd_validation',
     title: 'Validación exigida por tarea (reglas deterministas)',
     description:
-      'Devuelve, por tarea, las clases de prueba que exigen las reglas (con la regla, el texto que la disparó y el principio que cita), lo demostrado en la evidencia y lo que falta. `isError` cuando una tarea hecha no tiene una clase bloqueante. Solo lee: registrar en la auditoría es `open-sdd validation <feature> --record`.',
+      'Devuelve, por tarea, las clases de prueba que exigen las reglas (con la regla, el texto que la disparó y el principio que cita), lo demostrado en la evidencia y lo que falta. `isError` cuando una tarea hecha no tiene una clase bloqueante. Solo lee: registrar en la auditoría es `steelforge validation <feature> --record`.',
     inputSchema: {
       type: 'object',
       properties: { feature: { type: 'string', description: 'Feature (carpeta en .sdd/specs).' } },
@@ -778,7 +778,7 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: 'open_sdd_audit_trail',
     title: 'Registro de decisiones para auditoría',
     description:
-      'Quién decidió (persona con email git, agente, regla o sistema), por qué y sobre qué requisitos y principios, con la integridad de cada cadena de hashes. Filtros opcionales. Solo lee. Mismo contrato que `open-sdd audit trail --json`.',
+      'Quién decidió (persona con email git, agente, regla o sistema), por qué y sobre qué requisitos y principios, con la integridad de cada cadena de hashes. Filtros opcionales. Solo lee. Mismo contrato que `steelforge audit trail --json`.',
     inputSchema: {
       type: 'object',
       properties: {

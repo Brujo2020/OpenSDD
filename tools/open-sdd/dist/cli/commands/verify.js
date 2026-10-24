@@ -7,7 +7,7 @@ export const handleVerifyCommand = async (argv, io, cwd = process.cwd()) => {
     const sddDir = sddDirArg ? sddDirArg.split('=')[1] : await resolveSddDir(cwd);
     const featureArg = argv.find((a) => !a.startsWith('-'));
     if (!featureArg) {
-        io.error(colors.red('Usage: open-sdd verify <feature-slug> [--json]'));
+        io.error(colors.red('Usage: steelforge verify <feature-slug> [--json]'));
         return 1;
     }
     const status = await getSpecStatus(cwd, featureArg, sddDir);

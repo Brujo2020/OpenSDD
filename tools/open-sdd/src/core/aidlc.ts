@@ -1,8 +1,8 @@
 /**
  * AI-DLC interoperability (REQ-PB-011): read-only state, and the import mapping.
  *
- * AI-DLC writes its records under `aidlc/spaces/<space>/intents/<intent>/`. open-sdd never writes
- * there. The import maps an intent into open-sdd specs: one umbrella spec whose tasks are the units
+ * AI-DLC writes its records under `aidlc/spaces/<space>/intents/<intent>/`. steelforge never writes
+ * there. The import maps an intent into steelforge specs: one umbrella spec whose tasks are the units
  * of work (so `waves` and the wave referee order and verify them), and one spec per unit with its
  * requirements, plan and contracts. Every artifact without a triad role is skipped with a reason.
  * The unit dependency block's exact schema was not verified against AI-DLC source; the parser is
@@ -79,7 +79,7 @@ export interface AidlcConversion {
 }
 
 const banner = (from: string, note: string): string =>
-  `> Imported from AI-DLC \`${from}\` by \`open-sdd import aidlc\`. ${note} This is a mapping, not a validated open-sdd artifact: run \`open-sdd requirements review\` and the gates before approving.\n\n`;
+  `> Imported from AI-DLC \`${from}\` by \`steelforge import aidlc\`. ${note} This is a mapping, not a validated steelforge artifact: run \`steelforge requirements review\` and the gates before approving.\n\n`;
 
 export const planAidlcImport = async (cwd: string): Promise<{ found: string | null; conversions: AidlcConversion[]; warnings: string[] }> => {
   const intent = await latestAidlcIntent(cwd);
@@ -127,8 +127,8 @@ export const planAidlcImport = async (cwd: string): Promise<{ found: string | nu
   for (const [rel, reason] of [
     ['ideation', 'ideation artifacts have no triad role; discovery lives in brief.md'],
     ['operation', 'operation runbooks stay in AI-DLC'],
-    ['audit', 'AI-DLC audit shards stay authoritative for AI-DLC; open-sdd keeps its own log'],
-    ['aidlc-state.md', 'state is read live and read-only by `open-sdd status`'],
+    ['audit', 'AI-DLC audit shards stay authoritative for AI-DLC; steelforge keeps its own log'],
+    ['aidlc-state.md', 'state is read live and read-only by `steelforge status`'],
     ['verification', 'phase checks are re-run by open-sdd\'s traceability gate'],
   ] as const)
     if (existsSync(path.join(cwd, intent, rel))) conversions.push({ from: `${intent}/${rel}`, to: '—', action: 'skip', reason });

@@ -247,7 +247,7 @@ describe('core/bootstrap — code intelligence document', () => {
     expect(existsSync(intelligenceFile(dir))).toBe(true);
     const onDisk = await readFile(intelligenceFile(dir), 'utf8');
     expect(onDisk).toBe(result.content);
-    expect(onDisk).toContain('generated-by: open-sdd brownfield bootstrap');
+    expect(onDisk).toContain('generated-by: steelforge brownfield bootstrap');
     expect(onDisk).toContain('packages/core');
   });
 });

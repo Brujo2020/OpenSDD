@@ -138,11 +138,11 @@ describe('where: phase, % done, pending, checkpoint', () => {
     await run('where', '--save', '--note', 'end of day');
     const md = readFileSync(path.join(cwd, '.sdd/state/checkpoint.md'), 'utf8');
     expect(md).toContain('end of day');
-    expect(md).toContain('open-sdd next t');
+    expect(md).toContain('steelforge next t');
     expect(JSON.parse(readFileSync(path.join(cwd, '.sdd/state/checkpoint.json'), 'utf8')).runs).toHaveLength(1);
   });
   it('an unknown run is refused; no runs says how to start', async () => {
     expect((await run('where', 'ghost')).code).toBe(1);
-    expect((await run('where')).out).toContain('open-sdd start');
+    expect((await run('where')).out).toContain('steelforge start');
   });
 });

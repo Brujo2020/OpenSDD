@@ -232,7 +232,7 @@ describe('cli wiring — las cuatro puertas nuevas', () => {
 
     const code = await runCli(['biography', '--no-footer'], runtime, ctx.io, {}, { cwd });
     expect(code).toBe(1);
-    expect(ctx.errs.join('\n')).toContain('Usage: open-sdd biography <feature>');
+    expect(ctx.errs.join('\n')).toContain('Usage: steelforge biography <feature>');
   });
 });
 

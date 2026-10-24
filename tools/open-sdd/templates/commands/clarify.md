@@ -19,20 +19,20 @@ parallelSafe: false
 moves:
   - ears
 commands:
-  - "open-sdd status <feature> --json"
-  - "open-sdd brownfield clarify <feature> --json"
-  - "open-sdd brownfield clarify <feature> --questions-file .sdd/specs/<feature>/clarify/questions.json"
-  - "open-sdd brownfield clarify <feature> --answers .sdd/specs/<feature>/clarify/answers.json --write"
-  - "open-sdd brownfield requirements <feature> --suggest --json"
-  - "open-sdd delta validate <feature> --json"
-  - "open-sdd status --json"
-  - "open-sdd brownfield clarify <feature> --answers <path> --write"
-  - "open-sdd status --check --json"
+  - "steelforge status <feature> --json"
+  - "steelforge brownfield clarify <feature> --json"
+  - "steelforge brownfield clarify <feature> --questions-file .sdd/specs/<feature>/clarify/questions.json"
+  - "steelforge brownfield clarify <feature> --answers .sdd/specs/<feature>/clarify/answers.json --write"
+  - "steelforge brownfield requirements <feature> --suggest --json"
+  - "steelforge delta validate <feature> --json"
+  - "steelforge status --json"
+  - "steelforge brownfield clarify <feature> --answers <path> --write"
+  - "steelforge status --check --json"
 scripts:
-  - "open-sdd brownfield clarify <feature> --json"
-  - "open-sdd brownfield clarify <feature> --questions-file .sdd/specs/<feature>/clarify/questions.json"
-  - "open-sdd brownfield clarify <feature> --answers .sdd/specs/<feature>/clarify/answers.json --write"
-  - "open-sdd delta validate <feature> --json"
+  - "steelforge brownfield clarify <feature> --json"
+  - "steelforge brownfield clarify <feature> --questions-file .sdd/specs/<feature>/clarify/questions.json"
+  - "steelforge brownfield clarify <feature> --answers .sdd/specs/<feature>/clarify/answers.json --write"
+  - "steelforge delta validate <feature> --json"
 ---
 
 # Clarify — the bounded interrogation
@@ -42,7 +42,7 @@ human about the spec, but it is **bounded** and **derived**: the questions come 
 deterministic ambiguity codes, never from the agent's imagination, and every answer is written back
 into the specification and then **verified** to have removed the ambiguity.
 
-The engine implements this as `open-sdd brownfield clarify <feature>`: a default cap of **five**
+The engine implements this as `steelforge brownfield clarify <feature>`: a default cap of **five**
 questions (`--max N` to change it), questions derived from the EARS analysis and any unfilled
 `{{…}}` delta marker, and a non-interactive cycle (`--questions-file` → fill answers → `--answers …
 --write`) that never blocks on a terminal. Use that command; this template is the protocol around
@@ -61,9 +61,9 @@ If the input names a feature, use it. If not, read the current state and ask whi
 - **Identified — produces:** the rewritten `.sdd/specs/<feature>/requirements.md` plus the question/answer ledger under `.sdd/specs/<feature>/clarify/`.
 - **Identified — refuses:** it refuses to answer its own questions and refuses to edit application source or the constitution.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `open-sdd brownfield clarify <feature> --answers <path> --write` re-runs the analysis after applying answers and reports `resolved`/`stillOpen` with `codeBefore`/`codeAfter`; `open-sdd delta validate <feature> --json` **exits 1** on a broken delta (BLOCKS hand-off to `plan`).
-- **Measured — components:** `ears` — the reader sees the change before/after in `open-sdd status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: answers are folded into EARS statements with the pattern named, an unratified draft cannot authorise an answer, and `open-sdd status --check --json` validates the spec against the principles.
+- **Assured — backing check:** `steelforge brownfield clarify <feature> --answers <path> --write` re-runs the analysis after applying answers and reports `resolved`/`stillOpen` with `codeBefore`/`codeAfter`; `steelforge delta validate <feature> --json` **exits 1** on a broken delta (BLOCKS hand-off to `plan`).
+- **Measured — components:** `ears` — the reader sees the change before/after in `steelforge status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: answers are folded into EARS statements with the pattern named, an unratified draft cannot authorise an answer, and `steelforge status --check --json` validates the spec against the principles.
 
 ## Pre-Execution Checks
 
@@ -88,7 +88,7 @@ If the input names a feature, use it. If not, read the current state and ask whi
 1. Read the feature state so the questions target the real gap:
 
 ```bash
-open-sdd status <feature> --json
+steelforge status <feature> --json
 ```
 
 2. Ask the engine for the bounded question set. Read every question's code, artifact and evidence —
@@ -96,18 +96,18 @@ open-sdd status <feature> --json
    a human must decide:
 
 ```bash
-open-sdd brownfield clarify <feature> --json
+steelforge brownfield clarify <feature> --json
 ```
 
 3. For a non-interactive run, materialise the questions, fill the answers, and apply them with a
    verified write-back:
 
 ```bash
-open-sdd brownfield clarify <feature> --questions-file .sdd/specs/<feature>/clarify/questions.json
+steelforge brownfield clarify <feature> --questions-file .sdd/specs/<feature>/clarify/questions.json
 ```
 
 ```bash
-open-sdd brownfield clarify <feature> --answers .sdd/specs/<feature>/clarify/answers.json --write
+steelforge brownfield clarify <feature> --answers .sdd/specs/<feature>/clarify/answers.json --write
 ```
 
 4. Ask the human the questions, in chat. Do not answer them yourself. A question the agent answers is
@@ -121,13 +121,13 @@ open-sdd brownfield clarify <feature> --answers .sdd/specs/<feature>/clarify/ans
 7. Re-read the statements that remain not checkable, so nothing was lost in the rewrite:
 
 ```bash
-open-sdd brownfield requirements <feature> --suggest --json
+steelforge brownfield requirements <feature> --suggest --json
 ```
 
 8. For a change to existing code, validate the delta after the write-back:
 
 ```bash
-open-sdd delta validate <feature> --json
+steelforge delta validate <feature> --json
 ```
 
 ## The constitution is the pivot
@@ -157,7 +157,7 @@ around it here. An unratified draft cannot authorise an answer.
 
 ## Mandatory Post-Execution Hooks
 
-1. Re-run `open-sdd status <feature> --json` and confirm the EARS component moved.
+1. Re-run `steelforge status <feature> --json` and confirm the EARS component moved.
 2. If any question remains open, name it in the completion report and in the handoff to `plan`.
 
 ## Completion Report

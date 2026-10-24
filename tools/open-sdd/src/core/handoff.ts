@@ -77,7 +77,7 @@ const findFile = async (root: string, name: string, depth = 5): Promise<string |
   return null;
 };
 
-/** Where an artifact lives: the open-sdd triad, steering, or the newest AI-DLC intent record. */
+/** Where an artifact lives: the steelforge triad, steering, or the newest AI-DLC intent record. */
 export const resolveArtifact = async (cwd: string, feature: string, artifact: string): Promise<string[]> => {
   if (artifact in TRIAD) {
     const hit = TRIAD[artifact].map((f) => path.join(cwd, '.sdd', 'specs', feature, f)).find((p) => existsSync(p));

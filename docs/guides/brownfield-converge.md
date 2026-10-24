@@ -1,6 +1,6 @@
 # Brownfield convergence
 
-`open-sdd brownfield converge <feature>` answers one question with measurements instead of
+`steelforge brownfield converge <feature>` answers one question with measurements instead of
 opinions: **given the specifications as the only source of intent, what is still missing from the
 code?** It reads `requirements.md`, `plan.md`/`design.md` and `tasks.md` (plus `delta.md` when it
 exists) and the repository itself, reports every gap it can measure, and — only with `--write` —
@@ -10,8 +10,8 @@ It is the brownfield answer to spec-kit's `converge`, rebuilt on this repository
 difference is not the idea, it is who measures: here every finding carries machine-collected
 evidence, and a finding without evidence does not exist.
 
-> Commands below are shown as `open-sdd …` for an installed CLI. In this repository, replace
-> `open-sdd` with `node tools/open-sdd/dist/cli.js`.
+> Commands below are shown as `steelforge …` for an installed CLI. In this repository, replace
+> `steelforge` with `node tools/open-sdd/dist/cli.js`.
 
 ## The workflow: implement → converge → implement
 
@@ -20,16 +20,16 @@ Converge is not a first step. It is the loop that closes the gap between "the ta
 
 ```bash
 # 1. Implement against the spec (skills / sdd-impl), then ask the engine what is left.
-open-sdd brownfield converge <feature>            # report only; tasks.md is not touched
+steelforge brownfield converge <feature>            # report only; tasks.md is not touched
 
 # 2. Read the findings table. Each row is a measured gap with its evidence.
 #    Exit code is 1 when any gap is `high` (a real gap in a delivered feature), 0 otherwise.
 
 # 3. Turn the remaining work into tracked tasks, append-only.
-open-sdd brownfield converge <feature> --write    # appends ONE `## Phase N: Convergence` section
+steelforge brownfield converge <feature> --write    # appends ONE `## Phase N: Convergence` section
 
 # 4. Implement those tasks, capture `_Evidence:`, and run converge again.
-open-sdd brownfield converge <feature>            # idempotent: no gap is appended twice
+steelforge brownfield converge <feature>            # idempotent: no gap is appended twice
 ```
 
 The loop is deliberately honest about the direction of the arrow. Converge never rewrites
@@ -152,4 +152,4 @@ reader that only sees prose.
 
 - [`brownfield-delta-workflow.md`](./brownfield-delta-workflow.md) — the delta as the unit of change.
 - [`brownfield-quickstart.md`](./brownfield-quickstart.md) — the first run on an existing repo.
-- [`existing-projects.md`](./existing-projects.md) — adopting open-sdd in place.
+- [`existing-projects.md`](./existing-projects.md) — adopting steelforge in place.

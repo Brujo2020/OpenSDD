@@ -1,5 +1,5 @@
 /**
- * `open-sdd doctor` — autodiagnóstico de la instalación y del repositorio gobernado.
+ * `steelforge doctor` — autodiagnóstico de la instalación y del repositorio gobernado.
  *
  * ── Por qué existe ──────────────────────────────────────────────────────────────────────────────
  * El objetivo del proyecto es «instalación y primer uso en minutos, en cualquier sistema operativo,
@@ -265,7 +265,9 @@ const CLI_CANDIDATES = (cwd: string): string[] =>
       path.join(cwd, 'tools', 'open-sdd', 'dist', 'cli.js'),
       path.join(cwd, 'dist', 'cli.js'),
       path.join(cwd, 'node_modules', 'open-sdd', 'tools', 'open-sdd', 'dist', 'cli.js'),
+      path.join(cwd, 'node_modules', '@brujo2020', 'steelforge', 'tools', 'open-sdd', 'dist', 'cli.js'),
       path.join(cwd, 'node_modules', '@brujo2020', 'open-sdd', 'tools', 'open-sdd', 'dist', 'cli.js'),
+      path.join(cwd, 'node_modules', '.bin', 'steelforge'),
       path.join(cwd, 'node_modules', '.bin', 'open-sdd'),
     ]),
   );
@@ -275,7 +277,7 @@ const CLI_CANDIDATES = (cwd: string): string[] =>
  *
  * `pre-commit.mjs` es el gate portátil (Node, sin shell POSIX): es el que instala
  * `scripts/install-hooks.mjs` y el que `doctor --fix` prefiere. El `pre-commit` POSIX sigue siendo la
- * plantilla que copia `open-sdd floor install`, así que un hook instalado con CUALQUIERA de las dos
+ * plantilla que copia `steelforge floor install`, así que un hook instalado con CUALQUIERA de las dos
  * se reconoce como nuestro y vigente: negarlo haría que doctor declarase obsoleto un gate sano.
  */
 const HOOK_TEMPLATE_FILES = ['pre-commit.mjs', 'pre-commit'];
@@ -285,6 +287,7 @@ const HOOK_TEMPLATE_CANDIDATES = (cwd: string): string[] => {
     path.resolve(MODULE_DIR, '..', '..', 'templates', 'hooks'),
     path.join(cwd, 'tools', 'open-sdd', 'templates', 'hooks'),
     path.join(cwd, 'node_modules', 'open-sdd', 'tools', 'open-sdd', 'templates', 'hooks'),
+    path.join(cwd, 'node_modules', '@brujo2020', 'steelforge', 'tools', 'open-sdd', 'templates', 'hooks'),
     path.join(cwd, 'node_modules', '@brujo2020', 'open-sdd', 'tools', 'open-sdd', 'templates', 'hooks'),
   ];
   const out: string[] = [];
@@ -349,7 +352,7 @@ const checkNode = async (cwd: string, manifestPaths?: string[]): Promise<DoctorC
         label: 'Versión de Node',
         status: 'fail',
         detail: `Ningún manifiesto declara engines.node: no se pudo comprobar un rango declarado${note}. Se asumió ${ASSUMED_NODE_RANGE} y Node v${current} NO lo cumple.`,
-        fix: `Instala Node ${ASSUMED_NODE_RANGE} (LTS) y vuelve a ejecutar \`open-sdd doctor\`.`,
+        fix: `Instala Node ${ASSUMED_NODE_RANGE} (LTS) y vuelve a ejecutar \`steelforge doctor\`.`,
       };
     }
     return {
@@ -378,7 +381,7 @@ const checkNode = async (cwd: string, manifestPaths?: string[]): Promise<DoctorC
     label: 'Versión de Node',
     status: satisfied ? 'ok' : 'fail',
     detail: `Node v${current} ${satisfied ? 'cumple' : 'NO cumple'} el rango "${found.range}" declarado en ${where}.`,
-    ...(satisfied ? {} : { fix: `Instala una versión de Node que cumpla "${found.range}" y vuelve a ejecutar \`open-sdd doctor\`.` }),
+    ...(satisfied ? {} : { fix: `Instala una versión de Node que cumpla "${found.range}" y vuelve a ejecutar \`steelforge doctor\`.` }),
   };
 };
 
@@ -461,7 +464,7 @@ const checkHook = async (cwd: string, platform: NodeJS.Platform): Promise<HookPr
       label: 'Hook de commit',
       status: 'warn',
       detail: 'Sin repositorio git (o sin `git` disponible) no se pudo comprobar el hook de commit: no hay ninguno que inspeccionar.',
-      fix: `Inicializa el repositorio (\`git init\`) e instala el suelo: \`open-sdd floor install ${quote(cwd)}\`.`,
+      fix: `Inicializa el repositorio (\`git init\`) e instala el suelo: \`steelforge floor install ${quote(cwd)}\`.`,
     },
     hookPath: null,
     state: 'absent',
@@ -481,7 +484,7 @@ const checkHook = async (cwd: string, platform: NodeJS.Platform): Promise<HookPr
         label: 'Hook de commit',
         status: 'warn',
         detail: 'La ruta del hook no se pudo comprobar: `git rev-parse --git-path hooks/pre-commit` no devolvió ninguna.',
-        fix: `Instala el suelo explícitamente: \`open-sdd floor install ${quote(cwd)}\`.`,
+        fix: `Instala el suelo explícitamente: \`steelforge floor install ${quote(cwd)}\`.`,
       },
       hookPath: null,
       state: 'unverifiable',
@@ -502,7 +505,7 @@ const checkHook = async (cwd: string, platform: NodeJS.Platform): Promise<HookPr
         label: 'Hook de commit',
         status: 'fail',
         detail: `El hook de commit no está instalado en ${relativeHook} (${origin}): el repositorio no tiene gate de commit.`,
-        fix: `open-sdd floor install ${quote(cwd)}`,
+        fix: `steelforge floor install ${quote(cwd)}`,
       },
       hookPath,
       state: 'missing',
@@ -519,7 +522,7 @@ const checkHook = async (cwd: string, platform: NodeJS.Platform): Promise<HookPr
         label: 'Hook de commit',
         status: 'warn',
         detail: `El hook existe en ${relativeHook} (${origin}) pero no se pudo leer: no se pudo comprobar si es nuestra versión.`,
-        fix: `open-sdd floor install ${quote(cwd)}`,
+        fix: `steelforge floor install ${quote(cwd)}`,
       },
       hookPath,
       state: 'unverifiable',
@@ -536,7 +539,7 @@ const checkHook = async (cwd: string, platform: NodeJS.Platform): Promise<HookPr
         label: 'Hook de commit',
         status: 'fail',
         detail: `El hook instalado en ${relativeHook} es ajeno: no menciona open-sdd, así que el gate de commit no está en vigor.`,
-        fix: `open-sdd floor install ${quote(cwd)} --force  (hace copia de seguridad del hook existente)`,
+        fix: `steelforge floor install ${quote(cwd)} --force  (hace copia de seguridad del hook existente)`,
       },
       hookPath,
       state: 'foreign',
@@ -570,7 +573,7 @@ const checkHook = async (cwd: string, platform: NodeJS.Platform): Promise<HookPr
         label: 'Hook de commit',
         status: 'warn',
         detail: `El hook instalado en ${relativeHook} es nuestro y es ejecutable, pero no se encontró la plantilla embarcada: no se pudo comprobar si es la versión vigente.`,
-        fix: `open-sdd floor install ${quote(cwd)}`,
+        fix: `steelforge floor install ${quote(cwd)}`,
       },
       hookPath,
       state: 'unverifiable',
@@ -587,7 +590,7 @@ const checkHook = async (cwd: string, platform: NodeJS.Platform): Promise<HookPr
         label: 'Hook de commit',
         status: 'warn',
         detail: `El hook instalado en ${relativeHook} es nuestro pero está DESACTUALIZADO respecto a las plantillas embarcadas (${templates.length}): seguiría ejecutando el gate viejo.`,
-        fix: `open-sdd floor install ${quote(cwd)}  ·  o \`open-sdd doctor --fix\` para reinstalar la plantilla portátil`,
+        fix: `steelforge floor install ${quote(cwd)}  ·  o \`steelforge doctor --fix\` para reinstalar la plantilla portátil`,
       },
       hookPath,
       state: 'stale',
@@ -641,7 +644,7 @@ const checkHookPortability = async (
       label: 'Portabilidad del hook',
       status: 'warn',
       detail: 'No hay hook de commit instalado: no se pudo comprobar su portabilidad.',
-      fix: `open-sdd floor install ${quote(cwd)}`,
+      fix: `steelforge floor install ${quote(cwd)}`,
     };
   }
 
@@ -652,7 +655,7 @@ const checkHookPortability = async (
       label: 'Portabilidad del hook',
       status: 'warn',
       detail: 'El hook instalado no se pudo leer: no se pudo comprobar su portabilidad.',
-      fix: `open-sdd floor install ${quote(cwd)}`,
+      fix: `steelforge floor install ${quote(cwd)}`,
     };
   }
 
@@ -691,7 +694,7 @@ const checkHookPortability = async (
     label: 'Portabilidad del hook',
     status: 'fail',
     detail: 'El hook depende de un shell POSIX ("' + firstLine.replace(/^#!\s*/, '') + '") y en Windows `sh` no está disponible: el gate de commit NO puede ejecutarse aunque el hook esté instalado.',
-    fix: 'Instala Git for Windows (aporta `sh`) o reinstala el gate portátil, que no necesita shell: `open-sdd doctor --fix`.',
+    fix: 'Instala Git for Windows (aporta `sh`) o reinstala el gate portátil, que no necesita shell: `steelforge doctor --fix`.',
   };
 };
 
@@ -710,7 +713,7 @@ const checkSettings = async (
         label: 'Rigor declarado',
         status: 'fail',
         detail: `No existe ${display}: el repositorio no declara su nivel de rigor.`,
-        fix: `open-sdd init . --write --level ${DEFAULT_RIGOR_LEVEL}`,
+        fix: `steelforge init . --write --level ${DEFAULT_RIGOR_LEVEL}`,
       },
       settingsPath,
       settingsExists: false,
@@ -724,7 +727,7 @@ const checkSettings = async (
         label: 'Rigor declarado',
         status: 'fail',
         detail: `${display} existe pero no se pudo leer (${raw.error ?? 'error de lectura'}): no se pudo comprobar su contenido y no se da por bueno.`,
-        fix: `Revisa los permisos de ${display} o vuélvelo a declarar con \`open-sdd init . --write\`.`,
+        fix: `Revisa los permisos de ${display} o vuélvelo a declarar con \`steelforge init . --write\`.`,
       },
       settingsPath,
       settingsExists: true,
@@ -741,7 +744,7 @@ const checkSettings = async (
         label: 'Rigor declarado',
         status: 'fail',
         detail: `${display} no es JSON válido (${(error as Error).message}). No se degrada en silencio: un archivo roto no puede convertirse en una bajada invisible de exigencia.`,
-        fix: `Corrige o elimina ${display} y vuelve a declararlo con \`open-sdd init . --write --level ${DEFAULT_RIGOR_LEVEL}\`.`,
+        fix: `Corrige o elimina ${display} y vuelve a declararlo con \`steelforge init . --write --level ${DEFAULT_RIGOR_LEVEL}\`.`,
       },
       settingsPath,
       settingsExists: true,
@@ -800,7 +803,7 @@ const checkConstitution = async (cwd: string, sddDir: string): Promise<DoctorChe
       label: 'Constitución',
         status: 'fail',
         detail: `No existe ${path.posix.join(sddDir, 'steering', 'constitution.md')}: sin autoridad que citar, ningún veredicto bloqueante puede justificarse (obligatoria en los tres niveles de rigor).`,
-      fix: '`open-sdd brownfield constitution . --write` la deriva del código cuando existe; en un proyecto nuevo, escríbela a mano antes de especificar.',
+      fix: '`steelforge brownfield constitution . --write` la deriva del código cuando existe; en un proyecto nuevo, escríbela a mano antes de especificar.',
     };
   }
 
@@ -811,7 +814,7 @@ const checkConstitution = async (cwd: string, sddDir: string): Promise<DoctorChe
       label: 'Constitución',
         status: 'warn',
         detail: `La constitución existe en ${found} pero no se pudo comprobar (${raw.error ?? 'error de lectura'}): no se informa como válida.`,
-      fix: `Revisa los permisos de ${found} y vuelve a ejecutar \`open-sdd doctor\`.`,
+      fix: `Revisa los permisos de ${found} y vuelve a ejecutar \`steelforge doctor\`.`,
     };
   }
 
@@ -838,7 +841,7 @@ const checkConstitution = async (cwd: string, sddDir: string): Promise<DoctorChe
       label: 'Constitución',
         status: 'fail',
         detail: `${found}: válida en forma pero sin principios en vigor: no hay autoridad citable.`,
-      fix: `Genera la constitución descriptiva: \`open-sdd brownfield constitution . --write\`.`,
+      fix: `Genera la constitución descriptiva: \`steelforge brownfield constitution . --write\`.`,
     };
   }
 
@@ -870,7 +873,7 @@ const checkSpecs = async (cwd: string, sddDir: string): Promise<DoctorCheck> => 
       label: 'Especificaciones',
       status: 'warn',
       detail: `La tríada no se pudo comprobar en ninguna especificación: ${path.posix.join(sddDir, 'specs')} no se pudo leer (${(error as Error).message}).`,
-      fix: `Revisa los permisos de ${path.posix.join(sddDir, 'specs')} y vuelve a ejecutar \`open-sdd doctor\`.`,
+      fix: `Revisa los permisos de ${path.posix.join(sddDir, 'specs')} y vuelve a ejecutar \`steelforge doctor\`.`,
     };
   }
 
@@ -902,7 +905,7 @@ const checkSpecs = async (cwd: string, sddDir: string): Promise<DoctorCheck> => 
       label: 'Especificaciones',
       status: 'warn',
       detail: `${features.length} especificación(es); tríada incompleta en ${incomplete.length}: ${incomplete.map((item) => `${item.feature} → falta ${item.missing.join(', ')}`).join(' | ')}${unreadable.length > 0 ? ` (no se pudo comprobar: ${unreadable.join(', ')})` : ''}.`,
-      fix: `Completa la tríada de la primera spec incompleta o consulta su estado: \`open-sdd status ${incomplete[0].feature}\`.`,
+      fix: `Completa la tríada de la primera spec incompleta o consulta su estado: \`steelforge status ${incomplete[0].feature}\`.`,
     };
   }
 
@@ -912,7 +915,7 @@ const checkSpecs = async (cwd: string, sddDir: string): Promise<DoctorCheck> => 
       label: 'Especificaciones',
       status: 'warn',
       detail: `En ${unreadable.length} especificación(es) no se pudo comprobar la tríada: ${unreadable.join(', ')}. Las legibles están completas.`,
-      fix: `Revisa los permisos de ${path.posix.join(sddDir, 'specs', unreadable[0])} y vuelve a ejecutar \`open-sdd doctor\`.`,
+      fix: `Revisa los permisos de ${path.posix.join(sddDir, 'specs', unreadable[0])} y vuelve a ejecutar \`steelforge doctor\`.`,
     };
   }
 
@@ -948,7 +951,7 @@ const checkEnvironment = (
   } else {
     status = 'fail';
     details.push('git NO está disponible: sin git no hay hook de commit ni trazabilidad de cambios');
-    fix = 'Instala git (https://git-scm.com/downloads) y vuelve a ejecutar `open-sdd doctor`.';
+    fix = 'Instala git (https://git-scm.com/downloads) y vuelve a ejecutar `steelforge doctor`.';
   }
 
   if (repoRoot) {
@@ -1103,21 +1106,21 @@ export const renderDoctor = (report: DoctorReport): string[] => {
     lines.push('Stop hooks (el veredicto del gate dentro del bucle del agente; solo anfitriones verificados):');
     for (const hook of report.stopHooks) {
       lines.push(`${hook.installed ? '✓' : '!'} [${hook.installed ? 'ok' : 'warn'}] ${hook.host}: ${hook.detail}`);
-      if (!hook.installed) lines.push(`      fix: open-sdd integrate ${hook.host} --write`);
+      if (!hook.installed) lines.push(`      fix: steelforge integrate ${hook.host} --write`);
     }
   }
   lines.push('');
   const failed = report.checks.filter((check) => check.status === 'fail');
   if (failed.length > 0) {
-    lines.push(`FAIL — Corrige ${failed.length} fallo(s). \`open-sdd doctor --fix\` repara en sitio solo lo seguro: el hook y el archivo de rigor ausentes.`);
+    lines.push(`FAIL — Corrige ${failed.length} fallo(s). \`steelforge doctor --fix\` repara en sitio solo lo seguro: el hook y el archivo de rigor ausentes.`);
   } else {
-    lines.push('PASS — Sin fallos. Los avisos documentan deuda, no bloquean: `open-sdd status --check` valida la spec contra la constitución.');
+    lines.push('PASS — Sin fallos. Los avisos documentan deuda, no bloquean: `steelforge status --check` valida la spec contra la constitución.');
   }
   return lines;
 };
 
 const DEFAULT_RATIONALE = (level: string): string =>
-  `Nivel ${level} elegido por \`open-sdd doctor --fix\` como valor por defecto del inicializador: exige requisitos en forma comprobable (EARS) y una constitución válida, y no exige todavía delta, ligado de evidencia ni detección de drift. Se sube editando este archivo, nunca bajando lo que el suelo ya comprueba.`;
+  `Nivel ${level} elegido por \`steelforge doctor --fix\` como valor por defecto del inicializador: exige requisitos en forma comprobable (EARS) y una constitución válida, y no exige todavía delta, ligado de evidencia ni detección de drift. Se sube editando este archivo, nunca bajando lo que el suelo ya comprueba.`;
 
 /**
  * Reparaciones seguras e idempotentes. Solo dos, y ninguna toca un artefacto existente que no sea
@@ -1176,7 +1179,7 @@ const applyFixes = async (cwd: string, facts: DoctorFacts): Promise<string[]> =>
     }
   } else if (facts.hookState === 'foreign') {
     done.push(
-      `el hook instalado es ajeno: no se toca (una reparación automática no debe reemplazar decisiones humanas). Ejecuta: open-sdd floor install ${quote(cwd)} --force`,
+      `el hook instalado es ajeno: no se toca (una reparación automática no debe reemplazar decisiones humanas). Ejecuta: steelforge floor install ${quote(cwd)} --force`,
     );
   } else if (facts.hookState === 'current') {
     done.push('= el hook de commit ya es la versión vigente: no se toca');
@@ -1227,7 +1230,7 @@ export const handleDoctorCommand = async (
     io.log(colors.bold(colors.cyan('Stop hooks (el gate dentro del bucle del agente; solo anfitriones verificados):')));
     for (const hook of computed.report.stopHooks) {
       io.log(`${hook.installed ? colors.green('✓') : colors.yellow('!')} ${colors.bold(hook.host)}: ${hook.detail}`);
-      if (!hook.installed) io.log(colors.dim(`      fix: open-sdd integrate ${hook.host} --write`));
+      if (!hook.installed) io.log(colors.dim(`      fix: steelforge integrate ${hook.host} --write`));
     }
     io.log('');
   }

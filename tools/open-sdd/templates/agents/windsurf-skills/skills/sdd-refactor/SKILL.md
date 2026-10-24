@@ -17,6 +17,6 @@ If the evidence says behaviour changed, it is no longer a refactor. (SteelForge 
 2. BEFORE: run the tests covering that area and save the output. If no test covers it, run `/sdd-characterize` first.
 3. Refactor without changing observable behaviour (outputs, errors, side effects, public API).
 4. AFTER: run the same tests; they must be green with the same results. Cite them as `_Evidence:_`.
-5. Run `open-sdd brownfield impact <feature>`; if it reports a behaviour change, either show why it is not one or
-   reclassify the work as a change (`open-sdd delta init`).
+5. Run `steelforge brownfield impact <feature>`; if it reports a behaviour change, either show why it is not one or
+   reclassify the work as a change (`steelforge delta init`).
 </instructions>

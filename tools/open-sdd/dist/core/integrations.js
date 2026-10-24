@@ -3,7 +3,7 @@
  *
  * ── Why this file exists ────────────────────────────────────────────────────────────────────────
  * spec-kit's strongest asset is a documented reference with one key per supported agent AND the
- * invocation syntax each host uses, because slash-command syntax differs per host. open-sdd already
+ * invocation syntax each host uses, because slash-command syntax differs per host. steelforge already
  * has more engine (MCP server, executable gates, delta specs, the constitution pivot, the audit
  * bundle) but its adoption surface was prose. This module turns that surface into data: the skills
  * layout, the exact in-chat invocation, the MCP configuration file per OS, the snippet that
@@ -134,8 +134,8 @@ export const HOST_INTEGRATIONS = [
         detect: ['.claude/', '.claude/skills/', 'CLAUDE.md'],
         notes: [
             VERIFIED_JSON_MCP_SERVERS,
-            'Ruta de proyecto: `.mcp.json` en la raíz del repositorio. Ámbito de usuario: `~/.claude.json`. El propio CLI del anfitrión escribe la misma entrada: `claude mcp add open-sdd -- node <cli> mcp`.',
-            'Instalación de skills: `open-sdd --claude-code-skills --lang <es|en>`.',
+            'Ruta de proyecto: `.mcp.json` en la raíz del repositorio. Ámbito de usuario: `~/.claude.json`. El propio CLI del anfitrión escribe la misma entrada: `claude mcp add steelforge -- node <cli> mcp`.',
+            'Instalación de skills: `steelforge --claude-code-skills --lang <es|en>`.',
         ],
     },
     {
@@ -153,7 +153,7 @@ export const HOST_INTEGRATIONS = [
         notes: [
             VERIFIED_JSON_MCP_SERVERS,
             'Ruta de proyecto: `.cursor/mcp.json`; ámbito de usuario: `~/.cursor/mcp.json`. Ambas usan la misma forma.',
-            'Instalación de skills: `open-sdd --cursor-skills --lang <es|en>`.',
+            'Instalación de skills: `steelforge --cursor-skills --lang <es|en>`.',
         ],
     },
     {
@@ -172,7 +172,7 @@ export const HOST_INTEGRATIONS = [
         notes: [
             'Forma VERIFICADA (superficie VS Code): objeto `servers` con `type: "stdio"`, `command` como CADENA y `args` como ARRAY, en `.vscode/mcp.json` del espacio de trabajo (el perfil de usuario se abre con `MCP: Open User Configuration`). Documentación: https://code.visualstudio.com/docs/copilot/chat/mcp-servers.',
             'El CLI de Copilot es una superficie DISTINTA y documentada: usa `~/.copilot/mcp-config.json` con el objeto `mcpServers` de la familia Claude/Cursor. No es la misma entrada que la de VS Code: elige la que corresponda a tu superficie en lugar de mezclar formas.',
-            'Instalación de skills: `open-sdd --copilot-skills --lang <es|en>`.',
+            'Instalación de skills: `steelforge --copilot-skills --lang <es|en>`.',
         ],
     },
     {
@@ -194,7 +194,7 @@ export const HOST_INTEGRATIONS = [
         notes: [
             'Forma VERIFICADA: TOML con una tabla `[mcp_servers.<nombre>]` y las claves `command` + `args` para un servidor stdio; es la forma documentada de `config.toml`.',
             'Ruta: `~/.codex/config.toml` (usuario). El merge es textual: si la tabla `[mcp_servers.open-sdd]` ya existe, se conserva; si no, se AÑADE al final, sin tocar el resto del archivo.',
-            'Instalación de skills: `open-sdd --codex-skills --lang <es|en>`. La invocación en Codex es `$sdd-<workflow>`, no `/sdd-<workflow>`.',
+            'Instalación de skills: `steelforge --codex-skills --lang <es|en>`. La invocación en Codex es `$sdd-<workflow>`, no `/sdd-<workflow>`.',
         ],
     },
     {
@@ -212,7 +212,7 @@ export const HOST_INTEGRATIONS = [
         notes: [
             VERIFIED_JSON_MCP_SERVERS,
             'Ruta de proyecto: `.gemini/settings.json` (la de usuario es `~/.gemini/settings.json`); el archivo lleva otras claves de la CLI, así que el merge preserva todo lo que ya haya.',
-            'Instalación de skills: `open-sdd --gemini-cli-skills --lang <es|en>`.',
+            'Instalación de skills: `steelforge --gemini-cli-skills --lang <es|en>`.',
         ],
     },
     {
@@ -234,7 +234,7 @@ export const HOST_INTEGRATIONS = [
         notes: [
             VERIFIED_JSON_MCP_SERVERS,
             'Ruta de usuario: `~/.codeium/windsurf/mcp_config.json`. Windsurf documenta la configuración MCP en ese archivo, no en un archivo de proyecto, así que `--write` escribe fuera del repositorio y lo dice.',
-            'La invocación en Windsurf es `@sdd-<workflow>` (mención), no `/sdd-<workflow>`. Instalación: `open-sdd --windsurf-skills --lang <es|en>`.',
+            'La invocación en Windsurf es `@sdd-<workflow>` (mención), no `/sdd-<workflow>`. Instalación: `steelforge --windsurf-skills --lang <es|en>`.',
         ],
     },
     {
@@ -252,7 +252,7 @@ export const HOST_INTEGRATIONS = [
         detect: ['.opencode/', 'opencode.json', '.opencode/skills/'],
         notes: [
             'Forma VERIFICADA: objeto `mcp` de primer nivel en `opencode.json`, entrada con `type: "local"` y `command` como ARRAY (`["node", "<cli>", "mcp"]`), distinta de la familia `mcpServers`. El `$schema` que emite el snippet es el de la propia documentación. Documentación: https://opencode.ai/docs/mcp-servers/.',
-            'Instalación de skills: `open-sdd --opencode-skills --lang <es|en>`.',
+            'Instalación de skills: `steelforge --opencode-skills --lang <es|en>`.',
         ],
     },
     {

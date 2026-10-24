@@ -196,7 +196,7 @@ describe('detectGitFlow — rol, feature y versión salen del nombre', () => {
     expect(state.feature).toBe('checkout');
     const policy = policyFor(state);
     expect(policy.required.join('\n')).toContain('.sdd/specs/checkout/delta.md');
-    expect(policy.nextStep).toBe('open-sdd delta validate checkout');
+    expect(policy.nextStep).toBe('steelforge delta validate checkout');
   });
 });
 
@@ -234,7 +234,7 @@ describe('branchPolicy — el rol decide qué se exige', () => {
     expect(policy.role).toBe('main');
     expect(policy.required.join('\n')).toContain('solo fusiones');
     expect(policy.gates).toEqual(['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8']);
-    expect(policy.nextStep).toBe('open-sdd gates run');
+    expect(policy.nextStep).toBe('steelforge gates run');
   });
 
   it('develop exige integración y el pivote, y difiere de feature', async () => {
@@ -285,7 +285,7 @@ describe('branchPolicy — el rol decide qué se exige', () => {
 
     expect(blocking).toContain('pre-commit');
     expect(blocking).toContain('pull_request');
-    expect(blocking).toContain('open-sdd floor status');
+    expect(blocking).toContain('steelforge floor status');
     expect(blocking).toContain('NO instala branch protection');
   });
 });
@@ -304,7 +304,7 @@ describe('renderGitFlow — una pantalla', () => {
     expect(text).toContain('rol release');
     expect(text).toContain('Requerido por el rol release');
     expect(text).toContain('Bloquea hoy');
-    expect(text).toContain('Siguiente paso: open-sdd gates run');
+    expect(text).toContain('Siguiente paso: steelforge gates run');
   });
 
   it('también renderiza un repositorio sin modelo ni rol', async () => {
