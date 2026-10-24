@@ -281,7 +281,7 @@ const dispatchSubcommand = async (cmd, subArgv, io, targetCwd) => {
     // Level ladder and Modernize Kit (v3.8.0).
     if (cmd === 'start')
         return handleStartCommand(subArgv, io, targetCwd);
-    if (cmd === 'modernize')
+    if (cmd === 'migrate' || cmd === 'modernize')
         return handleModernizeCommand(subArgv, io, targetCwd);
     if (cmd === 'reverse')
         return handleReverseCommand(subArgv, io, targetCwd);

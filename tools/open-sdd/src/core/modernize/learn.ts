@@ -63,7 +63,7 @@ const candidatesDir = (cwd: string) => modernizeDir(cwd, 'rule-candidates');
 export const learnFromEvent = async (cwd: string, feature: string, id: string): Promise<LearnResult> => {
   const rec = await readEventRecord(cwd, feature, id);
   if (!rec) return { ok: false, message: `no event ${id}` };
-  if (!rec.resolvedAt) return { ok: false, message: `${id} is not resolved yet: open-sdd modernize resolve ${feature} --event ${id}` };
+  if (!rec.resolvedAt) return { ok: false, message: `${id} is not resolved yet: open-sdd migrate resolve ${feature} --event ${id}` };
   const m = (await eventMetrics(cwd, feature, id)) as EventMetrics;
   const sameType = (await listEventRecords(cwd, feature)).filter((r) => r.resolvedAt && r.decision.event.type === m.type);
   const runs = sameType.length;

@@ -71,7 +71,7 @@ export const validatePortfolio = (raw: unknown): { ok: boolean; errors: string[]
 
 export const readPortfolio = async (cwd: string): Promise<{ ok: boolean; errors: string[]; portfolio?: Portfolio }> => {
   const raw = await readFile(portfolioFile(cwd), 'utf8').catch(() => null);
-  if (raw === null) return { ok: false, errors: [`no portfolio: run \`open-sdd modernize init\` (${path.relative(cwd, portfolioFile(cwd))})`] };
+  if (raw === null) return { ok: false, errors: [`no portfolio: run \`open-sdd migrate init\` (${path.relative(cwd, portfolioFile(cwd))})`] };
   try {
     return validatePortfolio(JSON.parse(raw));
   } catch (e) {

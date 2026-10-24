@@ -378,7 +378,7 @@ flowchart LR
   class PLAN p
 ```
 
-### Modernize Kit
+### Migration Kit
 
 ```mermaid
 flowchart TB
@@ -570,7 +570,7 @@ invariantes, las olas transaccionales y la constitución como pivote.
 ## Documentación
 
 [Instalación](docs/INSTALL.md) · [Inicio rápido (60 s)](docs/guides/quickstart-60s.md) ·
-[Integraciones](docs/guides/integrations.md) · [Playbooks](docs/guides/playbooks.md) · [Manual](docs/MANUAL.md) · [Modernize Kit](docs/guides/modernize-kit.md) · [Sabores, ingeniería inversa y asistentes](docs/guides/flavours.md) · [Proyectos existentes](docs/guides/existing-projects.md) ·
+[Integraciones](docs/guides/integrations.md) · [Playbooks](docs/guides/playbooks.md) · [Manual](docs/MANUAL.md) · [Migration Kit](docs/guides/modernize-kit.md) · [Sabores, ingeniería inversa y asistentes](docs/guides/flavours.md) · [Proyectos existentes](docs/guides/existing-projects.md) ·
 [Migrar desde spec-kit](docs/guides/migrate-from.md) ·
 [Mediciones](docs/MEASUREMENTS.md) · [Alineación con el paper y brechas](docs/PAPER-ALIGNMENT.md) ·
 [English](README.md) · [Changelog](CHANGELOG.md)

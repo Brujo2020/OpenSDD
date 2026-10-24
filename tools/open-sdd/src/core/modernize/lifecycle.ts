@@ -151,7 +151,7 @@ export const advance = async (cwd: string, input: AdvanceInput): Promise<Advance
       return { ok: true, code: 'ADVANCED', message: `${input.component.id}: ${from} → ${input.to} (approved by ${answer.by})`, stage: input.to };
     }
     const feature = input.feature ?? s.feature;
-    if (!feature) return { ok: false, code: 'NO_FEATURE', message: 'no modernization run: pass --feature or run `open-sdd modernize plan <feature>`', stage: from };
+    if (!feature) return { ok: false, code: 'NO_FEATURE', message: 'no migration run: pass --feature or run `open-sdd migrate plan <feature>`', stage: from };
     const irreversible = trigger === 'irreversible-damage';
     const prepared = await prepareCard(cwd, {
       feature,
