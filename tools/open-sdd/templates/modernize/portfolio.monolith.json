@@ -1,0 +1,146 @@
+{
+  "schema": "open-sdd.portfolio/1",
+  "name": "ecommerce-monolith (example): monolito Java EE hacia servicios con strangler fig, Java 8→21 y AngularJS fuera de soporte",
+  "components": [
+    {
+      "id": "shop-monolith",
+      "name": "Monolito tienda (Java EE/WebLogic)",
+      "type": "app",
+      "runtime": "java8",
+      "platform": "virtual",
+      "criticality": 5,
+      "businessValue": 5,
+      "techFit": 1,
+      "sensitivity": "confidential",
+      "businessDemand": "high",
+      "testCoverage": 0.2,
+      "eol": true,
+      "dependsOn": [
+        "shop-db"
+      ],
+      "owner": "core",
+      "usage": "active"
+    },
+    {
+      "id": "shop-db",
+      "name": "Base de datos compartida",
+      "type": "db",
+      "runtime": "mysql5",
+      "platform": "virtual",
+      "criticality": 5,
+      "businessValue": 5,
+      "techFit": 2,
+      "sensitivity": "confidential",
+      "eol": true,
+      "owner": "data",
+      "usage": "active",
+      "businessDemand": "normal",
+      "dependsOn": []
+    },
+    {
+      "id": "checkout",
+      "name": "Checkout (extraer primero)",
+      "type": "service",
+      "runtime": "java8",
+      "platform": "virtual",
+      "criticality": 5,
+      "businessValue": 5,
+      "techFit": 2,
+      "sensitivity": "regulated",
+      "businessDemand": "high",
+      "testCoverage": 0.25,
+      "dependsOn": [
+        "shop-db",
+        "payments-gw"
+      ],
+      "owner": "checkout",
+      "usage": "active"
+    },
+    {
+      "id": "payments-gw",
+      "name": "Pasarela de pagos (proveedor)",
+      "type": "integration",
+      "runtime": "vendor",
+      "platform": "saas",
+      "criticality": 5,
+      "businessValue": 4,
+      "techFit": 4,
+      "sensitivity": "regulated",
+      "owner": "payments",
+      "usage": "active",
+      "businessDemand": "normal",
+      "dependsOn": []
+    },
+    {
+      "id": "search",
+      "name": "Búsqueda",
+      "type": "service",
+      "runtime": "solr6",
+      "platform": "virtual",
+      "criticality": 3,
+      "businessValue": 4,
+      "techFit": 2,
+      "sensitivity": "public",
+      "testCoverage": 0.4,
+      "eol": true,
+      "owner": "discovery",
+      "usage": "active",
+      "businessDemand": "normal",
+      "dependsOn": []
+    },
+    {
+      "id": "storefront",
+      "name": "Front AngularJS",
+      "type": "ui",
+      "runtime": "angularjs",
+      "platform": "virtual",
+      "criticality": 4,
+      "businessValue": 5,
+      "techFit": 1,
+      "sensitivity": "public",
+      "businessDemand": "high",
+      "testCoverage": 0.1,
+      "eol": true,
+      "dependsOn": [
+        "shop-monolith"
+      ],
+      "owner": "web",
+      "usage": "active"
+    },
+    {
+      "id": "cms",
+      "name": "CMS de contenidos",
+      "type": "app",
+      "runtime": "drupal7",
+      "platform": "virtual",
+      "criticality": 2,
+      "businessValue": 2,
+      "techFit": 2,
+      "sensitivity": "public",
+      "saasAvailable": true,
+      "differentiating": false,
+      "eol": true,
+      "owner": "marketing",
+      "usage": "active",
+      "businessDemand": "normal",
+      "dependsOn": []
+    },
+    {
+      "id": "admin-backoffice",
+      "name": "Backoffice interno",
+      "type": "ui",
+      "runtime": "jsp",
+      "platform": "virtual",
+      "criticality": 2,
+      "businessValue": 2,
+      "techFit": 2,
+      "sensitivity": "internal",
+      "businessDemand": "low",
+      "dependsOn": [
+        "shop-monolith"
+      ],
+      "owner": "ops",
+      "usage": "active"
+    }
+  ]
+}

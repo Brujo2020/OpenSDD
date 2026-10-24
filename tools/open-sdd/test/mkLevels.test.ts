@@ -137,9 +137,9 @@ describe('AC-02 start: one command, ceremony by level', () => {
     expect(j.ceremony).toBe('standard');
     expect(j.directive.pack).toMatch(/handoff/);
   });
-  it('a modernization intent without a portfolio points to modernize init', async () => {
+  it('a modernization intent without a portfolio points to migrate init', async () => {
     const r = await run('start', 'modernize the core banking mainframe');
-    expect(r.out).toContain('modernize init');
+    expect(r.out).toContain('migrate init');
   });
   it('strict ceremony refuses an approval without an approvers list', async () => {
     mkdirSync(path.join(cwd, 'a', '.git'), { recursive: true });

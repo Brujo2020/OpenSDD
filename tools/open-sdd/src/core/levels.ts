@@ -8,7 +8,7 @@
  *   L3 small project a new app or service from scratch           → `greenfield`
  *   L4 medium        several features                            → `multi-feature`
  *   L5 large         several services, repositories or units     → `multi-unit`, strict ceremony
- *   L6 modernization a legacy portfolio moving to a new platform → `modernize`, strict ceremony
+ *   L6 migration     a legacy portfolio moving to a new platform → `modernize`, strict ceremony
  *
  * Risk only ever raises the level: a "tiny" change to authentication is a feature, and a PoC that
  * touches personal data is governed like one. Adding a risk or scale word never lowers the result.
@@ -29,13 +29,13 @@ export const LEVEL_LABEL: Record<Level, string> = {
   L3: 'small project',
   L4: 'medium',
   L5: 'large / multi-unit',
-  L6: 'modernization',
+  L6: 'migration',
 };
 export const rank = (l: string): number => Math.max(0, LEVELS.indexOf(l as Level));
 export const ceremonyFor = (l: Level): Ceremony => (rank(l) <= 1 ? 'minimal' : rank(l) <= 4 ? 'standard' : 'strict');
 
 const RULES: { level: Level; id: string; re: RegExp }[] = [
-  { level: 'L6', id: 'modernize-words', re: /\b(moderni[sz]\w*|mainframe|cobol|legacy (?:system|platform|portfolio)|portfolio migration|migrate (?:the )?(?:portfolio|estate|data ?center)|monolith to microservices|7 ?rs|strangler)\b/i },
+  { level: 'L6', id: 'modernize-words', re: /\b(moderni[sz]\w*|mainframe|cobol|legacy (?:system|platform|portfolio)|portfolio migration|migrate (?:the )?(?:portfolio|estate|data ?center)|monolith to microservices|7 ?rs|strangler|cloud migration|lift[- ]and[- ]shift|data ?cent(?:er|re) exit|exit (?:the )?data ?cent(?:er|re)|oracle to postgre(?:s|sql)|migraci[oó]n (?:de(?:l)? )?(?:(?:la|las|los) )?(?:cartera|portafolio|portfolio|datacenter|data center|mainframe|legado|aplicaciones)|migrar (?:el |la |los )?(?:datacenter|data center|mainframe|portafolio|portfolio|cartera|legado|aplicaciones)|salida del? (?:datacenter|data center|cpd|mainframe)|de oracle a postgre(?:s|sql))\b/i },
   { level: 'L1', id: 'poc-words', re: /\b(poc|proof of concept|prototype|spike|experiment|demo|hackathon|mvp|try out|playground)\b/i },
   { level: 'L0', id: 'tiny-words', re: /\b(typo|rename|bump|readme|changelog|comment|docstring|lint|format(?:ting)?|copy ?change|one[- ]line|tiny|spelling|version number|update (?:the )?docs?)\b/i },
   { level: 'L3', id: 'new-project-words', re: /\b(from scratch|new (?:app|application|service|project|product|api)|greenfield|build an? (?:app|service|tool|api)|bootstrap a)\b/i },
@@ -146,7 +146,7 @@ export const classifyLevel = (intent: string, profile?: ProjectProfile, cwd?: st
   if (signals.features >= 3) raise('L4', `${signals.features} features listed`);
   if (signals.units >= 2) raise('L5', `${signals.units} units named: ${signals.evidence.join(', ')}`);
   if (profile && (Number(v.repos) >= 2 || (typeof v.units === 'number' && v.units >= 2)) && rank(level) >= 2) raise('L5', `workspace: ${v.repos} repositories, units ${String(v.units)}`);
-  if (cwd && existsSync(path.join(cwd, '.sdd', 'modernize', 'portfolio.json')) && /\b(migrat\w*|moderni[sz]\w*|wave|cut ?over)\b/i.test(intent)) raise('L6', 'a modernization portfolio exists in .sdd/modernize/');
+  if (cwd && existsSync(path.join(cwd, '.sdd', 'modernize', 'portfolio.json')) && /\b(migrat\w*|moderni[sz]\w*|wave|cut ?over)\b/i.test(intent)) raise('L6', 'a migration portfolio exists in .sdd/modernize/');
 
   for (const r of signals.risks) {
     if (level === 'L0') raise('L2', `risk ${r.tag} («${r.evidence}»): a tiny change here is a feature`);

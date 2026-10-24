@@ -1,4 +1,6 @@
-# Modernize Kit and the level ladder (v3.8.0)
+# Migration Kit and the level ladder
+
+> The command is `open-sdd migrate`; `open-sdd modernize` remains as an alias. Data stays in `.sdd/modernize/`.
 
 One entry point for any size of work — a typo, a PoC, a feature, a project, a programme, a full legacy
 modernization — where **strategy is decided by a deterministic engine** (no model), **agents only
@@ -27,7 +29,7 @@ flowchart LR
 | L3 small project | "new service for document signing from scratch" | `greenfield` | standard |
 | L4 medium | "platform with onboarding, billing and notifications" | `multi-feature` | standard |
 | L5 large | "split billing into 3 microservices" | `multi-unit` | strict — approvers required |
-| L6 modernization | "modernize the core banking mainframe" | `modernize` | strict |
+| L6 migration | "migrar el mainframe de pólizas", "salida del datacenter", "de Oracle a PostgreSQL" | `modernize` | strict |
 
 ```bash
 open-sdd start "fix typo in README"            # L0: two steps, done in three commands
@@ -41,17 +43,18 @@ PoC even about a big subject ("PoC of mainframe modernization") and gets a warni
 change turns out to touch something risky, a `signal` event raises the run to L2 and inserts
 requirements and a human design review.
 
-## 2 · Modernize Kit
+## 2 · Migration Kit
 
 ```bash
-open-sdd modernize init --example banking     # .sdd/modernize/portfolio.json
-open-sdd modernize assess                     # risk score + AWS 7 Rs per component, with rule and reason
-open-sdd modernize override crm retain --by "Ana" --reason "contract renewal in Q2"
-open-sdd modernize waves                      # retire first → pilot → dependency-ordered waves
-open-sdd modernize plan bank-mod              # L6 run, strict ceremony, units and waves
-open-sdd modernize wave bank-mod 1            # rules insert each component's steps
-open-sdd modernize advance auth-service --to canary-25 --metrics canary.json
-open-sdd modernize status --html              # one offline page for the steering committee
+open-sdd migrate init --example banking     # .sdd/modernize/portfolio.json
+# other enterprise examples: insurance-mainframe · datacenter-exit · database · monolith
+open-sdd migrate assess                     # risk score + AWS 7 Rs per component, with rule and reason
+open-sdd migrate override crm retain --by "Ana" --reason "contract renewal in Q2"
+open-sdd migrate waves                      # retire first → pilot → dependency-ordered waves
+open-sdd migrate plan bank-mod              # L6 run, strict ceremony, units and waves
+open-sdd migrate wave bank-mod 1            # rules insert each component's steps
+open-sdd migrate advance auth-service --to canary-25 --metrics canary.json
+open-sdd migrate status --html              # one offline page for the steering committee
 ```
 
 **7 Rs decision table** (first match wins; AWS Prescriptive Guidance, *About the migration strategies*):

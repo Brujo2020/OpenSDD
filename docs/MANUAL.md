@@ -93,7 +93,7 @@ flowchart TB
 6. [Human in the loop (HIL)](#6-human-in-the-loop-hil)
 7. [Assistants: discovery, EARS, steering, constitution](#7-assistants)
 8. [Reverse engineering mode](#8-reverse-engineering-mode)
-9. [Modernize Kit](#9-modernize-kit)
+9. [Migration Kit](#9-migration-kit)
 10. [Dynamic workflows (events and rules)](#10-dynamic-workflows-events-and-rules)
 11. [Playbooks: plan, check, build, improve, author](#11-playbooks)
 12. [Memory and continuous improvement](#12-memory-and-continuous-improvement)
@@ -181,7 +181,7 @@ open-sdd start "<what you want to do>" --dry-run
 | deliver several features | `open-sdd start "platform with onboarding, billing and notifications"` | L4 `multi-feature` |
 | change several services | `open-sdd start "split billing into 3 microservices"` | L5 `multi-unit`, strict |
 | understand legacy code | `open-sdd start "reverse engineer the billing system"` | `reverse-engineering`, see §8 |
-| modernize a portfolio | `open-sdd modernize init --example banking` | see §9 |
+| modernize a portfolio | `open-sdd migrate init --example banking` | see §9 |
 | not sure | `open-sdd assist` | recommends assistants from the repo state |
 
 Then loop: `open-sdd next <feature>` → do the step → `open-sdd report …` (see §5). Check progress any
@@ -414,17 +414,30 @@ Rules format:
 
 ---
 
-## 9. Modernize Kit
+## 9. Migration Kit
+
+`open-sdd migrate` (the old name `modernize` still works). L6 is the **migration** level: a portfolio of
+applications moving platform, decided per component with the AWS 7 Rs.
+
+**Enterprise examples** (`open-sdd migrate init --example <id>`):
+
+| Example | Scenario | What it exercises |
+|---|---|---|
+| `banking` | Retail bank, core on mainframe | strangler, regulated cut-over |
+| `insurance-mainframe` | Insurer leaving MIPS: COBOL/CICS, DB2, IMS, JCL batch | mainframe refactor vs retain, SaaS print, retire QMF |
+| `datacenter-exit` | Retailer closing its data center before the hosting contract ends | relocate VMware, repurchase e-mail/files, residency retain |
+| `database` | Telco leaving Oracle licences for managed PostgreSQL | replatform DBs, refactor PL/SQL billing, keep what is already cloud |
+| `monolith` | Java EE monolith → services, Java 8→21, AngularJS EOL | strangler on checkout first, retain the SaaS payment gateway |
 
 ```bash
-open-sdd modernize init [--example banking]   # .sdd/modernize/portfolio.json
-open-sdd modernize assess                     # risk score + AWS 7 Rs per component, with rule and reason
-open-sdd modernize override <id> <r> --by "<name>" --reason "<why>"
-open-sdd modernize waves [--max 3]            # retire first → pilot → dependency-ordered waves
-open-sdd modernize plan <feature>             # L6 run, strict ceremony, units and waves
-open-sdd modernize wave <feature> <n>         # rules insert each component's steps
-open-sdd modernize advance <id> --to <stage> [--metrics m.json]
-open-sdd modernize status [--json|--mermaid|--html]
+open-sdd migrate init [--example <id>]     # .sdd/modernize/portfolio.json
+open-sdd migrate assess                     # risk score + AWS 7 Rs per component, with rule and reason
+open-sdd migrate override <id> <r> --by "<name>" --reason "<why>"
+open-sdd migrate waves [--max 3]            # retire first → pilot → dependency-ordered waves
+open-sdd migrate plan <feature>             # L6 run, strict ceremony, units and waves
+open-sdd migrate wave <feature> <n>         # rules insert each component's steps
+open-sdd migrate advance <id> --to <stage> [--metrics m.json]
+open-sdd migrate status [--json|--mermaid|--html]
 ```
 
 **Portfolio fields** per component: `id`, `criticality` (1–5), `businessValue` (1–5), `techFit`
@@ -439,6 +452,7 @@ open-sdd modernize status [--json|--mermaid|--html]
 | Rule | R | When |
 |---|---|---|
 | D-RETIRE | retire | no inbound use |
+| D-RETAIN-TARGET | retain | already on `cloud` or `saas` (nothing to move) |
 | D-RETAIN-RESIDENCY | retain | residency hold |
 | D-RETAIN-RECENT | retain | recently upgraded |
 | D-REPURCHASE | repurchase | SaaS equivalent, not differentiating |
@@ -471,11 +485,11 @@ decommission is `irreversible-damage` (default park). Run `advance` again after 
 No model involved: rules turn events into workflow changes.
 
 ```bash
-open-sdd modernize event <feature> --file event.json      # or: open-sdd engine event <feature> --file …
-open-sdd modernize propose <feature> --file proposal.json # agent evidence: may only raise risk
-open-sdd modernize resolve <feature> --event <id>
-open-sdd modernize learn <feature> --event <id> [--reflect]
-open-sdd modernize rules [list | adopt <id> --by "<name>" [--confirm <id>]]
+open-sdd migrate event <feature> --file event.json      # or: open-sdd engine event <feature> --file …
+open-sdd migrate propose <feature> --file proposal.json # agent evidence: may only raise risk
+open-sdd migrate resolve <feature> --event <id>
+open-sdd migrate learn <feature> --event <id> [--reflect]
+open-sdd migrate rules [list | adopt <id> --by "<name>" [--confirm <id>]]
 ```
 
 **Event** (`source` must be human|scanner|monitor|pipeline — an agent cannot raise events):
@@ -670,7 +684,7 @@ Never bypass the commit gate with `--no-verify`; declare a genuine false positiv
 | `assist [discover\|brief\|ears\|steering\|constitution]` | assistants |
 | `steering check\|draft` | steering readiness / drafts |
 | `reverse init\|status\|next\|confirm` | reverse engineering |
-| `modernize init\|assess\|override\|waves\|plan\|wave\|advance\|event\|propose\|resolve\|learn\|rules\|status` | Modernize Kit |
+| `migrate init\|assess\|override\|waves\|plan\|wave\|advance\|event\|propose\|resolve\|learn\|rules\|status` | Migration Kit (alias `modernize`) |
 | `playbook profile\|check\|plan\|build\|improve\|save\|list\|new\|diff` | playbooks |
 | `memory capture\|reflect\|promote\|withdraw\|list` | memory |
 | `review <f> --base` / `review record\|freeze-check` | requirement diffs / receipts |

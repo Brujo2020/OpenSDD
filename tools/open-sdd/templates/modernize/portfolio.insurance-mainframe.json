@@ -1,0 +1,143 @@
+{
+  "schema": "open-sdd.portfolio/1",
+  "name": "insurer-mainframe (example): aseguradora con core de pólizas en mainframe; salida del MIPS por coste y escasez de COBOL",
+  "components": [
+    {
+      "id": "policy-db",
+      "name": "Pólizas DB2 z/OS",
+      "type": "db",
+      "runtime": "db2",
+      "platform": "mainframe",
+      "criticality": 5,
+      "businessValue": 5,
+      "techFit": 2,
+      "sensitivity": "regulated",
+      "testCoverage": 0.1,
+      "owner": "data",
+      "usage": "active",
+      "businessDemand": "normal",
+      "dependsOn": []
+    },
+    {
+      "id": "policy-admin",
+      "name": "Administración de pólizas (COBOL/CICS)",
+      "type": "app",
+      "runtime": "cobol",
+      "platform": "mainframe",
+      "criticality": 5,
+      "businessValue": 5,
+      "techFit": 2,
+      "sensitivity": "regulated",
+      "businessDemand": "high",
+      "testCoverage": 0.1,
+      "dependsOn": [
+        "policy-db"
+      ],
+      "owner": "core",
+      "usage": "active"
+    },
+    {
+      "id": "claims-batch",
+      "name": "Batch nocturno de siniestros (JCL)",
+      "type": "batch",
+      "runtime": "cobol",
+      "platform": "mainframe",
+      "criticality": 4,
+      "businessValue": 4,
+      "techFit": 2,
+      "sensitivity": "regulated",
+      "testCoverage": 0.05,
+      "dependsOn": [
+        "policy-db"
+      ],
+      "owner": "core",
+      "usage": "active",
+      "businessDemand": "normal"
+    },
+    {
+      "id": "actuarial-ims",
+      "name": "Reservas actuariales (IMS)",
+      "type": "app",
+      "runtime": "pl1",
+      "platform": "mainframe",
+      "criticality": 3,
+      "businessValue": 3,
+      "techFit": 1,
+      "sensitivity": "confidential",
+      "businessDemand": "low",
+      "owner": "actuarial",
+      "usage": "active",
+      "dependsOn": []
+    },
+    {
+      "id": "broker-portal",
+      "name": "Portal de corredores",
+      "type": "ui",
+      "runtime": "java8",
+      "platform": "virtual",
+      "criticality": 4,
+      "businessValue": 4,
+      "techFit": 2,
+      "sensitivity": "confidential",
+      "businessDemand": "high",
+      "testCoverage": 0.2,
+      "eol": true,
+      "dependsOn": [
+        "policy-api"
+      ],
+      "owner": "digital",
+      "usage": "active"
+    },
+    {
+      "id": "policy-api",
+      "name": "API de pólizas (SOAP)",
+      "type": "integration",
+      "runtime": "java8",
+      "platform": "virtual",
+      "criticality": 4,
+      "businessValue": 4,
+      "techFit": 2,
+      "sensitivity": "regulated",
+      "testCoverage": 0.35,
+      "eol": true,
+      "dependsOn": [
+        "policy-admin"
+      ],
+      "owner": "integration",
+      "usage": "active",
+      "businessDemand": "normal"
+    },
+    {
+      "id": "print-docs",
+      "name": "Impresión de pólizas",
+      "type": "service",
+      "runtime": "cobol",
+      "platform": "mainframe",
+      "criticality": 2,
+      "businessValue": 2,
+      "techFit": 2,
+      "sensitivity": "confidential",
+      "saasAvailable": true,
+      "differentiating": false,
+      "owner": "ops",
+      "usage": "active",
+      "businessDemand": "normal",
+      "dependsOn": []
+    },
+    {
+      "id": "legacy-reports",
+      "name": "Informes QMF heredados",
+      "type": "app",
+      "runtime": "qmf",
+      "platform": "mainframe",
+      "criticality": 1,
+      "businessValue": 1,
+      "techFit": 1,
+      "sensitivity": "internal",
+      "usage": "none",
+      "owner": "bi",
+      "businessDemand": "normal",
+      "dependsOn": []
+    }
+  ]
+}

@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Migration Kit (antes Modernize Kit)
+- `open-sdd migrate` es el comando; `open-sdd modernize` sigue funcionando como alias. Los datos siguen en `.sdd/modernize/`.
+- El nivel L6 se llama **migration**. `start` reconoce intenciones de migración enterprise en español e inglés: salida del datacenter, migrar el mainframe, de Oracle a PostgreSQL, cloud migration, lift-and-shift.
+- Cuatro ejemplos enterprise nuevos para `migrate init --example`: `insurance-mainframe`, `datacenter-exit`, `database`, `monolith` (además de `banking`).
+- Nueva regla 7 Rs `D-RETAIN-TARGET`: lo que ya está en `cloud` o `saas` se retiene en vez de rehospedarse.
+
+### Fixes
+- `brownfield clarify` detecta términos vagos en inglés, avisa y ofrece clarificar; no declara limpia una spec vacía; `_Depends:_` lee solo ids; `promptConfirm` funciona con TTY.
+
 ## [3.10.0] - 2026-10-24
 
 ### Fixes

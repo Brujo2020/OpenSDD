@@ -101,7 +101,7 @@ export const advance = async (cwd, input) => {
         }
         const feature = input.feature ?? s.feature;
         if (!feature)
-            return { ok: false, code: 'NO_FEATURE', message: 'no modernization run: pass --feature or run `open-sdd modernize plan <feature>`', stage: from };
+            return { ok: false, code: 'NO_FEATURE', message: 'no migration run: pass --feature or run `open-sdd migrate plan <feature>`', stage: from };
         const irreversible = trigger === 'irreversible-damage';
         const prepared = await prepareCard(cwd, {
             feature,

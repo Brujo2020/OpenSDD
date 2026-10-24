@@ -1,0 +1,143 @@
+{
+  "schema": "open-sdd.portfolio/1",
+  "name": "telco-db-exit (example): operador que sale de Oracle (licencias) hacia PostgreSQL gestionado",
+  "components": [
+    {
+      "id": "billing-db",
+      "name": "Facturación Oracle 12c",
+      "type": "db",
+      "runtime": "oracle12",
+      "platform": "physical",
+      "criticality": 5,
+      "businessValue": 5,
+      "techFit": 2,
+      "sensitivity": "regulated",
+      "eol": true,
+      "owner": "data",
+      "usage": "active",
+      "businessDemand": "normal",
+      "dependsOn": []
+    },
+    {
+      "id": "billing-engine",
+      "name": "Motor de facturación (PL/SQL)",
+      "type": "batch",
+      "runtime": "plsql",
+      "platform": "physical",
+      "criticality": 5,
+      "businessValue": 5,
+      "techFit": 2,
+      "sensitivity": "regulated",
+      "businessDemand": "high",
+      "testCoverage": 0.25,
+      "dependsOn": [
+        "billing-db"
+      ],
+      "owner": "billing",
+      "usage": "active"
+    },
+    {
+      "id": "crm-db",
+      "name": "CRM Oracle",
+      "type": "db",
+      "runtime": "oracle19",
+      "platform": "virtual",
+      "criticality": 4,
+      "businessValue": 4,
+      "techFit": 3,
+      "sensitivity": "confidential",
+      "recentlyUpgraded": true,
+      "owner": "data",
+      "usage": "active",
+      "businessDemand": "normal",
+      "dependsOn": []
+    },
+    {
+      "id": "cdr-mediation",
+      "name": "Mediación de CDR",
+      "type": "service",
+      "runtime": "java11",
+      "platform": "virtual",
+      "criticality": 4,
+      "businessValue": 4,
+      "techFit": 3,
+      "sensitivity": "regulated",
+      "testCoverage": 0.5,
+      "dependsOn": [
+        "billing-db"
+      ],
+      "owner": "network",
+      "usage": "active",
+      "businessDemand": "normal"
+    },
+    {
+      "id": "dwh",
+      "name": "Data warehouse Exadata",
+      "type": "db",
+      "runtime": "oracle-exadata",
+      "platform": "physical",
+      "criticality": 3,
+      "businessValue": 4,
+      "techFit": 2,
+      "sensitivity": "confidential",
+      "dependsOn": [
+        "billing-db"
+      ],
+      "owner": "bi",
+      "usage": "active",
+      "businessDemand": "normal"
+    },
+    {
+      "id": "self-care",
+      "name": "Autogestión de clientes",
+      "type": "ui",
+      "runtime": "angularjs",
+      "platform": "virtual",
+      "criticality": 4,
+      "businessValue": 4,
+      "techFit": 1,
+      "sensitivity": "confidential",
+      "businessDemand": "high",
+      "testCoverage": 0.15,
+      "eol": true,
+      "dependsOn": [
+        "billing-engine"
+      ],
+      "owner": "digital",
+      "usage": "active"
+    },
+    {
+      "id": "fraud",
+      "name": "Detección de fraude",
+      "type": "service",
+      "runtime": "python3",
+      "platform": "cloud",
+      "criticality": 4,
+      "businessValue": 4,
+      "techFit": 4,
+      "sensitivity": "regulated",
+      "testCoverage": 0.7,
+      "dependsOn": [
+        "cdr-mediation"
+      ],
+      "owner": "risk",
+      "usage": "active",
+      "businessDemand": "normal"
+    },
+    {
+      "id": "legacy-reports",
+      "name": "Informes Oracle Reports",
+      "type": "app",
+      "runtime": "oracle-reports",
+      "platform": "physical",
+      "criticality": 1,
+      "businessValue": 1,
+      "techFit": 1,
+      "sensitivity": "internal",
+      "usage": "none",
+      "owner": "bi",
+      "businessDemand": "normal",
+      "dependsOn": []
+    }
+  ]
+}

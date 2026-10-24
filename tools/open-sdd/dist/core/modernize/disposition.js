@@ -16,6 +16,7 @@ export const LARGE_PORTFOLIO = 10;
 const LEGACY_PLATFORM = (c) => c.platform === 'mainframe' || c.platform === 'midrange';
 export const TABLE = [
     { rule: 'D-RETIRE', r: 'retire', when: (c) => c.usage === 'none', reason: () => 'no inbound use: decommission instead of moving it (AWS: retire)' },
+    { rule: 'D-RETAIN-TARGET', r: 'retain', when: (c) => c.platform === 'cloud' || c.platform === 'saas', reason: (c) => `already on the target platform (${c.platform}): nothing to move; keep it in the dependency graph (AWS: retain)` },
     { rule: 'D-RETAIN-RESIDENCY', r: 'retain', when: (c) => Boolean(c.residencyHold), reason: () => 'data residency hold keeps it in place (AWS: retain — security and compliance)' },
     { rule: 'D-RETAIN-RECENT', r: 'retain', when: (c) => Boolean(c.recentlyUpgraded), reason: () => 'recently upgraded: wait for the next technical refresh (AWS: retain)' },
     { rule: 'D-REPURCHASE', r: 'repurchase', when: (c) => Boolean(c.saasAvailable) && !c.differentiating, reason: () => 'a SaaS equivalent exists and the component does not differentiate the business (AWS: repurchase)' },
@@ -43,7 +44,7 @@ export const TABLE = [
     { rule: 'D-REHOST', r: 'rehost', when: () => true, reason: () => 'fit for purpose today: lift and shift, optimize once in the cloud (AWS: rehost)' },
 ];
 /** Large = migrating components that are not retire/retain by the first rules. */
-const isLarge = (p) => p.components.filter((c) => !TABLE.slice(0, 3).some((row) => row.when(c, { large: false }))).length >= LARGE_PORTFOLIO;
+const isLarge = (p) => p.components.filter((c) => !TABLE.slice(0, 4).some((row) => row.when(c, { large: false }))).length >= LARGE_PORTFOLIO;
 export const decide = (c, p) => {
     const ctx = { large: isLarge(p) };
     const row = TABLE.find((r) => r.when(c, ctx));

@@ -114,13 +114,13 @@ describe('AC-10 status projections', () => {
     const logs: string[] = [];
     const code = await runCli(['modernize', 'status', '--no-footer'], runtime, { log: (m: string) => logs.push(m), error: (m: string) => logs.push(m), exit: () => {} }, {}, { cwd: empty });
     expect(code).toBe(1);
-    expect(logs.join()).toContain('modernize init');
+    expect(logs.join()).toContain('migrate init');
   });
 });
 
 describe('CLI surface', () => {
   it('help exists for start and modernize, and unknown subcommands are usage errors', async () => {
-    expect((await run('help', 'modernize')).out).toContain('Command: open-sdd modernize');
+    expect((await run('help', 'modernize')).out).toContain('Command: open-sdd migrate');
     expect((await run('help', 'start')).out).toContain('Command: open-sdd start');
     expect((await run('modernize', 'teleport')).code).toBe(2);
   });
