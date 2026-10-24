@@ -14,7 +14,7 @@ determinista decide**, **los agentes proponen** y **personas con nombre aprueban
 > carpetas `.sdd/`, las variables `OPEN_SDD_*`, los esquemas `open-sdd.*/1` y las herramientas MCP
 > `open_sdd_*` no cambian.
 >
-> 📘 Edición en inglés: [MANUAL.md](MANUAL.md) · Guía visual de una página: [GUIA.md](GUIA.md).
+> 📘 Edición en inglés: [MANUAL.md](MANUAL.md) · Guía visual de una página: [GUIA.md](GUIA.md) · Por qué existe, qué tomó de cada toolkit y su alcance preciso: [POR-QUE.md](POR-QUE.md).
 
 ---
 

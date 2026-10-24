@@ -13,7 +13,7 @@ or a quick PoC to a strict, audited migration programme — where a **determinis
 > Formerly **open-sdd**: the `open-sdd`, `sdd-open` and `sdd` commands still work, and `.sdd/` folders,
 > `OPEN_SDD_*` variables, `open-sdd.*/1` schemas and `open_sdd_*` MCP tools are unchanged.
 >
-> 📘 Spanish edition: [MANUAL.es.md](MANUAL.es.md).
+> 📘 Spanish edition: [MANUAL.es.md](MANUAL.es.md) · Why it exists, what it took from each toolkit and its precise scope: [WHY.md](WHY.md).
 
 ---
 

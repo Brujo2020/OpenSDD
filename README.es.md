@@ -13,7 +13,7 @@ specs delta de OpenSpec — fundido en un solo motor determinista.
 `steelfoundry` es la capa que hace verificable el «hecho» de un agente de código: gates ejecutables,
 specs delta para el código que ya existe y una constitución que valida cada spec.
 
-> 📘 Manual: [Español](docs/MANUAL.es.md) · [English](docs/MANUAL.md)
+> 📘 Manual: [Español](docs/MANUAL.es.md) · [English](docs/MANUAL.md) · **Por qué existe, qué tomó de cada toolkit y alcance:** [POR-QUE.md](docs/POR-QUE.md) · [WHY.md](docs/WHY.md)
 
 > **SteelFoundry** antes se llamaba **open-sdd**. Los comandos `open-sdd`, `sdd-open` y `sdd` siguen funcionando como alias de `steelfoundry`, y las carpetas `.sdd/` existentes no necesitan cambios.
 
