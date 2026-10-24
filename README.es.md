@@ -10,7 +10,7 @@ specs delta para el código que ya existe y una constitución que valida cada sp
 
 ## Cinco verbos: todo lo que necesitas
 
-> 📘 Guía visual de una página, con un ejemplo pequeño de principio a fin y el control de calidad: [docs/GUIA.md](docs/GUIA.md).
+> 📘 Guía visual de una página, con un ejemplo pequeño de principio a fin y el control de calidad: [docs/GUIA.md](docs/GUIA.md). Revisión experta con los 10 puntos siguientes: [docs/REVISION-EXPERTO.md](docs/REVISION-EXPERTO.md).
 
 No necesitas los otros 50 comandos para usar open-sdd. Cinco verbos cubren todo el ciclo; la
 herramienta decide todo lo que la evidencia permite decidir (agente, greenfield o brownfield, nivel,
