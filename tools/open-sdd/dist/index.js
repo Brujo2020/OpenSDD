@@ -234,6 +234,14 @@ const dispatchSubcommand = async (cmd, subArgv, io, targetCwd, env = process.env
             ? handleIntegrateCommand(subArgv, io, targetCwd)
             : handleImportCommand(subArgv, io, targetCwd);
     }
+    if (cmd === 'audit' && subArgv[0] === 'trail') {
+        const { handleAuditTrailCommand } = await import('./cli/commands/assurance.js');
+        return handleAuditTrailCommand(subArgv, io, targetCwd);
+    }
+    if (cmd === 'validation' || cmd === 'flow') {
+        const m = await import('./cli/commands/assurance.js');
+        return cmd === 'flow' ? m.handleFlowCommand(subArgv, io, targetCwd) : m.handleValidationCommand(subArgv, io, targetCwd);
+    }
     if (cmd === 'audit') {
         if (subArgv[0] === 'bundle' || subArgv[0] === 'sarif')
             return handleAuditBundleCommand(subArgv, io, targetCwd);

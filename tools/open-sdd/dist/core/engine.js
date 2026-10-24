@@ -511,7 +511,20 @@ export const applyDecision = async (cwd, card, answer) => {
     const step = state.steps.find((s) => s.id === card.step);
     if (!step)
         return { ok: true, message: `answer recorded (step ${card.step} not in the run)` };
-    await appendAudit(cwd, card.feature, { event: 'DECISION_RECORDED', step: step.id, detail: `${card.id} ${answer.option} ${answer.effect}`, by: answer.by });
+    const chosen = card.options.find((option) => option.key === answer.option);
+    await appendAudit(cwd, card.feature, {
+        event: 'DECISION_RECORDED',
+        step: step.id,
+        detail: `${card.id} ${answer.option} ${answer.effect}`,
+        by: answer.by,
+        actor: {
+            name: answer.by,
+            kind: answer.channel === 'deadline' ? 'system' : answer.channel === 'agent-confirmed' ? 'agent' : 'human',
+            ...(answer.identity?.email ? { email: answer.identity.email } : {}),
+        },
+        why: `${card.question} → ${answer.option}${chosen ? ` (${chosen.label}: ${chosen.consequence})` : ''}${answer.changed ? ' · distinta de la recomendada' : ''}`,
+        evidence: card.evidence,
+    });
     if (answer.effect === 'park')
         return report(cwd, card.feature, step.id, 'park', { reason: `${card.id}: parked by ${answer.by}` });
     if (answer.effect === 'reject') {

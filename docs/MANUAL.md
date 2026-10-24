@@ -768,6 +768,51 @@ open-sdd assist constitution              # guided constitution: one question at
 Factors live in `.sdd/settings/estimate.json` and `.sdd/settings/migration-estimate.json`; every output says
 whether it used defaults (not calibrated) or yours.
 
+## 19c. Assurance: validation by rule, flow and audit trail
+
+**Validation each task must show** — decided by rules, never by a model. Every task needs `unit`; a rule
+that matches the requirements it cites, the files of its `_Boundary:_` or its title ADDS kinds and a
+minimum coverage. Rules only raise the bar and their order does not matter.
+
+| Starting rule | Fires on | Adds | Severity |
+|---|---|---|---|
+| VR-MONEY | debit/credit, amount, balance, ledger, refund… | integration, contract, property, independent-review, coverage ≥ 90 % | block |
+| VR-PII | personal data, email, card, phone, national id… | integration, security-scan | block |
+| VR-AUTH | auth, login, token, role, permission (or `auth/` paths) | integration, security-scan, independent-review | block |
+| VR-PUBLIC-API | `api/`, `routes/`, `controllers/`… paths | contract | warn |
+| VR-LATENCY | "within N ms/s", p95, latency | performance | warn |
+| VR-MIGRATION | migration tasks or `migrations/` paths | integration, e2e | block |
+
+Your own rules go in `.sdd/settings/validation-rules.json` (`schema: open-sdd.validation-rules/1`; same id
+replaces a starting rule) and may cite a constitution principle (`"principle": "C-…"`) — that is what the
+audit shows. A task proves each kind in its evidence: `_Evidence:_ [unit] [integration] [contract] …
+[review: Name] [coverage 93%]`.
+
+```bash
+open-sdd validation <feature>            # per task: required kinds, the rule and the text that fired it; exit 1 if a done task lacks a blocking kind
+open-sdd validation <feature> --record   # also writes each decision to the audit log (once per change)
+```
+
+**Flow** — every stage, the current one, the playbook steps, pending decisions and flow metrics, in a
+stable schema for dashboards:
+
+```bash
+open-sdd flow <feature>          # constitution → discovery → requirements → clarify → design → tasks → implement → validate → approve
+open-sdd flow <feature> --json   # schema open-sdd.flow/1
+```
+
+**Audit trail** — one record per decision: who (person with git email, agent, rule or system), why, on
+which requirements and principles, with evidence. Ratifications, HIL decisions, refused attempts (an agent
+trying to approve, a person not in `approvers.json`), reviews, rule-driven validation and dynamic events
+are all recorded. Each log is hash-chained; a tampered line is reported and the command exits 1.
+
+```bash
+open-sdd audit trail <feature> --requirement REQ-TRF-001   # what was decided about this requirement
+open-sdd audit trail <feature> --principle C-BOUNDARIES
+open-sdd audit trail <feature> --actor human               # human | agent | rule | system
+open-sdd audit trail <feature> --decisions --csv > trail.csv
+```
+
 ## 20. Troubleshooting and FAQ
 
 | Message | Meaning / fix |

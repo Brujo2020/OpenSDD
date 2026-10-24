@@ -1217,6 +1217,22 @@ export const handleGovernCommand = async (args: string[], io: CliIO, cwd: string
 
       await mkdir(path.dirname(draftPaths.inForce), { recursive: true });
       await writeFile(draftPaths.inForce, renderConstitution(result.constitution), 'utf8');
+      {
+        // Registro de auditoría: quién ratificó qué principios y por qué. Si la orden llegó desde una
+        // sesión de agente (sin terminal), queda dicho: el nombre lo tecleó un agente, no se comprobó.
+        const { appendAudit } = await import('../../core/engine.js');
+        const { gitIdentity, isAgentSession } = await import('../../core/hilIdentity.js');
+        const identity = gitIdentity(root);
+        const agent = isAgentSession();
+        await appendAudit(root, '_governance', {
+          event: 'CONSTITUTION_RATIFIED',
+          by,
+          actor: { name: by, kind: agent ? 'agent' : 'human', ...(identity.email ? { email: identity.email } : {}) },
+          why: `${rationale}${agent ? ' · ratificado desde una sesión de agente: el nombre no se confirmó en una terminal' : ''}`,
+          principles: result.ratified,
+          ...(result.refused.length ? { evidence: result.refused.map((r) => `rechazado ${r.id}: ${r.why}`) } : {}),
+        });
+      }
       io.log('');
       io.log(
         `  ${colors.green('✓')} constitución en vigor escrita en ${path.relative(root, draftPaths.inForce)}: ${result.ratified.length} principio(s), sin marca de borrador.`,

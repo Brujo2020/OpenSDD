@@ -470,11 +470,12 @@ export const COMMANDS = [
         name: 'audit',
         group: 'console',
         summary: 'Audit report, evidence bundle and SARIF for code scanning',
-        usage: 'open-sdd audit [<feature>] [--regulatory] [--json] | open-sdd audit <bundle|sarif> [feature] [--out <dir>] [--sarif <path>]',
+        usage: 'open-sdd audit [<feature>] [--regulatory] [--json] | open-sdd audit <bundle|sarif> [feature] [--out <dir>] [--sarif <path>] | open-sdd audit trail [feature] [--requirement R] [--principle C] [--actor human|agent|rule|system] [--who name] [--decisions] [--json|--csv]',
         indexLines: [
             '  audit [bundle|sarif] [feature] [--out <dir>] [--json] [--sarif <path>]  Audit report; evidence bundle with a sha256 per artifact; SARIF 2.1.0 for code scanning',
+            '  audit trail [feature] [--requirement R] [--principle C] [--actor K]  Who decided what, why, on which requirements and principles (hash-chained; exit 1 if tampered)',
         ],
-        subcommands: [SUB('bundle', 'the evidence bundle with a sha256 per artifact'), SUB('sarif', 'SARIF 2.1.0 for code scanning')],
+        subcommands: [SUB('bundle', 'the evidence bundle with a sha256 per artifact'), SUB('sarif', 'SARIF 2.1.0 for code scanning'), SUB('trail', 'decision records: who, why, requirements, principles')],
         examples: ['open-sdd audit', 'open-sdd audit stripe-billing --regulatory', 'open-sdd audit bundle stripe-billing --out .sdd/audit'],
     },
     {
@@ -722,6 +723,22 @@ export const COMMANDS = [
         usage: 'open-sdd impl <feature> [tasks] [--review required|inline|off]',
         indexLines: ['  impl <feature> [tasks] [--review required|inline|off]  Autonomous implementation with review'],
         examples: ['open-sdd impl stripe-billing', 'open-sdd impl stripe-billing --review inline'],
+    },
+    {
+        name: 'validation',
+        group: 'daily',
+        summary: 'Validation each task must show, raised by deterministic rules (money, PII, auth, public API, latency, migrations; yours in .sdd/settings/validation-rules.json); exit 1 when a done task lacks a blocking kind',
+        usage: 'open-sdd validation <feature> [--record] [--json]',
+        indexLines: ['  validation <feature> [--record]            Tests each task must show, by rule; --record writes the decisions to the audit log'],
+        examples: ['open-sdd validation transfers', 'open-sdd validation transfers --record'],
+    },
+    {
+        name: 'flow',
+        group: 'daily',
+        summary: 'Every stage and step of a feature with its status, the current one, pending decisions and flow metrics (schema open-sdd.flow/1 for dashboards)',
+        usage: 'open-sdd flow <feature> [--json]',
+        indexLines: ['  flow <feature> [--json]                    Stages, current step, decisions and flow metrics (open-sdd.flow/1)'],
+        examples: ['open-sdd flow transfers', 'open-sdd flow transfers --json'],
     },
     {
         name: 'estimate',

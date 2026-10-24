@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Assurance: validación por reglas, flujo y auditoría de decisiones
+- `open-sdd validation <feature> [--record]`: la exigencia de pruebas por tarea la deciden reglas deterministas (dinero, datos personales, autenticación, API pública, latencia, migraciones; las propias en `.sdd/settings/validation-rules.json`, que pueden citar un principio de la constitución). La tarea demuestra cada clase con `[clase]` en su evidencia; una tarea hecha sin una clase bloqueante sale con 1.
+- `open-sdd flow <feature> [--json]`: etapa actual, todas las etapas y pasos, decisiones pendientes y métricas (`open-sdd.flow/1`) para tableros.
+- `open-sdd audit trail [feature]`: quién decidió (persona con email git, agente, regla o sistema), por qué, sobre qué requisitos y principios; filtros `--requirement`, `--principle`, `--actor`, `--who`; `--csv`; sale con 1 si una cadena de hashes está rota.
+- Nuevos registros: ratificación de la constitución, revisiones, decisiones HIL con su porqué y su email, intentos rechazados (agente o persona fuera de la lista), eventos con la regla que los disparó.
+- La entrevista registra la elección de la persona también en principios que ya existían (fronteras).
+- `sdd-impl` (9 agentes): ejecutar `validation --record` y etiquetar la evidencia.
+- E2E «Banco Austral — transferencias inmediatas» (10 escenarios).
+
 ### Revisión experta 2 — 10 mejoras ([docs/REVISION-EXPERTO-2.md](docs/REVISION-EXPERTO-2.md))
 - Constitución guiada: `open-sdd assist constitution` (y al final de `setup --write`) pregunta de a una con valores por defecto, guarda el borrador y ofrece ratificar con nombre; las decisiones normativas se ratifican sin evidencia del código (las descriptivas la siguen exigiendo); la decisión de fronteras ya no se pierde en proyectos nuevos.
 - C2 escanea siempre `specs/` y `steering/` contra inyección dirigida a agentes (`guardrail-bypass`, `self-approval`, `role-header`).

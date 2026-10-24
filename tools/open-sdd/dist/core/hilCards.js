@@ -112,6 +112,11 @@ export const listCards = async (cwd, feature) => {
     }
     return out;
 };
+/** Un intento de decidir rechazado también es un hecho auditable: quién lo intentó y por qué no valió. */
+const auditRefusal = async (cwd, feature, card, option, by, kind, why) => {
+    const { appendAudit } = await import('./engine.js');
+    await appendAudit(cwd, feature, { event: 'DECISION_REFUSED', step: card.step, detail: `${card.id} ${option}`, by, actor: { name: by, kind }, why });
+};
 export const recordAnswer = async (cwd, feature, id, option, by, opts = {}) => {
     const card = await readCard(cwd, feature, id);
     if (!card)
@@ -128,8 +133,10 @@ export const recordAnswer = async (cwd, feature, id, option, by, opts = {}) => {
     const identity = opts.identity ?? { name: '', email: '' };
     if (opts.requireApprovers && opts.channel !== 'deadline' && !opts.approvers)
         return { ok: false, message: 'APPROVERS_REQUIRED: this run has strict ceremony; declare who may answer in .sdd/settings/approvers.json' };
-    if (opts.channel !== 'deadline' && !approverAllowed(opts.approvers ?? null, by, identity))
+    if (opts.channel !== 'deadline' && !approverAllowed(opts.approvers ?? null, by, identity)) {
+        await auditRefusal(cwd, feature, card, picked.key, by, opts.agent ? 'agent' : 'human', `APPROVER_NOT_LISTED: «${by}» (${identity.email || 'sin email git'}) no está en approvers.json`);
         return { ok: false, message: `APPROVER_NOT_LISTED: «${by}» (${identity.email || 'no git email'}) is not in .sdd/settings/approvers.json` };
+    }
     const grants = picked.effect === 'approve' || picked.effect === 'override' || picked.effect === 'accept-as-is';
     // An agent can type any id it has read, so `--confirm <id>` cannot prove a person. From an agent
     // session an approval needs the id typed on the controlling terminal, which the agent does not have.
@@ -137,8 +144,10 @@ export const recordAnswer = async (cwd, feature, id, option, by, opts = {}) => {
     // otherwise the agent could loop forever past the more-than-3-iterations rule.
     const needsPerson = grants || (card.trigger === REPEATED_FAILURE && picked.effect === 'reject');
     const confirmed = needsPerson && opts.agent ? (typeof opts.ttyConfirmed === 'function' ? opts.ttyConfirmed() : opts.ttyConfirmed === true) : false;
-    if (needsPerson && opts.agent && !confirmed)
+    if (needsPerson && opts.agent && !confirmed) {
+        await auditRefusal(cwd, feature, card, picked.key, by, 'agent', 'AGENT_SESSION: una sesión de agente intentó otorgar una aprobación');
         return { ok: false, message: `AGENT_SESSION: this decision cannot come from an agent session. A person takes it from their own terminal: open-sdd decide ${feature} ${id} ${picked.key} --by "<name>"` };
+    }
     const answer = {
         id,
         option: picked.key,

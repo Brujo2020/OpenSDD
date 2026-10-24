@@ -666,6 +666,8 @@ export const applyConstitutionAnswers = async (input: {
   const addedAmendments: AmendmentRecord[] = [];
   const adoptedIds = new Set<string>();
   const questionIds = new Set(input.interview.questions.map((question) => question.id));
+  /** Decisiones de la entrevista sobre principios que ya estaban en el borrador. */
+  const decisionsOn = new Map<string, string>();
 
   for (const question of input.interview.questions) {
     const answer = answerOf(question.id);
@@ -718,6 +720,8 @@ export const applyConstitutionAnswers = async (input: {
       // aterriza como principio propio (cuando la pregunta lo define) o vuelve como no aplicada.
       const confirmed = base.principles.some((principle) => principle.id === spec.confirms);
       if (confirmed && spec.principle?.id === spec.confirms) {
+        // El principio ya existe (lo demuestra el código): la elección de la persona se registra en él.
+        decisionsOn.set(spec.confirms, freeTextOf(answer) || answer.trim());
         applied.push({ id: question.id, principle: spec.confirms });
         continue;
       }
@@ -756,7 +760,13 @@ export const applyConstitutionAnswers = async (input: {
 
   const document: Constitution = {
     ...base,
-    principles: [...base.principles, ...additions],
+    principles: [
+      ...base.principles.map((principle) => {
+        const decision = decisionsOn.get(principle.id);
+        return decision ? { ...principle, pattern: `${principle.pattern} (decisión registrada: ${decision})` } : principle;
+      }),
+      ...additions,
+    ],
     amendments: [...base.amendments.filter((amendment) => !addedAmendments.some((added) => added.id === amendment.id)), ...addedAmendments],
   };
 
