@@ -89,7 +89,7 @@ export const validateEvent = (raw: unknown): { ok: boolean; errors: string[]; ev
   if (!e.id || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(e.id)) errors.push('id must be [A-Za-z0-9._-]');
   if (!EVENT_TYPES.includes(e.type as EventType)) errors.push(`type must be one of ${EVENT_TYPES.join(', ')}`);
   if (!e.at || Number.isNaN(Date.parse(e.at))) errors.push('at must be an ISO date');
-  if ((e.source as string) === 'agent') errors.push('an agent cannot raise an event: propose on an existing event (steelforge migrate propose)');
+  if ((e.source as string) === 'agent') errors.push('an agent cannot raise an event: propose on an existing event (steelfoundry migrate propose)');
   else if (!['human', 'scanner', 'monitor', 'pipeline'].includes(e.source as string)) errors.push('source must be human|scanner|monitor|pipeline');
   if (!e.title || !String(e.title).trim()) errors.push('title is required');
   if (!Array.isArray(e.components)) errors.push('components must be a list (empty for run-wide events)');

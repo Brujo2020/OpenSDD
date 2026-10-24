@@ -1,6 +1,6 @@
 # Installation
 
-This document covers every way to install `steelforge`, what the installer writes, and how to verify
+This document covers every way to install `steelfoundry`, what the installer writes, and how to verify
 it. All commands are runnable from the repository root unless stated otherwise.
 
 ## Prerequisites
@@ -12,7 +12,7 @@ it. All commands are runnable from the repository root unless stated otherwise.
 - No engines constraint is declared in either `package.json`.
 
 The package exposes four bin names, all pointing at the same CLI:
-`open-sdd`, `sdd-open`, `sdd`, `steelforge` (root `package.json` → `tools/open-sdd/dist/cli.js`).
+`open-sdd`, `sdd-open`, `sdd`, `steelfoundry` (root `package.json` → `tools/open-sdd/dist/cli.js`).
 
 ## Option 1 — From a clone (per-project, no global install)
 
@@ -62,24 +62,24 @@ Or install the package directory directly:
 
 ```bash
 npm install -g ./tools/open-sdd
-steelforge --help
+steelfoundry --help
 ```
 
 With a global install, run the CLI from inside the target repository:
 
 ```bash
 cd /path/to/your-project
-steelforge --cursor-skills -y
+steelfoundry --cursor-skills -y
 ```
 
 ## Option 4 — Published package
 
-The package is named `steelforge` and the CLI help advertises npx:
+The package is named `steelfoundry` and the CLI help advertises npx:
 
 ```bash
-npx @brujo2020/steelforge@latest             # Claude Code skills (default) — once published
-npx @brujo2020/steelforge@latest --cursor-skills -y
-npx @brujo2020/steelforge@latest --lang es -y
+npx @brujo2020/steelfoundry@latest             # Claude Code skills (default) — once published
+npx @brujo2020/steelfoundry@latest --cursor-skills -y
+npx @brujo2020/steelfoundry@latest --lang es -y
 ```
 
 ## Choosing an agent
@@ -167,4 +167,4 @@ reference: [guides/governance-profiles.md](guides/governance-profiles.md).
 
 There is **no** uninstall command. Remove the agent's skill directory, the `.sdd/settings/` tree and
 the agent documentation file by hand, or restore them from version control. Remove a global install
-with `npm uninstall -g @brujo2020/steelforge`.
+with `npm uninstall -g @brujo2020/steelfoundry`.

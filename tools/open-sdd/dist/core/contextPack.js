@@ -2,7 +2,7 @@
  * El context pack: TODO lo que un host debe inyectar antes de editar, en UN objeto.
  *
  * Este módulo es la EXTRACCIÓN a `core` de lo que hasta ahora construía en exclusiva el handler MCP
- * `open_sdd_context_pack` (`src/mcp/tools.ts`). El CLI (`steelforge context`) y el servidor MCP leen
+ * `open_sdd_context_pack` (`src/mcp/tools.ts`). El CLI (`steelfoundry context`) y el servidor MCP leen
  * el mismo repositorio con el mismo código, así que no pueden divergir: la alternativa —dos
  * implementaciones del mismo objeto— es cómo un host y una terminal acaban dando veredictos
  * distintos sobre el mismo repositorio.

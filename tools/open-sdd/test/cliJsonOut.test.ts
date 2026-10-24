@@ -89,7 +89,7 @@ describe('renderJsonEnvelope', () => {
       jsonEnvelope({ command: 'brownfield contracts', data: null, errors: [{ id: 'C3', message: 'sin cobertura' }], warnings: ['x'] }),
     );
     expect(line).toBe(
-      'steelforge brownfield contracts · error · 1 error(es), 1 aviso(s) · Comando «brownfield contracts» con 1 error(es) y 1 aviso(s).',
+      'steelfoundry brownfield contracts · error · 1 error(es), 1 aviso(s) · Comando «brownfield contracts» con 1 error(es) y 1 aviso(s).',
     );
     // Texto plano: nada de ANSI (un resumen con códigos de escape no se puede comparar ni registrar).
     expect(line).not.toMatch(/\u001b\[/);
@@ -97,6 +97,6 @@ describe('renderJsonEnvelope', () => {
 
   it('usa el resumen humano sin avisos cuando todo va bien', () => {
     const line = renderJsonEnvelope(jsonEnvelope({ command: 'status', data: null, detail: 'Todo en orden.' }));
-    expect(line).toBe('steelforge status · ok · 0 error(es) · Todo en orden.');
+    expect(line).toBe('steelfoundry status · ok · 0 error(es) · Todo en orden.');
   });
 });

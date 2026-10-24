@@ -96,7 +96,7 @@ const DESIGN_ALIAS_NOTE = (): string => {
 /** The banner a semantically-mapped document carries: a mapping, not a conversion. */
 const provenanceBanner = (from: string, extra: string): string =>
   [
-    `<!-- Importado por steelforge desde ${from}.`,
+    `<!-- Importado por steelfoundry desde ${from}.`,
     `     Es un MAPEO de formato, no una conversión semántica: el contenido NO está en EARS ni`,
     `     validado como requisitos. ${extra}`,
     `     Revísalo y ejecútalo por la validación correspondiente antes de aprobarlo. -->`,
@@ -183,12 +183,12 @@ const planSpecKit = async (cwd: string): Promise<ImportPlan> => {
       convert(
         constitutionFrom,
         posix(path.join(IMPORT_TARGET_SDD_DIR, 'steering', 'constitution.md')),
-        'Misma autoridad (constitución del proyecto). Se copia VERBATIM: steelforge no «arregla» una constitución ajena, solo reporta lo que su validador encuentra.',
+        'Misma autoridad (constitución del proyecto). Se copia VERBATIM: steelfoundry no «arregla» una constitución ajena, solo reporta lo que su validador encuentra.',
       ),
     );
     if (parsed.principles.length === 0) {
       warnings.push(
-        'La constitución de spec-kit no expone ningún principio con la anatomía de steelforge (id citable, nivel, restricción, patrón, justificación): se importa verbatim y debe reescribirse a mano antes de que un veredicto bloqueante pueda citarla.',
+        'La constitución de spec-kit no expone ningún principio con la anatomía de steelfoundry (id citable, nivel, restricción, patrón, justificación): se importa verbatim y debe reescribirse a mano antes de que un veredicto bloqueante pueda citarla.',
       );
     }
     for (const issue of issues) {
@@ -234,7 +234,7 @@ const planSpecKit = async (cwd: string): Promise<ImportPlan> => {
       skip(
         dir,
         dir.includes('templates')
-          ? 'Las plantillas de steelforge son distintas por diseño (tríada, delta, constitución): importar las de spec-kit produciría documentos que nuestros gates no reconocen.'
+          ? 'Las plantillas de steelfoundry son distintas por diseño (tríada, delta, constitución): importar las de spec-kit produciría documentos que nuestros gates no reconocen.'
           : 'Los scripts de spec-kit ejecutan su flujo, no el nuestro; no hay equivalencia.',
       ),
     );
@@ -345,7 +345,7 @@ export const applyImport = async (
     const target = path.join(cwd, conversion.to);
 
     if (await exists(target)) {
-      skipped.push(`${conversion.to} — ya existe: steelforge NUNCA sobrescribe en una importación.`);
+      skipped.push(`${conversion.to} — ya existe: steelfoundry NUNCA sobrescribe en una importación.`);
       continue;
     }
 

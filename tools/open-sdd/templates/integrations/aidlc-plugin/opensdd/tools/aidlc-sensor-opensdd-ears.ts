@@ -24,13 +24,13 @@ try {
   const p = outputPath(process.argv.slice(2));
   if (!(/requirements[^/]*\.md$/i.test(p) && existsSync(p))) out(true, []);
   const c = cli();
-  if (!c) out(false, ["steelforge CLI not found: set OPEN_SDD_CLI or install @brujo2020/steelforge (fail closed)"]);
+  if (!c) out(false, ["steelfoundry CLI not found: set OPEN_SDD_CLI or install @brujo2020/steelfoundry (fail closed)"]);
   const [bin, ...pre] = c as string[];
   const r = spawnSync(bin, [...pre, "assist", "ears", "--file", p, "--no-footer"], { encoding: "utf8", timeout: 25_000 });
   const lines = `${r.stdout ?? ""}${r.stderr ?? ""}`.split("\n").map((l) => l.trim()).filter(Boolean);
   if (r.status === 0) out(true, []);
   const findings = lines.filter((l) => /^[?!~-]|error|FAIL|bloque|por confirmar|falta/i.test(l)).slice(0, 20);
-  out(false, findings.length ? findings : [`steelforge exited ${r.status}`]);
+  out(false, findings.length ? findings : [`steelfoundry exited ${r.status}`]);
 } catch (e) {
   out(false, [`aidlc-sensor-opensdd-ears: ${errorMessage(e)}`]);
 }

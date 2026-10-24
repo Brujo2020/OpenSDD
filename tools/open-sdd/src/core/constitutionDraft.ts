@@ -46,7 +46,7 @@ export const IN_FORCE_FILE_NAME = 'constitution.md';
 
 /** How the artifact tells a human to turn it into authority. */
 export const RATIFY_INSTRUCTION =
-  'Para ratificar: steelforge govern constitution --ratify --by "<nombre>" --rationale "<texto>" --write';
+  'Para ratificar: steelfoundry govern constitution --ratify --by "<nombre>" --rationale "<texto>" --write';
 
 /** Recorded as the amendment proposer while the document is still a draft. */
 export const DRAFT_PROPOSED_BY = 'constitution-draft';

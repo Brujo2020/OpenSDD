@@ -5,7 +5,7 @@
  *
  * ── Why it is included (ported from SteelForge, research/SDD-PARA-OPENSDD.md §3) ─────────────────────────
  * `consistency.ts` traces requirement ↔ task (coverage, phantom ids) but read each task only for the ids it cites.
- * These five rules come from the same sources steelforge already answers (Spec Kit `analyze`, OpenSpec) and
+ * These five rules come from the same sources steelfoundry already answers (Spec Kit `analyze`, OpenSpec) and
  * close the remaining ways a task list looks complete and is not:
  *   - TASK_DUPLICATE_ID          two tasks share a number, so `/sdd-impl 1.2` is ambiguous (OpenSpec).
  *   - PARALLEL_WITHOUT_BOUNDARY  a `(P)` task without `_Boundary:_` can collide with its sibling. 

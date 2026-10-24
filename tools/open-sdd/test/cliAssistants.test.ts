@@ -196,7 +196,7 @@ describe('cli/delta validate — el asistente aparece junto al hallazgo', () => 
     expect(text).toContain('ears-ambiguity');
     expect(text).toContain('propuesta: The [drafter] shall emit a draft.');
     expect(text).toContain('ejemplo:');
-    expect(text).toContain('acción: steelforge brownfield requirements demo --suggest');
+    expect(text).toContain('acción: steelfoundry brownfield requirements demo --suggest');
   });
 
   it('un marcador sin rellenar es su propia sugerencia con el texto exacto a sustituir, y no cambia el veredicto', async () => {
@@ -210,7 +210,7 @@ describe('cli/delta validate — el asistente aparece junto al hallazgo', () => 
     expect(code).toBe(0);
     expect(text).toContain('unfilled-placeholder');
     expect(text).toContain('Sustituye exactamente {{REQ-ORD-001}} por REQ-ORD-001');
-    expect(text).toContain('acción: steelforge delta validate demo');
+    expect(text).toContain('acción: steelfoundry delta validate demo');
   });
 
   it('con más de 3 hallazgos muestra 3 y una línea "ver más"', async () => {
@@ -222,7 +222,7 @@ describe('cli/delta validate — el asistente aparece junto al hallazgo', () => 
 
     expect(code).toBe(1);
     expect(assistantLines(text)).toHaveLength(3);
-    expect(text).toContain('ver más: steelforge brownfield requirements demo --suggest');
+    expect(text).toContain('ver más: steelfoundry brownfield requirements demo --suggest');
   });
 
   it('sin hallazgos no imprime nada del asistente (silencio, no ruido)', async () => {
@@ -284,7 +284,7 @@ describe('cli/status --check — el asistente aparece cuando falta la constituci
     expect(code).toBe(1);
     expect(text).toContain('Asistente bajo demanda');
     expect(text).toContain('constitution-missing');
-    expect(text).toContain('steelforge brownfield constitution . --draft --write');
+    expect(text).toContain('steelfoundry brownfield constitution . --draft --write');
   });
 
   it('con la constitución en vigor y sin hallazgos accionables, calla', async () => {

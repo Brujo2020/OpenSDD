@@ -3,7 +3,7 @@ id: opensdd-gates
 kind: deterministic
 command: bun {{HARNESS_DIR}}/tools/aidlc-sensor-opensdd-gates.ts
 default_severity: advisory
-description: Runs steelforge gates C1 C2 C3 (triad, security baseline, evidence) on the repository (opensdd plugin, advisory)
+description: Runs steelfoundry gates C1 C2 C3 (triad, security baseline, evidence) on the repository (opensdd plugin, advisory)
 category: document-shape
 matches: "**/{aidlc-docs,intents}/**"
 input_schema:
@@ -18,5 +18,5 @@ timeout_seconds: 30
 
 # opensdd-gates sensor (opensdd)
 
-ADVISORY. Runs steelforge gates C1 C2 C3 (triad, security baseline, evidence) on the repository. Runs the steelforge CLI (`OPEN_SDD_CLI` = path to `cli.js`, else `open-sdd` on PATH).
+ADVISORY. Runs steelfoundry gates C1 C2 C3 (triad, security baseline, evidence) on the repository. Runs the steelfoundry CLI (`OPEN_SDD_CLI` = path to `cli.js`, else `open-sdd` on PATH).
 If the CLI cannot be found the sensor fails with one finding: an absent instrument is never read as a pass.

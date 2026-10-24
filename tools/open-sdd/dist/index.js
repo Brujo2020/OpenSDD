@@ -109,7 +109,7 @@ const createConflictHandler = (summaries, resolvedOverwrite) => {
     };
 };
 const showVersion = (io) => {
-    io.log(`steelforge v${VERSION}`);
+    io.log(`steelfoundry v${VERSION}`);
 };
 const handleDryRun = async (manifestPath, resolvedConfig, io, execOpts) => {
     try {
@@ -131,7 +131,7 @@ const runPlanExecution = async (manifestPath, resolvedConfig, io, execOpts) => {
     try {
         const agentDef = getAgentDefinition(resolvedConfig.agent);
         io.log('');
-        io.log(formatBox(`steelforge v${VERSION} / ${agentDef.label}`));
+        io.log(formatBox(`steelfoundry v${VERSION} / ${agentDef.label}`));
         const plan = await planFromFile(manifestPath, resolvedConfig);
         const operations = await buildFileOperations(plan, resolvedConfig, execOpts);
         const summaries = await summarizeCategories(operations);
@@ -200,7 +200,7 @@ const runScoreDoor = async (io, cwd) => {
         const report = await computeSddScore(cwd);
         io.log(renderScoreFooter(report));
         io.log(`Por qué: ${explainNextAction(report)}`);
-        io.log('los cinco verbos: steelforge --help · todos los comandos: steelforge help --all');
+        io.log('los cinco verbos: steelfoundry --help · todos los comandos: steelfoundry help --all');
         return 0;
     }
     catch (error) {
@@ -405,16 +405,16 @@ const dispatchSubcommand = async (cmd, subArgv, io, targetCwd, env = process.env
         const code = subArgv.find((arg) => !arg.startsWith('-'));
         if (!code) {
             io.error(formatError('error[usage]: `explain` needs a gate code'));
-            io.error(`  = help: run \`steelforge gates list\`, or \`steelforge explain C1\``);
+            io.error(`  = help: run \`steelfoundry gates list\`, or \`steelfoundry explain C1\``);
             return EXIT.USAGE;
         }
         const explained = renderExplain(code);
         if (!explained.ok) {
             io.error(formatError(explained.text));
             for (const suggestion of explained.suggestions) {
-                io.error(`  = help: did you mean \`${suggestion}\`? Run \`steelforge explain ${suggestion}\``);
+                io.error(`  = help: did you mean \`${suggestion}\`? Run \`steelfoundry explain ${suggestion}\``);
             }
-            io.error('  = help: run `steelforge gates list` for every code');
+            io.error('  = help: run `steelfoundry gates list` for every code');
             return EXIT.USAGE;
         }
         io.log(explained.text);
@@ -480,7 +480,7 @@ const emitUsageError = (io, message, suggestions, runFor) => {
     for (const suggestion of suggestions) {
         io.error(`  = help: did you mean \`${suggestion}\`? Run \`${runFor(suggestion)}\``);
     }
-    io.error('  = help: run `steelforge --help` to list every command, or `steelforge help exit-codes`');
+    io.error('  = help: run `steelfoundry --help` to list every command, or `steelfoundry help exit-codes`');
 };
 /**
  * Un subcomando desconocido es un error de USO (2), nunca un fallo de gobernanza (1) y nunca el
@@ -500,7 +500,7 @@ const validateSubcommand = (cmd, subArgv) => {
     return {
         message: `unknown subcommand \`${first}\` for \`${cmd}\``,
         suggestions: suggestCommands(first, known),
-        runFor: (suggestion) => `steelforge ${cmd} ${suggestion}`,
+        runFor: (suggestion) => `steelfoundry ${cmd} ${suggestion}`,
     };
 };
 export const runCli = async (rawArgv, runtime = { platform: process.platform, env: process.env }, io = defaultIO, loadedConfig = {}, execOpts) => {
@@ -510,7 +510,7 @@ export const runCli = async (rawArgv, runtime = { platform: process.platform, en
     setColorMode(global.color ?? 'auto');
     setNonInteractive(global.noInput);
     if (global.colorError !== undefined) {
-        emitUsageError(io, global.colorError, [], () => 'steelforge --help');
+        emitUsageError(io, global.colorError, [], () => 'steelfoundry --help');
         return EXIT.USAGE;
     }
     const argv = global.argv;
@@ -537,7 +537,7 @@ export const runCli = async (rawArgv, runtime = { platform: process.platform, en
     const requestedLang = parseLangFlag(argv);
     if (requestedLang !== undefined && requestedLang.length > 0 && normalizeLocale(requestedLang) === undefined) {
         io.error(formatError(`error[usage]: ${localeRefusal(requestedLang)}`));
-        io.error(`  = help: run \`steelforge --help\` to see the translated locales, or \`steelforge help formatting\``);
+        io.error(`  = help: run \`steelfoundry --help\` to see the translated locales, or \`steelfoundry help formatting\``);
         return EXIT.USAGE;
     }
     // La puerta. `--no-footer` a solas sigue siendo la puerta (el pie ES la salida de la puerta).
@@ -587,7 +587,7 @@ export const runCli = async (rawArgv, runtime = { platform: process.platform, en
         }
         // Comando desconocido: error de uso (2) con la sugerencia más cercana y el puntero a `--help`.
         // Nunca cae al camino de instalación (que exige banderas, no un posicional).
-        emitUsageError(io, `unknown command \`${firstArg}\``, suggestCommands(cmd, KNOWN_COMMANDS), (suggestion) => `steelforge help ${suggestion}`);
+        emitUsageError(io, `unknown command \`${firstArg}\``, suggestCommands(cmd, KNOWN_COMMANDS), (suggestion) => `steelfoundry help ${suggestion}`);
         return EXIT.USAGE;
     }
     let parsedArgs;
@@ -601,7 +601,7 @@ export const runCli = async (rawArgv, runtime = { platform: process.platform, en
         // Un error de argumentos es un error de USO (2), no un fallo de gobernanza (1): el contrato de
         // códigos de salida existe para que un script distinga «escribiste mal» de «tu repositorio falló».
         io.error(formatError(`error[usage]: ${msg}`));
-        io.error('  = help: run `steelforge --help` to list every command and flag, or `steelforge help exit-codes`');
+        io.error('  = help: run `steelfoundry --help` to list every command and flag, or `steelfoundry help exit-codes`');
         return EXIT.USAGE;
     }
     parsedArgs.agent = await ensureAgentSelection(parsedArgs.agent ?? loadedConfig.agent, io);

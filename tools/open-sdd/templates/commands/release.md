@@ -17,22 +17,22 @@ parallelSafe: false
 moves:
   - gates
 commands:
-  - "steelforge status --check --json"
-  - "steelforge gates run"
-  - "steelforge gates chain --profile regulated"
-  - "steelforge gates crosswalk"
-  - "steelforge gates enforcement"
-  - "steelforge govern conformance"
-  - "steelforge assure claims --verify --json"
-  - "steelforge assure threats"
-  - "steelforge audit bundle --json"
-  - "steelforge floor status"
-  - "steelforge status --json"
+  - "steelfoundry status --check --json"
+  - "steelfoundry gates run"
+  - "steelfoundry gates chain --profile regulated"
+  - "steelfoundry gates crosswalk"
+  - "steelfoundry gates enforcement"
+  - "steelfoundry govern conformance"
+  - "steelfoundry assure claims --verify --json"
+  - "steelfoundry assure threats"
+  - "steelfoundry audit bundle --json"
+  - "steelfoundry floor status"
+  - "steelfoundry status --json"
 scripts:
-  - "steelforge gates run"
-  - "steelforge assure claims --verify --json"
-  - "steelforge audit bundle --json"
-  - "steelforge floor status"
+  - "steelfoundry gates run"
+  - "steelfoundry assure claims --verify --json"
+  - "steelfoundry audit bundle --json"
+  - "steelfoundry floor status"
 ---
 
 # Release — the gates decide, the evidence is bundled, then it ships
@@ -55,9 +55,9 @@ from the root manifest and ask before tagging.
 - **Identified — produces:** `CHANGELOG.md`, the release note `.sdd/specs/<feature>/release.md`, the git tag and the published artifact.
 - **Identified — refuses:** it refuses to modify application source, tests, the constitution or the settings, and refuses to ship around a failing gate.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `steelforge gates run` **exits 1** when the chain fails (BLOCKS the release), `steelforge assure claims --verify --json` **exits 1** on a broken claim (BLOCKS), `steelforge audit bundle --json` **exits 1** when the bundle is not `ok`, and `steelforge floor status` reports the installed floor.
-- **Measured — components:** `gates` — the reader sees the change before/after in `steelforge status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the release verdict cites the ratified constitution, a draft constitution means the release is not authorised, and `steelforge status --check --json` is the pivot check.
+- **Assured — backing check:** `steelfoundry gates run` **exits 1** when the chain fails (BLOCKS the release), `steelfoundry assure claims --verify --json` **exits 1** on a broken claim (BLOCKS), `steelfoundry audit bundle --json` **exits 1** when the bundle is not `ok`, and `steelfoundry floor status` reports the installed floor.
+- **Measured — components:** `gates` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the release verdict cites the ratified constitution, a draft constitution means the release is not authorised, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -83,61 +83,61 @@ from the root manifest and ask before tagging.
 1. Validate the repository against the constitution and the declared rigor level:
 
 ```bash
-steelforge status --check --json
+steelfoundry status --check --json
 ```
 
 2. Run the enforcement chain. Its exit status is the release verdict, not your summary of it:
 
 ```bash
-steelforge gates run
+steelfoundry gates run
 ```
 
 3. If the project declares a regulated profile, run the stricter resolved chain and report which
    controls it resolved:
 
 ```bash
-steelforge gates chain --profile regulated
+steelfoundry gates chain --profile regulated
 ```
 
 4. Read the crosswalk so the release note can trace implementation to the control that imposes it,
    and read the enforcement levels so the ceiling/floor distinction is stated, not blurred:
 
 ```bash
-steelforge gates crosswalk
+steelfoundry gates crosswalk
 ```
 
 ```bash
-steelforge gates enforcement
+steelfoundry gates enforcement
 ```
 
 5. Read the invariant conformance report and attach its per-invariant evidence:
 
 ```bash
-steelforge govern conformance
+steelfoundry govern conformance
 ```
 
 6. Verify the claims registry. It must report zero broken claims; a broken claim blocks the release:
 
 ```bash
-steelforge assure claims --verify --json
+steelfoundry assure claims --verify --json
 ```
 
 7. Read the security posture and include the residual risks it names:
 
 ```bash
-steelforge assure threats
+steelfoundry assure threats
 ```
 
 8. Produce the evidence bundle — every artifact with its sha256 — and archive it with the release:
 
 ```bash
-steelforge audit bundle --json
+steelfoundry audit bundle --json
 ```
 
 9. Confirm the enforcement floor is actually installed, not merely declared:
 
 ```bash
-steelforge floor status
+steelfoundry floor status
 ```
 
 10. Update `CHANGELOG.md` with the version, the changes, and the verification above. Tag the version
@@ -177,7 +177,7 @@ constitution first, then release.
 ## Mandatory Post-Execution Hooks
 
 1. Archive the audit bundle with the release and link it in the release note.
-2. Re-run `steelforge floor status` after publishing to confirm the gate remained installed.
+2. Re-run `steelfoundry floor status` after publishing to confirm the gate remained installed.
 
 ## Completion Report
 

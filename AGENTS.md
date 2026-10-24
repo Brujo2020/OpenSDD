@@ -34,18 +34,18 @@ what lives here from what the install creates in a target project.
 - Use `/sdd-spec-status [feature-name]` to check progress
 
 ## Development Guidelines
-<!-- DEV_GUIDELINES: injected at install time with language-specific guidelines (npx @brujo2020/steelforge@latest --lang <code>) -->
+<!-- DEV_GUIDELINES: injected at install time with language-specific guidelines (npx @brujo2020/steelfoundry@latest --lang <code>) -->
 - Think in English, generate responses in English. All Markdown content written to project files (e.g., requirements.md, design.md, tasks.md, research.md, validation reports) MUST be written in the target language configured for this specification (see spec.json.language).
 
 ## Minimal Workflow
 - Phase 0 (optional): `/sdd-steering`, `/sdd-steering-custom`
 - **Brownfield bootstrap** (existing codebase, no `.sdd/` specs): `/sdd-getspecs` — reverse-engineers steering + roadmap + spec seeds from code; then `/sdd-spec-requirements` or `/sdd-spec-batch`
 - **Brownfield governance** (the existing code is the source of truth): run the console before specifying a change —
-  - recon: `steelforge brownfield survey .` — what the project already is (stack, tooling, modules, evidence)
-  - constitution: `steelforge brownfield constitution . --write` — the descriptive constitution in `.sdd/steering/constitution.md` (principles the code already obeys, each with evidence; desired-but-absent practices become proposed amendments)
-  - delta: `steelforge delta init <feature> "what changes"` then `steelforge delta validate <feature>` — the contract of change (ADDED/MODIFIED/REMOVED/RENAMED, delta-scoped `REQ-<AREA>-<NNN>` ids)
-  - analysis: `steelforge brownfield contracts <feature> [--verify]` — the regression oracle (which tests protect the changed files, which files no contract covers; a green run with a declared contract missing is not a pass); `brownfield impact` for the blast radius and breaking changes; `brownfield reuse` for reuse-first candidates
-  - rigor: declare the level in `.sdd/settings/rigor.json`; `steelforge govern rigor` assesses the repository against it. The three levels are a **cumulative ladder** whose default is deliberately fluid: `spec-first` (the default) demands a valid constitution, requirements in checkable EARS form and gates C1+C2; each step up only *adds* (Spec-Anchored → +delta/traceability/evidence/drift, C1+C2+C3+C6; Spec-as-Source → +contracts/regeneration, C1…C6). The constitution is the authority a blocking verdict cites, so it is **required (blocking) at every level**, and you raise the bar in `.sdd/settings/rigor.json`, never by lowering what the floor already checks.
+  - recon: `steelfoundry brownfield survey .` — what the project already is (stack, tooling, modules, evidence)
+  - constitution: `steelfoundry brownfield constitution . --write` — the descriptive constitution in `.sdd/steering/constitution.md` (principles the code already obeys, each with evidence; desired-but-absent practices become proposed amendments)
+  - delta: `steelfoundry delta init <feature> "what changes"` then `steelfoundry delta validate <feature>` — the contract of change (ADDED/MODIFIED/REMOVED/RENAMED, delta-scoped `REQ-<AREA>-<NNN>` ids)
+  - analysis: `steelfoundry brownfield contracts <feature> [--verify]` — the regression oracle (which tests protect the changed files, which files no contract covers; a green run with a declared contract missing is not a pass); `brownfield impact` for the blast radius and breaking changes; `brownfield reuse` for reuse-first candidates
+  - rigor: declare the level in `.sdd/settings/rigor.json`; `steelfoundry govern rigor` assesses the repository against it. The three levels are a **cumulative ladder** whose default is deliberately fluid: `spec-first` (the default) demands a valid constitution, requirements in checkable EARS form and gates C1+C2; each step up only *adds* (Spec-Anchored → +delta/traceability/evidence/drift, C1+C2+C3+C6; Spec-as-Source → +contracts/regeneration, C1…C6). The constitution is the authority a blocking verdict cites, so it is **required (blocking) at every level**, and you raise the bar in `.sdd/settings/rigor.json`, never by lowering what the floor already checks.
 - Discovery: `/sdd-discovery "idea"` — determines action path, writes brief.md + roadmap.md for multi-spec projects
 - Phase 1 (Specification):
   - Single spec: `/sdd-spec-quick {feature} [--auto]` or step by step:

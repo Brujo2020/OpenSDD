@@ -235,7 +235,7 @@ describe('core/floorInstallation — the hook directory is the one git resolves'
     await write(
       dir,
       path.join('.github', 'workflows', 'gates.yml'),
-      'on:\n  pull_request:\njobs:\n  g:\n    steps:\n      - run: steelforge gates run\n',
+      'on:\n  pull_request:\njobs:\n  g:\n    steps:\n      - run: steelfoundry gates run\n',
     );
   };
 

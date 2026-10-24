@@ -11,7 +11,7 @@ By late 2026, empirical data across enterprise software engineering (METR, GitCl
 - **The "Big Bang Rewrite" Fallacy**: Generative AI tempting teams to attempt full rewrites of monolithic systems results in catastrophic project abandonment due to undocumented business invariants and edge cases.
 - **The Context Window Fallacy**: Dumping a 2-million-line legacy repository into a 1M-token LLM context window causes catastrophic **token poisoning**, hallucinated internal APIs, and security boundary erosion (*Lost in the Middle* phenomenon).
 
-**SteelForge rejects naive generative rewrites.** In large enterprise systems and hyperscalers, SteelForge attacks legacy codebases using a **Zero-Trust, Spec-Driven Strangler Protocol**:
+**SteelFoundry rejects naive generative rewrites.** In large enterprise systems and hyperscalers, SteelFoundry attacks legacy codebases using a **Zero-Trust, Spec-Driven Strangler Protocol**:
 > *"The legacy codebase defines existing behavior; the Living Specification defines intentional truth; automated characterization tests enforce invariants; and changes flow only through surgical, verified boundaries."*
 
 ---
@@ -56,7 +56,7 @@ flowchart TD
 
 ### Layer 1: Structural Reconnaissance & AST Dependency Mapping (*Graph before Grep*)
 **Anti-Pattern**: Asking an LLM to read 500 legacy files to "explain how the billing system works".
-**The SteelForge Enterprise Standard**:
+**The SteelFoundry Enterprise Standard**:
 1. **Deterministic Static Analysis**:
    - Extract the Abstract Syntax Tree (AST) using tree-sitter or language servers.
    - Build a directed dependency graph stored under `.sdd/memory/graph/` capturing:
@@ -66,14 +66,14 @@ flowchart TD
 2. **Blast Radius Indexing**:
    - For any targeted module $M$, compute downstream dependencies:
      $$\text{BlastRadius}(M) = \{ c \in \text{Components} \mid c \rightsquigarrow M \}$$
-   - If $\text{BlastRadius}(M) > \text{Threshold}$, SteelForge blocks direct modification and mandates decomposition into smaller sub-seams.
+   - If $\text{BlastRadius}(M) > \text{Threshold}$, SteelFoundry blocks direct modification and mandates decomposition into smaller sub-seams.
 
 ---
 
 ### Layer 2: Golden Characterization Locking via Agentic QE
 **The Principle**: In legacy code without comprehensive unit tests, existing code behavior is the specification of what the system *actually does* (including undocumented quirks and error handling).
 1. **Autonomous Invariant Discovery**:
-   - SteelForge invokes **Agentic QE** (`agentic-qe.dev`) operating under the PACTS framework (Proactive, Autonomous, Collaborative, Targeted, Structured).
+   - SteelFoundry invokes **Agentic QE** (`agentic-qe.dev`) operating under the PACTS framework (Proactive, Autonomous, Collaborative, Targeted, Structured).
    - Generates characterization tests (Michael Feathers' pattern) capturing current I/O behavior without altering production logic.
 2. **Metamorphic Invariant Generation**:
    - Properties that must remain invariant (e.g. `Price(order) == Subtotal + Tax - Discount`, transaction idempotency) are formalized as property tests.
@@ -84,7 +84,7 @@ flowchart TD
 
 ### Layer 3: Living Spec Reverse-Engineering (`/sdd-getspecs`) & Human Gate
 **Anti-Pattern**: Letting an AI reverse-engineer a spec and automatically approve it.
-**The SteelForge Enterprise Standard**:
+**The SteelFoundry Enterprise Standard**:
 1. **Deduce Seeds, Never Premature Approvals**:
    - `/sdd-getspecs` ingests the codebase structure, git forensics, and module seams.
    - Generates:
@@ -103,7 +103,7 @@ flowchart TD
 ---
 
 ### Layer 4: Transactional Surgical Implementation & The Strangler Pattern
-**The Strategy**: Never perform in-place surgery on high-risk legacy code. Apply Martin Fowler’s **Strangler Fig Pattern** combined with SteelForge subagent isolation:
+**The Strategy**: Never perform in-place surgery on high-risk legacy code. Apply Martin Fowler’s **Strangler Fig Pattern** combined with SteelFoundry subagent isolation:
 1. **Ephemeral Git Worktrees**:
    - `/sdd-impl` operates inside dedicated Git worktrees. The main development branch is never polluted with intermediate speculative code.
 2. **Feature Flags & Dark Launch**:
@@ -135,7 +135,7 @@ In hyperscalers and regulated enterprises, untraced code modifications violate c
 flowchart LR
     ALB["AWS ALB / API Gateway"] --> Router{"Route Seam\n(Feature Flag / Canary)"}
     Router -->|Legacy 95%| Legacy["EC2 Monolith\n(Spring / .NET)"]
-    Router -->|Strangled 5%| NewSvc["ECS Fargate / Lambda\n(SteelForge Spec-Driven Service)"]
+    Router -->|Strangled 5%| NewSvc["ECS Fargate / Lambda\n(SteelFoundry Spec-Driven Service)"]
     NewSvc -.-> DB[("Shared Aurora / RDS\n(Zero-Downtime CDC)")]
     Legacy -.-> DB
 ```
@@ -148,7 +148,7 @@ flowchart LR
 ### Pattern B: GCP / Azure Big Data & Microservices Pipeline
 - **GCP Cloud Run / Azure Container Apps**:
   - Independent subagent waves deploy new transactional services alongside legacy clusters.
-  - SteelForge verifies Kafka / Eventarc schemas through metamorphic schema validation before authorizing traffic cutover.
+  - SteelFoundry verifies Kafka / Eventarc schemas through metamorphic schema validation before authorizing traffic cutover.
 
 ---
 

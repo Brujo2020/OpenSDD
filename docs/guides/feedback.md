@@ -7,8 +7,8 @@ it honest to celebrate?**
 Short answer: only when three independent verdicts are all true *at the same time*, for a whole
 feature. Anything less gets a plain report. Anything missing gets a refusal.
 
-> Commands below are shown as `steelforge …` for an installed CLI. In this repository, replace
-> `steelforge` with `node tools/open-sdd/dist/cli.js`.
+> Commands below are shown as `steelfoundry …` for an installed CLI. In this repository, replace
+> `steelfoundry` with `node tools/open-sdd/dist/cli.js`.
 
 ## What fires it
 

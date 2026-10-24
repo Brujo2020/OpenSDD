@@ -48,15 +48,15 @@ The engine is not the problem. Adoption, enforcement coverage and the last mile 
    is advice a human must remember to apply.
 2. **The UX is powerful but wide, and it carries verified dead ends.** Each item below was
    reproduced against the current `dist`, not inferred:
-   - **The install command the CLI tells users to run is a 404.** `npx steelforge@latest` appears in
+   - **The install command the CLI tells users to run is a 404.** `npx steelfoundry@latest` appears in
      runtime messages (`src/index.ts` ×7, `cli/commands/help.ts`, `doctor.ts`, `agents/registry.ts`,
-     `cli/commands/init.ts`); the bare name `steelforge` does not exist on npm (`E404`), and the real
-     package is `@brujo2020/steelforge`. Only `README.md`/`README.es.md` carry the correct scoped name,
+     `cli/commands/init.ts`); the bare name `steelfoundry` does not exist on npm (`E404`), and the real
+     package is `@brujo2020/steelfoundry`. Only `README.md`/`README.es.md` carry the correct scoped name,
      so the first command a user copies from the tool itself fails.
-   - **`steelforge help` is stale against `steelforge --help`**: 8 command lines against 58. The index is
+   - **`steelfoundry help` is stale against `steelfoundry --help`**: 8 command lines against 58. The index is
      hand-written instead of generated from the dispatch table, so `init --help`, `integrate --help`
      and `gates --help` are not command-specific help at all.
-   - **An unknown command is a dead end**: `steelforge statu` prints
+   - **An unknown command is a dead end**: `steelfoundry statu` prints
      `Error: Unknown positional argument: statu`, exits 1, and offers no "did you mean `status`?" and
      no pointer to `--help`.
    - **`--lang` advertises 13 locales and ships 2.** `SUPPORTED_LOCALES = ['es','en']`, yet
@@ -74,13 +74,13 @@ The engine is not the problem. Adoption, enforcement coverage and the last mile 
      supported", while the compiled registry exposes 34 agent definitions and 31 command conventions
      (19 verified, 12 declared); the README says 35 / 32 (20 / 12). Three sources, three answers,
      none generated.
-   - **A failing command can end on a success-looking line.** `steelforge gates chainn` prints
+   - **A failing command can end on a success-looking line.** `steelfoundry gates chainn` prints
      `Subcomando desconocido: chainn…`, exits 1, and then still prints a **236-character** score door
      ending in "gates OK (C1, C2 …)". The last line the user reads contradicts the verdict.
    - **No global escape hatches.** There is no `--no-input`, global `--json`, `--plain`, `--explain`
      or `--debug` (`--no-footer` is the only global flag), and the interactive prompts throw a bare
      `TTY required for interactive prompts` at three sites instead of naming the flag to pass.
-   - **The CLI has no uninstall.** `steelforge uninstall` is an unknown command, yet the tool writes
+   - **The CLI has no uninstall.** `steelfoundry uninstall` is an unknown command, yet the tool writes
      skills, chat commands, MCP registrations, a git hook and `.sdd/`. Only
      `scripts/install-hooks.mjs --uninstall` reverses the hook, and no receipt records what a run
      wrote, so a partial install cannot be reversed.
@@ -145,11 +145,11 @@ Those three are the plan.
 | # | Workstream | Outcome | Primary surface | Depends on |
 |---|---|---|---|---|
 | W0 | **Green floor** | Every boundary the tool claims is green: Windows, publish, distribution, docs truth | CI, `package.json`, docs | — |
-| W1 | **Zero-friction onboarding** | One command from `npx` to a verified, host-aware, undoable setup | `steelforge up`, `init`, `doctor`, `install.sh` | W0 |
-| W2 | **Standards engine** | The 15 rule documents become a machine-checkable catalogue wired into the gates | `steelforge standards *`, `.sdd/settings/standards/**`, C1/C8 | W0 |
-| W3 | **Requirements coach** | Best practice for requirements is stored, checked, and repaired with alternatives | `steelforge requirements review/checklist/fix` | W2 |
+| W1 | **Zero-friction onboarding** | One command from `npx` to a verified, host-aware, undoable setup | `steelfoundry up`, `init`, `doctor`, `install.sh` | W0 |
+| W2 | **Standards engine** | The 15 rule documents become a machine-checkable catalogue wired into the gates | `steelfoundry standards *`, `.sdd/settings/standards/**`, C1/C8 | W0 |
+| W3 | **Requirements coach** | Best practice for requirements is stored, checked, and repaired with alternatives | `steelfoundry requirements review/checklist/fix` | W2 |
 | W4 | **Living constitution** | Principles carry checkers; compliance is a dashboard with a trend, not a claim | `govern constitution --compliance`, `specConstitution` | W2 |
-| W5 | **AI conscience** | Optional, pluggable, injection-safe critique that coaches and abstains | `steelforge review`, `ai.json`, C5 live | W2, W3 |
+| W5 | **AI conscience** | Optional, pluggable, injection-safe critique that coaches and abstains | `steelfoundry review`, `ai.json`, C5 live | W2, W3 |
 | W6 | **Integration everywhere** | Every host, inline diagnostics, PR comments, watch mode — from one registry | `up`, `integrate`, LSP, `action.yml` | W1 |
 | W7 | **Scale & environment** | Monorepos, six language ecosystems, air-gapped installs, cached index | `survey`, `doctor --offline`, index cache | W1 |
 | W8 | **Surpass the field** | A differentiated, *verified* SDD flow and a comparison that cannot go stale | `docs/COMPARE.md` (generated), guides | W2–W4 |
@@ -172,7 +172,7 @@ starts. Today: Windows red (G-26), publish unproven (G-28), marketing docs stale
   than the mechanism. **Publish with provenance** (`npm publish --provenance` over OIDC): the
   published 3.3.0 tarball has no `dist.attestations`, and provenance is the cheapest trust signal a
   governance tool can offer. Surface the attestation in `--version` and `doctor`.
-- **Audit every install path the tool advertises.** `npx steelforge@latest` is a 404 today (W1). The
+- **Audit every install path the tool advertises.** `npx steelfoundry@latest` is a 404 today (W1). The
   install command is generated from `package.json.name`, never typed by hand, and a test asserts no
   runtime message names an unpublishable package.
 - Add a **docs-truth check** to the gate chain: every number the public docs assert about the
@@ -191,7 +191,7 @@ apply. `doctor` is excellent but is a *diagnosis*, not a *concierge*. `install.s
 `install-global.sh` exist but are a second, undocumented path.
 
 **Design.**
-- **`steelforge up [target]`** — the single entry point. It detects the repository (git? language?
+- **`steelfoundry up [target]`** — the single entry point. It detects the repository (git? language?
   existing `.sdd/`?) and the hosts actually present (`.claude/`, `.cursor/`, `.github/`, `.agents/`,
   `.codex/`…), proposes a plan, writes it, then *verifies its own write* with `doctor`, printing the
   next three commands. Idempotent, `--dry-run` first, `--yes` for CI. Include a **`--demo`** mode so
@@ -202,18 +202,18 @@ apply. `doctor` is excellent but is a *diagnosis*, not a *concierge*. `install.s
   prints `Operation cancelled.` and leaves no partial write; answers are cached in `.sdd/settings/`
   and a re-run says what it reused instead of re-asking.
 - **Install paths that cannot 404.** The install command is generated from `package.json.name` +
-  `version` so `npx steelforge@latest` cannot recur. The docs lead with the reproducible path
+  `version` so `npx steelfoundry@latest` cannot recur. The docs lead with the reproducible path
   (a pinned `devDependency` + `npx`, which prefers the local copy) and state the **`npx -y`
-  collision** (`npx` consumes `-y` for its own prompt, so `steelforge`'s own flag needs
-  `npx @brujo2020/steelforge -- -y`). `devEngines.runtime.onFail: "error"` makes a wrong Node fail
+  collision** (`npx` consumes `-y` for its own prompt, so `steelfoundry`'s own flag needs
+  `npx @brujo2020/steelfoundry -- -y`). `devEngines.runtime.onFail: "error"` makes a wrong Node fail
   cleanly. The zero-runtime-dependency artifact and the deliberate **no-op postinstall** are
   advertised, not just true — npm 12 blocks dependency lifecycle scripts by default and the
   Shai-Hulud waves spread through exactly those scripts.
-- **Reversible by construction (tenet 12).** `steelforge uninstall` prints the plan;
+- **Reversible by construction (tenet 12).** `steelfoundry uninstall` prints the plan;
   `uninstall --write` removes skills, chat commands, MCP registrations and the Stop hook, and never
   deletes `.sdd/` without `--purge-sdd`. Every writing command records
   `.sdd/.open-sdd-receipt.json` (paths + hashes + timestamp), so a partial run is undone with
-  `steelforge restore --from .sdd/.open-sdd-receipt.json` — generalising the discipline already proven
+  `steelfoundry restore --from .sdd/.open-sdd-receipt.json` — generalising the discipline already proven
   in `core/backup.ts`.
 - **Plan → apply is an artifact, not a conversation.** `--out <file>` saves a plan with its sha256;
   `gates apply <file>` executes the reviewed plan verbatim; destructive regeneration requires
@@ -223,7 +223,7 @@ apply. `doctor` is excellent but is a *diagnosis*, not a *concierge*. `install.s
 - **`doctor` is the front door.** Keep its `✓/!/✗` + `fix:` format, and make every `fix:` value a
   single runnable line with no trailing prose; add `doctor --json` for tooling and `doctor -v` for
   evidence paths. A `✗` always names a command.
-- **Help that answers the question asked.** `steelforge help <command>` returns that command's own
+- **Help that answers the question asked.** `steelfoundry help <command>` returns that command's own
   help; `init --help`, `doctor --help`, `integrate --help` work; the index is generated from the
   dispatch table (today: 8 lines against `--help`'s 58). An unknown command suggests the nearest
   match from a documented threshold, capped at three, and points at `--help` and `help exit-codes`.
@@ -232,7 +232,7 @@ apply. `doctor` is excellent but is a *diagnosis*, not a *concierge*. `install.s
   project's detected language (not a hardcoded `es`), while `C1…C7`, `REQ-<AREA>-<NNN>`, every JSON
   key, every `ruleId` and every `= help:` command stay **English and unlocalized**.
 
-**Acceptance.** On a fresh clone of a foreign repository: `npx @brujo2020/steelforge@latest up --demo`
+**Acceptance.** On a fresh clone of a foreign repository: `npx @brujo2020/steelfoundry@latest up --demo`
 reaches `doctor` 9 ok / 0 fail in under 60 s; `uninstall --write` returns the repository to its
 pre-install state byte-for-byte; `restore --from` recovers a partial run; a test asserts no routed
 command is absent from help.
@@ -244,13 +244,13 @@ of them is testable.
 
 - **Exit codes are a contract (tenet 11).** `0` passed · `1` your repository failed a gate · `2`
   usage error · `3` environment/configuration · `4` tool bug — documented in `help exit-codes`, with
-  the host-loop sentinel (`exit 2 = blocked`) documented alongside. `steelforge statu` exits **2**, not
+  the host-loop sentinel (`exit 2 = blocked`) documented alongside. `steelfoundry statu` exits **2**, not
   1, and code `4` attributes itself as a bug, offers a pre-filled report URL and writes the trace to
   a log file instead of the terminal.
 - **Diagnostics are rustc-shaped.** `error[C1]: message` / `--> path:LL:CC` / a code frame with the
   `^^^` label / `= help:` for the runnable fix / `= note:` for the authority that made it blocking;
   lowercase first letter, no trailing period, backticks around identifiers, and no more than ~10
-  lines per finding. Every code resolves offline: `steelforge explain C1`.
+  lines per finding. Every code resolves offline: `steelfoundry explain C1`.
 - **A failure never ends on a success-looking line.** On non-zero exit the score door is suppressed
   or inverted (`/!\ SDD 85% — this command FAILED: 1 blocking finding (C1)`) — never the current
   behaviour where `gates chainn` exits 1 and then prints "gates OK".
@@ -312,7 +312,7 @@ make them hold — warning when they do not, always with a solution.*
   the `ears.ts` diagnostics, the two "Mechanical Checks" sections, the EARS patterns in
   `ears-format.md`, the boundary/traceability rules in `requirements-review-gate.md`, and the
   evidence rule already enforced by C3.
-- **Console.** `steelforge standards list | show <id> | explain <id> | check [--json] |
+- **Console.** `steelfoundry standards list | show <id> | explain <id> | check [--json] |
   fix <id> [--apply]`. `check` runs every applicable standard over the declared artifacts and emits
   one finding per violation with `remedy` and `alternatives`.
 - **Wire into the chain.** Extend C1 to run the requirements subset, and add **C8 Standards
@@ -400,7 +400,7 @@ until this workstream implements it.
   per defect class and never emits a template with holes — the rule `assistants.ts` already enforces.
 - **Non-functional requirements get a real shape:** the SEI six-part scenario and SLI/SLO/error-budget
   fields, so "fast" and "robust" become measurable or become an explicit question.
-- **Commands.** `steelforge requirements review <feature>` (findings + rewrites),
+- **Commands.** `steelfoundry requirements review <feature>` (findings + rewrites),
   `requirements checklist <feature>` (a checklist *executed*), `requirements fix <feature> --apply
   <id>`, `standards explain <id>`, all with `--json`.
 - **Checklist items are predicates, not prose** (W8.1 row 2): each item declares `cmd:` (exit code and
@@ -465,7 +465,7 @@ governance tool must model before adopting one.
 - **C5 becomes real only when configured** and reports `mode=live`. With two independent providers
   the judge-independence check (I4) becomes satisfiable; with one it stays `advisory` — as it does
   today.
-- **`steelforge review <feature>` / `steelforge coach <feature>`:** critique the artifacts, emit findings
+- **`steelfoundry review <feature>` / `steelfoundry coach <feature>`:** critique the artifacts, emit findings
   with severity, remedy, alternatives and a confidence, and **never block by default**. Using a
   model judgment as evidence requires an I6 receipt (the receipt machinery exists).
 - **Adversarial, not agreeable.** The reviewer prompt is adversarial and the review is independent
@@ -505,13 +505,13 @@ Discovery is still manual, and findings live in the terminal instead of where th
 - **One registry generates every surface:** the agent registry (`agents/registry.ts`) renders the
   matrices, the per-host docs, the help index and `integrate --list`, so no hand-written count can
   drift (this alone fixes `COMPARE.md`).
-- **`steelforge up`** (W1) wires the detected hosts, the commit hook and the CI template.
+- **`steelfoundry up`** (W1) wires the detected hosts, the commit hook and the CI template.
 - **Findings where the work happens:** SARIF already exists; add an **LSP diagnostics server** so
   standards/gate findings appear inline in VS Code and JetBrains, each with a quick-fix mapped to
   the remedy.
 - **PR as a coach, not a wall:** the GitHub Action (and a GitLab template) comments the findings with
   their remedies and alternatives; the blocking subset stays small and calibrated.
-- **`steelforge watch`** re-runs the relevant checks on change, in the background, without noise.
+- **`steelfoundry watch`** re-runs the relevant checks on change, in the background, without noise.
 - **MCP parity:** expose standards and the requirements coach as MCP tools/resources so any host that
   speaks MCP gets the coach without installing anything else.
 - **One editable rule source, projected** (W8.1 row 9): `integrate <host> --project-steering --write`
@@ -603,7 +603,7 @@ orchestration** (https://buildermethods.com/agent-os/migration): a vacancy this 
 | 3 | One invariant, one enforcing check (Tessl's surviving `covered_by`, https://docs.tessl.io/reference/configuration.md) | An LLM judge re-decides what a lint rule or a test already decides: tokens spent and false positives paid twice (our own C4 lesson) | **`covered_by` on claims-registry entries and gate configs**: when every coverage link is fresh, `gates run` **skips** the judge and records `skipped: covered`; a stale link forces the judge and is itself a drift finding |
 | 4 | Machine-readable state beside the human markdown — independently converged on by comet (`.comet.yaml`), conductor (`metadata.json`), gsd-core (`STATE.md`) and spec-workflow-mcp (approvals ledger) | The workflow's real state (phase, evidence digests, ids in force, approvals) exists only as prose, so nothing can verify it | **`.sdd/specs/<f>/state.json`**: phase, declared rigor, evidence digests, delta ids in force, approval records and archive status — body authoritative over frontmatter, per-field conflict policy, `O_EXCL` lockfile with stale-lock detection. The cheapest structural upgrade, and it makes rows 6, 8 and 12 verifiable data instead of rendering |
 | 5 | Hook/policy floor with precedence and **fail-closed** semantics (Cursor hooks, https://cursor.com/docs/hooks) | Hooks that fail open, and a lower policy layer overriding a higher one | **Policy floor**: `deny > ask > allow` regardless of source, Enterprise cannot be overridden by Project, a block on invalid or missing hook output, and `failClosed` turning crash/timeout/non-zero into a block — the inverse of Cursor's fail-open default. Blocking triggers at `PreToolUse`, `PromptSubmit` and `PreTaskExecution`, paired with the extension supply chain (small additions) |
-| 6 | Right-size the process to the change (BMAD's planning-path chooser; OpenSpec concedes ceremony "may not pay off" for a truly trivial fix, https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/docs/overview.md) | "Sledgehammer to crack a nut": `/clarify`, `/checklist`, `/analyze` are optional with no rule for when they are required | **`steelforge route "<intent>"`**: survey + reuse + impact forecast returns **S/M/L** with its evidence (files likely touched, dependents, public-API deltas, coverage), fixes the artifact set and rigor in `.sdd/settings/route.json`; `delta init` refuses extra ceremony for class S unless `--override` (recorded and visible in `status`) |
+| 6 | Right-size the process to the change (BMAD's planning-path chooser; OpenSpec concedes ceremony "may not pay off" for a truly trivial fix, https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/docs/overview.md) | "Sledgehammer to crack a nut": `/clarify`, `/checklist`, `/analyze` are optional with no rule for when they are required | **`steelfoundry route "<intent>"`**: survey + reuse + impact forecast returns **S/M/L** with its evidence (files likely touched, dependents, public-API deltas, coverage), fixes the artifact set and rigor in `.sdd/settings/route.json`; `delta init` refuses extra ceremony for class S unless `--override` (recorded and visible in `status`) |
 | 7 | Measure the context the tool installs | **#1401**: 18.6k tokens/session installed (~93 % of Cursor's default chat) | **`init --context-report`** measures the generated files, prints per-host and total token estimates against the host's documented budget and writes `context-budget.json`; `doctor --context` fails above the ceiling and offers `--lazy` (one-line stubs expanded by `prompt <workflow>`) or `--install a,b,c` |
 | 8 | The **two-list spec** (retired Copilot Workspace) plus archive-as-merge-back (OpenSpec) and a recorded approval ledger (spec-workflow-mcp) | Agents plan against a codebase they never restated; spec trees accumulate dead branches; a chat "yes" is the only approval record | **Current state / desired state** required in every delta, so the agent's understanding of existing code is reviewable *before* planning; `delta merge --archive` folds the delta into the base and moves the change to `archive/<date>/`; `review <feature> --base <ref>` renders one diff-shaped page (requirements as word-level diffs with their tasks, the tests that would fail, and a risk score, exiting 1 on unapproved requirement changes); `approve <feature> --gate requirements\|design\|tasks` writes `.sdd/approvals/<gate>.json` (approver, timestamp, artifact sha256) and `audit bundle` includes it |
 | 9 | Post-implementation convergence (`/converge`) | Append-only LLM gap-hunting with no dedupe, no progress requirement, no budget; **#4164** reports clean while the line was never in context | **Monotone convergence** over the existing `converge.ts`: a finding without `file:line` + source-ref is dropped (and counted); dedupe by (source-ref, gap-type, evidence-hash); `--require-progress` fails when `uncovered(n) ≥ uncovered(n−1)`; `--verify <cmd>` refuses "converged" while the external suite is red; a `convergence.json` series makes the trend auditable |
@@ -741,9 +741,9 @@ named is not reported as a number.
 ## 7. First executable slice (next two weeks)
 
 1. **Day 1 — remove the dead ends that already exist** (all reproduced today):
-   - the install command in every runtime message (`npx steelforge@latest` → the real
-     `@brujo2020/steelforge`) single-sourced from `package.json`;
-   - `steelforge help <command>` returns command-specific help generated from the dispatch table
+   - the install command in every runtime message (`npx steelfoundry@latest` → the real
+     `@brujo2020/steelfoundry`) single-sourced from `package.json`;
+   - `steelfoundry help <command>` returns command-specific help generated from the dispatch table
      (`init --help`, `integrate --help`, `gates --help`), and an unknown command suggests the
      nearest match and **exits 2** — no more `Error: Unknown positional argument: statu` with no way
      forward;
@@ -757,7 +757,7 @@ named is not reported as a number.
    *Acceptance:* one test asserts every routed command has help; one asserts every emitted finding
    has a `fix:` or a `question:`; one asserts no runtime message names an unpublishable package; one
    asserts a non-zero exit never prints the score door.
-2. **Day 2 — reversibility.** `steelforge uninstall [--write] [--purge-sdd]` and the
+2. **Day 2 — reversibility.** `steelfoundry uninstall [--write] [--purge-sdd]` and the
    `.sdd/.open-sdd-receipt.json` written by every command that writes, with
    `restore --from <receipt>` — the round-trip test is the acceptance.
 3. **Days 3–4 — W0.** The two Windows assertions fixed; the G-26 hook step runs; a patch release
@@ -768,7 +768,7 @@ named is not reported as a number.
    into C1; every finding carries a graded remedy; the no-dead-ends test.
 5. **Days 9–11 — W3 MVP.** Vague-term, compound-obligation, missing-unit, passive-voice and
    no-`IF` checks with rewrites; `requirements review <feature>`.
-6. **Days 12–13 — W1 MVP.** `steelforge up [--dry-run|--write|--yes] [--demo]` with self-verification,
+6. **Days 12–13 — W1 MVP.** `steelfoundry up [--dry-run|--write|--yes] [--demo]` with self-verification,
    the host auto-detection over the existing registry, and the rustc-shaped diagnostic renderer.
 7. **Days 14 — close the loop.** Record what shipped in `docs/MEASUREMENTS.md`; update
    `PAPER-ALIGNMENT.md` gaps touched (G-26/G-28 and the new C8); keep `assure claims` at 0 broken.

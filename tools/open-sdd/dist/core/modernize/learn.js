@@ -39,7 +39,7 @@ export const learnFromEvent = async (cwd, feature, id) => {
     if (!rec)
         return { ok: false, message: `no event ${id}` };
     if (!rec.resolvedAt)
-        return { ok: false, message: `${id} is not resolved yet: steelforge migrate resolve ${feature} --event ${id}` };
+        return { ok: false, message: `${id} is not resolved yet: steelfoundry migrate resolve ${feature} --event ${id}` };
     const m = (await eventMetrics(cwd, feature, id));
     const sameType = (await listEventRecords(cwd, feature)).filter((r) => r.resolvedAt && r.decision.event.type === m.type);
     const runs = sameType.length;

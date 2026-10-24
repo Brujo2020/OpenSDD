@@ -1,5 +1,5 @@
 /**
- * `steelforge gitflow` — la puerta de consola del rol de la rama.
+ * `steelfoundry gitflow` — la puerta de consola del rol de la rama.
  *
  * `core/gitflow.ts` ya sabía responder «¿qué rol juega esta rama y qué exige ese rol?» a partir de
  * las ramas que git reporta, pero no tenía puerta: la respuesta existía y nadie podía pedirla. Este

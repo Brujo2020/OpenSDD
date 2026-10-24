@@ -18,19 +18,19 @@ parallelSafe: true
 moves:
   - gates
 commands:
-  - "steelforge audit bundle --json"
-  - "steelforge audit bundle --sarif .sdd/audit/open-sdd.sarif --json"
-  - "steelforge assure claims --verify --json"
-  - "steelforge assure threats"
-  - "steelforge gates crosswalk"
-  - "steelforge govern conformance"
-  - "steelforge status --check --json"
-  - "steelforge status --json"
+  - "steelfoundry audit bundle --json"
+  - "steelfoundry audit bundle --sarif .sdd/audit/open-sdd.sarif --json"
+  - "steelfoundry assure claims --verify --json"
+  - "steelfoundry assure threats"
+  - "steelfoundry gates crosswalk"
+  - "steelfoundry govern conformance"
+  - "steelfoundry status --check --json"
+  - "steelfoundry status --json"
 scripts:
-  - "steelforge audit bundle --json"
-  - "steelforge assure claims --verify --json"
-  - "steelforge govern conformance"
-  - "steelforge status --check --json"
+  - "steelfoundry audit bundle --json"
+  - "steelfoundry assure claims --verify --json"
+  - "steelfoundry govern conformance"
+  - "steelfoundry status --check --json"
 ---
 
 # Audit — attest what exists, hash it, and refuse to overclaim
@@ -54,9 +54,9 @@ The input may name the feature and the output directory. If the output directory
 - **Identified — produces:** the evidence bundle and SARIF under `.sdd/audit/` — a sha256 per artifact plus the compliance crosswalk.
 - **Identified — refuses:** it refuses to fabricate a hash, an artifact, a control mapping or a compliance verdict, and refuses to modify source, specs or the constitution.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `steelforge audit bundle --json` **exits 1** when `ok:false`, `steelforge assure claims --verify --json` **exits 1** on a broken claim, and `steelforge govern conformance` / `steelforge gates crosswalk` report the posture; a non-zero exit BLOCKS the attestation.
-- **Measured — components:** `gates` — the reader sees the change before/after in `steelforge status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the bundle attests the ratified principles, an unratified constitution is reported as unattestable, and `steelforge status --check --json` is the pivot check.
+- **Assured — backing check:** `steelfoundry audit bundle --json` **exits 1** when `ok:false`, `steelfoundry assure claims --verify --json` **exits 1** on a broken claim, and `steelfoundry govern conformance` / `steelfoundry gates crosswalk` report the posture; a non-zero exit BLOCKS the attestation.
+- **Measured — components:** `gates` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: the bundle attests the ratified principles, an unratified constitution is reported as unattestable, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -79,45 +79,45 @@ The input may name the feature and the output directory. If the output directory
 1. Produce the evidence bundle, one sha256 per artifact, and read the `ok` field:
 
 ```bash
-steelforge audit bundle --json
+steelfoundry audit bundle --json
 ```
 
 2. Emit the SARIF 2.1.0 report for code scanning, into the bundle directory:
 
 ```bash
-steelforge audit bundle --sarif .sdd/audit/open-sdd.sarif --json
+steelfoundry audit bundle --sarif .sdd/audit/open-sdd.sarif --json
 ```
 
 3. Verify the claims registry. It must report zero broken claims; a broken claim is a failed
    attestation, not a footnote:
 
 ```bash
-steelforge assure claims --verify --json
+steelfoundry assure claims --verify --json
 ```
 
 4. Read the security posture and attach the residual risks it names:
 
 ```bash
-steelforge assure threats
+steelfoundry assure threats
 ```
 
 5. Read the control crosswalk so every claim maps to the control that imposes it:
 
 ```bash
-steelforge gates crosswalk
+steelfoundry gates crosswalk
 ```
 
 6. Read the per-invariant conformance evidence:
 
 ```bash
-steelforge govern conformance
+steelfoundry govern conformance
 ```
 
 7. Validate the repository against the constitution and the declared rigor level, and record the exit
    code as the repository's own verdict:
 
 ```bash
-steelforge status --check --json
+steelfoundry status --check --json
 ```
 
 8. Write the audit note next to the bundle: artifact count and hashes, the `ok` value, the claims
@@ -127,7 +127,7 @@ steelforge status --check --json
 ## The constitution is the pivot
 
 The bundle attests the principles of the ratified constitution and the controls they imply.
-`steelforge status --check --json` is the pivot check; if the constitution is absent or a draft, the
+`steelfoundry status --check --json` is the pivot check; if the constitution is absent or a draft, the
 audit reports the attestation as unavailable rather than issuing a certificate over nothing.
 
 ## Evidence

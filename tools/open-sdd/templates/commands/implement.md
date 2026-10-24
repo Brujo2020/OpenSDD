@@ -19,17 +19,17 @@ parallelSafe: false
 moves:
   - evidence
 commands:
-  - "steelforge status <feature> --json"
-  - "steelforge gates run"
-  - "steelforge gates chain --profile regulated"
-  - "steelforge brownfield contracts <feature> --json"
-  - "steelforge delta validate <feature> --json"
-  - "steelforge status --json"
-  - "steelforge status --check --json"
+  - "steelfoundry status <feature> --json"
+  - "steelfoundry gates run"
+  - "steelfoundry gates chain --profile regulated"
+  - "steelfoundry brownfield contracts <feature> --json"
+  - "steelfoundry delta validate <feature> --json"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
 scripts:
-  - "steelforge status <feature> --json"
-  - "steelforge gates run"
-  - "steelforge brownfield contracts <feature> --json"
+  - "steelfoundry status <feature> --json"
+  - "steelfoundry gates run"
+  - "steelfoundry brownfield contracts <feature> --json"
 ---
 
 # Implement — evidence or it did not happen
@@ -52,9 +52,9 @@ dependency order. If no feature is named, read the state and ask.
 - **Identified — produces:** application source and tests inside each task's declared paths, plus the filled `_Evidence:_` lines in `tasks.md`.
 - **Identified — refuses:** it refuses to edit `requirements.md`, `plan.md` or the constitution, and refuses to mark a task done without running that task's own test command.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** the task's own test command decides each task; `steelforge gates run` is the repository's verdict and **exits 1** when the chain fails (BLOCKS completion); `steelforge delta validate <feature> --json` **exits 1** on a broken delta.
-- **Measured — components:** `evidence` — the reader sees the change before/after in `steelforge status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: a task may not be implemented in violation of a principle in force, and `steelforge status --check --json` is the pivot check before hand-off to `analyze`.
+- **Assured — backing check:** the task's own test command decides each task; `steelfoundry gates run` is the repository's verdict and **exits 1** when the chain fails (BLOCKS completion); `steelfoundry delta validate <feature> --json` **exits 1** on a broken delta.
+- **Measured — components:** `evidence` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: a task may not be implemented in violation of a principle in force, and `steelfoundry status --check --json` is the pivot check before hand-off to `analyze`.
 
 ## Pre-Execution Checks
 
@@ -80,7 +80,7 @@ dependency order. If no feature is named, read the state and ask.
 1. Read the state, the phase and the remaining tasks:
 
 ```bash
-steelforge status <feature> --json
+steelfoundry status <feature> --json
 ```
 
 2. For each task, in dependency order:
@@ -94,27 +94,27 @@ steelforge status <feature> --json
    the files you touched and run them:
 
 ```bash
-steelforge brownfield contracts <feature> --json
+steelfoundry brownfield contracts <feature> --json
 ```
 
 4. For a change to existing code, keep the delta valid after every task that changes the surface:
 
 ```bash
-steelforge delta validate <feature> --json
+steelfoundry delta validate <feature> --json
 ```
 
 5. When the task list is complete, run the enforcement chain. It is the repository's own verdict, not
    yours:
 
 ```bash
-steelforge gates run
+steelfoundry gates run
 ```
 
 6. If the repository declares a regulated profile, run the stricter chain and report its verdict
    verbatim:
 
 ```bash
-steelforge gates chain --profile regulated
+steelfoundry gates chain --profile regulated
 ```
 
 ## The constitution is the pivot
@@ -140,7 +140,7 @@ amends the constitution or the plan. An unratified draft is not authority to ben
 
 ## Mandatory Post-Execution Hooks
 
-1. Re-run `steelforge status <feature> --json` and confirm the evidence component moved.
+1. Re-run `steelfoundry status <feature> --json` and confirm the evidence component moved.
 2. Hand the completed task set to `analyze` for independent checking.
 
 ## Completion Report

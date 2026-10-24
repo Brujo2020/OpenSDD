@@ -14,11 +14,11 @@ refactor or fix has a regression oracle. Nothing is fixed here. (SteelForge `/sd
 
 ## Steps
 1. List the observable behaviour of the area (inputs → outputs, errors, effects on files, network, database,
-   events, logs someone reads) with `file:line`. Run `steelforge brownfield contracts <feature>` to see which tests
+   events, logs someone reads) with `file:line`. Run `steelfoundry brownfield contracts <feature>` to see which tests
    already protect it; characterize only the gaps.
 2. Show a table `behaviour · evidence · already covered?` and let the user decide what to freeze.
 3. Write the tests with the project's framework, asserting what the code DOES today (real values obtained by running
    it, not what it "should" return). Fix non-determinism (time, randomness, network). Mark them as characterization.
 4. Run them WITHOUT touching production code: they must pass. If one fails, the test is wrong, not the code.
-5. Report the command and output as evidence, and continue with `/sdd:refactor`, `/sdd:bugfix` or `steelforge delta init`.
+5. Report the command and output as evidence, and continue with `/sdd:refactor`, `/sdd:bugfix` or `steelfoundry delta init`.
 </instructions>

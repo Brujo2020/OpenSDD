@@ -73,7 +73,7 @@ describe('trust-floor', () => {
     const workflow = path.join(cwd, '.github', 'workflows', 'open-sdd-gates.yml');
     const solo = await run('setup', '--write', '--no-input');
     expect(existsSync(workflow)).toBe(false);
-    expect(solo.out).toContain('steelforge floor install . --ci');
+    expect(solo.out).toContain('steelfoundry floor install . --ci');
     profile('team');
     await run('setup', '--write', '--no-input');
     expect(existsSync(workflow)).toBe(true);
@@ -98,7 +98,7 @@ describe('trust-floor', () => {
     const second = await run('check');
     expect(second.out).toContain('Escalado a una persona');
     const [card] = await listCards(cwd, '_check');
-    expect(second.out).toContain(`steelforge decide _check ${card.card.id} <A|B|C>`);
+    expect(second.out).toContain(`steelfoundry decide _check ${card.card.id} <A|B|C>`);
 
     const blocked = await run('check');
     expect(blocked.code).toBe(1);

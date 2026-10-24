@@ -1013,7 +1013,7 @@ export const renderBundleSummary = (result: AssembleResult): string[] => {
     `  Veredicto:        ${verdict}`,
     `  Directorio:       ${result.dir}`,
     `  Manifest:         ${result.manifestPath}`,
-    `  Herramienta:      steelforge v${manifest.tool.version} · ${manifest.generatedAt}`,
+    `  Herramienta:      steelfoundry v${manifest.tool.version} · ${manifest.generatedAt}`,
     `  Perfil/régimen:   ${manifest.scope.profile} / ${manifest.gates.regime}`,
     `  Rigor declarado:  ${manifest.rigor.level} → gates ${manifest.rigor.gates.join(', ')}`,
     `  Gates:            ${manifest.gates.declared.length} declarados, ${failed} FAIL, ${manifest.gates.unavailable.length} sin sensor`,
@@ -1156,7 +1156,7 @@ export const handleAuditCommand = async (
     }
 
     io.log('');
-    io.log(formatHeading(`SteelForge Audit: ${colors.bold(featureArg)}`));
+    io.log(formatHeading(`SteelFoundry Audit: ${colors.bold(featureArg)}`));
     const gov = await loadGovernanceSettings(cwd, sddDir);
     const activeProfile = isStrict ? 'enterprise' : (gov.profile ?? 'solo');
 
@@ -1214,7 +1214,7 @@ export const handleAuditCommand = async (
   }
 
   io.log('');
-  io.log(formatHeading(`SteelForge Project-Wide Audit`));
+  io.log(formatHeading(`SteelFoundry Project-Wide Audit`));
   io.log(`  Overall Health Score: ${projectResult.overallScore >= 80 ? colors.green(`${projectResult.overallScore}/100`) : colors.yellow(`${projectResult.overallScore}/100`)}`);
   io.log(`  Project Alignment:    ${projectResult.projectInSync ? colors.green('ALL SPECS IN SYNC') : colors.yellow('DRIFT OR GAPS DETECTED')}`);
   io.log(`  Audited Specs:        ${projectResult.features.length}`);

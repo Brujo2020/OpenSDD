@@ -1,5 +1,5 @@
 /**
- * `steelforge status` — la superficie de consola del panel único.
+ * `steelfoundry status` — la superficie de consola del panel único.
  *
  * Dos decisiones que la forma del comando hace explícitas:
  *

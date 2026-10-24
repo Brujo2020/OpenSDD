@@ -9,7 +9,7 @@ export const handleImplCommand = async (argv, io, cwd = process.cwd()) => {
     const sddDir = sddDirArg ? sddDirArg.split('=')[1] : await resolveSddDir(cwd);
     const featureArg = argv.find((a) => !a.startsWith('-'));
     if (!featureArg) {
-        io.error(colors.red('Usage: steelforge impl <feature-slug> [--parallel] [--json]'));
+        io.error(colors.red('Usage: steelfoundry impl <feature-slug> [--parallel] [--json]'));
         return 1;
     }
     const specDir = path.join(cwd, sddDir, 'specs', featureArg);

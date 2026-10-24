@@ -83,7 +83,7 @@ describe('playbooks-v3-7 acceptance', () => {
     const html = readFileSync(path.join(cwd, '.sdd/hil/f/review.html'), 'utf8');
     expect(html).toContain('Accept the design?');
     expect(html).toContain('step completes');
-    expect(html).toContain(`steelforge hil answer f ${c.id} A`);
+    expect(html).toContain(`steelfoundry hil answer f ${c.id} A`);
     expect(html).not.toMatch(/<script/i);
   });
 

@@ -10,31 +10,31 @@ export const FLOWS = [
 ];
 export const PROJECT_TYPES = [
     { id: 'fuzzy-idea', label: 'Fuzzy idea', when: 'nobody can yet say who needs it or what "done" looks like', level: 'spec-first', terrain: 'greenfield',
-        sequence: ['/sdd-discovery', 'steelforge discovery lint <feature>', '/sdd-spec-quick or /sdd-tiny (only if the brief survives)'],
+        sequence: ['/sdd-discovery', 'steelfoundry discovery lint <feature>', '/sdd-spec-quick or /sdd-tiny (only if the brief survives)'],
         avoid: ['/sdd-spec-requirements — requirements over an unvalidated idea just formalise a guess'] },
     { id: 'spike', label: 'Spike / POC', when: 'throwaway code to learn whether something is feasible', level: 'explore', terrain: 'greenfield',
         sequence: ['/sdd-tiny', '(implement and tick each "Done when" with evidence)', '/sdd-promote (only if it survives)'],
         avoid: ['/sdd-spec-quick, /sdd-spec-design — governance costs more than the throwaway code', '/sdd-impl — it expects approved tasks'] },
     { id: 'greenfield', label: 'New product or feature', when: 'no existing code constrains it', level: 'spec-first', terrain: 'greenfield',
-        sequence: ['/sdd-steering', '/sdd-spec-init', '/sdd-spec-requirements', 'steelforge requirements review <feature>', '/sdd-spec-design', '/sdd-spec-tasks', 'steelforge gherkin <feature> --write', '/sdd-impl', '/sdd-validate-impl', 'steelforge archive <feature> --confirm'],
-        avoid: ['/sdd-getspecs, steelforge brownfield … — there is no code to reverse-engineer', '/sdd-characterize — no current behaviour to freeze'] },
+        sequence: ['/sdd-steering', '/sdd-spec-init', '/sdd-spec-requirements', 'steelfoundry requirements review <feature>', '/sdd-spec-design', '/sdd-spec-tasks', 'steelfoundry gherkin <feature> --write', '/sdd-impl', '/sdd-validate-impl', 'steelfoundry archive <feature> --confirm'],
+        avoid: ['/sdd-getspecs, steelfoundry brownfield … — there is no code to reverse-engineer', '/sdd-characterize — no current behaviour to freeze'] },
     { id: 'multi-feature', label: 'Several related features', when: 'a roadmap with dependencies between specs', level: 'spec-anchored', terrain: 'greenfield',
-        sequence: ['/sdd-discovery (writes roadmap.md)', '/sdd-spec-batch', 'steelforge waves', '/sdd-impl per wave'],
+        sequence: ['/sdd-discovery (writes roadmap.md)', '/sdd-spec-batch', 'steelfoundry waves', '/sdd-impl per wave'],
         avoid: ['/sdd-spec-quick one by one — loses the dependency order the batch computes'] },
     { id: 'brownfield-extension', label: 'Change to running code', when: 'the code is the source of truth and has tests', level: 'spec-anchored', terrain: 'brownfield',
-        sequence: ['/sdd-getspecs (first time only)', 'steelforge brownfield constitution . --write', 'steelforge steering check', 'steelforge delta init <feature> "<change>"', 'steelforge delta validate <feature>', 'steelforge brownfield contracts <feature>', '/sdd-spec-tasks', '/sdd-impl', 'steelforge brownfield contracts <feature> --verify'],
+        sequence: ['/sdd-getspecs (first time only)', 'steelfoundry brownfield constitution . --write', 'steelfoundry steering check', 'steelfoundry delta init <feature> "<change>"', 'steelfoundry delta validate <feature>', 'steelfoundry brownfield contracts <feature>', '/sdd-spec-tasks', '/sdd-impl', 'steelfoundry brownfield contracts <feature> --verify'],
         avoid: ['/sdd-spec-requirements from scratch — the unit of change is the delta, not a new spec', '/sdd-tiny — running code is never throwaway'] },
     { id: 'legacy-untested', label: 'Legacy without tests', when: 'existing code nobody dares to touch because nothing pins its behaviour', level: 'spec-anchored', terrain: 'brownfield',
-        sequence: ['/sdd-getspecs', '/sdd-characterize (freeze current behaviour first)', 'steelforge brownfield contracts <feature>', 'then /sdd-refactor, /sdd-bugfix or steelforge delta init'],
+        sequence: ['/sdd-getspecs', '/sdd-characterize (freeze current behaviour first)', 'steelfoundry brownfield contracts <feature>', 'then /sdd-refactor, /sdd-bugfix or steelfoundry delta init'],
         avoid: ['any change before /sdd-characterize — without a regression oracle a change cannot be proven safe'] },
     { id: 'bug', label: 'Bug', when: 'existing behaviour is wrong', level: 'spec-first', terrain: 'brownfield',
-        sequence: ['/sdd-bugfix (actual · expected · must not change; failing test first)', 'steelforge delta init (only if the expected behaviour changes a spec)', '/sdd-verify-completion'],
+        sequence: ['/sdd-bugfix (actual · expected · must not change; failing test first)', 'steelfoundry delta init (only if the expected behaviour changes a spec)', '/sdd-verify-completion'],
         avoid: ['/sdd-spec-quick — a full spec hides the root cause and the regression contract'] },
     { id: 'refactor', label: 'Refactor', when: 'structure changes, behaviour must not', level: 'spec-first', terrain: 'brownfield',
-        sequence: ['/sdd-characterize (if the area has no tests)', '/sdd-refactor (spec_impact: none, same tests before and after)', 'steelforge brownfield impact <feature>'],
+        sequence: ['/sdd-characterize (if the area has no tests)', '/sdd-refactor (spec_impact: none, same tests before and after)', 'steelfoundry brownfield impact <feature>'],
         avoid: ['/sdd-spec-requirements — no new behaviour means no new requirements', '/sdd-bugfix — fixing while refactoring mixes two claims that need different evidence'] },
     { id: 'multi-unit', label: 'Multi-unit or multi-repo work', when: 'the change spans two or more units of work or two or more repositories', level: 'spec-anchored', terrain: 'greenfield',
-        sequence: ['steelforge playbook profile', 'steelforge playbook plan "<intent>" --write', 'steelforge next <feature> / steelforge report … (any host)', 'steelforge import aidlc (when AI-DLC drives inception)', 'steelforge waves <feature> --verify <wave> --check "<cmd>"', 'steelforge hil answer … at each prepared decision', 'steelforge playbook improve <playbook>'],
+        sequence: ['steelfoundry playbook profile', 'steelfoundry playbook plan "<intent>" --write', 'steelfoundry next <feature> / steelfoundry report … (any host)', 'steelfoundry import aidlc (when AI-DLC drives inception)', 'steelfoundry waves <feature> --verify <wave> --check "<cmd>"', 'steelfoundry hil answer … at each prepared decision', 'steelfoundry playbook improve <playbook>'],
         avoid: ['/sdd-spec-quick per unit — loses the unit dependency graph and the wave referee', '/sdd-tiny — a programme is never throwaway'] },
 ];
 /**
@@ -51,18 +51,18 @@ export const projectTypes = (id) => {
 };
 const MODULES = [
     { id: 'tiny', label: 'Tinyspec', origin: 'SteelForge', run: '/sdd-tiny', levels: ['on', 'off', 'off', 'off'], why: 'explore still writes down "done when", so a spike can fail visibly' },
-    { id: 'discovery', label: 'Discovery', origin: 'BMAD', run: '/sdd-discovery + steelforge discovery lint', levels: ['opt', 'opt', 'opt', 'on'], why: 'at spec-as-source the spec generates code: an unvalidated idea would be generated, not just written' },
-    { id: 'steering', label: 'Steering', origin: 'SDD', run: '/sdd-steering + steelforge steering check', levels: ['opt', 'opt', 'on', 'on'], brownfield: 'on', why: 'on existing code the agent must learn the project before it changes it' },
-    { id: 'constitution', label: 'Constitution', origin: 'Spec Kit', run: 'steelforge brownfield constitution / govern', levels: ['off', 'on', 'on', 'on'], why: 'the authority every blocking verdict cites; required at every governed rung' },
-    { id: 'clarify', label: 'Clarify', origin: 'Spec Kit', run: 'steelforge requirements review', levels: ['off', 'on', 'on', 'on'], why: 'an open question in a requirement becomes a guess in the code' },
-    { id: 'ears', label: 'EARS', origin: 'SDD', run: 'steelforge requirements review / fix', levels: ['off', 'on', 'on', 'on'], why: 'a requirement without a trigger cannot be tested' },
-    { id: 'gherkin', label: 'Gherkin', origin: 'SteelForge', run: 'steelforge gherkin <feature>', levels: ['off', 'opt', 'on', 'on'], why: 'from spec-anchored up, each requirement needs an executable acceptance scenario traced to it' },
+    { id: 'discovery', label: 'Discovery', origin: 'BMAD', run: '/sdd-discovery + steelfoundry discovery lint', levels: ['opt', 'opt', 'opt', 'on'], why: 'at spec-as-source the spec generates code: an unvalidated idea would be generated, not just written' },
+    { id: 'steering', label: 'Steering', origin: 'SDD', run: '/sdd-steering + steelfoundry steering check', levels: ['opt', 'opt', 'on', 'on'], brownfield: 'on', why: 'on existing code the agent must learn the project before it changes it' },
+    { id: 'constitution', label: 'Constitution', origin: 'Spec Kit', run: 'steelfoundry brownfield constitution / govern', levels: ['off', 'on', 'on', 'on'], why: 'the authority every blocking verdict cites; required at every governed rung' },
+    { id: 'clarify', label: 'Clarify', origin: 'Spec Kit', run: 'steelfoundry requirements review', levels: ['off', 'on', 'on', 'on'], why: 'an open question in a requirement becomes a guess in the code' },
+    { id: 'ears', label: 'EARS', origin: 'SDD', run: 'steelfoundry requirements review / fix', levels: ['off', 'on', 'on', 'on'], why: 'a requirement without a trigger cannot be tested' },
+    { id: 'gherkin', label: 'Gherkin', origin: 'SteelForge', run: 'steelfoundry gherkin <feature>', levels: ['off', 'opt', 'on', 'on'], why: 'from spec-anchored up, each requirement needs an executable acceptance scenario traced to it' },
     { id: 'design', label: 'Design', origin: 'SDD', run: '/sdd-spec-design', levels: ['off', 'opt', 'on', 'on'], why: 'a requirement no plan names was listed, not designed' },
     { id: 'tasks', label: 'Tasks', origin: 'SDD', run: '/sdd-spec-tasks', levels: ['off', 'opt', 'on', 'on'], why: 'traceable, boundary-scoped tasks are what parallel implementation needs' },
-    { id: 'analyze', label: 'Analyze', origin: 'Spec Kit', run: 'steelforge gap / brownfield / consistency', levels: ['off', 'opt', 'on', 'on'], why: 'cross-artifact drift is invisible from inside any single artifact' },
-    { id: 'delta', label: 'Delta', origin: 'OpenSpec', run: 'steelforge delta init|validate', levels: ['off', 'off', 'off', 'off'], onlyBrownfield: true, brownfield: 'on', why: 'on existing code the unit of change is the delta, not a new spec' },
+    { id: 'analyze', label: 'Analyze', origin: 'Spec Kit', run: 'steelfoundry gap / brownfield / consistency', levels: ['off', 'opt', 'on', 'on'], why: 'cross-artifact drift is invisible from inside any single artifact' },
+    { id: 'delta', label: 'Delta', origin: 'OpenSpec', run: 'steelfoundry delta init|validate', levels: ['off', 'off', 'off', 'off'], onlyBrownfield: true, brownfield: 'on', why: 'on existing code the unit of change is the delta, not a new spec' },
     { id: 'approvals', label: 'Approvals', origin: 'SDD', run: 'spec.json approvals', levels: ['off', 'off', 'opt', 'on'], why: 'when the spec is the source, an unapproved phase is unreviewed code' },
-    { id: 'archive', label: 'Archive', origin: 'OpenSpec', run: 'steelforge archive <feature>', levels: ['off', 'off', 'opt', 'on'], why: 'finished specs out of `.sdd/specs/` keep status and waves about live work only' },
+    { id: 'archive', label: 'Archive', origin: 'OpenSpec', run: 'steelfoundry archive <feature>', levels: ['off', 'off', 'opt', 'on'], why: 'finished specs out of `.sdd/specs/` keep status and waves about live work only' },
 ];
 /** Module ids, the registered `opensdd:module/<id>` step types of a playbook. */
 export const MODULE_IDS = MODULES.map((m) => m.id);
@@ -108,10 +108,10 @@ export const stagesFor = (f) => {
         defs = [
             init,
             ...(f.terrain === 'brownfield'
-                ? [{ id: 'steering', label: 'Steering', run: '/sdd-steering', done: Boolean(f.steering?.ready), needs: f.steering && f.steering.present.length === STEERING_FILES.length ? 'el steering tiene marcas sin resolver: steelforge steering check' : `faltan ${STEERING_FILES.filter((x) => !f.steering?.present.includes(x)).join(', ')}` }]
+                ? [{ id: 'steering', label: 'Steering', run: '/sdd-steering', done: Boolean(f.steering?.ready), needs: f.steering && f.steering.present.length === STEERING_FILES.length ? 'el steering tiene marcas sin resolver: steelfoundry steering check' : `faltan ${STEERING_FILES.filter((x) => !f.steering?.present.includes(x)).join(', ')}` }]
                 : []),
-            { id: 'constitution', label: 'Constitution', run: f.terrain === 'brownfield' ? 'steelforge brownfield constitution . --write' : '/sdd-steering (constitution.md)', done: f.constitution, needs: 'falta .sdd/steering/constitution.md' },
-            { id: 'requirements', label: 'Requirements', run: '/sdd-spec-requirements', done: Boolean(f.artifacts.requirements) && f.clarify === 0 && approved('requirements') && (f.terrain !== 'brownfield' || Boolean(f.artifacts.delta)), needs: !f.artifacts.requirements ? 'falta requirements.md' : f.terrain === 'brownfield' && !f.artifacts.delta ? 'brownfield: falta el delta (steelforge delta init)' : !approved('requirements') ? `sin aprobar${clarify}` : `requirements.md${clarify}` },
+            { id: 'constitution', label: 'Constitution', run: f.terrain === 'brownfield' ? 'steelfoundry brownfield constitution . --write' : '/sdd-steering (constitution.md)', done: f.constitution, needs: 'falta .sdd/steering/constitution.md' },
+            { id: 'requirements', label: 'Requirements', run: '/sdd-spec-requirements', done: Boolean(f.artifacts.requirements) && f.clarify === 0 && approved('requirements') && (f.terrain !== 'brownfield' || Boolean(f.artifacts.delta)), needs: !f.artifacts.requirements ? 'falta requirements.md' : f.terrain === 'brownfield' && !f.artifacts.delta ? 'brownfield: falta el delta (steelfoundry delta init)' : !approved('requirements') ? `sin aprobar${clarify}` : `requirements.md${clarify}` },
             { id: 'design', label: 'Design', run: '/sdd-spec-design', done: Boolean(f.artifacts.design) && approved('design'), needs: !f.artifacts.design ? 'falta plan.md / design.md' : 'diseño sin aprobar' },
             { id: 'tasks', label: 'Tasks', run: '/sdd-spec-tasks', done: Boolean(f.artifacts.tasks) && approved('tasks'), needs: !f.artifacts.tasks ? 'falta tasks.md' : 'tareas sin aprobar' },
             implement,

@@ -1,18 +1,18 @@
-# SteelForge — SDD Toolkit
+# SteelFoundry — SDD Toolkit
 
-**Why the name.** A forge takes many raw pieces and turns them into one steel tool. SteelForge does the
-same with Spec-Driven Development: it **consolidates in one toolkit the whole range of cases** — from a
+**Why the name.** A foundry melts many raw materials into standard, repeatable steel parts. SteelFoundry
+does the same with Spec-Driven Development: it **consolidates in one toolkit the whole range of cases** — from a
 minor change or a quick PoC, through spikes and small projects, up to large programmes and migrations with
 strict, audited rigor — and the ceremony grows only as the work demands (levels L0–L6, rigor ladder). It is
 **agnostic**: the same specs, gates and audit work with any agent (Claude Code, Cursor, Copilot, Codex,
 Gemini, Windsurf…) and any model, through skills, commands and MCP. And it **supports the spec process by
 taking the best of other toolkits** — Spec Kit's constitution, BMAD's role-based discovery, Kiro's EARS
-requirements and steering, OpenSpec's delta specs — tempered into one deterministic engine.
+requirements and steering, OpenSpec's delta specs — cast into one deterministic engine.
 
-`steelforge` is the layer that makes an AI coding agent's "done" verifiable: executable gates, delta
+`steelfoundry` is the layer that makes an AI coding agent's "done" verifiable: executable gates, delta
 specs for code that already exists, and a constitution that validates every spec.
 
-> **SteelForge** was called **open-sdd**. The `open-sdd`, `sdd-open` and `sdd` commands still work as aliases of `steelforge`, and existing `.sdd/` folders need no change.
+> **SteelFoundry** was called **open-sdd**. The `open-sdd`, `sdd-open` and `sdd` commands still work as aliases of `steelfoundry`, and existing `.sdd/` folders need no change.
 
 [![License: MIT](https://img.shields.io/github/license/Brujo2020/OpenSDD)](https://github.com/Brujo2020/OpenSDD/blob/main/LICENSE)
 [![CI — Linux + Windows](https://img.shields.io/github/actions/workflow/status/Brujo2020/OpenSDD/gates.yml?branch=main)](https://github.com/Brujo2020/OpenSDD/actions/workflows/gates.yml)
@@ -23,29 +23,29 @@ specs for code that already exists, and a constitution that validates every spec
 
 > 📘 One-page visual guide with a small end-to-end example and the QC report: [docs/GUIA.md](docs/GUIA.md) (Spanish).
 
-You do not need the other 50 commands to use steelforge. Five verbs cover the whole lifecycle; the
+You do not need the other 50 commands to use steelfoundry. Five verbs cover the whole lifecycle; the
 tool decides everything that evidence can decide (agent, greenfield or brownfield, level, rigor,
 playbook) and asks a person only for a human decision. Every other command still works and is listed
-by `steelforge help --all`.
+by `steelfoundry help --all`.
 
 | | Verb | What it does | What it decides for you |
 |---|---|---|---|
-| 🟢 | `steelforge` | Where you are: score, phase and the **one** next action | The next action |
-| 🟢 | `steelforge setup` | Installs into the repository (same as `init`; plan first, `--write` applies) | Agent and terrain |
-| 🟢 | `steelforge start "<what you want>"` | Starts any work, from a typo to a modernization | Level L0–L6, variant, rigor, playbook |
-| 🔴 | `steelforge check` | One verdict: the whole gate chain (same as `gates run`) | Nothing: it only passes or blocks |
-| 🔵 | `steelforge decide` | Lists the decisions waiting for a person, with the exact command | Nothing: a person decides |
+| 🟢 | `steelfoundry` | Where you are: score, phase and the **one** next action | The next action |
+| 🟢 | `steelfoundry setup` | Installs into the repository (same as `init`; plan first, `--write` applies) | Agent and terrain |
+| 🟢 | `steelfoundry start "<what you want>"` | Starts any work, from a typo to a modernization | Level L0–L6, variant, rigor, playbook |
+| 🔴 | `steelfoundry check` | One verdict: the whole gate chain (same as `gates run`) | Nothing: it only passes or blocks |
+| 🔵 | `steelfoundry decide` | Lists the decisions waiting for a person, with the exact command | Nothing: a person decides |
 
 ```mermaid
 flowchart LR
-  A["steelforge setup"]:::auto --> B["steelforge start &quot;intent&quot;"]:::auto
+  A["steelfoundry setup"]:::auto --> B["steelfoundry start &quot;intent&quot;"]:::auto
   B --> C["agent works<br/>next → report"]:::advisory
-  C --> D{"steelforge check"}:::block
+  C --> D{"steelfoundry check"}:::block
   D -- passes --> E["done ✔"]:::auto
   D -- refused, progressing --> C
-  D -- "stuck · critical · > 3" --> F["steelforge decide<br/>(HIL)"]:::human
+  D -- "stuck · critical · > 3" --> F["steelfoundry decide<br/>(HIL)"]:::human
   F --> C
-  G["steelforge<br/>where am I?"]:::auto -.-> B
+  G["steelfoundry<br/>where am I?"]:::auto -.-> B
   classDef auto fill:#b2f2bb,stroke:#2f9e44,color:#1e1e1e
   classDef advisory fill:#ffec99,stroke:#f08c00,color:#1e1e1e
   classDef block fill:#ffc9c9,stroke:#e03131,color:#1e1e1e
@@ -93,7 +93,7 @@ flowchart TB
 |---|---|
 | Karpathy guidelines (think, simplicity, surgical changes, goal-driven) | `karpathy-guidelines` skill installed in every project |
 | Review is human, or by a model **different** from the author | constitution `C-INDEPENDENT-REVIEW`; an agent session cannot sign a human review, and `--by-model` must differ from `--author-model` |
-| A stuck task → a person decides | escalates at the 1st critical failure, the 2nd identical failure (no progress) or after more than 3 failures; the engine prepares a card (retry · park · exception) and only a person retries or approves (`steelforge decide`) |
+| A stuck task → a person decides | escalates at the 1st critical failure, the 2nd identical failure (no progress) or after more than 3 failures; the engine prepares a card (retry · park · exception) and only a person retries or approves (`steelfoundry decide`) |
 
 
 ## The problem
@@ -106,30 +106,30 @@ is declared but not implemented is reported as declared instead of counted as gr
 ## Install and the first 60 seconds
 
 ```bash
-npx @brujo2020/steelforge init . --write
+npx @brujo2020/steelfoundry init . --write
 ```
 
 Run it inside your repository. It detects the host agent, records the rigor level in
 `.sdd/settings/rigor.json`, installs the commit gate (`.git/hooks/pre-commit`) and — with no MCP, no
 network and no API key — the **22 prompt templates** as the host's own chat commands. It is
 plan-first: without `--write` it only prints the plan, and it never overwrites an existing file. To
-install the host's skills too, add `--skills`; `steelforge integrate <host> --write` installs the skills
+install the host's skills too, add `--skills`; `steelfoundry integrate <host> --write` installs the skills
 **and** registers the MCP server (`--list` shows all 25 hosts, each with a verified registration).
 
-Want to see the flow before installing it? `steelforge templates` lists all 22 workflows, what each one
+Want to see the flow before installing it? `steelfoundry templates` lists all 22 workflows, what each one
 writes, and the directory each of the eleven hosts reads. MCP is opt-in (`--mcp`): a host that blocks
 it, or a security policy that allow-lists it, does not lose any workflow.
 
 **Coming from the unscoped `open-sdd` package?** That older install declared the same three command
-names, and its symlinks survive its own uninstall — so `npm install -g @brujo2020/steelforge@latest`
+names, and its symlinks survive its own uninstall — so `npm install -g @brujo2020/steelfoundry@latest`
 stops with `EEXIST: file already exists … /bin/sdd`. Remove the dangling links, install again, and
 clear the shell's command cache, which still points at the old binary:
 
 ```bash
 rm -f "$(npm prefix -g)/bin/sdd" "$(npm prefix -g)/bin/sdd-open"   # left behind, both dangling
-npm install -g @brujo2020/steelforge@latest
+npm install -g @brujo2020/steelfoundry@latest
 hash -r                       # zsh: rehash — or open a new terminal
-steelforge --version            # must print v3.10.0, not the 2.x banner
+steelfoundry --version            # must print v3.10.0, not the 2.x banner
 ```
 
 A stale global is not cosmetic: the installed commit hook resolves its CLI through `PATH`, so an old
@@ -140,14 +140,14 @@ Then the one door. No arguments, read-only: it prints a 0–100 SDD score, the c
 next action, with one line of why.
 
 ```bash
-steelforge                 # SDD score, phase and the single next action
-steelforge status          # the same state as a full panel
-steelforge --help          # every command
+steelfoundry                 # SDD score, phase and the single next action
+steelfoundry status          # the same state as a full panel
+steelfoundry --help          # every command
 ```
 
-The console messages are currently Spanish; `--lang en` fully translates `steelforge tour` and
-`steelforge context` only. The commands above work from the published package. In this checkout,
-replace `steelforge` with `node tools/open-sdd/dist/cli.js`.
+The console messages are currently Spanish; `--lang en` fully translates `steelfoundry tour` and
+`steelfoundry context` only. The commands above work from the published package. In this checkout,
+replace `steelfoundry` with `node tools/open-sdd/dist/cli.js`.
 
 Optional: the 60-second demo, offline, in a throwaway temp directory.
 
@@ -165,13 +165,13 @@ misses any of them.
 [![open-sdd: every flow — install, pick your situation, specify, implement, verify](docs/diagrams/open-sdd-flows.png)](docs/diagrams/open-sdd-flows.excalidraw)
 
 Read it left to right: pick the row that matches your situation and follow the arrows. Every
-`/command` is a skill in your agent's chat; `steelforge …` runs in a terminal.
+`/command` is a skill in your agent's chat; `steelfoundry …` runs in a terminal.
 
 | Your situation | Start with | What you get |
 |---|---|---|
 | A fuzzy idea | `/sdd-discovery "<idea>"` | `brief.md` (non-goals, a measurable outcome, assumptions) and a roadmap, then one spec or a batch |
 | A clear feature | `/sdd-spec-quick <feature>`, or the step-by-step chain below | requirements → design → tasks |
-| Existing code | `/sdd-getspecs`, `steelforge brownfield constitution . --write`, `steelforge delta init <feature> "<change>"` | steering, a descriptive constitution and a delta spec for the change, not for the whole system |
+| Existing code | `/sdd-getspecs`, `steelfoundry brownfield constitution . --write`, `steelfoundry delta init <feature> "<change>"` | steering, a descriptive constitution and a delta spec for the change, not for the whole system |
 | Several features | `/sdd-spec-batch` | every spec in the roadmap, generated by dependency wave |
 | A bug | `/sdd-bugfix` | actual · expected · what must not change, then the fix and its proof |
 | A spike | `/sdd-tiny`, then `/sdd-promote` if it grows | a three-line spec (goal · done when · out of scope) |
@@ -182,8 +182,8 @@ Read it left to right: pick the row that matches your situation and follow the a
 (`/sdd-validate-gap` on existing code) → `/sdd-spec-design` (`/sdd-validate-design`) → `/sdd-spec-tasks`.
 **Implement** with `/sdd-impl <feature>`, which runs one subagent per task with an independent review
 and a verify gate, or with `/sdd-impl <feature> 1,2` for just those tasks. **Close** with `/sdd-validate-impl` →
-`/sdd-verify-completion` → `/sdd-audit` → `steelforge archive <feature>`. These are available at any
-point: `/sdd-steering` (project memory), `/sdd-spec-status`, `/sdd-help` and `steelforge status`. These
+`/sdd-verify-completion` → `/sdd-audit` → `steelfoundry archive <feature>`. These are available at any
+point: `/sdd-steering` (project memory), `/sdd-spec-status`, `/sdd-help` and `steelfoundry status`. These
 run on their own: the commit gate (C1 · C2 · C3 over the staged index), the full chain on every pull
 request, and, where the host supports it, a Stop hook in the agent's loop.
 
@@ -195,7 +195,7 @@ The editable source is [`docs/diagrams/open-sdd-flows.excalidraw`](docs/diagrams
 
 ```mermaid
 flowchart LR
-  I(["1 · Instala<br/>npx -y @brujo2020/steelforge init . --write<br/>detecta tu agente · constitución + skills + commit gate"])
+  I(["1 · Instala<br/>npx -y @brujo2020/steelfoundry init . --write<br/>detecta tu agente · constitución + skills + commit gate"])
 
   I --> A1["Idea difusa"] --> C1["/sdd-discovery<br/>→ brief.md + roadmap"]
   I --> A2["Feature clara"]
@@ -224,7 +224,7 @@ flowchart LR
   Q2 --> M1
   Q2 -.-> M2
 
-  V["5 · Verifica y cierra<br/>/sdd-validate-impl → /sdd-verify-completion<br/>→ /sdd-audit → steelforge archive"]
+  V["5 · Verifica y cierra<br/>/sdd-validate-impl → /sdd-verify-completion<br/>→ /sdd-audit → steelfoundry archive"]
   M1 & M2 & SHORT --> V --> DONE(["Listo"])
 
   CONST["Constitución<br/>.sdd/steering/constitution.md<br/>principios con evidencia · un humano la ratifica"]
@@ -265,13 +265,13 @@ comes from an agent.
 sequenceDiagram
   autonumber
   participant A as 🟨 Agent
-  participant E as 🟦 Engine (steelforge)
+  participant E as 🟦 Engine (steelfoundry)
   participant G as 🟦 Gates C1–C6
   participant H as 🟪 Person
-  A->>E: steelforge next
+  A->>E: steelfoundry next
   E-->>A: one step + contract (inputs, outputs, done-when)
   A->>A: does the work
-  A->>E: steelforge report (evidence, tokens, model)
+  A->>E: steelfoundry report (evidence, tokens, model)
   E->>G: run the gates for the declared rigor
   alt gates fail
     G-->>E: ❌ blocked (reason + file)
@@ -311,7 +311,7 @@ flowchart LR
 ```
 
 Ceremony (`minimal` · `standard` · `strict`) and variant (`greenfield` · `brownfield`) are chosen
-per run: `steelforge start "<intent>" --level L2 --variant brownfield --rigor spec-anchored`.
+per run: `steelfoundry start "<intent>" --level L2 --variant brownfield --rigor spec-anchored`.
 
 ### Greenfield vs brownfield
 
@@ -429,7 +429,7 @@ flowchart TB
 
 ### Where am I?
 
-`steelforge where` shows phase, progress weighted by step cost, pending steps and waiting decisions;
+`steelfoundry where` shows phase, progress weighted by step cost, pending steps and waiting decisions;
 `--save` writes a resumable checkpoint to `.sdd/state/checkpoint.md`.
 
 ```mermaid
@@ -451,7 +451,7 @@ flowchart LR
   IN -- sensor --> S1["aidlc-opensdd-ears"]
   CO -- sensor --> S2["aidlc-opensdd-gates"]
   CO -- sensor --> S3["aidlc-opensdd-steering"]
-  S1 & S2 & S3 --> CLI{"steelforge CLI<br/>OPEN_SDD_CLI or PATH"}
+  S1 & S2 & S3 --> CLI{"steelfoundry CLI<br/>OPEN_SDD_CLI or PATH"}
   CLI -- found --> RES["pass · findings"]
   CLI -- missing --> FC["🟥 fail closed"]
   classDef aw fill:#ffd8a8,stroke:#e8590c,color:#1e1e1e
@@ -473,19 +473,19 @@ level**, so raising the bar adds checks but never removes this one.
 
 It has two origins, and the file records which one applies:
 
-- **Descriptive** (existing code): `steelforge brownfield constitution . --write` reverse-engineers the
+- **Descriptive** (existing code): `steelfoundry brownfield constitution . --write` reverse-engineers the
   principles the code already obeys, each with its evidence. Practices you want but the code does not
   follow yet become *proposed amendments*, not rules in force.
-- **Ratified** (a human decision): `steelforge brownfield constitution . --draft` writes a draft that is
-  explicitly not in force. `steelforge govern constitution --evidence-pack` gives a model or a reviewer
+- **Ratified** (a human decision): `steelfoundry brownfield constitution . --draft` writes a draft that is
+  explicitly not in force. `steelfoundry govern constitution --evidence-pack` gives a model or a reviewer
   what it needs to improve it, and
-  `steelforge govern constitution --ratify --by "<name>" --rationale "<why>" --write` puts it in force,
+  `steelfoundry govern constitution --ratify --by "<name>" --rationale "<why>" --write` puts it in force,
   recording who ratified it and why. A ratification without a named person and a reason is refused, and it
   must be confirmed by typing `RATIFICAR` on the terminal (an agent session cannot); see
   [Manual §16.1](docs/MANUAL.md#161-ratifying-the-constitution-mandatory-terminal-confirmation).
 
-`steelforge govern constitution --matrix` shows how each spec stands against each principle.
-`steelforge status` reports constitutional alignment next to the rest of the score.
+`steelfoundry govern constitution --matrix` shows how each spec stands against each principle.
+`steelfoundry status` reports constitutional alignment next to the rest of the score.
 
 ## What you get
 
@@ -493,7 +493,7 @@ It has two origins, and the file records which one applies:
   (`/sdd-specify`, `/sdd-converge`, …), and each one runs a real engine command rather than asking a
   model to "consider" a check. No MCP, no network. The argument you type is translated into each host's
   own token (`{{args}}`, `${input:request}`, `$ARGUMENTS`), and a host's documented size limit is
-  checked rather than assumed. `steelforge templates` lists them.
+  checked rather than assumed. `steelfoundry templates` lists them.
 - **An MCP server, if you want one.** A stdio JSON-RPC server with 11 tools and read-only resources,
   callable by any modern MCP host. No network, no model backend, no API keys. It is opt-in (`--mcp`),
   because some hosts and some security policies do not allow it.
@@ -534,11 +534,11 @@ this one.
 
 ### The best of each tool, in one place
 
-steelforge does not replace these tools by copying them: it takes the one idea each does best, turns it into a
+steelfoundry does not replace these tools by copying them: it takes the one idea each does best, turns it into a
 deterministic check or a command where possible, and leaves out what only adds ceremony. Ideas and rules, not code
 (all MIT); see [SDD modes](docs/guides/sdd-modes.md) for why each piece is included.
 
-| Tool | What it does best | What steelforge takes | Where | What it leaves out, and why |
+| Tool | What it does best | What steelfoundry takes | Where | What it leaves out, and why |
 |---|---|---|---|---|
 | **Spec Kit** (GitHub) | the constitution as the authority; `/clarify`; `/analyze` across artifacts | constitution required at every governed rung; clarify as bounded questions derived from the deterministic ambiguity findings; cross-artifact consistency as an executable check, not a prompt | `brownfield constitution`, `govern`, `brownfield clarify`, `consistency` | gates written as prompts: here they return exit codes |
 | **OpenSpec** (Fission-AI) | change as a delta (ADDED · MODIFIED · REMOVED · RENAMED); `archive` | delta specs with stable ids; archiving verified specs; one behaviour per requirement | `delta init/validate`, `archive`, `requirements review` | applying deltas by hand: `delta` owns it |
@@ -556,7 +556,7 @@ deterministic check or a command where possible, and leaves out what only adds c
   and the delta, and a check with that noise level can train its readers to ignore it.
 - **Three command-template conventions are refused, not guessed.** Codex, Zed and Cline document no
   project-scoped command directory, so `init --write` prints the convention it could not verify and
-  writes nothing there. `steelforge templates` lists all eleven hosts and marks each one.
+  writes nothing there. `steelfoundry templates` lists all eleven hosts and marks each one.
 - **A local `docker build` is still single-architecture.** It produces the builder's architecture; the
   multi-arch image (`linux/amd64` + `linux/arm64`) is built and pushed by the CI container job, so it
   requires GitHub's runners rather than a laptop.
@@ -584,7 +584,7 @@ the six invariants, transactional waves and the constitution as the pivot.
   (LaTeX sources in Spanish and [English](docs/papers/open-sdd-preprint-en.tex)).
 - **What is implemented and what is not:** [`docs/PAPER-ALIGNMENT.md`](docs/PAPER-ALIGNMENT.md) maps every
   section of the paper to the symbol that implements it and lists every declared gap.
-  `steelforge assure claims --verify` executes that registry, and it must report 0 broken.
+  `steelfoundry assure claims --verify` executes that registry, and it must report 0 broken.
 - The paper's prototype measurements (κ, C4's false-positive rate, the sweep times) belong to that
   prototype and are **not** measurements of this repository.
 

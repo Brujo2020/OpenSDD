@@ -65,7 +65,7 @@ export const earsToScenario = (id, criterion, lang = 'en') => {
     const k = KW[lang];
     const p = parseEarsParts(criterion);
     if (!p)
-        return { ok: false, reason: `${id}: "${criterion.slice(0, 60)}" is not EARS (no shall/debe); fix it with \`steelforge requirements review\` first` };
+        return { ok: false, reason: `${id}: "${criterion.slice(0, 60)}" is not EARS (no shall/debe); fix it with \`steelfoundry requirements review\` first` };
     const name = upperFirst(p.response).slice(0, 70);
     const ready = `${k.given} ${k.ready}`;
     const steps = [];

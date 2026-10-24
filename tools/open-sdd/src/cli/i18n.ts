@@ -6,8 +6,8 @@
  * más de lo que hace es peor que ninguna. El alcance exacto es:
  *
  *   TRADUCIDO (claves de este catálogo, servidas por `t()`):
- *     · `steelforge tour`  — TODA su salida propia (pasos, comandos, motivos, handover).
- *     · `steelforge context` — su render humano (`context.*`).
+ *     · `steelfoundry tour`  — TODA su salida propia (pasos, comandos, motivos, handover).
+ *     · `steelfoundry context` — su render humano (`context.*`).
  *
  *   NO TRADUCIDO (permanece en español, con o sin `--lang en`):
  *     · El resto de comandos: status, brownfield, delta, gates, govern, assure, waves, floor,
@@ -62,7 +62,7 @@ export const DEFAULT_LOCALE: Locale = 'es';
 export const ENVIRONMENT_LOCALE_KEYS = ['LC_ALL', 'LC_MESSAGES', 'LANG', 'LANGUAGE'] as const;
 
 /** Superficies realmente traducidas por esta capa. */
-export const TRANSLATED_SURFACES: readonly string[] = ['steelforge tour', 'steelforge context (render humano)'];
+export const TRANSLATED_SURFACES: readonly string[] = ['steelfoundry tour', 'steelfoundry context (render humano)'];
 /** Superficies que siguen en español a propósito. */
 export const UNTRANSLATED_SURFACES: readonly string[] = [
   'status',

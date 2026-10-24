@@ -1,5 +1,5 @@
 /**
- * `steelforge progress` — la puerta de consola del libro de progreso.
+ * `steelfoundry progress` — la puerta de consola del libro de progreso.
  *
  * `core/progress.ts` posee `.sdd/state/progress.json`, el libro APPEND-ONLY que responde «¿qué se
  * consiguió, cuándo y con qué evidencia?». Este comando es su única puerta:
@@ -102,7 +102,7 @@ const record = async (args, io, cwd) => {
     if (phase === null)
         problems.push('falta --phase <1|2|3>');
     if (problems.length > 0) {
-        const usage = 'Usage: steelforge progress record --kind <tipo> --summary "<una línea>" --score <0..100> --phase <1|2|3> [--evidence <p>]… [--json]';
+        const usage = 'Usage: steelfoundry progress record --kind <tipo> --summary "<una línea>" --score <0..100> --phase <1|2|3> [--evidence <p>]… [--json]';
         if (json) {
             io.log(JSON.stringify(jsonEnvelope({
                 command: 'progress record',

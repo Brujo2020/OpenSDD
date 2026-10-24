@@ -1,5 +1,5 @@
 /**
- * `steelforge estimate <feature> [--sow [--write]] [--json]`: esfuerzo P50/P90 y calendario desde la spec;
+ * `steelfoundry estimate <feature> [--sow [--write]] [--json]`: esfuerzo P50/P90 y calendario desde la spec;
  * con `--sow`, un borrador de alcance para una oferta. Lee; solo escribe `sow.md` con `--write`.
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -14,7 +14,7 @@ import { resolveSddDir } from '../../core/specManager.js';
 export const handleEstimateCommand = async (args: string[], io: CliIO, cwd: string): Promise<number> => {
   const feature = args.find((a) => !a.startsWith('-'));
   if (!feature) {
-    io.error('usage: steelforge estimate <feature> [--sow [--write]] [--json]');
+    io.error('usage: steelfoundry estimate <feature> [--sow [--write]] [--json]');
     return 2;
   }
   const sddDir = await resolveSddDir(cwd);
@@ -56,7 +56,7 @@ export const handleEstimateCommand = async (args: string[], io: CliIO, cwd: stri
   io.log(`  Calendario:  P50 ${estimate.calendarDays.p50} d · P90 ${estimate.calendarDays.p90} d ${colors.dim('(las tareas (P) de una ola en paralelo)')}`);
   for (const task of estimate.tasks) io.log(colors.dim(`    ${task.id.padEnd(6)} ${String(task.hours).padStart(5)} h  ${task.title.replace(/\s+—\s*(_.*)?$/, '').slice(0, 70)}`));
   for (const note of estimate.notes) io.log(`  ${colors.yellow('·')} ${note}`);
-  io.log(colors.dim(`  borrador de oferta: steelforge estimate ${feature} --sow --write`));
+  io.log(colors.dim(`  borrador de oferta: steelfoundry estimate ${feature} --sow --write`));
   io.log('');
   return 0;
 };

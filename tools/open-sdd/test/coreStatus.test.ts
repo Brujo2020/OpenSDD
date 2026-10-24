@@ -244,26 +244,26 @@ describe('core/status — panel único', () => {
     await seed(root);
 
     const specFirst = await buildStatus(root, { feature: 'session' });
-    expect(specFirst.nextAction).toBe('steelforge gates run C1 C2');
+    expect(specFirst.nextAction).toBe('steelfoundry gates run C1 C2');
     expect(specFirst.nextAction).not.toContain('C4');
 
     const source = await makeTmp();
     await seed(source, { level: 'spec-as-source' });
     const specAsSource = await buildStatus(source, { feature: 'session' });
     expect(specAsSource.gates).toEqual(['C1', 'C2', 'C3', 'C4', 'C5', 'C6']);
-    expect(specAsSource.nextAction).toBe('steelforge gates run C1 C2 C3 C4 C5 C6');
+    expect(specAsSource.nextAction).toBe('steelfoundry gates run C1 C2 C3 C4 C5 C6');
   });
 
   it('pide la delta solo cuando el nivel la exige, no a un proyecto spec-first', async () => {
     const specFirst = await makeTmp();
     await seed(specFirst, { delta: null });
     const first = await buildStatus(specFirst, { feature: 'session' });
-    expect(first.nextAction).toBe('steelforge gates run C1 C2');
+    expect(first.nextAction).toBe('steelfoundry gates run C1 C2');
 
     const anchored = await makeTmp();
     await seed(anchored, { delta: null, level: 'spec-anchored' });
     const report = await buildStatus(anchored, { feature: 'session' });
-    expect(report.nextAction).toBe('steelforge delta init session "..."');
+    expect(report.nextAction).toBe('steelfoundry delta init session "..."');
     const deltaLine = dataLine(report, 'Delta');
     expect(deltaLine?.tone).toBe('err');
     expect(deltaLine?.value).toContain('brownfield sin delta');
@@ -274,7 +274,7 @@ describe('core/status — panel único', () => {
     await seed(root, { delta: DELTA_MISSING_CONTRACT });
 
     const report = await buildStatus(root, { feature: 'session' });
-    expect(report.nextAction).toBe('steelforge brownfield contracts session');
+    expect(report.nextAction).toBe('steelfoundry brownfield contracts session');
     expect(report.lines.some((line) => line.value.includes('declarados por la delta que no existen'))).toBe(true);
   });
 
@@ -292,7 +292,7 @@ describe('core/status — panel único', () => {
     expect(constitution?.value).toContain('no evaluada, no válida');
     expect(report.complete).toBe(false);
     // Reconstruirla sin --write: sobrescribir lo que no se pudo leer perdería trabajo.
-    expect(report.nextAction).toBe('steelforge brownfield constitution .');
+    expect(report.nextAction).toBe('steelfoundry brownfield constitution .');
   });
 
   it('marca la constitución ausente como aviso y apunta a crearla', async () => {
@@ -303,7 +303,7 @@ describe('core/status — panel único', () => {
     const constitution = dataLine(report, 'Constitución');
     expect(constitution?.tone).toBe('warn');
     expect(constitution?.value).toContain('ausente');
-    expect(report.nextAction).toBe('steelforge brownfield constitution . --write');
+    expect(report.nextAction).toBe('steelfoundry brownfield constitution . --write');
   });
 
   it('marca error en la constitución cuando existe pero no valida', async () => {
@@ -316,7 +316,7 @@ describe('core/status — panel único', () => {
     const constitution = dataLine(report, 'Constitución');
     expect(constitution?.tone).toBe('err');
     expect(constitution?.value).toContain('inválida');
-    expect(report.nextAction).toBe('steelforge brownfield constitution . --write');
+    expect(report.nextAction).toBe('steelfoundry brownfield constitution . --write');
   });
 
   it('cierra el informe como completo cuando el origen del cambio es inspeccionable', async () => {
@@ -332,7 +332,7 @@ describe('core/status — panel único', () => {
 
     const report = await buildStatus(root, { feature: 'session' });
     expect(report.complete).toBe(true);
-    expect(report.nextAction).toBe('steelforge gates run C1 C2');
+    expect(report.nextAction).toBe('steelfoundry gates run C1 C2');
   });
 });
 
@@ -398,7 +398,7 @@ describe('cli/status — superficie de consola', () => {
     expect(parsed.level).toBe('spec-first');
     expect(parsed.gates).toEqual(['C1', 'C2']);
     expect(parsed.brownfield).toBe(true);
-    expect(parsed.nextAction).toBe('steelforge gates run C1 C2');
+    expect(parsed.nextAction).toBe('steelfoundry gates run C1 C2');
     expect(Array.isArray(parsed.lines)).toBe(true);
     expect(parsed.lines.some((line) => line.label === 'Specification: session')).toBe(true);
   });
@@ -478,8 +478,8 @@ describe('cli/status — superficie de consola', () => {
 
     expect(code).toBe(0);
     expect(ctx.logs).toHaveLength(1);
-    expect(ctx.logs[0]).toMatch(/^spec-first · (ok|warn|err|dim) · steelforge /);
-    expect(ctx.logs[0]).toContain('steelforge gates run C1 C2');
+    expect(ctx.logs[0]).toMatch(/^spec-first · (ok|warn|err|dim) · steelfoundry /);
+    expect(ctx.logs[0]).toContain('steelfoundry gates run C1 C2');
   });
 
   it('--quiet resume el peor tono cuando hay error', async () => {

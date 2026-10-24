@@ -1,3 +1,3 @@
 - Always apply the Karpathy guidelines (skill `karpathy-guidelines`, or `{{SDD_DIR}}/settings/rules/karpathy-guidelines.md`): think before coding, simplicity first, surgical changes, goal-driven execution
-- Validation and review are done by a human or, if not, by a model different from the one that generated the code (constitution `C-INDEPENDENT-REVIEW`; `steelforge review record --by-model <id> --author-model <id>`)
-- Stop and hand the decision to a person (HIL, `steelforge decide`) at the first critical failure, when the same failure repeats twice in a row, or after more than 3 failed iterations
+- Validation and review are done by a human or, if not, by a model different from the one that generated the code (constitution `C-INDEPENDENT-REVIEW`; `steelfoundry review record --by-model <id> --author-model <id>`)
+- Stop and hand the decision to a person (HIL, `steelfoundry decide`) at the first critical failure, when the same failure repeats twice in a row, or after more than 3 failed iterations

@@ -6,7 +6,7 @@
  * prueba lo convierte en un fallo de suite. El conjunto de verbos válidos se DERIVA del despachador
  * real (`src/index.ts`, sus `cmd === '…'`), no de una lista a mano: si un verbo entra o sale, la
  * prueba lo sigue sola. Extrae las invocaciones declaradas en el frontmatter (`commands:`) y las del
- * cuerpo; el `open-sdd` de una ruta o de un paquete (`npx steelforge@latest`) no cuenta. No valida
+ * cuerpo; el `open-sdd` de una ruta o de un paquete (`npx steelfoundry@latest`) no cuenta. No valida
  * sub-acciones, ni esquemas, ni secciones: existencia de comandos y nada más.
  */
 
@@ -30,14 +30,14 @@ const cliVerbs = (): Set<string> => {
 
 const FRONTMATTER = /^---\r?\n[\s\S]*?\r?\n---\r?\n?/;
 
-/** Todos los verbos `steelforge <verbo>` que la plantilla cita: los declarados y los del cuerpo. */
+/** Todos los verbos `steelfoundry <verbo>` que la plantilla cita: los declarados y los del cuerpo. */
 const citedVerbs = (raw: string): string[] => {
   const frontmatter = raw.match(FRONTMATTER)?.[0] ?? '';
   const body = raw.slice(frontmatter.length);
   const declared = [...frontmatter.matchAll(/^\s+-\s*"?(open-sdd[^"\n]*)"?\s*$/gm)].map((match) => match[1]);
   const found = new Set<string>();
   // Only CODE counts as a citation: inline spans and fenced blocks. A sentence that happens to
-  // mention the tool ("steelforge produces real artifacts") is prose, not a command, and treating it as
+  // mention the tool ("steelfoundry produces real artifacts") is prose, not a command, and treating it as
   // an error made this test fail on a correct template. The declared frontmatter list stays
   // authoritative and is scanned as-is.
   const codeBlocks = [...body.matchAll(/\x60\x60\x60[\s\S]*?\x60\x60\x60/g)].map((match) => match[0]).join('\n');
@@ -52,7 +52,7 @@ const citedVerbs = (raw: string): string[] => {
 const countCitations = (files) => files.reduce((total, file) => total + citationsIn(file).size, 0);
 
 describe('templates/commands', () => {
-  it('toda invocación `steelforge …` citada existe en el despachador del CLI', () => {
+  it('toda invocación `steelfoundry …` citada existe en el despachador del CLI', () => {
     const verbs = cliVerbs();
     expect(verbs.size, 'el despachador no declaró ningún verbo: la comprobación no sería válida').toBeGreaterThan(0);
 
@@ -62,7 +62,7 @@ describe('templates/commands', () => {
     const offenders: string[] = [];
     for (const file of files) {
       for (const verb of citedVerbs(readFileSync(path.join(templatesDir, file), 'utf8'))) {
-        if (!verbs.has(verb)) offenders.push(`${file}: steelforge ${verb}`);
+        if (!verbs.has(verb)) offenders.push(`${file}: steelfoundry ${verb}`);
       }
     }
 

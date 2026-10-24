@@ -1,5 +1,5 @@
 /**
- * `steelforge start` and `steelforge migrate …` (spec `modernize-kit`, v3.8.0).
+ * `steelfoundry start` and `steelfoundry migrate …` (spec `modernize-kit`, v3.8.0).
  *
  *   start "<intent>"            level L0…L6 → playbook → run → first directive (one command for any size)
  *   modernize init|assess|override|waves|plan|wave|advance|event|propose|resolve|learn|rules|status
@@ -91,22 +91,22 @@ export const handleStartCommand = async (args: string[], io: CliIO, cwd: string)
   const parts = splitFeatures(intent);
   if (parts.length >= 3) {
     head.push(`  ${parts.length} candidate features — one spec each:`);
-    for (const part of parts) head.push(`    steelforge start "${part}" --feature ${slugFromIntent(part)}`);
+    for (const part of parts) head.push(`    steelfoundry start "${part}" --feature ${slugFromIntent(part)}`);
   }
   let playbook = basePlaybook;
   if (args.includes('--dry-run')) {
-    out(io, json, { ...decision, level, variant, rigor: rig.rigor, playbook, ceremony, feature }, [...head, `  dry run: steelforge start "${intent}" --feature ${feature}`]);
+    out(io, json, { ...decision, level, variant, rigor: rig.rigor, playbook, ceremony, feature }, [...head, `  dry run: steelfoundry start "${intent}" --feature ${feature}`]);
     return EXIT.PASSED;
   }
   if (playbook === 'modernize' && !existsSync(portfolioFile(cwd))) {
-    out(io, json, { ...decision, level, playbook, next: 'steelforge migrate init' }, [...head, '  A migration starts from the portfolio: steelforge migrate init  (then assess → waves → plan)']);
+    out(io, json, { ...decision, level, playbook, next: 'steelfoundry migrate init' }, [...head, '  A migration starts from the portfolio: steelfoundry migrate init  (then assess → waves → plan)']);
     return EXIT.PASSED;
   }
   const overlay = await applyRigor(cwd, feature, basePlaybook, rig.rigor, profileValues(profile));
   playbook = overlay.playbook;
   if (overlay.added.length) head.push(`  rigor ${rig.rigor} adds: ${overlay.added.join(', ')}`);
   for (const sk of overlay.skipped) head.push(`  rigor skip ${sk.id}: ${sk.reason}`);
-  if (basePlaybook === 'reverse-engineering') head.push('  reverse engineering: steelforge reverse init, then steelforge reverse status');
+  if (basePlaybook === 'reverse-engineering') head.push('  reverse engineering: steelfoundry reverse init, then steelfoundry reverse status');
   const r = await startRun(cwd, feature, playbook, profileValues(profile), { level, ceremony });
   if (!r.ok) {
     io.error(r.message);
@@ -159,7 +159,7 @@ export const handleModernizeCommand = async (args: string[], io: CliIO, cwd: str
     }
     await mkdir(path.dirname(dest), { recursive: true });
     await copyFile(path.join(TEMPLATES, example ? `portfolio.${example}.json` : 'portfolio.template.json'), dest);
-    out(io, json, { written: path.relative(cwd, dest) }, [`wrote ${path.relative(cwd, dest)}${example ? ` (${example} example)` : ''}`, '  next: edit it, then steelforge migrate assess']);
+    out(io, json, { written: path.relative(cwd, dest) }, [`wrote ${path.relative(cwd, dest)}${example ? ` (${example} example)` : ''}`, '  next: edit it, then steelfoundry migrate assess']);
     return EXIT.PASSED;
   }
 
@@ -177,7 +177,7 @@ export const handleModernizeCommand = async (args: string[], io: CliIO, cwd: str
     out(io, json, { risks, dispositions: all.ds }, [
       `Portfolio ${all.portfolio.name}: ${all.portfolio.components.length} components · ${count}`,
       ...all.ds.map((d) => `  ${d.id.padEnd(22)} ${d.r.padEnd(11)} risk ${String(risks.find((x) => x.id === d.id)!.score).padStart(3)}  ${d.rule}: ${d.reason}`),
-      '  wrote .sdd/modernize/assessment.json and dispositions.json · next: steelforge migrate waves',
+      '  wrote .sdd/modernize/assessment.json and dispositions.json · next: steelfoundry migrate waves',
     ]);
     return EXIT.PASSED;
   }
@@ -213,7 +213,7 @@ export const handleModernizeCommand = async (args: string[], io: CliIO, cwd: str
       ...plan.waves.map((w) => `  wave ${w.n} · ${w.kind.padEnd(11)} ${w.components.join(', ')}  — ${w.reasons.join('; ')}`),
       ...plan.retained.map((t) => `  retained ${t.id}${t.hybridDependents.length ? ` (hybrid: ${t.hybridDependents.join(', ')})` : ''}`),
       ...plan.warnings.map((x) => `  ! ${x}`),
-      '  wrote .sdd/modernize/waves.json · next: steelforge migrate plan <feature>',
+      '  wrote .sdd/modernize/waves.json · next: steelfoundry migrate plan <feature>',
     ]);
     return EXIT.PASSED;
   }
@@ -246,7 +246,7 @@ export const handleModernizeCommand = async (args: string[], io: CliIO, cwd: str
     const all = await loadAll(cwd);
     if (!('portfolio' in all) || !all.portfolio) return usage(io, all.errors.join('; '));
     const plan = JSON.parse((await readFile(modernizeDir(cwd, 'waves.json'), 'utf8').catch(() => 'null')) as string) as WavePlan | null;
-    if (!plan) return usage(io, 'no wave plan: run steelforge migrate waves first');
+    if (!plan) return usage(io, 'no wave plan: run steelfoundry migrate waves first');
     const inWaves = plan.waves.flatMap((w) => w.components);
     const units = inWaves.map((id) => ({ id, deps: (all.portfolio.components.find((c) => c.id === id)?.dependsOn ?? []).filter((d) => inWaves.includes(d)) }));
     const r = await startRun(cwd, a1, 'modernize', profileValues(await detectProfile(cwd)), { level: 'L6', ceremony: 'strict', units, waves: plan.waves.map((w) => w.components) });
@@ -257,7 +257,7 @@ export const handleModernizeCommand = async (args: string[], io: CliIO, cwd: str
     const ms = await readModState(cwd);
     ms.feature = a1;
     await writeModState(cwd, ms);
-    out(io, json, { feature: a1, units: units.length, waves: plan.waves.length }, [`Run ${a1} started: L6 migration, strict ceremony, ${units.length} units in ${plan.waves.length} waves.`, `  next: steelforge next ${a1}   ·   start a wave: steelforge migrate wave ${a1} 1`]);
+    out(io, json, { feature: a1, units: units.length, waves: plan.waves.length }, [`Run ${a1} started: L6 migration, strict ceremony, ${units.length} units in ${plan.waves.length} waves.`, `  next: steelfoundry next ${a1}   ·   start a wave: steelfoundry migrate wave ${a1} 1`]);
     return EXIT.PASSED;
   }
 
@@ -302,7 +302,7 @@ export const handleModernizeCommand = async (args: string[], io: CliIO, cwd: str
           ...(res.decision ? [...new Set(res.decision.steps.map((s) => s.rule))].map((rule) => `  rule ${rule}`) : []),
           ...res.inserted.map((s) => `  + ${s}`),
           ...res.frozen.map((c) => `  frozen ${c}`),
-          ...res.cards.map((c) => `  card ${c} waits for a person (steelforge hil review ${a1} --html)`),
+          ...res.cards.map((c) => `  card ${c} waits for a person (steelfoundry hil review ${a1} --html)`),
         ]
       : res.messages);
     return res.ok ? EXIT.PASSED : EXIT.GATE_FAILED;
@@ -336,7 +336,7 @@ export const handleModernizeCommand = async (args: string[], io: CliIO, cwd: str
     out(io, json, { ...res, memory }, [
       res.message,
       ...(memory ? [`  memory: ${memory.outcome}${memory.id ? ` ${memory.id}` : ''}${memory.issues.length ? ` (${memory.issues.map((i) => i.code).join(', ')})` : ''}`] : ['  add --reflect to send the reflection to the memory pipeline']),
-      ...(res.candidate ? [`  rule candidate ${res.candidate.id}: steelforge migrate rules adopt ${res.candidate.id} --by "<name>"`] : []),
+      ...(res.candidate ? [`  rule candidate ${res.candidate.id}: steelfoundry migrate rules adopt ${res.candidate.id} --by "<name>"`] : []),
     ]);
     return EXIT.PASSED;
   }

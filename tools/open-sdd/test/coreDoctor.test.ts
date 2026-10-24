@@ -1,5 +1,5 @@
 /**
- * `steelforge doctor` — autodiagnóstico.
+ * `steelfoundry doctor` — autodiagnóstico.
  *
  * Fixtures en `mkdtemp` con `git init` cuando el hook importa; todo se limpia en `afterEach` y NADA
  * se escribe dentro del repositorio. Las dos decisiones que estos tests fijan, y que están
@@ -176,7 +176,7 @@ describe('doctor — forma del informe', () => {
 
     expect(lines[0]).toContain('Diagnóstico de');
     expect(lines.join('\n')).toContain('[fail]');
-    expect(lines.join('\n')).toMatch(/fix: .*steelforge/);
+    expect(lines.join('\n')).toMatch(/fix: .*steelfoundry/);
     expect(lines.join('\n')).toContain('Corrige');
   });
 
@@ -256,7 +256,7 @@ describe('doctor — hook de commit', () => {
     await gitInit(dir);
     const item = check(await runDoctor(dir), 'hook');
     expect(item.status).toBe('fail');
-    expect(item.fix).toContain('steelforge floor install');
+    expect(item.fix).toContain('steelfoundry floor install');
     expect(item.detail).toContain('no está instalado');
   });
 
@@ -268,7 +268,7 @@ describe('doctor — hook de commit', () => {
     const item = check(report, 'hook');
     expect(item.status).toBe('warn');
     expect(item.detail).toContain('DESACTUALIZADO');
-    expect(item.fix).toContain('steelforge floor install');
+    expect(item.fix).toContain('steelfoundry floor install');
     // Un hook desactualizado NO se cuenta como fallo: el gate existe y corre, solo está viejo.
     expect(report.checks.filter((entry) => entry.status === 'fail').map((entry) => entry.id)).not.toContain('hook');
   });
@@ -390,7 +390,7 @@ describe('doctor — rigor declarado', () => {
     const dir = await makeRoot();
     const item = check(await runDoctor(dir), 'settings');
     expect(item.status).toBe('fail');
-    expect(item.fix).toContain('steelforge init');
+    expect(item.fix).toContain('steelfoundry init');
   });
 
   it('JSON ilegible o no parseable → fail, sin lanzar excepción', async () => {

@@ -26,22 +26,22 @@ moves:
   - constitution
   - gates
 commands:
-  - "steelforge integrate --list"
-  - "steelforge init . --agent <agent> --write"
-  - "steelforge brownfield survey ."
-  - "steelforge brownfield bootstrap . --json"
-  - "steelforge brownfield constitution . --draft --write"
-  - "steelforge brownfield constitution . --interview --answers <path> --write"
-  - "steelforge govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
-  - "steelforge status --json"
-  - "steelforge status --check --json"
-  - "steelforge doctor --json"
+  - "steelfoundry integrate --list"
+  - "steelfoundry init . --agent <agent> --write"
+  - "steelfoundry brownfield survey ."
+  - "steelfoundry brownfield bootstrap . --json"
+  - "steelfoundry brownfield constitution . --draft --write"
+  - "steelfoundry brownfield constitution . --interview --answers <path> --write"
+  - "steelfoundry govern constitution --ratify --by \"<name>\" --rationale \"<reason>\" --write"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
+  - "steelfoundry doctor --json"
 scripts:
-  - "steelforge integrate --list"
-  - "steelforge init . --agent <agent> --write"
-  - "steelforge brownfield survey ."
-  - "steelforge brownfield constitution . --draft --write"
-  - "steelforge status --json"
+  - "steelfoundry integrate --list"
+  - "steelfoundry init . --agent <agent> --write"
+  - "steelfoundry brownfield survey ."
+  - "steelfoundry brownfield constitution . --draft --write"
+  - "steelfoundry status --json"
 ---
 
 # Onboard — from nothing to a ratified constitution and a score
@@ -65,9 +65,9 @@ state the evidence before installing anything.
 - **Identified — produces:** a working install plus a constitution **draft** and a score: `.sdd/settings/`, the host prompt templates in the host's commands directory, and `.sdd/steering/constitution.draft.md`.
 - **Identified — refuses:** it refuses to ratify the constitution for the human and refuses to write application source, tests or manifests; anything else the human asks for becomes a deferred note.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `steelforge status --check --json` validates the repository against the constitution and the rigor level and **exits 1** when it is absent, unratified or violated (BLOCKS the hand-off to `specify`); `steelforge doctor --json` **exits 1** on any failed environment check.
-- **Measured — components:** `constitution`, `gates` — the reader sees the change before/after in `steelforge status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the flow halts at a DRAFT and hands ratification to a human; an unratified draft has no authority, and `steelforge status --check --json` is the pivot check that turns the draft into a blocking verdict.
+- **Assured — backing check:** `steelfoundry status --check --json` validates the repository against the constitution and the rigor level and **exits 1** when it is absent, unratified or violated (BLOCKS the hand-off to `specify`); `steelfoundry doctor --json` **exits 1** on any failed environment check.
+- **Measured — components:** `constitution`, `gates` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the flow halts at a DRAFT and hands ratification to a human; an unratified draft has no authority, and `steelfoundry status --check --json` is the pivot check that turns the draft into a blocking verdict.
 
 ## Pre-Execution Checks
 
@@ -91,66 +91,66 @@ state the evidence before installing anything.
    files the host already reads, with no MCP registration and nothing a security policy can block:
 
 ```bash
-steelforge integrate --list
+steelfoundry integrate --list
 ```
 
 ```bash
-steelforge init . --agent <agent> --write
+steelfoundry init . --agent <agent> --write
 ```
 
 2. Survey the repository so the draft is grounded in evidence, not in a blank page:
 
 ```bash
-steelforge brownfield survey .
+steelfoundry brownfield survey .
 ```
 
 3. Run the single entry point that chains recon, module map and suggested next steps; read it before
    writing anything:
 
 ```bash
-steelforge brownfield bootstrap . --json
+steelfoundry brownfield bootstrap . --json
 ```
 
 4. Produce the constitution draft. It is explicitly **not in force**:
 
 ```bash
-steelforge brownfield constitution . --draft --write
+steelfoundry brownfield constitution . --draft --write
 ```
 
 5. If the draft has open questions, answer them in natural language and let the engine produce a
    validated draft (never answers the human must give):
 
 ```bash
-steelforge brownfield constitution . --interview --answers <path> --write
+steelfoundry brownfield constitution . --interview --answers <path> --write
 ```
 
 6. **Hand over.** Ask the human to ratify, and give them the exact command. Do not ratify for them:
 
 ```bash
-steelforge govern constitution --ratify --by "<name>" --rationale "<reason>" --write
+steelfoundry govern constitution --ratify --by "<name>" --rationale "<reason>" --write
 ```
 
 7. Read the score and the phase, then validate against the constitution and the declared rigor:
 
 ```bash
-steelforge status --json
+steelfoundry status --json
 ```
 
 ```bash
-steelforge status --check --json
+steelfoundry status --check --json
 ```
 
 8. Diagnose the installation so the human knows what is green and what still needs a fix:
 
 ```bash
-steelforge doctor --json
+steelfoundry doctor --json
 ```
 
 ## The constitution is the pivot
 
 The flow **stops at a draft**. An unratified draft has no authority, and every later blocking verdict
 must cite a ratified principle, so onboarding is not complete until a named human runs the ratify
-command. `steelforge status --check --json` is the pivot check; until it passes, the repository is
+command. `steelfoundry status --check --json` is the pivot check; until it passes, the repository is
 onboarded but not governed.
 
 ## Evidence

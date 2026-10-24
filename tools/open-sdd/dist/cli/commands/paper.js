@@ -446,7 +446,7 @@ export const handleGatesCommand = async (args, io, cwd, opts = {}) => {
             const blocked = await checkBlock(root);
             if (blocked) {
                 io.log(`  ${colors.red('Esperando a una persona')}: ${blocked.question}`);
-                io.log(`      steelforge decide ${CHECK_FEATURE} ${blocked.id} <${blocked.options.map((o) => o.key).join('|')}> --by "<name>"`);
+                io.log(`      steelfoundry decide ${CHECK_FEATURE} ${blocked.id} <${blocked.options.map((o) => o.key).join('|')}> --by "<name>"`);
                 io.log('');
                 return 1;
             }
@@ -457,7 +457,7 @@ export const handleGatesCommand = async (args, io, cwd, opts = {}) => {
         const trustProblems = await auditChainIssues(root);
         const governance = await effectiveProfile(root);
         if (governance.profile !== 'solo' && report.unavailable.includes('C5') && !(await freshReviewReceipt(root, feature))) {
-            trustProblems.push(`REVIEW_REQUIRED: C5 has no sensor, so ${feature} needs an independent review receipt (a person, or a model different from the author): steelforge review record ${feature} <step> --by "<name>" --artifact <path>`);
+            trustProblems.push(`REVIEW_REQUIRED: C5 has no sensor, so ${feature} needs an independent review receipt (a person, or a model different from the author): steelfoundry review record ${feature} <step> --by "<name>" --artifact <path>`);
         }
         if (trustProblems.length > 0)
             report.passed = false;
@@ -475,7 +475,7 @@ export const handleGatesCommand = async (args, io, cwd, opts = {}) => {
             const outcome = await recordCheckOutcome(root, report.passed, failing);
             if (outcome.card) {
                 io.log(`  ${colors.red('Escalado a una persona')} (${outcome.verdict?.why}):`);
-                io.log(`      steelforge decide ${CHECK_FEATURE} ${outcome.card.id} <${outcome.card.options.map((o) => o.key).join('|')}> --by "<name>"`);
+                io.log(`      steelfoundry decide ${CHECK_FEATURE} ${outcome.card.id} <${outcome.card.options.map((o) => o.key).join('|')}> --by "<name>"`);
             }
             else if (outcome.verdict) {
                 io.log(`  ${dim(outcome.verdict.why)}`);
@@ -600,7 +600,7 @@ export const handleGovernCommand = async (args, io, cwd) => {
                 io.log(`      ${dim(suggestion.problem)}`);
             });
             io.log('');
-            io.log(dim(`  Detalle con propuestas y ejemplos: steelforge brownfield requirements <feature> --suggest (${report.suggestions.length} sugerencia(s)).`));
+            io.log(dim(`  Detalle con propuestas y ejemplos: steelfoundry brownfield requirements <feature> --suggest (${report.suggestions.length} sugerencia(s)).`));
         }
         else if (report.total > 0) {
             io.log('');
@@ -946,7 +946,7 @@ export const handleGovernCommand = async (args, io, cwd) => {
             const inForceSource = draftRaw === null ? await readFile(draftPaths.inForce, 'utf8').catch(() => null) : null;
             const source = draftRaw ?? inForceSource;
             if (source === null) {
-                io.error(colors.red(`No hay borrador que ratificar en ${path.relative(root, draftPaths.draft)}. Genéralo con: steelforge govern constitution --draft --write`));
+                io.error(colors.red(`No hay borrador que ratificar en ${path.relative(root, draftPaths.draft)}. Genéralo con: steelfoundry govern constitution --draft --write`));
                 return 1;
             }
             const parsed = parseConstitution(source);
@@ -983,7 +983,7 @@ export const handleGovernCommand = async (args, io, cwd) => {
                 io.log(`  ${colors.bold('Dónde queda registrado')}:`);
                 io.log(`    · .sdd/steering/constitution.md — cada principio con su enmienda AMD-RATIFY-<id> (quién, cuándo, motivo)`);
                 io.log(`    · .sdd/engine/_governance.audit.jsonl — evento CONSTITUTION_RATIFIED, encadenado por hash`);
-                io.log(`    · consulta: steelforge audit trail --actor human`);
+                io.log(`    · consulta: steelfoundry audit trail --actor human`);
                 if (!confirmOnTerminal('RATIFICAR', 'la ratificación de la constitución')) {
                     const { appendAudit } = await import('../../core/engine.js');
                     await appendAudit(root, '_governance', {
@@ -1080,7 +1080,7 @@ export const handleGovernCommand = async (args, io, cwd) => {
         const file = path.join(root, '.sdd', 'steering', 'constitution.md');
         const raw = await readFile(file, 'utf8').catch(() => null);
         if (raw === null) {
-            io.error(colors.red('No hay constitución en .sdd/steering/constitution.md. Genérala con: steelforge brownfield constitution . --write'));
+            io.error(colors.red('No hay constitución en .sdd/steering/constitution.md. Genérala con: steelfoundry brownfield constitution . --write'));
             return 1;
         }
         let constitution = parseConstitution(raw);

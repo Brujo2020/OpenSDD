@@ -109,7 +109,7 @@ Document patterns and principles, not exhaustive lists.
 
 In an existing repository the constitution is **descriptive**: it records the principles the code
 already obeys, each with evidence, and declares the current stack an established fact.
-`steelforge brownfield constitution . --write` generates it into `{{SDD_DIR}}/steering/constitution.md`;
+`steelfoundry brownfield constitution . --write` generates it into `{{SDD_DIR}}/steering/constitution.md`;
 a practice that is desired but absent is emitted as a proposed amendment, never as a fact. The
 declared rigor level lives in `{{SDD_DIR}}/settings/rigor.json` (Spec-First / Spec-Anchored /
 Spec-as-Source). The levels are a CUMULATIVE ladder and the default is deliberately fluid: Spec-First
@@ -118,7 +118,7 @@ the delta, traceability, evidence binding and drift detection (C1+C2+C3+C6), and
 declared contracts and regeneration (C1…C6). The constitution is **required (blocking) at every
 level** — it is the authority a blocking verdict cites — and raising the bar means editing the level
 in {{SDD_DIR}}/settings/rigor.json, never lowering what the floor already checks. Changes to existing behaviour are specified as a
-delta (`steelforge delta init <feature> "<title>"`, then `steelforge delta validate <feature>`).
+delta (`steelfoundry delta init <feature> "<title>"`, then `steelfoundry delta validate <feature>`).
 
 ### Strict Git Mode (Steering Governance)
 If git is available and `{{SDD_DIR}}/settings/git.json` has `mode: "strict"` or `auto_commit: true`:

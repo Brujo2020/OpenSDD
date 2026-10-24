@@ -1,10 +1,10 @@
 {
-  "name": "@brujo2020/steelforge",
+  "name": "@brujo2020/steelfoundry",
   "version": "3.10.0",
-  "description": "SteelForge — SDD Toolkit: model-agnostic Spec-Driven Development, from a quick PoC to strict, audited delivery",
+  "description": "SteelFoundry — SDD Toolkit: model-agnostic Spec-Driven Development, from a quick PoC to strict, audited delivery",
   "type": "module",
   "bin": {
-    "steelforge": "./tools/open-sdd/dist/cli.js",
+    "steelfoundry": "./tools/open-sdd/dist/cli.js",
     "open-sdd": "./tools/open-sdd/dist/cli.js",
     "sdd-open": "./tools/open-sdd/dist/cli.js",
     "sdd": "./tools/open-sdd/dist/cli.js"

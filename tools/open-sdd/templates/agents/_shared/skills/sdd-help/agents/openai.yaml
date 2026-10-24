@@ -1,6 +1,6 @@
 interface:
-  display_name: "SteelForge Help"
-  short_description: "Interactive help guide, cheatsheet, and real-world examples for SteelForge commands"
+  display_name: "SteelFoundry Help"
+  short_description: "Interactive help guide, cheatsheet, and real-world examples for SteelFoundry commands"
 
 policy:
   allow_implicit_invocation: false

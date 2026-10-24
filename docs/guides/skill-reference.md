@@ -1,12 +1,12 @@
 # Skill Reference
 
-Comprehensive reference for the modern **SteelForge** skills workflow across all 8 supported AI coding agents (Claude Code, Cursor, Codex, Copilot, Windsurf, OpenCode, Gemini CLI, and Antigravity).
+Comprehensive reference for the modern **SteelFoundry** skills workflow across all 8 supported AI coding agents (Claude Code, Cursor, Codex, Copilot, Windsurf, OpenCode, Gemini CLI, and Antigravity).
 
 ---
 
 ## Start Here
 
-Use this matrix to identify which SteelForge skill to execute:
+Use this matrix to identify which SteelFoundry skill to execute:
 
 | You want to... | Start with | Typical next step |
 |---|---|---|

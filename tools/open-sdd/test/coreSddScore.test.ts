@@ -175,17 +175,17 @@ describe('core/sddScore — el número compuesto', () => {
     expect(report.notMeasured).toContain('trazabilidad');
     expect(report.notMeasured).toContain('evidencia');
     // Not installed yet: the door points at the first verb, `setup` (REQ-SX).
-    expect(report.nextAction).toBe('steelforge setup --write');
+    expect(report.nextAction).toBe('steelfoundry setup --write');
     expect(explainNextAction(report)).toContain('no está instalado');
   });
 
   it('la puerta habla en los cinco verbos: setup antes de instalar, start sin especificaciones', async () => {
     const root = await makeTmp();
-    expect((await computeSddScore(root)).nextAction).toBe('steelforge setup --write');
+    expect((await computeSddScore(root)).nextAction).toBe('steelfoundry setup --write');
     await mkdir(path.join(root, '.sdd', 'settings'), { recursive: true });
     await writeFile(path.join(root, '.sdd', 'settings', 'rigor.json'), '{"level":"spec-first"}');
     // Installed but without a constitution (greenfield): the constitution, not setup again.
-    expect((await computeSddScore(root)).nextAction).toBe('steelforge assist constitution');
+    expect((await computeSddScore(root)).nextAction).toBe('steelfoundry assist constitution');
   });
 
   it('no puntúa 0 ni 1 lo que no pudo inspeccionar: lo declara y excluye su peso del total', async () => {
@@ -209,7 +209,7 @@ describe('core/sddScore — el número compuesto', () => {
     expect(report.phase).toBe(2);
     expect(report.phaseLabel).toBe('Fase 2 · Implementar');
     expect(report.components.find((component) => component.id === 'evidence')?.score).toBe(0);
-    expect(report.nextAction).toBe('steelforge impl session');
+    expect(report.nextAction).toBe('steelfoundry impl session');
     expect(explainNextAction(report)).toContain('sin evidencia');
   });
 
@@ -222,7 +222,7 @@ describe('core/sddScore — el número compuesto', () => {
     expect(report.phaseLabel).toBe('Fase 3 · Verificar');
     expect(report.total).toBe(100);
     expect(report.notMeasured).toEqual([]);
-    expect(report.nextAction).toBe('steelforge status --check');
+    expect(report.nextAction).toBe('steelfoundry status --check');
   });
 
   it('un hueco de trazabilidad baja el total exactamente el peso documentado', async () => {
@@ -234,7 +234,7 @@ describe('core/sddScore — el número compuesto', () => {
     expect(full.notMeasured).toEqual([]);
     expect(gap.notMeasured).toEqual([]);
     expect(full.total - gap.total).toBe(SDD_SCORE_WEIGHTS.traceability);
-    expect(gap.nextAction).toBe('steelforge delta validate session');
+    expect(gap.nextAction).toBe('steelfoundry delta validate session');
   });
 
   it('sin constitución válida no se declara ninguna fase de implementación', async () => {
@@ -245,7 +245,7 @@ describe('core/sddScore — el número compuesto', () => {
 
     expect(report.phase).toBe(1);
     expect(report.components.find((component) => component.id === 'constitution')?.score).toBe(0);
-    expect(report.nextAction).toBe('steelforge assist constitution');
+    expect(report.nextAction).toBe('steelfoundry assist constitution');
   });
 
   it('sin requirements.md la especificación está incompleta: Fase 1 y la acción de crearla', async () => {
@@ -256,7 +256,7 @@ describe('core/sddScore — el número compuesto', () => {
 
     expect(report.phase).toBe(1);
     expect(report.components.find((component) => component.id === 'ears')?.score).toBe(0);
-    expect(report.nextAction).toBe('steelforge init session');
+    expect(report.nextAction).toBe('steelfoundry init session');
   });
 });
 
@@ -269,9 +269,9 @@ describe('core/sddScore — el pie de UNA línea', () => {
     expect(footer.split('\n')).toHaveLength(1);
     expect(footer).toContain('SDD 100%');
     expect(footer).toContain('Fase 3 · Verificar');
-    expect(footer).toContain('siguiente: steelforge status --check');
-    // Exactamente UN comando: la única aparición de `steelforge <verbo>` es la acción siguiente.
-    expect(footer.match(/steelforge [a-z-]/g)).toHaveLength(1);
+    expect(footer).toContain('siguiente: steelfoundry status --check');
+    // Exactamente UN comando: la única aparición de `steelfoundry <verbo>` es la acción siguiente.
+    expect(footer.match(/steelfoundry [a-z-]/g)).toHaveLength(1);
   });
 
   it('nombra lo no medido en vez de inventarle un porcentaje', async () => {
@@ -282,7 +282,7 @@ describe('core/sddScore — el pie de UNA línea', () => {
     expect(footer).toContain('sin medir: trazabilidad, evidencia, contratos, alineación');
     expect(footer).toContain('Fase 1');
     expect(footer.split('\n')).toHaveLength(1);
-    expect(footer.match(/steelforge [a-z-]/g)).toHaveLength(1);
+    expect(footer.match(/steelfoundry [a-z-]/g)).toHaveLength(1);
   });
 });
 
@@ -318,7 +318,7 @@ describe('core/sddScore — el pie y el comando no pueden contradecirse en los g
     expect(report.components.find((component) => component.id === 'gates')?.score).toBe(0.5);
     expect(footer).not.toContain('gates OK');
     expect(footer).toContain('gates 50%');
-    expect(report.nextAction).toBe('steelforge check C1 C2');
+    expect(report.nextAction).toBe('steelfoundry check C1 C2');
   });
 
   it('con una cadena APROBADA inyectada el pie sí puede decir «gates OK»', async () => {

@@ -1,5 +1,5 @@
 /**
- * Cross-artifact consistency check (the steelforge answer to spec-kit's `/speckit.analyze`).
+ * Cross-artifact consistency check (the steelfoundry answer to spec-kit's `/speckit.analyze`).
  *
  * The toolchain already had every ingredient separately: `traceDelta` traces delta requirements to
  * tasks (both directions), `alignSpecWithConstitution` is the constitutional pivot, `extractContracts`

@@ -1,5 +1,5 @@
 /**
- * Pruebas del recorrido guiado (`steelforge tour`) y del context pack en la terminal (`steelforge context`).
+ * Pruebas del recorrido guiado (`steelfoundry tour`) y del context pack en la terminal (`steelfoundry context`).
  *
  * Fijan las reglas del recorrido: que se DETENGA en la decisión humana —ratificar no se automatiza—,
  * que sea de solo lectura salvo `--write`, que un prerrequisito que falta se NOMBRE en lugar de
@@ -70,7 +70,7 @@ const ratifiedConstitution = (): string =>
     amendments: [],
   } satisfies Constitution);
 
-describe('steelforge tour', () => {
+describe('steelfoundry tour', () => {
   it('inspecciona el repositorio y recorre los pasos con el comando real y su salida', async () => {
     const dir = await makeRepo();
     const ctx = makeIO();
@@ -80,8 +80,8 @@ describe('steelforge tour', () => {
     expect(ctx.text).toContain('Recorrido guiado');
     expect(ctx.text).toContain('Recorrido guiado — .');
     // El comando real de reconocimiento, su porqué y su salida.
-    expect(ctx.text).toContain('steelforge brownfield survey .');
-    expect(ctx.text).toContain('Comando: steelforge brownfield constitution . --draft');
+    expect(ctx.text).toContain('steelfoundry brownfield survey .');
+    expect(ctx.text).toContain('Comando: steelfoundry brownfield constitution . --draft');
     expect(ctx.text).toContain('Salida real:');
     // Sin claves sin traducir en el camino en español.
     expect(ctx.text).not.toContain('⟦');
@@ -96,7 +96,7 @@ describe('steelforge tour', () => {
     expect(ctx.text).toContain('DECISIÓN HUMANA');
     expect(ctx.text).toContain('ratificar la constitución');
     expect(ctx.text).toContain('nunca se automatiza');
-    expect(ctx.text).toContain('steelforge govern constitution --ratify --by');
+    expect(ctx.text).toContain('steelfoundry govern constitution --ratify --by');
     expect(ctx.text).toContain('El recorrido se detiene');
     // Ratificar jamás se ejecuta: no se crea la constitución en vigor.
     expect(await exists(path.join(dir, '.sdd', 'steering', 'constitution.md'))).toBe(false);
@@ -134,8 +134,8 @@ describe('steelforge tour', () => {
     expect(ctx.text).toContain('Prerrequisito que falta: una constitución ratificada');
     // La delta pide sus datos humanos.
     expect(ctx.text).toContain('un slug de feature y una descripción del cambio');
-    expect(ctx.text).toContain('steelforge delta init');
-    expect(ctx.text).toContain('steelforge delta validate');
+    expect(ctx.text).toContain('steelfoundry delta init');
+    expect(ctx.text).toContain('steelfoundry delta validate');
   });
 
   it('un objetivo inexistente se nombra a sí mismo y sale 1', async () => {
@@ -202,7 +202,7 @@ describe('steelforge tour', () => {
   });
 });
 
-describe('steelforge context', () => {
+describe('steelfoundry context', () => {
   it('pinta qué está presente y qué ausente con su motivo', async () => {
     const dir = await makeRepo();
     const ctx = makeIO();

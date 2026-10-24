@@ -7,7 +7,7 @@ export const handleGapCommand = async (argv, io, cwd = process.cwd()) => {
     const sddDir = sddDirArg ? sddDirArg.split('=')[1] : await resolveSddDir(cwd);
     const featureArg = argv.find((a) => !a.startsWith('-'));
     if (!featureArg) {
-        io.error(colors.red('Usage: steelforge gap <feature-slug> [--json]'));
+        io.error(colors.red('Usage: steelfoundry gap <feature-slug> [--json]'));
         return 1;
     }
     const result = await analyzeGap(cwd, featureArg, sddDir);

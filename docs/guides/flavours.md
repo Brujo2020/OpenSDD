@@ -1,7 +1,7 @@
 # Every flavour: levels × variants × rigor, reverse engineering, assistants, progress (v3.9.0)
 
 ```bash
-steelforge start "<intent>" [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-code] --dry-run
+steelfoundry start "<intent>" [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-code] --dry-run
 ```
 
 ## Levels × variants
@@ -41,11 +41,11 @@ flowchart LR
 ```
 
 ```bash
-steelforge reverse init --scope payments --critical payments   # first slice
-steelforge reverse next                                         # open stage and what closes it
-steelforge reverse confirm RULE-PAY-001 --by "Ana"              # a person confirms an inferred rule
-steelforge reverse init --scope accounts                        # next slice: adds, keeps the rest
-steelforge reverse status --mermaid
+steelfoundry reverse init --scope payments --critical payments   # first slice
+steelfoundry reverse next                                         # open stage and what closes it
+steelfoundry reverse confirm RULE-PAY-001 --by "Ana"              # a person confirms an inferred rule
+steelfoundry reverse init --scope accounts                        # next slice: adds, keeps the rest
+steelfoundry reverse status --mermaid
 ```
 
 Rules live in `.sdd/reverse/rules.md` as `- RULE-PAY-001 [payments] text — inferred` (or `— confirmed by Ana (date)`, or `- NONE [module] … — confirmed by …`). Thresholds: `.sdd/settings/reverse.json` (`minCharacterized`, `minConfirmed`). Under `start "reverse engineer …"`, the engine refuses to complete a stage step whose criteria are unmet.
@@ -54,7 +54,7 @@ Rules live in `.sdd/reverse/rules.md` as `- RULE-PAY-001 [payments] text — inf
 
 | Command | What it does | Who decides |
 |---|---|---|
-| `steelforge assist` | recommends assistants from the repository state | — |
+| `steelfoundry assist` | recommends assistants from the repository state | — |
 | `assist discover "<idea>"` | role questions (analyst, PM, architect, UX, QA, security) by level, variant, UI and risk | person answers; agent only `ASSUMPTION:` |
 | `assist brief <f> --write` | composes and lints `brief.md` | lint blocks open assumptions |
 | `assist ears "<text>"` | converts EN/ES sentences to EARS; vague, capability-only, compound or actor-less sentences become questions | person answers |
@@ -65,9 +65,9 @@ Rules live in `.sdd/reverse/rules.md` as `- RULE-PAY-001 [payments] text — inf
 ## Where are we
 
 ```bash
-steelforge where                    # every run: phase, progress bar (by step cost), pending, waiting decisions
-steelforge where bank-mod --save --note "before CAB"   # .sdd/state/checkpoint.md + .json to resume anywhere
-steelforge where --line             # one line for a shell prompt: "csv 40% sdd-spec-design ⚑1"
+steelfoundry where                    # every run: phase, progress bar (by step cost), pending, waiting decisions
+steelfoundry where bank-mod --save --note "before CAB"   # .sdd/state/checkpoint.md + .json to resume anywhere
+steelfoundry where --line             # one line for a shell prompt: "csv 40% sdd-spec-design ⚑1"
 ```
 
 Percentages count planned work weighted by step cost, not a schedule; the remaining-time estimate appears only after three timed steps and is labelled uncalibrated.

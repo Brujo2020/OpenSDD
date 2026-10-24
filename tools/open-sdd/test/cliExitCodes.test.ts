@@ -48,7 +48,7 @@ describe('exit-code contract', () => {
     const errs = ctx.errs.join('\n');
     expect(errs).toContain('unknown command `statu`');
     expect(errs).toContain('did you mean `status`');
-    expect(errs).toContain('steelforge --help');
+    expect(errs).toContain('steelfoundry --help');
     // Nunca el camino de instalación, nunca una línea de éxito.
     expect(ctx.logs.join('\n')).not.toMatch(FOOTER);
     expect(ctx.logs.join('\n')).not.toContain('files written');
@@ -123,7 +123,7 @@ describe('exit-code contract', () => {
     const bad = makeIO();
     expect(await runCli(['explain', 'C9'], runtime, bad.io, {})).toBe(EXIT.USAGE);
     expect(bad.errs.join('\n')).toContain('unknown gate code `C9`');
-    expect(bad.errs.join('\n')).toContain('steelforge gates list');
+    expect(bad.errs.join('\n')).toContain('steelfoundry gates list');
   });
 
   it('a bad --color value is a usage error', async () => {

@@ -1,10 +1,10 @@
-# SteelForge vs. Other AI Coding Tools
+# SteelFoundry vs. Other AI Coding Tools
 
-This guide shows why SteelForge is better than the alternatives for production software.
+This guide shows why SteelFoundry is better than the alternatives for production software.
 
 ## The Problem They Don't Solve
 
-| Problem | Codeium | GitHub Copilot | Cursor Agent | SteelForge |
+| Problem | Codeium | GitHub Copilot | Cursor Agent | SteelFoundry |
 |---------|---------|----------------|--------------|----------|
 | **Code without approval** | ✓ Generates directly | ✓ Generates directly | ✓ Generates directly | ✗ Requires spec first |
 | **Audit trail** | ✗ Hidden decisions | ✗ Hidden decisions | ✗ Hidden decisions | ✓ Specs in Git |
@@ -34,7 +34,7 @@ Merge & deploy
 - Hard to explain why code looks that way
 - Compliance team: "Where's the requirement?"
 
-### SteelForge
+### SteelFoundry
 ```
 Engineer: "Make a user auth flow"
   ↓
@@ -73,10 +73,10 @@ $ cursor --ai-agent "add user login"
 # Back to the drawing board
 ```
 
-### With SteelForge
+### With SteelFoundry
 
 ```bash
-# Start with SteelForge
+# Start with SteelFoundry
 $ npm install open-sdd
 $ /sdd-spec-init "Add JWT-based user login with 2FA"
 
@@ -90,7 +90,7 @@ $ /sdd-spec-init "Add JWT-based user login with 2FA"
 
 $ /sdd-impl user-login
 
-# SteelForge runs tasks in parallel:
+# SteelFoundry runs tasks in parallel:
 #  Task 1: DB schema → your code review
 #  Task 2: Auth endpoints → your code review  
 #  Task 3: Client → your code review
@@ -115,11 +115,11 @@ $ cursor --refactor "modernize this codebase to TS"
 # Generates random refactors → regressions
 ```
 
-### SteelForge
+### SteelFoundry
 ```bash
 $ /sdd-getspecs "typescript-modernization"
 
-# SteelForge reads your code
+# SteelFoundry reads your code
 # Generates specs for WHAT EXISTS
 # You review & edit specs
 # Then: /sdd-impl uses specs to drive safe refactoring
@@ -135,7 +135,7 @@ Auditor: "Show me the requirements for this feature"
 Engineer: "...it's in the PR comments?"
 ```
 
-### SteelForge
+### SteelFoundry
 ```
 Auditor: "Show me requirements for feature X"
 Engineer: "Here: .sdd/specs/feature-x/requirements.md + design.md"
@@ -149,7 +149,7 @@ Engineer: "Yes: .sdd/specs/feature-x/design.md section 'Trade-offs'"
 
 ## Cost Comparison
 
-| Metric | Codeium | Copilot | Cursor | SteelForge |
+| Metric | Codeium | Copilot | Cursor | SteelFoundry |
 |--------|---------|---------|--------|----------|
 | **Vendor lock-in** | High (cloud API) | Medium (VS Code) | High (IDE only) | None (open source) |
 | **Learning curve** | 5 min | 5 min | 5 min | 15 min (worth it) |
@@ -167,7 +167,7 @@ Engineer: "Yes: .sdd/specs/feature-x/design.md section 'Trade-offs'"
 - Internal tools (no audit needed)
 - You trust your own code judgment
 
-### ✓ Use **SteelForge**
+### ✓ Use **SteelFoundry**
 - Production systems (audit trail needed)
 - Team + code review (specs before code)
 - Regulated industries (compliance proof)

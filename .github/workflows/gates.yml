@@ -1,9 +1,9 @@
-# steelforge | the merge boundary (enforcement level C) for this repository.
+# steelfoundry | the merge boundary (enforcement level C) for this repository.
 #
 # Level C is the half of the floor that asks no vendor's permission and cannot be silently
 # withdrawn: CI runs the full declared gate chain on every pull request. Together with the
 # pre-commit hook (level B, `tools/open-sdd/templates/hooks/pre-commit`) it makes the guarantee
-# checkable instead of declared — see `steelforge floor status` and gap G-11 in
+# checkable instead of declared — see `steelfoundry floor status` and gap G-11 in
 # docs/PAPER-ALIGNMENT.md.
 #
 # The chain runs against the PULL REQUEST DIFF via `--base`. A gate run that inspects nothing is
@@ -210,7 +210,7 @@ jobs:
 
           git init -q "$FIXTURE"
           git -C "$FIXTURE" config user.email "gate@open-sdd.test"
-          git -C "$FIXTURE" config user.name "steelforge gate"
+          git -C "$FIXTURE" config user.name "steelfoundry gate"
           git -C "$FIXTURE" config commit.gpgsign false
 
           # The production layout, not a shortcut: the installer copies the portable gate to
@@ -237,10 +237,10 @@ jobs:
           HOOK="$(node -p "require('node:path').resolve('tools/open-sdd/templates/hooks/pre-commit.mjs')")"
           export OPEN_SDD_CLI
 
-          echo "steelforge G-26: fixture=${FIXTURE}"
-          echo "steelforge G-26: hooksPath=$(git -C "$FIXTURE" config core.hooksPath)"
-          echo "steelforge G-26: CLI=${OPEN_SDD_CLI}"
-          echo "steelforge G-26: hook=${HOOK}"
+          echo "steelfoundry G-26: fixture=${FIXTURE}"
+          echo "steelfoundry G-26: hooksPath=$(git -C "$FIXTURE" config core.hooksPath)"
+          echo "steelfoundry G-26: CLI=${OPEN_SDD_CLI}"
+          echo "steelfoundry G-26: hook=${HOOK}"
 
           # 1. The hook file directly, clean index: exit 0.
           git -C "$FIXTURE" add -A
@@ -250,7 +250,7 @@ jobs:
           DIRECT_CLEAN=$?
           set -e
           cat "$LOGS/direct-clean.log"
-          echo "steelforge G-26: direct node <hook>.mjs on a clean index exit=${DIRECT_CLEAN}"
+          echo "steelfoundry G-26: direct node <hook>.mjs on a clean index exit=${DIRECT_CLEAN}"
           if [ "$DIRECT_CLEAN" -ne 0 ]; then
             echo "::error title=G-26::node could not run the portable hook on a clean index (exit ${DIRECT_CLEAN})"
             exit 1
@@ -264,7 +264,7 @@ jobs:
           DIRECT_DIRTY=$?
           set -e
           cat "$LOGS/direct-dirty.log"
-          echo "steelforge G-26: direct node <hook>.mjs on a staged secret exit=${DIRECT_DIRTY}"
+          echo "steelfoundry G-26: direct node <hook>.mjs on a staged secret exit=${DIRECT_DIRTY}"
           if [ "$DIRECT_DIRTY" -eq 0 ]; then
             echo "::error title=G-26::the portable hook approved a staged AWS key (exit 0)"
             exit 1
@@ -280,7 +280,7 @@ jobs:
           GIT_DIRTY=$?
           set -e
           cat "$LOGS/git-dirty.log"
-          echo "steelforge G-26: git commit with a staged secret exit=${GIT_DIRTY}"
+          echo "steelfoundry G-26: git commit with a staged secret exit=${GIT_DIRTY}"
           if [ "$GIT_DIRTY" -eq 0 ]; then
             echo "::error title=G-26::git committed a staged AWS key: the hook did not block it (exit 0)"
             exit 1
@@ -298,7 +298,7 @@ jobs:
           GIT_CLEAN=$?
           set -e
           cat "$LOGS/git-clean.log"
-          echo "steelforge G-26: git commit with a clean index exit=${GIT_CLEAN}"
+          echo "steelfoundry G-26: git commit with a clean index exit=${GIT_CLEAN}"
           if [ "$GIT_CLEAN" -ne 0 ]; then
             echo "::error title=G-26::a clean staged index was refused (exit ${GIT_CLEAN})"
             exit 1
@@ -309,8 +309,8 @@ jobs:
             exit 1
           fi
 
-          echo "steelforge G-26: HEAD after the clean commit — $(git -C "$FIXTURE" log --oneline -1)"
-          echo "steelforge G-26: PASS — the hook blocked a real finding and accepted a clean index on this host"
+          echo "steelfoundry G-26: HEAD after the clean commit — $(git -C "$FIXTURE" log --oneline -1)"
+          echo "steelfoundry G-26: PASS — the hook blocked a real finding and accepted a clean index on this host"
 
   # ── Container: one image, both architectures, published where a human can pull it ────────────
   # Added for gap G-27. Until now the `Dockerfile` was only ever built by hand, on the author's

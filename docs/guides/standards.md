@@ -20,12 +20,12 @@ not by looking reasonable.
 ## The console
 
 ```bash
-steelforge standards list                    # every entry: id, severity, advisory, title
-steelforge standards show REQ-EARS-001       # the full entry, including its source
-steelforge standards explain REQ-EARS-001    # offline; the same, for a reader in a hurry
-steelforge standards check                   # run the catalogue over the declared artifacts
-steelforge standards check --json            # the same inside the single JSON envelope
-steelforge standards fix REQ-EARS-010        # preview the remedy; --apply writes only safe ones
+steelfoundry standards list                    # every entry: id, severity, advisory, title
+steelfoundry standards show REQ-EARS-001       # the full entry, including its source
+steelfoundry standards explain REQ-EARS-001    # offline; the same, for a reader in a hurry
+steelfoundry standards check                   # run the catalogue over the declared artifacts
+steelfoundry standards check --json            # the same inside the single JSON envelope
+steelfoundry standards fix REQ-EARS-010        # preview the remedy; --apply writes only safe ones
 ```
 
 `check` reports, per finding: the standard id, the severity, `file:line:column`, the span, a message

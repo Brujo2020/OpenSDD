@@ -1,5 +1,5 @@
 /**
- * `steelforge uninstall` / `steelforge restore` — la salida de una herramienta invasiva.
+ * `steelfoundry uninstall` / `steelfoundry restore` — la salida de una herramienta invasiva.
  *
  * `core/receipt.ts` posee el recibo y deriva de él un plan. Este comando es su única puerta, y no
  * relaja ninguna de las reglas del módulo:
@@ -80,7 +80,7 @@ export const handleUninstallCommand = async (args, io, cwd = process.cwd()) => {
     const unknown = rest.find((arg) => arg.startsWith('-') && !KNOWN_FLAGS.has(arg.split('=')[0]));
     if (unknown) {
         io.error(`error: unrecognized option '${unknown}'`);
-        io.error('  help: run `steelforge uninstall` for the plan, or `steelforge --help` for the command list');
+        io.error('  help: run `steelfoundry uninstall` for the plan, or `steelfoundry --help` for the command list');
         io.error('  note: exit code 2 means the command line was wrong, not that your repository failed');
         return 2;
     }
@@ -98,7 +98,7 @@ export const handleUninstallCommand = async (args, io, cwd = process.cwd()) => {
         const loaded = await readAlternateReceipt(cwd, from);
         if ('error' in loaded) {
             io.error(`error: ${loaded.error}`);
-            io.error('  help: run `steelforge uninstall` to use the receipt of this repository');
+            io.error('  help: run `steelfoundry uninstall` to use the receipt of this repository');
             return 2;
         }
         plan = await planFromReceipt(cwd, loaded, { purgeSdd });
@@ -112,7 +112,7 @@ export const handleUninstallCommand = async (args, io, cwd = process.cwd()) => {
             io.log(line);
         if (plan.hasReceipt && remove.length > 0) {
             io.log('');
-            io.log(`  ${colors.dim(`Plan solamente. Aplícalo con: steelforge ${command} --write${purgeSdd ? ' --purge-sdd' : ''}`)}`);
+            io.log(`  ${colors.dim(`Plan solamente. Aplícalo con: steelfoundry ${command} --write${purgeSdd ? ' --purge-sdd' : ''}`)}`);
         }
         if (json) {
             io.log(JSON.stringify(jsonEnvelope({

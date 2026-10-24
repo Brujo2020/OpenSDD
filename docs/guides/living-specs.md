@@ -1,13 +1,13 @@
 # Living specs: the biography of a specification
 
-A specification in steelforge is not a document that is written once and filed away. It is a file in
+A specification in steelfoundry is not a document that is written once and filed away. It is a file in
 git, next to the code it governs, so it has a history: commits, dates, authors, line counts, and the
 amendments and ratifications recorded around it. The biography turns that history into an answer to
 three questions nobody could previously ask — when did this specification live, how does its rhythm
 compare with the code's, and has the code moved on without it?
 
 The feature is implemented in `tools/open-sdd/src/core/specBiography.ts` and surfaced by the CLI's
-`biography` subcommand (`steelforge biography <feature>`, with `--json` for the machine-readable
+`biography` subcommand (`steelfoundry biography <feature>`, with `--json` for the machine-readable
 envelope).
 
 ## What the biography shows

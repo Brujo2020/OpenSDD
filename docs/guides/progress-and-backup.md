@@ -9,8 +9,8 @@ apart on purpose:
 The owner's instruction was blunt: *«marca siempre el progreso que seamos conscientes y guardemos
 respaldo»*. The backup is the more important half, because hours of work are lost exactly once.
 
-> Commands below are shown as `steelforge …` for an installed CLI. In this repository, replace
-> `steelforge` with `node tools/open-sdd/dist/cli.js`.
+> Commands below are shown as `steelfoundry …` for an installed CLI. In this repository, replace
+> `steelfoundry` with `node tools/open-sdd/dist/cli.js`.
 
 ## The progress ledger: awareness, not reward
 
@@ -141,7 +141,7 @@ and `state/` (the ratchet baseline, the progress ledger).
 ### Verify
 
 ```bash
-steelforge backup verify .sdd/backups/2026-09-19T21-18-29-493Z
+steelfoundry backup verify .sdd/backups/2026-09-19T21-18-29-493Z
 ```
 
 `verifyBackup` recomputes **every** sha256 and reports every mismatch and every missing file. A
@@ -152,9 +152,9 @@ verification, because a restore only touches declared files, but they are said o
 ### Restore
 
 ```bash
-steelforge backup restore .sdd/backups/2026-09-19T21-18-29-493Z            # dry run: reports only
-steelforge backup restore .sdd/backups/2026-09-19T21-18-29-493Z --write    # applies
-steelforge backup restore .sdd/backups/2026-09-19T21-18-29-493Z --write --only state
+steelfoundry backup restore .sdd/backups/2026-09-19T21-18-29-493Z            # dry run: reports only
+steelfoundry backup restore .sdd/backups/2026-09-19T21-18-29-493Z --write    # applies
+steelfoundry backup restore .sdd/backups/2026-09-19T21-18-29-493Z --write --only state
 ```
 
 `restoreBackup` **never overwrites silently.** Per file it is either `restored` or `skipped` with a

@@ -608,7 +608,7 @@ export const analyseConvergence = async (input: AnalyseConvergenceInput): Promis
       detail:
         `Falta el prerrequisito: no existe ${requirementsRel}. ` +
         `Ejecuta primero \`/sdd-spec-requirements ${feature}\` (el CLI no inventa requisitos) y solo ` +
-        `después \`steelforge brownfield converge ${feature}\`. Nada se ha escrito.`,
+        `después \`steelfoundry brownfield converge ${feature}\`. Nada se ha escrito.`,
     };
   }
 
@@ -1173,7 +1173,7 @@ export const appendConvergence = async (
       written: false,
       path: tasksPath,
       tasksAfter: tasksBefore,
-      detail: `tasks.md cambió entre el análisis y el anexado: el informe ya no corresponde al fichero. Vuelve a ejecutar \`steelforge brownfield converge ${input.feature}\`. Nada se ha escrito.`,
+      detail: `tasks.md cambió entre el análisis y el anexado: el informe ya no corresponde al fichero. Vuelve a ejecutar \`steelfoundry brownfield converge ${input.feature}\`. Nada se ha escrito.`,
     };
   }
 

@@ -281,7 +281,7 @@ const checkEvidenceExpired = (ctx: Ctx, inForce: ConstitutionPrinciple[]): void 
         justification:
           'Una prueba que ya no existe convierte un hecho observado en una afirmación no verificable y erosiona la autoridad del documento completo.',
       }),
-      apply: 'steelforge brownfield constitution . --write',
+      apply: 'steelfoundry brownfield constitution . --write',
     });
   }
 
@@ -345,7 +345,7 @@ const checkPracticeUnstated = async (ctx: Ctx, inForce: ConstitutionPrinciple[])
             justification:
               'Una práctica que el repositorio ya cumple al cien por cien es una decisión de ingeniería sin registrar; sin principio, el siguiente cambio puede abandonarla sin que nadie lo note.',
           }),
-          apply: 'steelforge govern constitution --draft --write',
+          apply: 'steelfoundry govern constitution --draft --write',
         });
       } else if (covered.length < project.modules.length) {
         ctx.checked.push(
@@ -411,7 +411,7 @@ const checkPracticeUnstated = async (ctx: Ctx, inForce: ConstitutionPrinciple[])
             justification:
               'Una dependencia presente en todos los manifiestos es una decisión transversal del proyecto; declararla permite auditar su retirada sin depender de la memoria del equipo.',
           }),
-          apply: 'steelforge govern constitution --draft --write',
+          apply: 'steelfoundry govern constitution --draft --write',
         });
       }
       ctx.checked.push(
@@ -489,7 +489,7 @@ const checkAmendmentAged = (ctx: Ctx, constitution: Constitution): void => {
         justification:
           'Una propuesta vieja sin decisión deja a los agentes sin saber si la regla gobierna, y el silencio se interpreta como permiso para ignorarla.',
       }),
-      ...(canPromote ? { apply: `steelforge govern constitution --promote ${item.id} --plan "<plan de migración>"` } : {}),
+      ...(canPromote ? { apply: `steelfoundry govern constitution --promote ${item.id} --plan "<plan de migración>"` } : {}),
     });
   }
 
@@ -844,7 +844,7 @@ const checkBoundaryAged = async (ctx: Ctx, inForce: ConstitutionPrinciple[]): Pr
         justification:
           'Una frontera que existe en el código y no en la constitución convierte cada cruce en una refactorización involuntaria sin autoridad que la juzgue.',
       }),
-      apply: 'steelforge brownfield constitution . --write',
+      apply: 'steelfoundry brownfield constitution . --write',
     });
   }
 
@@ -866,7 +866,7 @@ const checkBoundaryAged = async (ctx: Ctx, inForce: ConstitutionPrinciple[]): Pr
         justification:
           'Una frontera que existe en el código y no en la constitución deja el límite sin autoridad citable, y el primer cruce silencioso nadie lo nota.',
       }),
-      apply: 'steelforge brownfield constitution . --write',
+      apply: 'steelfoundry brownfield constitution . --write',
     });
   }
 
@@ -887,7 +887,7 @@ const checkBoundaryAged = async (ctx: Ctx, inForce: ConstitutionPrinciple[]): Pr
         justification:
           'Una frontera fantasma hace que los agentes busquen límites que no existen y que los veredictos citen una arquitectura que ya nadie mantiene.',
       }),
-      apply: 'steelforge brownfield constitution . --write',
+      apply: 'steelfoundry brownfield constitution . --write',
     });
   }
 
@@ -950,7 +950,7 @@ const checkStackDrifted = (ctx: Ctx, inForce: ConstitutionPrinciple[], project: 
           justification:
             'Un principio que declara un gestor distinto del que el repositorio usa convierte el stack en ficción y enseña a los agentes a desconfiar de la constitución.',
         }),
-        apply: 'steelforge brownfield constitution . --write',
+        apply: 'steelfoundry brownfield constitution . --write',
       });
     } else if (!MANAGER_FAMILY.members.includes(observedManager) && observedManager !== stated) {
       ctx.notChecked.push(
@@ -990,7 +990,7 @@ const checkStackDrifted = (ctx: Ctx, inForce: ConstitutionPrinciple[], project: 
           justification:
             'Un lenguaje declarado que ya no es el del repositorio hace que todo principio derivado de él se lea como una aspiración incumplida, no como un hecho.',
         }),
-        apply: 'steelforge brownfield constitution . --write',
+        apply: 'steelfoundry brownfield constitution . --write',
       });
     } else {
       ctx.checked.push(`stack (lenguaje): declarado ${stated} y observado ${observedLanguage} — coinciden`);

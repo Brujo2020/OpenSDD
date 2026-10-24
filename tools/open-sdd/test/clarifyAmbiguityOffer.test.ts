@@ -64,7 +64,7 @@ describe('offerClarify', () => {
     const n = await offerClarify(io, root, 'demo', ['--no-input']);
     expect(n).toBeGreaterThanOrEqual(2);
     expect(out.join('\n')).toContain('requisito(s) ambiguo(s)');
-    expect(out.join('\n')).toContain('steelforge brownfield clarify demo');
+    expect(out.join('\n')).toContain('steelfoundry brownfield clarify demo');
   });
 
   it('calla cuando no hay ambigüedad y con --json', async () => {

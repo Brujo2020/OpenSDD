@@ -1,4 +1,4 @@
-/** `steelforge where [feature] [--line] [--save [--note "…"]] [--json]` — phase, % done, pending, checkpoint. */
+/** `steelfoundry where [feature] [--line] [--save [--note "…"]] [--json]` — phase, % done, pending, checkpoint. */
 import type { CliIO } from '../io.js';
 import { EXIT } from './help.js';
 import { allProgress, progressLine, renderProgress, runProgress, saveCheckpoint } from '../../core/where.js';
@@ -27,9 +27,9 @@ export const handleWhereCommand = async (args: string[], io: CliIO, cwd: string)
     return EXIT.PASSED;
   }
   io.log([
-    ...(ps.length ? ps.flatMap((p) => [...renderProgress(p), '']) : ['no runs: steelforge start "<intent>"']),
+    ...(ps.length ? ps.flatMap((p) => [...renderProgress(p), '']) : ['no runs: steelfoundry start "<intent>"']),
     ...(reverse ? [`reverse engineering: ${reverse.stages.filter((s) => s.done).length}/6 stages${reverse.current ? ` · open ${reverse.current.id} ${reverse.current.name} (${reverse.current.metric})` : ' · complete'}`] : []),
-    ...(saved ? [`checkpoint saved: ${saved.md} (resume from it in any session)`] : ['save where we are: steelforge where --save [--note "…"]']),
+    ...(saved ? [`checkpoint saved: ${saved.md} (resume from it in any session)`] : ['save where we are: steelfoundry where --save [--note "…"]']),
   ].join('\n'));
   return EXIT.PASSED;
 };

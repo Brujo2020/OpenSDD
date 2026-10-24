@@ -257,16 +257,16 @@ export const humanDirective = (d: Directive): string => {
   switch (d.kind) {
     case 'run-step':
       return d.pack
-        ? `Run step ${d.step} (${d.use}, phase ${d.phase}${d.gate ? ', human gate' : ''})${d.stale.length ? ` — inputs changed: ${d.stale.join(', ')}` : ''}.\n  Read ${d.pack}, then: steelforge handoff recall ${d.feature} ${d.step} --text "<goal and ids>"`
-        : `Run step ${d.step} (${d.use}, phase ${d.phase}${d.gate ? ', human gate' : ''}).\n  steelforge report ${d.feature} --step ${d.step} --result started   → do it →   --result ${d.gate ? 'awaiting-approval' : 'completed'}`;
+        ? `Run step ${d.step} (${d.use}, phase ${d.phase}${d.gate ? ', human gate' : ''})${d.stale.length ? ` — inputs changed: ${d.stale.join(', ')}` : ''}.\n  Read ${d.pack}, then: steelfoundry handoff recall ${d.feature} ${d.step} --text "<goal and ids>"`
+        : `Run step ${d.step} (${d.use}, phase ${d.phase}${d.gate ? ', human gate' : ''}).\n  steelfoundry report ${d.feature} --step ${d.step} --result started   → do it →   --result ${d.gate ? 'awaiting-approval' : 'completed'}`;
     case 'ask':
       return `Step ${d.step} has open questions in ${d.file}:\n${d.open.map((q) => `  - ${q}`).join('\n')}`;
     case 'present-gate':
-      return `Step ${d.step} waits for a person${d.card ? `: show ${d.card}` : ''} (revision ${d.revisions}).\n  ${d.card ? `steelforge hil review ${d.feature} --html` : d.prepare}`;
+      return `Step ${d.step} waits for a person${d.card ? `: show ${d.card}` : ''} (revision ${d.revisions}).\n  ${d.card ? `steelfoundry hil review ${d.feature} --html` : d.prepare}`;
     case 'handoff':
-      return `Step ${d.step} needs its context pack.\n  ${d.command}   (or: steelforge next ${d.feature} --auto-handoff)`;
+      return `Step ${d.step} needs its context pack.\n  ${d.command}   (or: steelfoundry next ${d.feature} --auto-handoff)`;
     case 'parked':
-      return `Run parked: ${d.reason}.\n  steelforge report ${d.feature} --step - --result unpark`;
+      return `Run parked: ${d.reason}.\n  steelfoundry report ${d.feature} --step - --result unpark`;
     case 'done':
       return `Done: ${d.summary.done} step(s) completed, ${d.summary.skipped} skipped.`;
     default:
@@ -314,7 +314,7 @@ export const handleHandoffCommand = async (args: string[], io: CliIO, cwd: strin
   }
   const pack = await readPack(cwd, feature, step);
   if (!pack) {
-    io.error(`no pack for ${feature}/${step}: run \`steelforge handoff write ${feature} ${step}\``);
+    io.error(`no pack for ${feature}/${step}: run \`steelfoundry handoff write ${feature} ${step}\``);
     return EXIT.GATE_FAILED;
   }
   if (sub === 'recall') {
@@ -410,7 +410,7 @@ export const handleHilCommand = async (args: string[], io: CliIO, cwd: string): 
   }
   if (sub === 'list' && args.includes('--overdue')) {
     const overdue = await overdueCards(cwd, feature);
-    out(io, json, overdue, overdue.length ? overdue.map((c) => `  OVERDUE ${c.id} ${c.step} — default ${c.default} applies on the next \`steelforge next\``) : 'no overdue cards');
+    out(io, json, overdue, overdue.length ? overdue.map((c) => `  OVERDUE ${c.id} ${c.step} — default ${c.default} applies on the next \`steelfoundry next\``) : 'no overdue cards');
     return EXIT.PASSED;
   }
   const records = await listCards(cwd, feature);

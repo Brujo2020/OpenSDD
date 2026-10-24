@@ -73,9 +73,9 @@ export interface AssistSuggestion {
 }
 
 /** Los comandos exactos de la colaboración constitucional, en el orden en que se ejecutan. */
-export const CONSTITUTION_DRAFT_COMMAND = 'steelforge brownfield constitution . --draft --write';
+export const CONSTITUTION_DRAFT_COMMAND = 'steelfoundry brownfield constitution . --draft --write';
 export const CONSTITUTION_RATIFY_COMMAND =
-  'steelforge govern constitution --ratify --by "<nombre>" --rationale "<texto>" --write';
+  'steelfoundry govern constitution --ratify --by "<nombre>" --rationale "<texto>" --write';
 
 /**
  * Orden: severidad primero y, a igual severidad, desbloqueo de la fase siguiente. La constitución
@@ -102,7 +102,7 @@ const compareSuggestions = (a: AssistSuggestion, b: AssistSuggestion): number =>
 
 /**
  * Registro de lo ya emitido en esta ejecución. Vive a nivel de módulo porque una "ejecución" es el
- * proceso completo: dos comandos encadenados (`steelforge delta validate X && steelforge brownfield
+ * proceso completo: dos comandos encadenados (`steelfoundry delta validate X && steelfoundry brownfield
  * requirements X`) deben imprimir el mismo hallazgo una sola vez. Cada invocación del CLI es un
  * proceso, así que el registro nunca sobrevive a una ejecución real.
  */
@@ -312,7 +312,7 @@ const placeholderSuggestion = (cited: string, feature: string, taskId?: string):
     proposal: looksLikeDeltaId
       ? `Sustituye exactamente ${cited} por ${inner} en .sdd/specs/${feature}/tasks.md (el id que el propio marcador ya nombra).`
       : `Falta información: sustituye exactamente ${cited} por el id REQ-<ÁREA>-<NNN> de la entrada de la delta que esta tarea implementa; el marcador no nombra ninguno y no puedo inventarlo.`,
-    action: `steelforge delta validate ${feature}`,
+    action: `steelfoundry delta validate ${feature}`,
   };
 };
 
@@ -367,7 +367,7 @@ export const assist = async (input: {
           `EARS: no existe ${requirementsRel} ni ${deltaRel} para "${feature}": no hay requisitos que analizar`,
         );
       } else {
-        const action = `steelforge brownfield requirements ${feature} --suggest`;
+        const action = `steelfoundry brownfield requirements ${feature} --suggest`;
         const requirementsReport =
           requirementsRaw !== null ? analyseEars(requirementsRaw, { source: requirementsRel }) : null;
         const deltaReport =

@@ -22,6 +22,6 @@ the fix is proven and nothing around it moves.
 3. Write FIRST a test that fails because of the bug, and the regression tests for "Must not change".
    Run them: the bug test fails, the regression tests pass.
 4. Make the minimal fix. Run all of them again: everything green. Record the commands and results as evidence.
-5. If the expected behaviour changes an existing spec, record it as `MODIFIED` with `steelforge delta init`.
+5. If the expected behaviour changes an existing spec, record it as `MODIFIED` with `steelfoundry delta init`.
 6. Finish with `/sdd-verify-completion`.
 </instructions>

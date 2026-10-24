@@ -2,7 +2,7 @@
  * Ayuda — UNA tabla para `--help`, `help <command>` y `help <tema>`.
  *
  * ── El defecto que esto corrige ────────────────────────────────────────────────────────────────
- * `steelforge help` listaba 8 comandos contra los 58 de `--help`, e `help gates` ignoraba su
+ * `steelfoundry help` listaba 8 comandos contra los 58 de `--help`, e `help gates` ignoraba su
  * argumento. La causa era que el índice estaba escrito a mano y la ayuda por comando vivía en `if`s
  * separados. Aquí hay una sola tabla (`COMMANDS`): `renderFullHelp` la proyecta como índice y
  * `renderCommandHelp` extrae la ayuda del comando pedido. Añadir un comando sin su entrada aquí no
@@ -43,15 +43,15 @@ export const EXIT_CODES = [
     { code: EXIT.GATE_FAILED, name: 'gate failed', meaning: 'your repository failed a check: a finding, not a usage mistake' },
     { code: EXIT.USAGE, name: 'usage error', meaning: 'a bad flag, command or subcommand: nothing was inspected' },
     { code: EXIT.ENVIRONMENT, name: 'environment or configuration', meaning: 'the environment or the configuration is missing or wrong' },
-    { code: EXIT.TOOL_BUG, name: 'tool bug', meaning: 'steelforge itself failed: this is our defect, not yours' },
+    { code: EXIT.TOOL_BUG, name: 'tool bug', meaning: 'steelfoundry itself failed: this is our defect, not yours' },
 ];
 export const EXIT_CODES_BODY = `${EXIT_CODES.map((entry) => `  ${entry.code}  ${entry.name.padEnd(30)} ${entry.meaning}`).join('\n')}
 
   = note: a usage error (2) is never reported as a governance failure (1)
   = note: host-loop sentinel — inside a Stop hook, \`exit 2\` means "do not stop" (blocked), not
-          "usage error". The installed hook adapter translates ANY non-zero steelforge exit into the
+          "usage error". The installed hook adapter translates ANY non-zero steelfoundry exit into the
           host's 2, so a failure can never be read as a pass (fail-closed).
-  = help: \`steelforge help formatting\` · \`steelforge explain C1\` · docs/PAPER-ALIGNMENT.md`;
+  = help: \`steelfoundry help formatting\` · \`steelfoundry explain C1\` · docs/PAPER-ALIGNMENT.md`;
 export const EXIT_CODES_USAGE = `EXIT CODES — the contract\n\n${EXIT_CODES_BODY}`;
 // ---------------------------------------------------------------------------------------------
 // Sugerencias («did you mean») — distancia de edición con umbral y tope
@@ -96,45 +96,45 @@ export const COMMANDS = [
     {
         name: 'setup',
         group: 'essential',
-        summary: 'Install steelforge into this repository (same as `init`): detects the agent and the terrain; plan first, --write applies',
-        usage: 'steelforge setup [target] [--agent <id>] [--write] [--json]',
+        summary: 'Install steelfoundry into this repository (same as `init`): detects the agent and the terrain; plan first, --write applies',
+        usage: 'steelfoundry setup [target] [--agent <id>] [--write] [--json]',
         indexLines: ['  setup [--write]                              Install into this repo (same as init); plan first, --write applies'],
-        examples: ['steelforge setup', 'steelforge setup --write'],
+        examples: ['steelfoundry setup', 'steelfoundry setup --write'],
     },
     {
         name: 'check',
         group: 'essential',
         summary: 'One verdict: run the whole gate chain (same as `gates run`); exit 1 when it fails',
-        usage: 'steelforge check [--profile <solo|team|regulated>] [--staged|--base <ref>] [--strict]',
+        usage: 'steelfoundry check [--profile <solo|team|regulated>] [--staged|--base <ref>] [--strict]',
         indexLines: ['  check                                        One verdict: the whole gate chain (same as gates run)'],
-        examples: ['steelforge check', 'steelforge check --staged', 'steelforge check --base main'],
+        examples: ['steelfoundry check', 'steelfoundry check --staged', 'steelfoundry check --base main'],
     },
     {
         name: 'decide',
         group: 'essential',
         summary: 'Human decisions waiting for you (cards and human gates), each with the exact command to resolve it',
-        usage: 'steelforge decide [feature] [card option --by "<name>"] [--json]',
+        usage: 'steelfoundry decide [feature] [card option --by "<name>"] [--json]',
         indexLines: ['  decide [feature] [card option --by <name>]   Human decisions waiting, with the exact command; answers a card'],
-        examples: ['steelforge decide', 'steelforge decide payments', 'steelforge decide payments HIL-001 a --by "Ana"'],
+        examples: ['steelfoundry decide', 'steelfoundry decide payments', 'steelfoundry decide payments HIL-001 a --by "Ana"'],
     },
     {
         name: 'templates',
         group: 'templates',
         summary: 'The 22 command templates: what each one writes and where each host reads it',
-        usage: 'steelforge templates [--json] [--host <id>]',
+        usage: 'steelfoundry templates [--json] [--host <id>]',
         indexLines: [
             '  templates [--json] [--host <id>]            List the 22 templates, what each one writes, and where each host reads them',
             `  ${INSTALL_COMMAND} init . --write          Install them as the host's own chat commands (plan only without --write)`,
             '    MCP is opt-in (--mcp); the default path needs neither MCP nor the network.',
         ],
         details: ['Read-only: it lists the templates and their installation state. Nothing is written without a separate write command.'],
-        examples: ['steelforge templates', 'steelforge templates --host claude-code', 'steelforge templates --json'],
+        examples: ['steelfoundry templates', 'steelfoundry templates --host claude-code', 'steelfoundry templates --json'],
     },
     {
         name: 'gates',
         group: 'console',
         summary: 'Resolve and run the Zero-Trust gate chain',
-        usage: 'steelforge gates <chain|crosswalk|list|enforcement|run> [--profile <solo|team|regulated>] [--staged|--base <ref>] [--strict]',
+        usage: 'steelfoundry gates <chain|crosswalk|list|enforcement|run> [--profile <solo|team|regulated>] [--staged|--base <ref>] [--strict]',
         indexLines: ['  gates [chain|crosswalk|list|enforcement|run]  Resolve and run the gate chain'],
         subcommands: [
             SUB('chain', 'resolve the effective chain for the profile, rigor and repository signals'),
@@ -145,13 +145,13 @@ export const COMMANDS = [
         ],
         strictSubcommands: true,
         details: ['`gates run` resolves its own ids, profile and scope, so the score footer declares the gate component unmeasured rather than guessing.'],
-        examples: ['steelforge gates chain --profile regulated', 'steelforge gates run --strict', 'steelforge gates run --staged'],
+        examples: ['steelfoundry gates chain --profile regulated', 'steelfoundry gates run --strict', 'steelfoundry gates run --staged'],
     },
     {
         name: 'govern',
         group: 'console',
         summary: 'Invariants, conformance, rigor, the constitution draft and the appeals channel',
-        usage: 'steelforge govern <invariants|conformance|hitl|rigor|constitution|appeal|meta-eval|budget|discipline>',
+        usage: 'steelfoundry govern <invariants|conformance|hitl|rigor|constitution|appeal|meta-eval|budget|discipline>',
         indexLines: [
             '  govern [invariants|conformance|hitl|rigor|constitution|appeal|meta-eval|budget|discipline]  Invariants, conformance, rigor and the constitution draft/ratify',
         ],
@@ -167,13 +167,13 @@ export const COMMANDS = [
             SUB('discipline', '§9.7 decidable properties over the diff'),
         ],
         strictSubcommands: true,
-        examples: ['steelforge govern conformance', 'steelforge govern rigor', 'steelforge govern constitution --matrix'],
+        examples: ['steelfoundry govern conformance', 'steelfoundry govern rigor', 'steelfoundry govern constitution --matrix'],
     },
     {
         name: 'assure',
         group: 'console',
         summary: 'Threats, the claims registry, skills and memory',
-        usage: 'steelforge assure <threats|lab|claims|calibrate|skills|memory>',
+        usage: 'steelfoundry assure <threats|lab|claims|calibrate|skills|memory>',
         indexLines: ['  assure [threats|lab|claims|calibrate|skills|memory]  OWASP/ATLAS threats, claims registry, detector calibration (κ), skills and memory'],
         subcommands: [
             SUB('threats', 'OWASP/ATLAS plus the regulatory crosswalk'),
@@ -184,52 +184,52 @@ export const COMMANDS = [
             SUB('memory', 'the session memory ledger'),
         ],
         strictSubcommands: true,
-        examples: ['steelforge assure threats', 'steelforge assure claims --verify'],
+        examples: ['steelfoundry assure threats', 'steelfoundry assure claims --verify'],
     },
     {
         name: 'start',
         group: 'essential',
         summary: 'One command for any size of work: level L0 tiny … L6 migration → playbook → run → first directive',
-        usage: 'steelforge start "<intent>" [--feature f] [--level L0…L6] [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-code] [--dry-run] [--json]',
+        usage: 'steelfoundry start "<intent>" [--feature f] [--level L0…L6] [--variant greenfield|brownfield] [--rigor tiny-spec|spec-first|spec-anchored|spec-as-code] [--dry-run] [--json]',
         indexLines: ['  start "<intent>"                             Level (tiny→migration), playbook, run and first step in one command'],
         details: ['L0–L1 run with minimal ceremony (no context pack, no recall); L5–L6 with strict ceremony (approvers required). Risk words only ever raise the level.'],
-        examples: ['steelforge start "fix typo in README"', 'steelforge start "prototype voice search" --dry-run', 'steelforge start "add refunds to payments"'],
+        examples: ['steelfoundry start "fix typo in README"', 'steelfoundry start "prototype voice search" --dry-run', 'steelfoundry start "add refunds to payments"'],
     },
     {
         name: 'where',
         group: 'console',
         summary: 'Where are we: phase, progress bar (% by step cost), pending steps, open cards and events; save a checkpoint to resume',
-        usage: 'steelforge where [feature] [--line] [--save [--note "…"]] [--json]',
+        usage: 'steelfoundry where [feature] [--line] [--save [--note "…"]] [--json]',
         indexLines: ['  where [feature] [--line] [--save]            Phase, % done, pending, waiting decisions; checkpoint to resume'],
         details: ['--line prints one line for a shell prompt or a status bar; --save writes .sdd/state/checkpoint.md and .json.'],
-        examples: ['steelforge where', 'steelforge where bank-mod --save --note "before CAB"', 'steelforge where --line'],
+        examples: ['steelfoundry where', 'steelfoundry where bank-mod --save --note "before CAB"', 'steelfoundry where --line'],
     },
     {
         name: 'assist',
         group: 'console',
         summary: 'Assistants: which one helps now, BMAD-style discovery by roles, brief, EARS conversion, steering drafts, constitution',
-        usage: 'steelforge assist [discover "<idea>" [--feature f] | brief <feature> [--write] | ears "<text>" [--feature f --write] | ears review <feature> | steering [--write] | constitution [--draft|--interview]]',
+        usage: 'steelfoundry assist [discover "<idea>" [--feature f] | brief <feature> [--write] | ears "<text>" [--feature f --write] | ears review <feature> | steering [--write] | constitution [--draft|--interview]]',
         indexLines: ['  assist [discover|brief|ears|steering|constitution]  Guided assistants; without arguments, which one helps now'],
         subcommands: [SUB('discover', 'role-based questions (analyst, PM, architect, UX, QA, security) chosen by level, variant and risk'), SUB('brief', 'compose and lint brief.md from the answered discovery'), SUB('ears', 'convert free text to EARS, or review a requirements.md'), SUB('steering', 'draft steering files marked (inferred)'), SUB('constitution', 'constitution draft from the code, or the interview')],
         strictSubcommands: true,
-        examples: ['steelforge assist', 'steelforge assist discover "invoice export for customers"', 'steelforge assist ears "when a payment fails the system must notify the customer"', 'steelforge assist steering --write'],
+        examples: ['steelfoundry assist', 'steelfoundry assist discover "invoice export for customers"', 'steelfoundry assist ears "when a payment fails the system must notify the customer"', 'steelfoundry assist steering --write'],
     },
     {
         name: 'reverse',
         group: 'brownfield',
         summary: 'Reverse engineering mode: inventory → architecture → characterization → rules → confirmation → spec baseline, gated by exit criteria',
-        usage: 'steelforge reverse <init [--scope a,b] [--critical a]|status [--feature f] [--mermaid]|next [--feature f]|confirm <RULE-ID> --by <name>>',
+        usage: 'steelfoundry reverse <init [--scope a,b] [--critical a]|status [--feature f] [--mermaid]|next [--feature f]|confirm <RULE-ID> --by <name>>',
         indexLines: ['  reverse <init|status|next|confirm>            Reverse-engineer an existing system stage by stage, slice by slice'],
         subcommands: [SUB('init', 'create or extend the module inventory'), SUB('status', 'every stage with its metric and unmet criteria'), SUB('next', 'the open stage and what closes it'), SUB('confirm', 'a person confirms an inferred business rule')],
         strictSubcommands: true,
-        examples: ['steelforge reverse init --critical payments', 'steelforge reverse status --feature billing-baseline', 'steelforge reverse confirm RULE-PAY-001 --by "Ana"'],
+        examples: ['steelfoundry reverse init --critical payments', 'steelfoundry reverse status --feature billing-baseline', 'steelfoundry reverse confirm RULE-PAY-001 --by "Ana"'],
     },
     {
         name: 'migrate',
         aliases: ['modernize'],
         group: 'console',
         summary: 'Migration Kit (alias: modernize): enterprise portfolio, AWS 7 Rs, wave plan, strangler lifecycle, deterministic dynamic rules for events, learning',
-        usage: 'steelforge migrate <init|assess|override|waves|estimate|plan|wave|advance|event|propose|resolve|learn|rules|status> [...]',
+        usage: 'steelfoundry migrate <init|assess|override|waves|estimate|plan|wave|advance|event|propose|resolve|learn|rules|status> [...]',
         indexLines: ['  migrate <init|assess|waves|plan|wave|advance|event|…>  Portfolio migration (alias: modernize) with deterministic dynamic workflows'],
         subcommands: [
             SUB('init', 'write .sdd/modernize/portfolio.json (--example banking|insurance-mainframe|datacenter-exit|database|monolith)'),
@@ -248,13 +248,13 @@ export const COMMANDS = [
             SUB('status', 'text, --json, --mermaid or --html'),
         ],
         strictSubcommands: true,
-        examples: ['steelforge migrate init --example insurance-mainframe', 'steelforge migrate assess', 'steelforge migrate event bank-mod --file cve.json', 'steelforge migrate status --html'],
+        examples: ['steelfoundry migrate init --example insurance-mainframe', 'steelfoundry migrate assess', 'steelfoundry migrate event bank-mod --file cve.json', 'steelfoundry migrate status --html'],
     },
     {
         name: 'playbook',
         group: 'console',
         summary: 'Tailored playbooks: project profile, checker, planner, multi-host build and improvement',
-        usage: 'steelforge playbook <profile|check|plan|build|improve|save|list|new|diff> [name|"intent"] [--target <host>] [--write] [--json]',
+        usage: 'steelfoundry playbook <profile|check|plan|build|improve|save|list|new|diff> [name|"intent"] [--target <host>] [--write] [--json]',
         indexLines: ['  playbook <profile|check|plan|build|improve|save|list>  Plan, check and build a playbook for this case'],
         subcommands: [
             SUB('profile', 'detected project signals and type'),
@@ -268,92 +268,92 @@ export const COMMANDS = [
             SUB('diff', 'steps added, removed or changed between two playbooks'),
         ],
         strictSubcommands: true,
-        examples: ['steelforge playbook profile', 'steelforge playbook plan "add refunds to billing"', 'steelforge playbook check brownfield-extension'],
+        examples: ['steelfoundry playbook profile', 'steelfoundry playbook plan "add refunds to billing"', 'steelfoundry playbook check brownfield-extension'],
     },
     {
         name: 'engine',
         group: 'console',
         summary: 'Start a playbook run for a feature and read its state',
-        usage: 'steelforge engine <start|status|list> [feature] [--playbook <name>] [--units a,b:a] [--autonomous] [--mermaid] [--json]',
+        usage: 'steelfoundry engine <start|status|list> [feature] [--playbook <name>] [--units a,b:a] [--autonomous] [--mermaid] [--json]',
         indexLines: ['  engine <start|status> <feature>              Start or inspect a playbook run'],
         subcommands: [SUB('start', 'create the run from a checked playbook (--units a,b:a for waves)'), SUB('status', 'steps, time, tokens, waves (--mermaid for a diagram)'), SUB('list', 'every run with its progress'), SUB('event', 'apply an event to a run through the dynamic rules (--file event.json)')],
         strictSubcommands: true,
-        examples: ['steelforge engine start refunds --playbook brownfield-extension', 'steelforge engine status refunds'],
+        examples: ['steelfoundry engine start refunds --playbook brownfield-extension', 'steelfoundry engine status refunds'],
     },
     {
         name: 'next',
         group: 'console',
         summary: 'The single next directive for a feature (the host-agnostic contract)',
-        usage: 'steelforge next <feature> [--json] [--auto-handoff]',
+        usage: 'steelfoundry next <feature> [--json] [--auto-handoff]',
         indexLines: ['  next <feature> [--json]                      What the agent must do now: run-step, ask, present-gate, handoff…'],
-        examples: ['steelforge next refunds --json'],
+        examples: ['steelfoundry next refunds --json'],
     },
     {
         name: 'handoff',
         group: 'console',
         summary: 'Handoff packs: write the bounded context of a step, check recall, detect stale inputs',
-        usage: 'steelforge handoff <write|recall|check> <feature> <step> [--text "<restatement>"] [--goal g]',
+        usage: 'steelfoundry handoff <write|recall|check> <feature> <step> [--text "<restatement>"] [--goal g]',
         indexLines: ['  handoff <write|recall|check> <feature> <step>  Bounded context pack, recall check, staleness'],
         subcommands: [SUB('write', 'write the pack'), SUB('recall', 'compare a restatement with the pack'), SUB('check', 'list stale inputs')],
         strictSubcommands: true,
-        examples: ['steelforge handoff write refunds requirements', 'steelforge handoff recall refunds requirements --text "requirements: REQ-RF-001"'],
+        examples: ['steelfoundry handoff write refunds requirements', 'steelfoundry handoff recall refunds requirements --text "requirements: REQ-RF-001"'],
     },
     {
         name: 'questions',
         group: 'console',
         summary: 'Question files of a step: completeness check and named confirmation',
-        usage: 'steelforge questions <check|confirm> <feature> <step> [--by <name>]',
+        usage: 'steelfoundry questions <check|confirm> <feature> <step> [--by <name>]',
         indexLines: ['  questions <check|confirm> <feature> <step>   Are the answers complete? Confirm them by name'],
         subcommands: [SUB('check', 'empty answers, missing X option'), SUB('confirm', 'stamp the answers with a confirmation id')],
         strictSubcommands: true,
-        examples: ['steelforge questions check refunds requirements', 'steelforge questions confirm refunds requirements --by "Ana"'],
+        examples: ['steelfoundry questions check refunds requirements', 'steelfoundry questions confirm refunds requirements --by "Ana"'],
     },
     {
         name: 'hil',
         group: 'console',
         summary: 'Human-in-the-loop decision cards: prepare, answer by name, list and trigger statistics',
-        usage: 'steelforge hil <prepare|answer|list|stats|review> <feature> [card-id option] [--card <file>] [--by <name>] [--confirm <card-id>] [--overdue]',
+        usage: 'steelfoundry hil <prepare|answer|list|stats|review> <feature> [card-id option] [--card <file>] [--by <name>] [--confirm <card-id>] [--overdue]',
         indexLines: ['  hil <prepare|answer|list|stats> <feature>    Decision cards; approvals come only from a named answer'],
         subcommands: [SUB('prepare', 'validate and write a card'), SUB('answer', 'record a named answer and apply it'), SUB('list', 'cards and answers'), SUB('stats', 'useless escalations per trigger and threshold proposals'), SUB('review', 'one offline HTML page with every open card (--out f)')],
         strictSubcommands: true,
-        examples: ['steelforge hil prepare refunds --card card.json', 'steelforge hil answer refunds HIL-001 A --by "Ana"'],
+        examples: ['steelfoundry hil prepare refunds --card card.json', 'steelfoundry hil answer refunds HIL-001 A --by "Ana"'],
     },
     {
         name: 'memory',
         group: 'console',
         summary: 'Memory with provenance: capture, reflect with an admission gate, promote by name, withdraw',
-        usage: 'steelforge memory <capture|reflect|promote|withdraw|list> [--kind k --text t] [--file f] [--by name] [--origin o]',
+        usage: 'steelfoundry memory <capture|reflect|promote|withdraw|list> [--kind k --text t] [--file f] [--by name] [--origin o]',
         indexLines: ['  memory <capture|reflect|promote|withdraw|list>  Lessons with provenance, never self-promoted'],
         subcommands: [SUB('capture'), SUB('reflect'), SUB('promote'), SUB('withdraw'), SUB('list')],
         strictSubcommands: true,
-        examples: ['steelforge memory list', 'steelforge memory promote L-0123456789 --by "Ana"'],
+        examples: ['steelfoundry memory list', 'steelfoundry memory promote L-0123456789 --by "Ana"'],
     },
     {
         name: 'waves',
         group: 'console',
         summary: 'Transactional wave plan with the git commands',
-        usage: 'steelforge waves <feature> | --baseline <n> --protect <paths> | --verify <n> --check "<cmd>" [--units a,b]',
+        usage: 'steelfoundry waves <feature> | --baseline <n> --protect <paths> | --verify <n> --check "<cmd>" [--units a,b]',
         indexLines: ['  waves <feature>                             Transactional wave plan with git commands'],
-        examples: ['steelforge waves stripe-billing'],
+        examples: ['steelfoundry waves stripe-billing'],
     },
     {
         name: 'floor',
         group: 'console',
         summary: 'The enforcement floor: commit hook plus the PR gate matrix',
-        usage: 'steelforge floor <status|install> [target] [--ci]',
+        usage: 'steelfoundry floor <status|install> [target] [--ci]',
         indexLines: ['  floor [status|install] [target] [--ci]       Enforcement floor: commit hook + PR gate matrix'],
         subcommands: [
             SUB('status', 'is the commit/merge floor installed here?'),
             SUB('install', 'install the commit hook and the CI workflow'),
         ],
         strictSubcommands: true,
-        examples: ['steelforge floor status', 'steelforge floor install . --ci'],
+        examples: ['steelfoundry floor status', 'steelfoundry floor install . --ci'],
     },
     {
         name: 'standards',
         group: 'console',
         summary: 'The standards engine: list, show, explain, check and fix the catalogue',
-        usage: 'steelforge standards <list|show|explain|check|fix> [<id>] [--apply] [--json]',
+        usage: 'steelfoundry standards <list|show|explain|check|fix> [<id>] [--apply] [--json]',
         indexLines: ['  standards [list|show|explain|check|fix]  The machine-checkable standards catalogue: findings with a graded remedy'],
         subcommands: [
             SUB('list', 'the catalogue entries and which ones block'),
@@ -363,13 +363,13 @@ export const COMMANDS = [
             SUB('fix', 'apply a remedy (`--apply` only auto-applies the safe class)'),
         ],
         strictSubcommands: true,
-        examples: ['steelforge standards list', 'steelforge standards check --json', 'steelforge standards explain REQ-EARS-001'],
+        examples: ['steelfoundry standards list', 'steelfoundry standards check --json', 'steelfoundry standards explain REQ-EARS-001'],
     },
     {
         name: 'requirements',
         group: 'console',
         summary: 'The requirements coach: quality review, an executable checklist and graded repairs',
-        usage: 'steelforge requirements <review|checklist|fix> <feature> [--json] [--apply <id>]',
+        usage: 'steelfoundry requirements <review|checklist|fix> <feature> [--json] [--apply <id>]',
         indexLines: [
             '  requirements [review|checklist|fix] <feature>  The requirements coach: findings with a rewrite or a question',
         ],
@@ -379,165 +379,165 @@ export const COMMANDS = [
             SUB('fix', 'apply a graded remedy (`--apply <id>` only auto-applies the safe class)'),
         ],
         strictSubcommands: true,
-        examples: ['steelforge requirements review stripe-billing', 'steelforge requirements checklist stripe-billing', 'steelforge requirements fix stripe-billing --apply REQ-RQC-001'],
+        examples: ['steelfoundry requirements review stripe-billing', 'steelfoundry requirements checklist stripe-billing', 'steelfoundry requirements fix stripe-billing --apply REQ-RQC-001'],
     },
     {
         name: 'modes',
         group: 'console',
         summary: 'SDD modes: the six flows, the module matrix per rigor level and which skills fit each kind of project',
-        usage: 'steelforge modes [--level <explore|spec-first|spec-anchored|spec-as-source>] [--brownfield] [--governance <solo|team|enterprise>] [--projects | --project <type>] [--json]',
+        usage: 'steelfoundry modes [--level <explore|spec-first|spec-anchored|spec-as-source>] [--brownfield] [--governance <solo|team|enterprise>] [--projects | --project <type>] [--json]',
         indexLines: ['  modes [--level <l>] [--projects]  Flows, module matrix and the skills for each kind of project'],
-        examples: ['steelforge modes', 'steelforge modes --level spec-anchored --brownfield', 'steelforge modes --projects', 'steelforge modes --project legacy-untested'],
+        examples: ['steelfoundry modes', 'steelfoundry modes --level spec-anchored --brownfield', 'steelfoundry modes --projects', 'steelfoundry modes --project legacy-untested'],
     },
     {
         name: 'trace',
         group: 'daily',
         summary: 'Requirement → task traceability of a feature; uncovered requirements named (exit 1 if any)',
-        usage: 'steelforge trace <feature> [--mermaid|--csv] [--out <file>] [--json]',
+        usage: 'steelfoundry trace <feature> [--mermaid|--csv] [--out <file>] [--json]',
         indexLines: ['  trace <feature> [--mermaid]       Requirement → task links; Mermaid with --mermaid; client acceptance matrix with --csv'],
-        examples: ['steelforge trace stripe-billing', 'steelforge trace stripe-billing --mermaid --out trace.mmd'],
+        examples: ['steelfoundry trace stripe-billing', 'steelfoundry trace stripe-billing --mermaid --out trace.mmd'],
     },
     {
         name: 'report',
         group: 'daily',
         summary: 'One self-contained HTML page: requirements, tasks, evidence and the trace graph (no script, no network)',
-        usage: 'steelforge report <feature> --html [--out <file>] | steelforge report <feature> --step <id> --result <started|awaiting-approval|rejected|revised|completed|skipped|park|unpark> [--produced a,b] [--reason r] [--by name] [--tokens n] [--model id] [--duration s]',
+        usage: 'steelfoundry report <feature> --html [--out <file>] | steelfoundry report <feature> --step <id> --result <started|awaiting-approval|rejected|revised|completed|skipped|park|unpark> [--produced a,b] [--reason r] [--by name] [--tokens n] [--model id] [--duration s]',
         indexLines: ['  report <feature> --html [--out f] Self-contained HTML report of a feature', '  report <feature> --step <id> --result <r>   Tell the engine what happened to a step (never `approved`)'],
-        examples: ['steelforge report stripe-billing --html --out report.html'],
+        examples: ['steelfoundry report stripe-billing --html --out report.html'],
     },
     {
         name: 'badge',
         group: 'score',
         summary: 'Offline SVG badge of the composite SDD score for a README',
-        usage: 'steelforge badge [--out <file>]',
+        usage: 'steelfoundry badge [--out <file>]',
         indexLines: ['  badge [--out sdd.svg]             SVG badge of the SDD score'],
-        examples: ['steelforge badge --out docs/sdd-badge.svg'],
+        examples: ['steelfoundry badge --out docs/sdd-badge.svg'],
     },
     {
         name: 'stages',
         group: 'console',
         summary: 'The stage guide of a feature: where it is and what it needs to advance',
-        usage: 'steelforge stages <feature> [--level <l>] [--json]',
+        usage: 'steelfoundry stages <feature> [--level <l>] [--json]',
         indexLines: ['  stages <feature>                  Where the feature is and what the next stage needs'],
-        examples: ['steelforge stages stripe-billing'],
+        examples: ['steelfoundry stages stripe-billing'],
     },
     {
         name: 'gherkin',
         group: 'console',
         summary: 'EARS acceptance criteria → acceptance.feature, one scenario per criterion tagged with its REQ id',
-        usage: 'steelforge gherkin <feature> [--lang es|en] [--write] [--json]',
+        usage: 'steelfoundry gherkin <feature> [--lang es|en] [--write] [--json]',
         indexLines: ['  gherkin <feature> [--write]       EARS criteria → acceptance.feature traced to each REQ'],
-        examples: ['steelforge gherkin stripe-billing', 'steelforge gherkin stripe-billing --lang es --write'],
+        examples: ['steelfoundry gherkin stripe-billing', 'steelfoundry gherkin stripe-billing --lang es --write'],
     },
     {
         name: 'archive',
         group: 'console',
         summary: 'Move a finished, verified spec to .sdd/archive/ (dry run unless --confirm)',
-        usage: 'steelforge archive <feature> [--confirm] [--json]',
+        usage: 'steelfoundry archive <feature> [--confirm] [--json]',
         indexLines: ['  archive <feature> [--confirm]     Archive a verified spec out of .sdd/specs/'],
-        examples: ['steelforge archive stripe-billing', 'steelforge archive stripe-billing --confirm'],
+        examples: ['steelfoundry archive stripe-billing', 'steelfoundry archive stripe-billing --confirm'],
     },
     {
         name: 'discovery',
         group: 'console',
         summary: 'Gate over the discovery brief and the append-only decision log',
-        usage: 'steelforge discovery <lint <feature> [--json] | log <feature> <decision|assumption|crack|kill|lock|source> <text>>',
+        usage: 'steelfoundry discovery <lint <feature> [--json] | log <feature> <decision|assumption|crack|kill|lock|source> <text>>',
         indexLines: ['  discovery <lint|log> <feature>    Brief gate (non-goals, measurable outcome, assumptions) and decision log'],
         subcommands: [SUB('lint', 'check brief.md before it becomes requirements'), SUB('log', 'append a typed entry to discovery.log.md')],
         strictSubcommands: true,
-        examples: ['steelforge discovery lint orders', 'steelforge discovery log orders kill "no mobile app in v1"'],
+        examples: ['steelfoundry discovery lint orders', 'steelfoundry discovery log orders kill "no mobile app in v1"'],
     },
     {
         name: 'steering',
         group: 'console',
         summary: 'Readiness of .sdd/steering/: core files, inclusion modes, file references and unconfirmed inferences',
-        usage: 'steelforge steering <check|draft [--write] [--force]> [--json]',
+        usage: 'steelfoundry steering <check|draft [--write] [--force]> [--json]',
         indexLines: ['  steering check                    Is the steering confirmed, or still inferred?'],
         subcommands: [SUB('check', 'core files, inclusion, #[[file:…]] references and markers'), SUB('draft', 'draft product/tech/structure from the workspace, marked (inferred) (--write)')],
         strictSubcommands: true,
-        examples: ['steelforge steering check'],
+        examples: ['steelfoundry steering check'],
     },
     {
         name: 'review',
         group: 'console',
         summary: 'One review surface for a change: requirements as word-level diffs',
-        usage: 'steelforge review <feature> --base <ref> [--json] | steelforge review record <feature> <step> --by <name> [--by-model <id> --author-model <id>] --artifact <path> [--root <dir>] | steelforge review freeze-check <staged files…>',
+        usage: 'steelfoundry review <feature> --base <ref> [--json] | steelfoundry review record <feature> <step> --by <name> [--by-model <id> --author-model <id>] --artifact <path> [--root <dir>] | steelfoundry review freeze-check <staged files…>',
         indexLines: ['  review <feature> --base <ref>                One page: added/modified/removed requirements as word-level diffs', '  review <record|freeze-check>                 Review receipts and the pre-commit freeze of reviewed artifacts'],
         details: ['Each row carries its tasks, the tests that would fail if it changed, and a risk score; an unapproved requirement change exits non-zero.'],
-        examples: ['steelforge review stripe-billing --base main', 'steelforge review stripe-billing --base HEAD~1 --json'],
+        examples: ['steelfoundry review stripe-billing --base main', 'steelfoundry review stripe-billing --base HEAD~1 --json'],
     },
     {
         name: 'audit',
         group: 'console',
         summary: 'Audit report, evidence bundle and SARIF for code scanning',
-        usage: 'steelforge audit [<feature>] [--regulatory] [--json] | steelforge audit <bundle|sarif> [feature] [--out <dir>] [--sarif <path>] | steelforge audit trail [feature] [--requirement R] [--principle C] [--actor human|agent|rule|system] [--who name] [--decisions] [--json|--csv]',
+        usage: 'steelfoundry audit [<feature>] [--regulatory] [--json] | steelfoundry audit <bundle|sarif> [feature] [--out <dir>] [--sarif <path>] | steelfoundry audit trail [feature] [--requirement R] [--principle C] [--actor human|agent|rule|system] [--who name] [--decisions] [--json|--csv]',
         indexLines: [
             '  audit [bundle|sarif] [feature] [--out <dir>] [--json] [--sarif <path>]  Audit report; evidence bundle with a sha256 per artifact; SARIF 2.1.0 for code scanning',
             '  audit trail [feature] [--requirement R] [--principle C] [--actor K] [--otlp f]  Who decided what, why, on which requirements and principles (hash-chained; exit 1 if tampered); OTLP/JSON for OpenTelemetry',
         ],
         subcommands: [SUB('bundle', 'the evidence bundle with a sha256 per artifact'), SUB('sarif', 'SARIF 2.1.0 for code scanning'), SUB('trail', 'decision records: who, why, requirements, principles')],
-        examples: ['steelforge audit', 'steelforge audit stripe-billing --regulatory', 'steelforge audit bundle stripe-billing --out .sdd/audit'],
+        examples: ['steelfoundry audit', 'steelfoundry audit stripe-billing --regulatory', 'steelfoundry audit bundle stripe-billing --out .sdd/audit'],
     },
     {
         name: 'doctor',
         group: 'console',
         summary: 'Self-diagnosis: Node, CLI, commit gate, stop hooks, rigor, constitution and specs',
-        usage: 'steelforge doctor [target] [--json] [--fix]',
+        usage: 'steelfoundry doctor [target] [--json] [--fix]',
         indexLines: [
             '  doctor [--json] [--fix] [target]             Self-diagnosis: Node, CLI, commit gate, stop hooks, rigor, constitution, specs',
         ],
         details: ['Every `!`/`✗` check names the command that fixes it; `--fix` repairs in place only the safe, idempotent items.'],
-        examples: ['steelforge doctor', 'steelforge doctor --json', 'steelforge doctor --fix'],
+        examples: ['steelfoundry doctor', 'steelfoundry doctor --json', 'steelfoundry doctor --fix'],
     },
     {
         name: 'mcp',
         group: 'console',
         summary: 'Model Context Protocol over stdio (a server, not a one-shot command)',
-        usage: 'steelforge mcp',
+        usage: 'steelfoundry mcp',
         indexLines: ['  mcp                                          Model Context Protocol over stdio (a server, not a one-shot command)'],
-        examples: ['steelforge mcp'],
+        examples: ['steelfoundry mcp'],
     },
     {
         name: 'help',
         group: 'console',
         summary: 'This help, the help of one command, or a topic',
-        usage: 'steelforge help [command|exit-codes|rigor|formatting]',
+        usage: 'steelfoundry help [command|exit-codes|rigor|formatting]',
         indexLines: ['  help [command]                               This help, or the help of one command'],
         details: [
             '`--help` and `help` read the SAME table: a command that is routed has help, and a test enforces it.',
         ],
-        examples: ['steelforge help', 'steelforge help gates', 'steelforge help exit-codes'],
+        examples: ['steelfoundry help', 'steelfoundry help gates', 'steelfoundry help exit-codes'],
     },
     {
         name: 'init',
         aliases: ['spec-init'],
         group: 'console',
         summary: 'One-shot project bootstrap; `init <feature>` still creates a spec',
-        usage: 'steelforge init [target] [--agent <id>] [--level <l>] [--skills] [--mcp] [--write] [--json]',
+        usage: 'steelfoundry init [target] [--agent <id>] [--level <l>] [--skills] [--mcp] [--write] [--json]',
         indexLines: [
             '  init [target] [--agent <id>] [--level <l>] [--skills] [--mcp] [--write] [--json]  One-shot project bootstrap; "init <feature>" still creates a spec',
         ],
         details: [
             'Without `--write` it plans and writes nothing. A positional that is not an existing directory and carries no project flag is still a feature slug.',
         ],
-        examples: ['steelforge init .', 'steelforge init . --write', 'steelforge init stripe-billing --title="Stripe billing"'],
+        examples: ['steelfoundry init .', 'steelfoundry init . --write', 'steelfoundry init stripe-billing --title="Stripe billing"'],
     },
     {
         name: 'status',
         aliases: ['spec-status'],
         group: 'console',
         summary: 'Whole state on one screen, with the next command to run',
-        usage: 'steelforge status [feature] [--check] [--quiet] [--json] [--celebrations]',
+        usage: 'steelfoundry status [feature] [--check] [--quiet] [--json] [--celebrations]',
         indexLines: [
             '  status [feature] [--check] [--quiet] [--json] [--celebrations]  Whole state on one screen, with the next command to run',
         ],
-        examples: ['steelforge status', 'steelforge status stripe-billing --check', 'steelforge status --json'],
+        examples: ['steelfoundry status', 'steelfoundry status stripe-billing --check', 'steelfoundry status --json'],
     },
     {
         name: 'brownfield',
         group: 'brownfield',
         summary: 'The brownfield console: the existing code is the source of truth',
-        usage: 'steelforge brownfield <survey|bootstrap|constitution|templates|specify|requirements|clarify|converge|analyze|impact|contracts|reuse|ids|forecast|repair>',
+        usage: 'steelfoundry brownfield <survey|bootstrap|constitution|templates|specify|requirements|clarify|converge|analyze|impact|contracts|reuse|ids|forecast|repair>',
         indexLines: [
             '  brownfield [survey|bootstrap|constitution|templates|specify|requirements|clarify|converge|analyze|impact|contracts|reuse|ids|forecast|repair]  The brownfield console',
             '  brownfield survey [target]                    Detect the stack, boundaries and evidence',
@@ -574,13 +574,13 @@ export const COMMANDS = [
             SUB('repair', 'repair a failing artifact with evidence'),
         ],
         strictSubcommands: true,
-        examples: ['steelforge brownfield survey .', 'steelforge brownfield constitution . --write', 'steelforge brownfield contracts stripe-billing --verify'],
+        examples: ['steelfoundry brownfield survey .', 'steelfoundry brownfield constitution . --write', 'steelfoundry brownfield contracts stripe-billing --verify'],
     },
     {
         name: 'delta',
         group: 'brownfield',
         summary: 'The contract of change (brownfield: the delta, not the system)',
-        usage: 'steelforge delta <init|validate|status|render|merge> [feature]',
+        usage: 'steelfoundry delta <init|validate|status|render|merge> [feature]',
         indexLines: [
             '  delta [init|validate|status|render|merge]  The contract of change (brownfield: the delta, not the system)',
             '  delta init <feature> "<title>"                Scaffold a delta spec (ADDED/MODIFIED/REMOVED/RENAMED)',
@@ -598,74 +598,74 @@ export const COMMANDS = [
             SUB('merge-back', 'alias of `merge`'),
         ],
         strictSubcommands: true,
-        examples: ['steelforge delta init stripe-billing "Add billing"', 'steelforge delta validate stripe-billing', 'steelforge delta merge stripe-billing --write'],
+        examples: ['steelfoundry delta init stripe-billing "Add billing"', 'steelfoundry delta validate stripe-billing', 'steelfoundry delta merge stripe-billing --write'],
     },
     {
         name: 'tour',
         group: 'experience',
         summary: 'Guided first run: recon, constitution draft, check, status, delta',
-        usage: 'steelforge tour [target] [--write] [--lang es|en] [--json]',
+        usage: 'steelfoundry tour [target] [--write] [--lang es|en] [--json]',
         indexLines: [
             '  tour [target] [--write] [--lang es|en] [--json]  Guided first run: recon, constitution draft, check, status, delta',
         ],
-        examples: ['steelforge tour', 'steelforge tour --write', 'steelforge tour --lang en'],
+        examples: ['steelfoundry tour', 'steelfoundry tour --write', 'steelfoundry tour --lang en'],
     },
     {
         name: 'context',
         group: 'experience',
         summary: 'The context pack the MCP server serves, in the terminal',
-        usage: 'steelforge context [feature] [--lang es|en] [--json]',
+        usage: 'steelfoundry context [feature] [--lang es|en] [--json]',
         indexLines: ['  context [feature] [--lang es|en] [--json]        The context pack the MCP server serves, in the terminal'],
-        examples: ['steelforge context', 'steelforge context stripe-billing --json'],
+        examples: ['steelfoundry context', 'steelfoundry context stripe-billing --json'],
     },
     {
         name: 'integrate',
         group: 'adoption',
         summary: 'Register the MCP server, install the skills and the Stop hook',
-        usage: 'steelforge integrate [host] [--list] [--write] [--json] [--dry-run]',
+        usage: 'steelfoundry integrate [host] [--list] [--write] [--json] [--dry-run]',
         indexLines: [
             '  integrate [host] [--write] [--json] [--dry-run]  Register the MCP server, install its skills and its Stop hook',
             '  integrate --list                                 The whole matrix: skills layout, invocation syntax, MCP path, verified?',
             '  integrate vscode-tasks [--write]                 SDD tasks in .vscode/tasks.json (Run Task), merge-only',
         ],
-        examples: ['steelforge integrate --list', 'steelforge integrate claude-code --write'],
+        examples: ['steelfoundry integrate --list', 'steelfoundry integrate claude-code --write'],
     },
     {
         name: 'import',
         group: 'adoption',
         summary: "Map an incumbent's specs into .sdd (a mapping, never a promise)",
-        usage: 'steelforge import <spec-kit> [--write] [--json]',
+        usage: 'steelfoundry import <spec-kit> [--write] [--json]',
         indexLines: [
             "  import [spec-kit] [--write] [--json] Map an incumbent's specs into .sdd (a mapping, never a promise)",
         ],
         details: ['The mapping is declared and reviewable: it never claims a lossless conversion.'],
-        examples: ['steelforge import spec-kit --write'],
+        examples: ['steelfoundry import spec-kit --write'],
     },
     {
         name: 'gitflow',
         group: 'daily',
         summary: "The branch's role and what that role requires",
-        usage: 'steelforge gitflow [--level <l>] [--greenfield] [--json]',
+        usage: 'steelfoundry gitflow [--level <l>] [--greenfield] [--json]',
         indexLines: ["  gitflow [--level <l>] [--greenfield] [--json]  The branch's role and what that role requires"],
-        examples: ['steelforge gitflow', 'steelforge gitflow --json'],
+        examples: ['steelfoundry gitflow', 'steelfoundry gitflow --json'],
     },
     {
         name: 'progress',
         group: 'daily',
         summary: 'The append-only progress ledger',
-        usage: 'steelforge progress [--json] [--limit N] | steelforge progress record --kind <tipo> --summary "<una línea>" --score <0..100> --phase <1|2|3> [--evidence <p>] [--json]',
+        usage: 'steelfoundry progress [--json] [--limit N] | steelfoundry progress record --kind <tipo> --summary "<una línea>" --score <0..100> --phase <1|2|3> [--evidence <p>] [--json]',
         indexLines: [
             '  progress [--json] [--limit N]                 The append-only progress ledger',
             '  progress record --kind <tipo> --summary "<una línea>" --score <0..100> --phase <1|2|3> [--evidence <p>] [--json]  Record a milestone',
         ],
         subcommands: [SUB('record', 'record a milestone in the ledger')],
-        examples: ['steelforge progress', 'steelforge progress record --kind review --summary "reviewed" --score 80 --phase 2'],
+        examples: ['steelfoundry progress', 'steelfoundry progress record --kind review --summary "reviewed" --score 80 --phase 2'],
     },
     {
         name: 'backup',
         group: 'daily',
         summary: 'The restorable backup of .sdd/ with a verifiable manifest',
-        usage: 'steelforge backup <create|verify|restore> [archive] [--write] [--json]',
+        usage: 'steelfoundry backup <create|verify|restore> [archive] [--write] [--json]',
         indexLines: [
             '  backup [create|verify|restore]  The restorable backup of .sdd/ with a verifiable manifest',
             '  backup create [--out <dir>] [--force] [--json]  A restorable copy of .sdd/ with a sha256 per file',
@@ -678,101 +678,101 @@ export const COMMANDS = [
             SUB('restore', 'restore; without `--write` it is a dry run'),
         ],
         strictSubcommands: true,
-        examples: ['steelforge backup create', 'steelforge backup verify .sdd/backups/x', 'steelforge backup restore .sdd/backups/x'],
+        examples: ['steelfoundry backup create', 'steelfoundry backup verify .sdd/backups/x', 'steelfoundry backup restore .sdd/backups/x'],
     },
     {
         name: 'biography',
         group: 'daily',
         summary: 'The rhythm of a living specification (git, amendments, ratifications)',
-        usage: 'steelforge biography <feature> [--limit N] [--json]',
+        usage: 'steelfoundry biography <feature> [--limit N] [--json]',
         indexLines: [
             '  biography <feature> [--limit N] [--json]      The rhythm of a living specification (git, amendments, ratifications)',
         ],
-        examples: ['steelforge biography stripe-billing'],
+        examples: ['steelfoundry biography stripe-billing'],
     },
     {
         name: 'gap',
         aliases: ['validate-gap'],
         group: 'daily',
         summary: 'Blast radius and gap analysis',
-        usage: 'steelforge gap <feature> [--json]',
+        usage: 'steelfoundry gap <feature> [--json]',
         indexLines: ['  gap <feature> [--json]                        Blast radius and gap analysis'],
-        examples: ['steelforge gap stripe-billing'],
+        examples: ['steelfoundry gap stripe-billing'],
     },
     {
         name: 'getspecs',
         group: 'daily',
         summary: 'Reverse-engineer steering + roadmap + spec seeds',
-        usage: 'steelforge getspecs [focus] [--json]',
+        usage: 'steelfoundry getspecs [focus] [--json]',
         indexLines: ['  getspecs [focus] [--json]                     Reverse-engineer steering + roadmap + spec seeds'],
-        examples: ['steelforge getspecs', 'steelforge getspecs src/auth'],
+        examples: ['steelfoundry getspecs', 'steelfoundry getspecs src/auth'],
     },
     {
         name: 'verify',
         aliases: ['validate-impl'],
         group: 'daily',
         summary: 'Standalone integration verification gate',
-        usage: 'steelforge verify <feature> [--json]',
+        usage: 'steelfoundry verify <feature> [--json]',
         indexLines: ['  verify <feature> [--json]                     Standalone integration verification gate'],
-        examples: ['steelforge verify stripe-billing'],
+        examples: ['steelfoundry verify stripe-billing'],
     },
     {
         name: 'impl',
         group: 'daily',
         summary: 'Autonomous implementation with review',
-        usage: 'steelforge impl <feature> [tasks] [--review required|inline|off]',
+        usage: 'steelfoundry impl <feature> [tasks] [--review required|inline|off]',
         indexLines: ['  impl <feature> [tasks] [--review required|inline|off]  Autonomous implementation with review'],
-        examples: ['steelforge impl stripe-billing', 'steelforge impl stripe-billing --review inline'],
+        examples: ['steelfoundry impl stripe-billing', 'steelfoundry impl stripe-billing --review inline'],
     },
     {
         name: 'validation',
         group: 'daily',
         summary: 'Validation each task must show, raised by deterministic rules (money, PII, auth, public API, latency, migrations; yours in .sdd/settings/validation-rules.json); exit 1 when a done task lacks a blocking kind',
-        usage: 'steelforge validation <feature> [--record] [--json]',
+        usage: 'steelfoundry validation <feature> [--record] [--json]',
         indexLines: ['  validation <feature> [--record]            Tests each task must show, by rule; --record writes the decisions to the audit log'],
-        examples: ['steelforge validation transfers', 'steelforge validation transfers --record'],
+        examples: ['steelfoundry validation transfers', 'steelfoundry validation transfers --record'],
     },
     {
         name: 'flow',
         group: 'daily',
         summary: 'Every stage and step of a feature with its status, the current one, pending decisions and flow metrics (schema open-sdd.flow/1 for dashboards)',
-        usage: 'steelforge flow [feature] [--json|--markdown]',
+        usage: 'steelfoundry flow [feature] [--json|--markdown]',
         indexLines: ['  flow [feature] [--json]                    Clear status (state, stage, blockers, next command); all features without one'],
-        examples: ['steelforge flow transfers', 'steelforge flow transfers --json'],
+        examples: ['steelfoundry flow transfers', 'steelfoundry flow transfers --json'],
     },
     {
         name: 'attest',
         group: 'daily',
         summary: 'in-toto Statement v1 of a feature delivery: sha256 of the spec and constitution, commit, status, validation and the audit chain head; --verify detects any later change',
-        usage: 'steelforge attest <feature> [--write [--out <file>]] | steelforge attest --verify <file>',
+        usage: 'steelfoundry attest <feature> [--write [--out <file>]] | steelfoundry attest --verify <file>',
         indexLines: ['  attest <feature> [--write] | --verify <f>  in-toto attestation of what was delivered; verify detects later changes'],
-        examples: ['steelforge attest cobros --write', 'steelforge attest --verify .sdd/attestations/cobros.intoto.json'],
+        examples: ['steelfoundry attest cobros --write', 'steelfoundry attest --verify .sdd/attestations/cobros.intoto.json'],
     },
     {
         name: 'estimate',
         group: 'daily',
         summary: 'Effort P50/P90 and calendar from tasks.md (declared, overridable factors); --sow drafts a scope for an offer',
-        usage: 'steelforge estimate <feature> [--sow [--write]] [--json]',
+        usage: 'steelfoundry estimate <feature> [--sow [--write]] [--json]',
         indexLines: ['  estimate <feature> [--sow [--write]]       Effort P50/P90 + calendar from the spec; --sow drafts the offer scope'],
-        examples: ['steelforge estimate stripe-billing', 'steelforge estimate stripe-billing --sow --write'],
+        examples: ['steelfoundry estimate stripe-billing', 'steelfoundry estimate stripe-billing --sow --write'],
     },
     {
         name: 'uninstall',
         group: 'reversibility',
         summary: 'Plan (and with `--write`, apply) the removal of everything a run wrote',
-        usage: 'steelforge uninstall [--write] [--purge-sdd] [--json]',
+        usage: 'steelfoundry uninstall [--write] [--purge-sdd] [--json]',
         indexLines: ['  uninstall [--write] [--purge-sdd] [--json]   Plan first; `--write` applies; `.sdd/` is kept unless --purge-sdd'],
         details: ['Without `--write` nothing is removed. `.sdd/` is the user’s data and is removed only with an explicit `--purge-sdd`.'],
-        examples: ['steelforge uninstall', 'steelforge uninstall --write', 'steelforge uninstall --write --purge-sdd'],
+        examples: ['steelfoundry uninstall', 'steelfoundry uninstall --write', 'steelfoundry uninstall --write --purge-sdd'],
     },
     {
         name: 'restore',
         group: 'reversibility',
         summary: 'Apply the uninstall plan recorded in a receipt',
-        usage: 'steelforge restore --from <recibo> [--write]',
+        usage: 'steelfoundry restore --from <recibo> [--write]',
         indexLines: ['  restore [--from <recibo>] [--write]           Undo a run from its receipt (same safety rules as uninstall)'],
         details: ['`--from` names the receipt file. A file a human edited, or one merged into a foreign file, is refused with its reason, never deleted.'],
-        examples: ['steelforge restore --from .sdd/.open-sdd-receipt.json', 'steelforge restore --from receipt.json --write'],
+        examples: ['steelfoundry restore --from .sdd/.open-sdd-receipt.json', 'steelfoundry restore --from receipt.json --write'],
     },
     {
         name: 'open-sdd',
@@ -781,19 +781,19 @@ export const COMMANDS = [
         usage: 'open-sdd',
         indexLines: ['  open-sdd                                    Inspect the repository: composite SDD score, phase and the ONE next action'],
         details: ['The door is read-only and never prompts. The full command catalog is one flag away (`--help`).'],
-        examples: ['open-sdd', 'steelforge --no-footer'],
+        examples: ['open-sdd', 'steelfoundry --no-footer'],
     },
     {
         name: 'explain',
         group: 'console',
         summary: 'A gate code or a requirement id, offline: what it is, and for a REQ id where it is defined, which tasks cite it and which files name it',
-        usage: 'steelforge explain <C1|…|C7|O1|…|O7|REQ-ID> [--json]',
+        usage: 'steelfoundry explain <C1|…|C7|O1|…|O7|REQ-ID> [--json]',
         indexLines: ['  explain <C1|REQ-ID>               A gate code, or a requirement: definition, citing tasks, files'],
         details: [
             'A gate code resolves to its name, posture and description from `core/gateCatalog.ts` (the same table `gates list` reads).',
             'A `REQ-…` id is looked up in every spec under `.sdd/specs/`; the files that name it come from `git grep` over tracked files.',
         ],
-        examples: ['steelforge explain C1', 'steelforge explain REQ-MAT-001'],
+        examples: ['steelfoundry explain C1', 'steelfoundry explain REQ-MAT-001'],
     },
 ];
 export const COMMAND_INDEX = (() => {
@@ -897,10 +897,10 @@ const quickExamples = () => [
     `${INSTALL_COMMAND} --lang es -y            Install in Spanish without prompts`,
 ];
 const LEARN_MORE = [
-    '  · steelforge help rigor          the three rigor levels and what each one demands',
-    '  · steelforge help exit-codes     the exit-code contract, including the host-loop sentinel',
-    '  · steelforge help formatting     color, NO_COLOR/FORCE_COLOR/--color and the machine surface',
-    '  · steelforge explain C1          what a gate code checks, offline',
+    '  · steelfoundry help rigor          the three rigor levels and what each one demands',
+    '  · steelfoundry help exit-codes     the exit-code contract, including the host-loop sentinel',
+    '  · steelfoundry help formatting     color, NO_COLOR/FORCE_COLOR/--color and the machine surface',
+    '  · steelfoundry explain C1          what a gate code checks, offline',
     '  · docs/PAPER-ALIGNMENT.md      the normative traceability report',
 ];
 /**
@@ -908,25 +908,25 @@ const LEARN_MORE = [
  * catálogo completo sigue intacto detrás de `--all`; ningún comando deja de existir.
  */
 export const renderEssentialHelp = () => [
-    'Usage: steelforge [verb] — Spec-Driven Development in five verbs',
+    'Usage: steelfoundry [verb] — Spec-Driven Development in five verbs',
     '',
     '  open-sdd                     Where you are and the ONE next action',
-    '  steelforge setup [--write]     Install into this repo (detects agent and terrain; plan first)',
-    '  steelforge start "<intent>"    Start any work: level, rigor and playbook are chosen for you',
-    '  steelforge check               One verdict: the whole gate chain (exit 1 when it fails)',
-    '  steelforge decide              Human decisions waiting for you, with the exact command',
+    '  steelfoundry setup [--write]     Install into this repo (detects agent and terrain; plan first)',
+    '  steelfoundry start "<intent>"    Start any work: level, rigor and playbook are chosen for you',
+    '  steelfoundry check               One verdict: the whole gate chain (exit 1 when it fails)',
+    '  steelfoundry decide              Human decisions waiting for you, with the exact command',
     '',
     `Install:  ${INSTALL_COMMAND}   (Claude Code; --cursor-skills, --copilot-skills, --codex-skills…)`,
     'In chat:  /sdd-help · /sdd-spec-quick <feature> · /sdd-impl <feature> · /sdd-spec-status <feature>',
     '',
     'Colours:  green = automatic · amber = advisory · red = blocks · blue = a person decides',
     '',
-    'Everything else (all commands still work):  steelforge help --all',
-    'One command in detail:                      steelforge help <command>',
+    'Everything else (all commands still work):  steelfoundry help --all',
+    'One command in detail:                      steelfoundry help <command>',
 ].join('\n');
 /** El índice completo. Es la proyección de `COMMANDS`: no hay una segunda lista escrita a mano. */
 export const renderFullHelp = () => {
-    const lines = ['Usage: steelforge [options] (alias: open-sdd)', '', 'Options:', ...globalOptions()];
+    const lines = ['Usage: steelfoundry [options] (alias: open-sdd)', '', 'Options:', ...globalOptions()];
     lines.push('', 'Quick Examples:', ...quickExamples());
     for (const section of HELP_SECTIONS) {
         lines.push('', section.heading);
@@ -947,9 +947,9 @@ export const renderCommandHelp = (name) => {
     const doc = COMMAND_INDEX[name.toLowerCase()];
     if (!doc)
         return undefined;
-    const lines = ['', formatHeading(`Command: steelforge ${doc.name}`), `  ${doc.summary}`, ''];
+    const lines = ['', formatHeading(`Command: steelfoundry ${doc.name}`), `  ${doc.summary}`, ''];
     if (doc.aliases && doc.aliases.length > 0)
-        lines.push(`Aliases: ${doc.aliases.map((alias) => `steelforge ${alias}`).join(', ')}`, '');
+        lines.push(`Aliases: ${doc.aliases.map((alias) => `steelfoundry ${alias}`).join(', ')}`, '');
     lines.push('Usage:', `  ${doc.usage}`, '');
     if (doc.subcommands && doc.subcommands.length > 0) {
         lines.push('Subcommands:');
@@ -970,10 +970,10 @@ export const renderCommandHelp = (name) => {
         lines.push(`  ${example}`);
     lines.push('');
     lines.push(colors.bold('Learn more:'));
-    lines.push('  steelforge help exit-codes    the exit-code contract, including the host-loop sentinel');
-    lines.push('  steelforge help formatting    color, machine output and diagnostics');
+    lines.push('  steelfoundry help exit-codes    the exit-code contract, including the host-loop sentinel');
+    lines.push('  steelfoundry help formatting    color, machine output and diagnostics');
     if (doc.group === 'console' || doc.group === 'brownfield' || doc.group === 'daily') {
-        lines.push('  steelforge explain C1         what a gate code checks, offline');
+        lines.push('  steelfoundry explain C1         what a gate code checks, offline');
     }
     lines.push('  docs/PAPER-ALIGNMENT.md     the normative traceability report');
     lines.push('');
@@ -993,7 +993,7 @@ const RIGOR_USAGE = () => {
     lines.push(`  aspects: ${RIGOR_ASPECTS.join(', ')}`);
     lines.push('  = note: the levels only ADD; a higher level never lowers what the floor already checks');
     lines.push('  = note: the constitution is required at every level — a blocking verdict cites it');
-    lines.push('  = help: `steelforge govern rigor` assesses this repository against the declared level');
+    lines.push('  = help: `steelfoundry govern rigor` assesses this repository against the declared level');
     lines.push('');
     return lines.join('\n');
 };
@@ -1008,7 +1008,7 @@ const FORMATTING_USAGE = () => {
     lines.push('  `= help:` for the runnable fix, `= note:` for the authority');
     lines.push('  Machine surface: JSON keys, ids (C1…C7, REQ-<AREA>-<NNN>), ruleIds and the commands');
     lines.push('  inside a fix stay English and are never localized by --lang');
-    lines.push('  = help: `steelforge help exit-codes` · `steelforge doctor --json`');
+    lines.push('  = help: `steelfoundry help exit-codes` · `steelfoundry doctor --json`');
     lines.push('');
     return lines.join('\n');
 };
@@ -1038,7 +1038,7 @@ export const renderExplain = (code) => {
         gate.implemented === false ? '  state: declared but NOT implemented (counted, not executed)' : '',
         `  what it checks: ${gate.description}`,
         `  reference command: ${gate.command}`,
-        `  = help: \`steelforge gates list\` · \`steelforge gates run\``,
+        `  = help: \`steelfoundry gates list\` · \`steelfoundry gates run\``,
         '',
     ].filter((line) => line.length > 0);
     return { ok: true, text: lines.join('\n'), suggestions: [] };
@@ -1051,7 +1051,7 @@ const usageErrorLines = (message, suggestions, helpCommand) => {
     for (const suggestion of suggestions) {
         lines.push(`  = help: did you mean \`${suggestion}\`? Run \`${helpCommand} ${suggestion}\``);
     }
-    lines.push('  = help: run `steelforge --help` to list every command, or `steelforge help exit-codes`');
+    lines.push('  = help: run `steelfoundry --help` to list every command, or `steelfoundry help exit-codes`');
     return lines;
 };
 export const handleHelpCommand = async (argv, io) => {
@@ -1070,7 +1070,7 @@ export const handleHelpCommand = async (argv, io) => {
         io.log(commandHelp);
         return EXIT.PASSED;
     }
-    for (const line of usageErrorLines(`unknown help topic \`${topic}\``, suggestCommands(topic, [...KNOWN_COMMANDS]), 'steelforge help')) {
+    for (const line of usageErrorLines(`unknown help topic \`${topic}\``, suggestCommands(topic, [...KNOWN_COMMANDS]), 'steelfoundry help')) {
         io.error(line);
     }
     return EXIT.USAGE;

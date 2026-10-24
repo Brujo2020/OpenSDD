@@ -107,7 +107,7 @@ describe('REQ-W2-014 — what each Axet hook does', () => {
     const root = await project();
     const result = fire(root, 'TaskComplete', { taskComplete: { taskMetadata: {} } });
     expect(result.json).toEqual({ cancel: false });
-    expect(result.stderr).toContain('steelforge gate after completion: FAIL');
+    expect(result.stderr).toContain('steelfoundry gate after completion: FAIL');
   });
 
   it('without a local CLI it runs the same origin through npx', async () => {
@@ -149,15 +149,15 @@ describe('REQ-W2-016 — one origin', () => {
     const cache = await makeDir('sdd-npx-');
     const hash = path.join(cache, '_npx', 'abc123');
     await mkdir(path.join(hash, 'node_modules', '@brujo2020', 'open-sdd', 'tools', 'open-sdd', 'dist'), { recursive: true });
-    await writeFile(path.join(hash, 'package.json'), JSON.stringify({ dependencies: { '@brujo2020/steelforge': SOURCE } }));
+    await writeFile(path.join(hash, 'package.json'), JSON.stringify({ dependencies: { '@brujo2020/steelfoundry': SOURCE } }));
     const cli = path.join(hash, 'node_modules', '@brujo2020', 'open-sdd', 'tools', 'open-sdd', 'dist', 'cli.js');
     const saved = process.env.OPEN_SDD_SOURCE;
     delete process.env.OPEN_SDD_SOURCE;
     try {
       expect(detectInstallSource(cli, '9.9.9')).toBe(SOURCE);
-      await writeFile(path.join(hash, 'package.json'), JSON.stringify({ dependencies: { '@brujo2020/steelforge': 'file:../../pkg.tgz' } }));
+      await writeFile(path.join(hash, 'package.json'), JSON.stringify({ dependencies: { '@brujo2020/steelfoundry': 'file:../../pkg.tgz' } }));
       expect(detectInstallSource(cli, '9.9.9')).toBe(`file:${path.join(cache, 'pkg.tgz')}`);
-      expect(detectInstallSource('/usr/lib/node_modules/@brujo2020/steelforge/dist/cli.js', '9.9.9')).toBe('@brujo2020/steelforge@9.9.9');
+      expect(detectInstallSource('/usr/lib/node_modules/@brujo2020/steelfoundry/dist/cli.js', '9.9.9')).toBe('@brujo2020/steelfoundry@9.9.9');
       process.env.OPEN_SDD_SOURCE = 'file:/tmp/x.tgz';
       expect(detectInstallSource(cli, '9.9.9')).toBe('file:/tmp/x.tgz');
     } finally {

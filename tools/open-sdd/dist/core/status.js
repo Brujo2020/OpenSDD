@@ -333,7 +333,7 @@ export const buildStatus = async (cwd, options = {}) => {
     const demandsFor = (bf) => rigorError ? STRICT_DEMANDS : rigorRequires(level, bf);
     const demands = demandsFor(declaredBrownfield);
     if (features.length === 0) {
-        lines.push(content('Specs', 'ninguna especificación en .sdd/specs', 'warn', 'crea una con steelforge init <feature>'));
+        lines.push(content('Specs', 'ninguna especificación en .sdd/specs', 'warn', 'crea una con steelfoundry init <feature>'));
     }
     for (const feature of features) {
         const status = await getSpecStatus(root, feature, sddDir);
@@ -450,7 +450,7 @@ export const buildStatus = async (cwd, options = {}) => {
             lines.push(content('Delta', 'no aplica: proyecto greenfield declarado y sin delta.md', 'dim'));
         }
         else if (deltaDemand === 'required') {
-            lines.push(content('Delta', `brownfield sin delta: el nivel ${level} exige el contrato del cambio`, 'err', `créala con steelforge delta init ${focus ?? '<feature>'} "..."`));
+            lines.push(content('Delta', `brownfield sin delta: el nivel ${level} exige el contrato del cambio`, 'err', `créala con steelfoundry delta init ${focus ?? '<feature>'} "..."`));
         }
         else {
             lines.push(content('Delta', `brownfield sin delta: el nivel ${level} no la exige`, 'dim'));
@@ -588,22 +588,22 @@ export const buildStatus = async (cwd, options = {}) => {
  */
 const chooseNextAction = (input) => {
     if (input.constitutionState === 'missing' || input.constitutionState === 'invalid') {
-        return 'steelforge brownfield constitution . --write';
+        return 'steelfoundry brownfield constitution . --write';
     }
     // Ilegible: se re-deriva SIN --write, porque sobrescribir lo que no se pudo leer perdería trabajo.
     if (input.constitutionState === 'unreadable')
-        return 'steelforge brownfield constitution .';
+        return 'steelfoundry brownfield constitution .';
     const demands = rigorRequires(input.level, input.brownfield);
     if (input.focus && input.brownfield && demands.delta === 'required' && !input.focusHasDelta) {
-        return `steelforge delta init ${input.focus} "..."`;
+        return `steelfoundry delta init ${input.focus} "..."`;
     }
     if (input.focus && input.missingDeclared.length > 0) {
-        return `steelforge brownfield contracts ${input.focus}`;
+        return `steelfoundry brownfield contracts ${input.focus}`;
     }
     if (input.focus && input.changeOriginKnown && input.uncoveredChanges.length > 0) {
-        return `steelforge brownfield contracts ${input.focus} --write`;
+        return `steelfoundry brownfield contracts ${input.focus} --write`;
     }
-    return input.gates.length > 0 ? `steelforge gates run ${input.gates.join(' ')}` : 'steelforge gates run';
+    return input.gates.length > 0 ? `steelfoundry gates run ${input.gates.join(' ')}` : 'steelfoundry gates run';
 };
 /**
  * Renderizar el panel a líneas de texto PLANO.

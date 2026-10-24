@@ -13,16 +13,16 @@ handoffs:
 parallelSafe: true
 moves: []
 commands:
-  - "steelforge brownfield impact <feature>"
-  - "steelforge brownfield forecast \"<description>\" --json"
-  - "steelforge brownfield analyze <feature> --json"
-  - "steelforge delta validate <feature> --json"
-  - "steelforge status --check --json"
-  - "steelforge status --json"
+  - "steelfoundry brownfield impact <feature>"
+  - "steelfoundry brownfield forecast \"<description>\" --json"
+  - "steelfoundry brownfield analyze <feature> --json"
+  - "steelfoundry delta validate <feature> --json"
+  - "steelfoundry status --check --json"
+  - "steelfoundry status --json"
 scripts:
-  - "steelforge brownfield impact <feature>"
-  - "steelforge brownfield forecast \"<description>\" --json"
-  - "steelforge brownfield analyze <feature> --json"
+  - "steelfoundry brownfield impact <feature>"
+  - "steelfoundry brownfield forecast \"<description>\" --json"
+  - "steelfoundry brownfield analyze <feature> --json"
 ---
 
 # Impact — the cost of the change, before the change
@@ -46,9 +46,9 @@ for the description rather than guessing at a change nobody stated.
 - **Identified — produces:** report only — it writes nothing (its `writes` list is empty on purpose).
 - **Identified — refuses:** it refuses to edit code or specs, and refuses to forecast a change nobody described: it asks for the description instead.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `steelforge brownfield impact <feature>` and `steelforge brownfield forecast "<description>" --json` are the checks; `steelforge brownfield analyze <feature> --json` **exits 1** when the feature cannot be analysed (BLOCKS a confident impact claim) and `steelforge delta validate <feature> --json` **exits 1** on a broken delta.
-- **Measured — components:** none — this template is read-only and changes no SDD score component; `steelforge status --json` is identical before and after by design.
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: an impact that breaks a principle in force is reported as a constitutional conflict, and `steelforge status --check --json` is the pivot check.
+- **Assured — backing check:** `steelfoundry brownfield impact <feature>` and `steelfoundry brownfield forecast "<description>" --json` are the checks; `steelfoundry brownfield analyze <feature> --json` **exits 1** when the feature cannot be analysed (BLOCKS a confident impact claim) and `steelfoundry delta validate <feature> --json` **exits 1** on a broken delta.
+- **Measured — components:** none — this template is read-only and changes no SDD score component; `steelfoundry status --json` is identical before and after by design.
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: an impact that breaks a principle in force is reported as a constitutional conflict, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -70,31 +70,31 @@ for the description rather than guessing at a change nobody stated.
    public API surface:
 
 ```bash
-steelforge brownfield impact <feature>
+steelfoundry brownfield impact <feature>
 ```
 
 2. For a change that is only described, forecast what it would touch, with the symbols it recognised:
 
 ```bash
-steelforge brownfield forecast "<description>" --json
+steelfoundry brownfield forecast "<description>" --json
 ```
 
 3. Read the consistency findings that constrain the change:
 
 ```bash
-steelforge brownfield analyze <feature> --json
+steelfoundry brownfield analyze <feature> --json
 ```
 
 4. Validate the delta's declared targets so the impact is measured against a real change contract:
 
 ```bash
-steelforge delta validate <feature> --json
+steelfoundry delta validate <feature> --json
 ```
 
 5. Validate against the constitution and the rigor level, and record the exit code:
 
 ```bash
-steelforge status --check --json
+steelfoundry status --check --json
 ```
 
 6. Report: the dependents and public surfaces at risk; the breaking changes with their consumers; the
@@ -105,7 +105,7 @@ steelforge status --check --json
 ## The constitution is the pivot
 
 An impact that would break a principle in force (a boundary, a compatibility promise) is reported as
-a constitutional conflict, not merely a risk. `steelforge status --check --json` is the pivot check; an
+a constitutional conflict, not merely a risk. `steelfoundry status --check --json` is the pivot check; an
 unratified draft cannot settle whether a break is acceptable.
 
 ## Evidence

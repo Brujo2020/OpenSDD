@@ -20,16 +20,16 @@ parallelSafe: false
 moves:
   - alignment
 commands:
-  - "steelforge status --json"
-  - "steelforge status --check --json"
-  - "steelforge brownfield analyze <feature> --json"
-  - "steelforge brownfield contracts <feature> --json"
-  - "steelforge brownfield converge <feature> --json"
-  - "steelforge govern rigor --gates"
+  - "steelfoundry status --json"
+  - "steelfoundry status --check --json"
+  - "steelfoundry brownfield analyze <feature> --json"
+  - "steelfoundry brownfield contracts <feature> --json"
+  - "steelfoundry brownfield converge <feature> --json"
+  - "steelfoundry govern rigor --gates"
 scripts:
-  - "steelforge brownfield converge <feature> --json"
-  - "steelforge brownfield analyze <feature> --json"
-  - "steelforge brownfield contracts <feature> --json"
+  - "steelfoundry brownfield converge <feature> --json"
+  - "steelfoundry brownfield analyze <feature> --json"
+  - "steelfoundry brownfield contracts <feature> --json"
 ---
 
 # Converge — the specs and the code must agree, or the gap must be written down
@@ -51,9 +51,9 @@ If no feature is named, read the state and ask which feature to converge.
 - **Identified — produces:** `.sdd/specs/<feature>/convergence.md` and the tasks appended to `.sdd/specs/<feature>/tasks.md`.
 - **Identified — refuses:** it refuses to rewrite existing tasks, requirements or plan, and refuses to mark a feature converged while a drift item is open.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `steelforge brownfield analyze <feature> --json` **exits 1** on error findings and `steelforge status --check --json` **exits 1** when the constitution is violated; a failing check BLOCKS the convergence claim.
-- **Measured — components:** `alignment` — the reader sees the change before/after in `steelforge status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: drift is measured against the ratified constitution, the disagreement is routed to the constitution command rather than settled by preference, and `steelforge status --check --json` is the pivot check.
+- **Assured — backing check:** `steelfoundry brownfield analyze <feature> --json` **exits 1** on error findings and `steelfoundry status --check --json` **exits 1** when the constitution is violated; a failing check BLOCKS the convergence claim.
+- **Measured — components:** `alignment` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: drift is measured against the ratified constitution, the disagreement is routed to the constitution command rather than settled by preference, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -76,30 +76,30 @@ If no feature is named, read the state and ask which feature to converge.
 1. Read the repository score and phase, and the one action the engine recommends:
 
 ```bash
-steelforge status --json
+steelfoundry status --json
 ```
 
 2. Read the engine's consistency findings for the feature — these are the drift candidates:
 
 ```bash
-steelforge brownfield analyze <feature> --json
+steelfoundry brownfield analyze <feature> --json
 ```
 
 3. Ask which changed files no test covers; uncovered change is drift that a green suite hides:
 
 ```bash
-steelforge brownfield contracts <feature> --json
+steelfoundry brownfield contracts <feature> --json
 ```
 
 4. Validate the repository against the constitution and the declared rigor level, and read the gates
    that level activates so you know what "converged" must mean here:
 
 ```bash
-steelforge status --check --json
+steelfoundry status --check --json
 ```
 
 ```bash
-steelforge govern rigor --gates
+steelfoundry govern rigor --gates
 ```
 
 5. Write `convergence.md` with:
@@ -113,7 +113,7 @@ steelforge govern rigor --gates
    tasks with their traceability intact. Read what it appended before adding anything by hand:
 
 ```bash
-steelforge brownfield converge <feature> --json
+steelfoundry brownfield converge <feature> --json
 ```
 
 7. Append a task to `tasks.md` for every unbuilt or drifted element the engine did **not** already

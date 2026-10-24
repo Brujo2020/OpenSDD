@@ -1,5 +1,5 @@
 /**
- * `steelforge assist [discover|brief|ears|steering|constitution]` — one front door to the assistants
+ * `steelfoundry assist [discover|brief|ears|steering|constitution]` — one front door to the assistants
  * (spec `variants-reverse`, REQ-VR-006…008). Without a subcommand it says which assistant helps now.
  * EARS conversion and the constitution delegate to the existing engines (`earsAssistant`, `brownfield
  * specify|requirements|constitution`); discovery and steering drafts live in `core/guidedAssistants.ts`.
@@ -59,14 +59,14 @@ export const handleAssistCommand = async (args: string[], io: CliIO, cwd: string
     const feature = flag(args, 'feature') || slugFromIntent(idea);
     const plan = await planDiscovery(cwd, feature, idea);
     if (plan.decision.level === 'L0') {
-      show({ level: 'L0' }, ['L0 tiny: no discovery needed — write the three-line tiny spec (steelforge start "' + idea + '")']);
+      show({ level: 'L0' }, ['L0 tiny: no discovery needed — write the three-line tiny spec (steelfoundry start "' + idea + '")']);
       return EXIT.PASSED;
     }
     const wrote = await writeDiscovery(plan, args.includes('--force'));
     show({ feature, file: path.relative(cwd, plan.file), roles: plan.roles, questions: plan.questions.map((q) => ({ id: q.id, role: q.role, title: q.title })), written: wrote }, [
       `Discovery for ${feature}: level ${plan.decision.level} · ${plan.decision.variant} · ${plan.questions.length} question(s) from ${plan.roles.join(', ')}`,
       ...plan.questions.map((q) => `  ${q.id} [${q.role}] ${q.title}`),
-      wrote ? `  wrote ${path.relative(cwd, plan.file)} — answer it, then: steelforge assist brief ${feature} --write` : `  ${path.relative(cwd, plan.file)} exists (use --force to regenerate)`,
+      wrote ? `  wrote ${path.relative(cwd, plan.file)} — answer it, then: steelfoundry assist brief ${feature} --write` : `  ${path.relative(cwd, plan.file)} exists (use --force to regenerate)`,
     ]);
     return EXIT.PASSED;
   }
@@ -106,7 +106,7 @@ export const handleAssistCommand = async (args: string[], io: CliIO, cwd: string
       const sentences = accepted.flatMap((r) => r.proposals.map((p) => ({ p, src: r.input })));
       const ids = nextRequirementIds(existing, area, sentences.length);
       const today = new Date().toISOString().slice(0, 10);
-      const block = sentences.map((x, i) => `### ${ids[i]} — ${(x.p.split(/\bshall (?:not )?/)[1] ?? x.p).split(/\s+/).slice(0, 7).join(' ').replace(/\.$/, '')}\n- Statement: ${x.p}\n- Source: "${x.src}" (steelforge assist ears, ${today})\n`).join('\n');
+      const block = sentences.map((x, i) => `### ${ids[i]} — ${(x.p.split(/\bshall (?:not )?/)[1] ?? x.p).split(/\s+/).slice(0, 7).join(' ').replace(/\.$/, '')}\n- Statement: ${x.p}\n- Source: "${x.src}" (steelfoundry assist ears, ${today})\n`).join('\n');
       if (sentences.length) {
         await mkdir(path.dirname(reqFile), { recursive: true });
         await writeFile(reqFile, `${existing ? `${existing.replace(/\s*$/, '')}\n\n` : `# Requirements — ${feature}\n\n`}${block}`, 'utf8');
@@ -135,7 +135,7 @@ export const handleAssistCommand = async (args: string[], io: CliIO, cwd: string
     }
     show({ ...d, written }, [
       ...d.files.map((f) => `  ${f.name.padEnd(13)} ${f.inferred} inferred · ${f.questions} question(s)${written.includes(f.name) ? ' · written' : ''}`),
-      args.includes('--write') ? '  confirm or correct each (inferred) and answer each [NEEDS CLARIFICATION]; then: steelforge steering check' : '  plan only: add --write (existing files are kept unless --force)',
+      args.includes('--write') ? '  confirm or correct each (inferred) and answer each [NEEDS CLARIFICATION]; then: steelfoundry steering check' : '  plan only: add --write (existing files are kept unless --force)',
     ]);
     return EXIT.PASSED;
   }

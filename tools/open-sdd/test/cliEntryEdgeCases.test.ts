@@ -30,21 +30,21 @@ describe('CLI entry edge cases', () => {
     const ctx = makeIO();
     const code = await runCli(['--help', '-h'], runtime, ctx.io, {});
     expect(code).toBe(0);
-    expect(ctx.logs.join('\n')).toMatch(/Usage: steelforge/);
+    expect(ctx.logs.join('\n')).toMatch(/Usage: steelfoundry/);
   });
 
   it('handles multiple version flags', async () => {
     const ctx = makeIO();
     const code = await runCli(['--version', '-v'], runtime, ctx.io, {});
     expect(code).toBe(0);
-    expect(ctx.logs.join('\n')).toMatch(/(open-sdd|steelforge) v/);
+    expect(ctx.logs.join('\n')).toMatch(/(open-sdd|steelfoundry) v/);
   });
 
   it('prioritizes help over version', async () => {
     const ctx = makeIO();
     const code = await runCli(['--version', '--help'], runtime, ctx.io, {});
     expect(code).toBe(0);
-    expect(ctx.logs.join('\n')).toMatch(/Usage: steelforge/);
+    expect(ctx.logs.join('\n')).toMatch(/Usage: steelfoundry/);
     expect(ctx.logs.join('\n')).not.toMatch(/open-sdd v/);
   });
 

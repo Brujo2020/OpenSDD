@@ -14,19 +14,19 @@ parallelSafe: true
 moves:
   - gates
 commands:
-  - "steelforge gates run"
-  - "steelforge gates chain --profile regulated"
-  - "steelforge gates crosswalk"
-  - "steelforge gates enforcement"
-  - "steelforge govern rigor --gates"
-  - "steelforge floor status"
-  - "steelforge status --check --json"
-  - "steelforge status --json"
+  - "steelfoundry gates run"
+  - "steelfoundry gates chain --profile regulated"
+  - "steelfoundry gates crosswalk"
+  - "steelfoundry gates enforcement"
+  - "steelfoundry govern rigor --gates"
+  - "steelfoundry floor status"
+  - "steelfoundry status --check --json"
+  - "steelfoundry status --json"
 scripts:
-  - "steelforge gates run"
-  - "steelforge gates chain --profile regulated"
-  - "steelforge gates enforcement"
-  - "steelforge floor status"
+  - "steelfoundry gates run"
+  - "steelfoundry gates chain --profile regulated"
+  - "steelfoundry gates enforcement"
+  - "steelfoundry floor status"
 ---
 
 # Gates — the repository's own verdict, not yours
@@ -49,9 +49,9 @@ The input may name a profile. If it does not, use the profile the repository dec
 - **Identified — produces:** report only — it writes nothing (its `writes` list is empty on purpose).
 - **Identified — refuses:** it refuses to edit a spec or a source file to make a gate pass, and refuses to report a green chain it did not run.
 - **Automated — how:** this template never asks you to "consider" a check: the `commands:` frontmatter names the real engine invocations and the steps below RUN them and read their output.
-- **Assured — backing check:** `steelforge gates run` **exits 1** when the chain fails (BLOCKS the merge or release); `steelforge gates chain --profile regulated`, `steelforge gates crosswalk`, `steelforge gates enforcement` and `steelforge floor status` report the resolved controls, the crosswalk, the levels and the installed floor.
-- **Measured — components:** `gates` — the reader sees the change before/after in `steelforge status --json` (score and phase).
-- **Pivoted — the constitution is the pivot:** the constitution is the pivot: every blocking control cites a ratified principle, an unratified constitution makes the controls uncitable, and `steelforge status --check --json` is the pivot check.
+- **Assured — backing check:** `steelfoundry gates run` **exits 1** when the chain fails (BLOCKS the merge or release); `steelfoundry gates chain --profile regulated`, `steelfoundry gates crosswalk`, `steelfoundry gates enforcement` and `steelfoundry floor status` report the resolved controls, the crosswalk, the levels and the installed floor.
+- **Measured — components:** `gates` — the reader sees the change before/after in `steelfoundry status --json` (score and phase).
+- **Pivoted — the constitution is the pivot:** the constitution is the pivot: every blocking control cites a ratified principle, an unratified constitution makes the controls uncitable, and `steelfoundry status --check --json` is the pivot check.
 
 ## Pre-Execution Checks
 
@@ -73,42 +73,42 @@ The input may name a profile. If it does not, use the profile the repository dec
 1. Read the rigor ladder and which gates the declared level activates:
 
 ```bash
-steelforge govern rigor --gates
+steelfoundry govern rigor --gates
 ```
 
 2. Run the enforcement chain. Its exit status is the verdict; **exit 1 BLOCKS**:
 
 ```bash
-steelforge gates run
+steelfoundry gates run
 ```
 
 3. If the repository declares a regulated profile, resolve and run the stricter chain:
 
 ```bash
-steelforge gates chain --profile regulated
+steelfoundry gates chain --profile regulated
 ```
 
 4. Read the crosswalk so every implemented verification maps to the control that imposes it, and read
    the enforcement levels so ceiling and floor are not blurred:
 
 ```bash
-steelforge gates crosswalk
+steelfoundry gates crosswalk
 ```
 
 ```bash
-steelforge gates enforcement
+steelfoundry gates enforcement
 ```
 
 5. Confirm the enforcement floor is actually installed, not merely declared:
 
 ```bash
-steelforge floor status
+steelfoundry floor status
 ```
 
 6. Validate against the constitution and the rigor level, and record the exit code:
 
 ```bash
-steelforge status --check --json
+steelfoundry status --check --json
 ```
 
 7. Report: the resolved chain and profile; each control's verdict and evidence; the controls **not
@@ -117,7 +117,7 @@ steelforge status --check --json
 
 ## The constitution is the pivot
 
-Every blocking control cites a principle of the ratified constitution. `steelforge status --check
+Every blocking control cites a principle of the ratified constitution. `steelfoundry status --check
 --json` is the pivot check; if the constitution is absent or a draft, the blocking controls have
 nothing to cite and are reported as uncitable rather than green.
 

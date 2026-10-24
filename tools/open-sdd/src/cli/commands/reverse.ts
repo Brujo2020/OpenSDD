@@ -1,4 +1,4 @@
-/** `steelforge reverse init|status|next|confirm` — the reverse engineering mode (spec `variants-reverse`). */
+/** `steelfoundry reverse init|status|next|confirm` — the reverse engineering mode (spec `variants-reverse`). */
 import type { CliIO } from '../io.js';
 import { EXIT } from './help.js';
 import { confirmRule, initInventory, reverseStages } from '../../core/reverse.js';
@@ -18,7 +18,7 @@ export const handleReverseCommand = async (args: string[], io: CliIO, cwd: strin
   const show = (data: unknown, text: string[]) => io.log(json ? JSON.stringify(data, null, 2) : text.join('\n'));
   if (sub === 'init') {
     const r = await initInventory(cwd, { scope: list(flag(args, 'scope')), critical: list(flag(args, 'critical')) });
-    show(r, [`inventory: ${r.inventory.modules.length} module(s)${r.added.length ? `; added ${r.added.join(', ')}` : ''}`, ...r.inventory.modules.map((m) => `  ${m.critical ? '★' : ' '} ${m.id.padEnd(20)} ${m.path} (${m.files ?? '?'} files)`), ...r.unknown.map((u) => `  ! no module ${u} found`), '  next: steelforge reverse status']);
+    show(r, [`inventory: ${r.inventory.modules.length} module(s)${r.added.length ? `; added ${r.added.join(', ')}` : ''}`, ...r.inventory.modules.map((m) => `  ${m.critical ? '★' : ' '} ${m.id.padEnd(20)} ${m.path} (${m.files ?? '?'} files)`), ...r.unknown.map((u) => `  ! no module ${u} found`), '  next: steelfoundry reverse status']);
     return r.unknown.length ? EXIT.GATE_FAILED : EXIT.PASSED;
   }
   if (sub === 'status' || sub === 'next') {
