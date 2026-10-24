@@ -40,7 +40,7 @@ flowchart LR
 | 🟢 Verde | Automático: decide la herramienta con evidencia | nivel, rigor, playbook, siguiente acción |
 | 🟡 Ámbar | Consultivo: se informa, nunca bloquea | hallazgos de estándares, candidatos de reutilización |
 | 🔴 Rojo | Bloquea: exit 1 hasta corregirlo | gates C1–C3, constitución inválida |
-| 🔵 Azul | Decide una persona | tarjetas HIL, reintento tras 3 fallos, ratificar la constitución |
+| 🔵 Azul | Decide una persona | tarjetas HIL, reintento tras 3 fallos, ratificar la constitución (tecleando `RATIFICAR` en la terminal) |
 
 ## 3. Un ejemplo pequeño y seguro, de principio a fin
 
@@ -223,3 +223,19 @@ flowchart TB
 | La política de escalado solo ve los rechazos reportados al motor (`report`) | lo que el agente no reporta no se cuenta | usar el ciclo `next`/`report` (lo hacen los playbooks) |
 | Un agente puede simular progreso (arreglar un problema artificial por intento) | el progreso se mide por mensajes de fallo, no por intención | el tope de más de 3 sigue aplicándose: como mucho gana 2 intentos |
 | C7/Karpathy no inspecciona el código | se activa, no se mide (`inspects: false`) | revisión independiente |
+
+## Estado claro, validación y auditoría
+
+| Pregunta | Orden | Qué responde |
+|---|---|---|
+| ¿Cómo va? | `open-sdd flow` | cada feature en una línea: SIN EMPEZAR · EN CURSO · ESPERA UNA DECISIÓN · BLOQUEADO · TERMINADO, etapa n/9, tareas, qué lo bloquea y la siguiente orden |
+| ¿Qué pruebas exige cada tarea? | `open-sdd validation <feature>` | las clases de prueba que suben las reglas (dinero, datos personales, acceso, API, latencia, migraciones y las tuyas) y por qué |
+| ¿Quién decidió qué? | `open-sdd audit trail <feature>` | persona (con email git), agente, regla o sistema; por qué; sobre qué requisito y principio; cadena de hashes |
+| Para un tablero | `open-sdd flow <feature> --json` | esquema `open-sdd.flow/1` |
+
+**Ratificar la constitución.** *Objetivo*: que sus principios pasen a ser reglas que los gates citan.
+*Alcance*: solo los principios del borrador. *Cómo*: `open-sdd assist constitution` o
+`govern constitution --ratify --by "<nombre>" --rationale "<motivo>" --write`, y teclear `RATIFICAR` en la
+terminal. *Dónde queda*: `.sdd/steering/constitution.md` (enmienda por principio) y
+`.sdd/engine/_governance.audit.jsonl` (quién, email, motivo, principios). Un intento sin confirmar no escribe
+nada y también queda registrado.

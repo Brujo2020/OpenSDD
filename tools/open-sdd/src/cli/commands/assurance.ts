@@ -11,6 +11,7 @@ import { filterTrail, readAuditTrail, trailCsv, type ActorKind } from '../../cor
 import { buildFlow } from '../../core/flow.js';
 import { parseConstitution } from '../../core/constitution.js';
 import { resolveSddDir } from '../../core/specManager.js';
+import { listFeatures } from '../../core/trace.js';
 import { featureValidation } from '../../core/validationRules.js';
 import { sha256 } from '../../core/questions.js';
 
@@ -89,22 +90,48 @@ export const handleValidationCommand = async (args: string[], io: CliIO, cwd: st
   return blocking.length > 0 || result.errors.length > 0 ? 1 : 0;
 };
 
+const STATE_ICON = {
+  'not-started': colors.dim('○'),
+  'in-progress': colors.cyan('▶'),
+  'waiting-decision': colors.magenta('?'),
+  blocked: colors.red('■'),
+  done: colors.green('✓'),
+} as const;
+
 // ── flow ────────────────────────────────────────────────────────────────────────────────────
 
 export const handleFlowCommand = async (args: string[], io: CliIO, cwd: string): Promise<number> => {
   const feature = positional(args);
+  const sddDir = await resolveSddDir(cwd);
   if (!feature) {
-    io.error('usage: open-sdd flow <feature> [--json]');
-    return 2;
+    // Sin feature: el estado de TODAS, una línea cada una.
+    const features = await listFeatures(cwd, sddDir);
+    const flows = [];
+    for (const name of features) flows.push(await buildFlow(cwd, name, sddDir));
+    if (args.includes('--json')) {
+      io.log(JSON.stringify({ schema: 'open-sdd.flow-list/1', features: flows.map((f) => ({ feature: f.feature, status: f.status, current: f.current, metrics: f.metrics })) }, null, 2));
+      return 0;
+    }
+    io.log('');
+    if (flows.length === 0) io.log('  no hay specs todavía: open-sdd start "<lo que quieres>"');
+    for (const f of flows) {
+      io.log(`  ${STATE_ICON[f.status.state]} ${colors.bold(f.feature)} — ${f.status.headline}`);
+      io.log(colors.dim(`      siguiente: ${f.status.next}`));
+    }
+    io.log('');
+    return 0;
   }
-  const flow = await buildFlow(cwd, feature, await resolveSddDir(cwd));
+  const flow = await buildFlow(cwd, feature, sddDir);
   if (args.includes('--json')) {
     io.log(JSON.stringify(flow, null, 2));
     return 0;
   }
-  const icon = { done: colors.green('✓'), current: colors.cyan('▶'), pending: colors.dim('○'), blocked: colors.red('■') } as const;
   io.log('');
-  io.log(formatHeading(`Flujo — ${feature} · etapa ${flow.current.index}/${flow.current.of}: ${flow.current.label}`));
+  io.log(`  ${STATE_ICON[flow.status.state]} ${colors.bold(flow.status.headline)}`);
+  io.log(`  siguiente: ${colors.cyan(flow.status.next)}`);
+  const icon = { done: colors.green('✓'), current: colors.cyan('▶'), pending: colors.dim('○'), blocked: colors.red('■'), skipped: colors.dim('–') } as const;
+  io.log('');
+  io.log(formatHeading(`Etapas — ${feature}`));
   for (const s of flow.stages) io.log(`  ${icon[s.status]} ${s.label.padEnd(26)} ${colors.dim(s.because)}`);
   if (flow.run) {
     io.log('');

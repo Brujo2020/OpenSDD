@@ -42,14 +42,23 @@ export const approverAllowed = (list, by, id) => {
  * Every failure (no /dev/tty, Windows, timeout, wrong id) is a refusal, and it never prompts under the
  * test runner — that can only refuse, so it opens no bypass.
  */
-export const confirmOnTty = (id, ttyPath = '/dev/tty', timeoutMs = 60_000) => {
+export const confirmOnTty = (id, ttyPath = '/dev/tty', timeoutMs = 60_000, what = 'la aprobación') => {
     if (process.env.VITEST || process.platform === 'win32')
         return false;
     try {
-        const r = spawnSync('sh', ['-c', 'printf "%s" "$1" > "$2" && IFS= read -r answer < "$2" && printf "%s" "$answer"', 'confirm', `Escribe ${id} para confirmar la aprobación: `, ttyPath], { encoding: 'utf8', timeout: timeoutMs, stdio: ['ignore', 'pipe', 'ignore'] });
+        const r = spawnSync('sh', ['-c', 'printf "%s" "$1" > "$2" && IFS= read -r answer < "$2" && printf "%s" "$answer"', 'confirm', `Escribe ${id} para confirmar ${what}: `, ttyPath], { encoding: 'utf8', timeout: timeoutMs, stdio: ['ignore', 'pipe', 'ignore'] });
         return r.status === 0 && (r.stdout ?? '').trim() === id;
     }
     catch {
         return false;
     }
+};
+/**
+ * Confirmación en terminal sustituible SOLO por los tests (el runner no tiene terminal y
+ * `confirmOnTty` allí siempre rechaza). El producto usa siempre `confirmOnTty`.
+ */
+let terminalConfirmer = (id, what) => confirmOnTty(id, '/dev/tty', 60_000, what);
+export const confirmOnTerminal = (id, what) => terminalConfirmer(id, what);
+export const setTerminalConfirmerForTests = (fn) => {
+    terminalConfirmer = fn ?? ((id, what) => confirmOnTty(id, '/dev/tty', 60_000, what));
 };

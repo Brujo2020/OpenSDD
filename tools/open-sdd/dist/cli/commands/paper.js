@@ -962,6 +962,42 @@ export const handleGovernCommand = async (args, io, cwd) => {
                     .filter(Boolean)
                 : [];
             const result = ratifyDraft(parsed, { by, rationale, ...(ids.length > 0 ? { ids } : {}) });
+            // Confirmación OBLIGATORIA en la terminal: antes de dar autoridad se dice el objetivo, el alcance
+            // exacto y dónde quedará registrado, y la persona teclea RATIFICAR en su terminal (/dev/tty).
+            // Sin --write no se escribe nada y no hace falta confirmar.
+            if (args.includes('--write') && result.ratified.length > 0) {
+                const { gitIdentity, confirmOnTerminal } = await import('../../core/hilIdentity.js');
+                const identity = gitIdentity(root);
+                const byId = new Map(parsed.principles.map((p) => [p.id, p]));
+                io.log('');
+                io.log(heading('Confirmar la ratificación'));
+                io.log(`  ${colors.bold('Objetivo')}: dar autoridad a estos principios. Desde ahora los gates y las revisiones los citan como reglas del proyecto, y cambiarlos exige una enmienda.`);
+                io.log(`  ${colors.bold('Alcance')} (${result.ratified.length} principio(s)):`);
+                for (const id of result.ratified) {
+                    const principle = byId.get(id);
+                    io.log(`    · ${id} ${principle ? `${principle.level} — ${principle.title}` : ''}`);
+                }
+                for (const refusal of result.refused)
+                    io.log(dim(`    · no entra ${refusal.id}: ${refusal.why}`));
+                io.log(`  ${colors.bold('Quién')}: ${by}${identity.email ? ` <${identity.email}>` : ''} · motivo: ${rationale}`);
+                io.log(`  ${colors.bold('Dónde queda registrado')}:`);
+                io.log(`    · .sdd/steering/constitution.md — cada principio con su enmienda AMD-RATIFY-<id> (quién, cuándo, motivo)`);
+                io.log(`    · .sdd/engine/_governance.audit.jsonl — evento CONSTITUTION_RATIFIED, encadenado por hash`);
+                io.log(`    · consulta: open-sdd audit trail --actor human`);
+                if (!confirmOnTerminal('RATIFICAR', 'la ratificación de la constitución')) {
+                    const { appendAudit } = await import('../../core/engine.js');
+                    await appendAudit(root, '_governance', {
+                        event: 'CONSTITUTION_RATIFY_REFUSED',
+                        by,
+                        actor: { name: by, kind: 'agent', ...(identity.email ? { email: identity.email } : {}) },
+                        why: 'no se confirmó en la terminal (sin terminal, tiempo agotado o texto distinto de RATIFICAR)',
+                        principles: result.ratified,
+                    });
+                    io.log('');
+                    io.error(colors.red('Ratificación NO confirmada: hay que teclear RATIFICAR en la terminal de quien ratifica. Una sesión de agente o un script sin terminal no puede hacerlo. Nada se escribió; el intento quedó en el registro.'));
+                    return 1;
+                }
+            }
             io.log('');
             io.log(heading(`Ratificación — ${parsed.project}`));
             io.log('');
@@ -1001,16 +1037,15 @@ export const handleGovernCommand = async (args, io, cwd) => {
                 // Registro de auditoría: quién ratificó qué principios y por qué. Si la orden llegó desde una
                 // sesión de agente (sin terminal), queda dicho: el nombre lo tecleó un agente, no se comprobó.
                 const { appendAudit } = await import('../../core/engine.js');
-                const { gitIdentity, isAgentSession } = await import('../../core/hilIdentity.js');
+                const { gitIdentity } = await import('../../core/hilIdentity.js');
                 const identity = gitIdentity(root);
-                const agent = isAgentSession();
                 await appendAudit(root, '_governance', {
                     event: 'CONSTITUTION_RATIFIED',
                     by,
-                    actor: { name: by, kind: agent ? 'agent' : 'human', ...(identity.email ? { email: identity.email } : {}) },
-                    why: `${rationale}${agent ? ' · ratificado desde una sesión de agente: el nombre no se confirmó en una terminal' : ''}`,
+                    actor: { name: by, kind: 'human', ...(identity.email ? { email: identity.email } : {}) },
+                    why: rationale,
                     principles: result.ratified,
-                    ...(result.refused.length ? { evidence: result.refused.map((r) => `rechazado ${r.id}: ${r.why}`) } : {}),
+                    evidence: ['confirmado en la terminal (RATIFICAR)', ...result.refused.map((r) => `rechazado ${r.id}: ${r.why}`)],
                 });
             }
             io.log('');

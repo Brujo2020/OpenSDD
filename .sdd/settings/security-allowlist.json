@@ -289,7 +289,7 @@
       "expires": "2027-03-31"
     },
     {
-      "path": "tools/open-sdd/test/e2eBankTransfers.test.ts",
+      "path": "tools/open-sdd/test/e2eAssuranceFlow.test.ts",
       "ids": [
         "guardrail-bypass",
         "self-approval"

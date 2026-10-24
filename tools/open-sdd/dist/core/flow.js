@@ -45,16 +45,21 @@ export const buildFlow = async (cwd, feature, sddDir = '.sdd') => {
         ['validate', 'Validación exigida', plan.length > 0 && done === plan.length && gaps === 0, `${gaps} tarea(s) hechas sin la validación exigida`],
         ['approve', 'Decisiones humanas', cards.length === 0, `${cards.length} decisión(es) pendientes`],
     ];
-    const firstOpen = facts.findIndex(([, , ok]) => !ok);
+    // Discovery es opcional: si ya hay requisitos sin brief, se salta (se dice), no se queda «actual» para siempre.
+    const hasRequirements = facts[2][2];
+    const skipped = new Set(!facts[1][2] && hasRequirements ? ['discovery'] : []);
+    const firstOpen = facts.findIndex(([id, , ok]) => !ok && !skipped.has(id));
     const stages = facts.map(([id, label, ok, because], index) => ({
         id,
         label,
-        status: ok && (firstOpen === -1 || index < firstOpen)
-            ? 'done'
-            : index === firstOpen
-                ? (id === 'validate' && blocking > 0) || (id === 'approve' && cards.length > 0) ? 'blocked' : 'current'
-                : ok ? 'done' : 'pending',
-        because,
+        status: skipped.has(id)
+            ? 'skipped'
+            : ok && (firstOpen === -1 || index < firstOpen)
+                ? 'done'
+                : index === firstOpen
+                    ? (id === 'validate' && blocking > 0) || (id === 'approve' && cards.length > 0) ? 'blocked' : 'current'
+                    : ok ? 'done' : 'pending',
+        because: skipped.has(id) ? 'sin brief.md: se empezó directamente por los requisitos' : because,
     }));
     const currentIndex = firstOpen === -1 ? stages.length - 1 : firstOpen;
     const progress = await runProgress(cwd, feature);
@@ -63,11 +68,50 @@ export const buildFlow = async (cwd, feature, sddDir = '.sdd') => {
     const decided = trail.records.filter((r) => r.feature === feature);
     const first = decided[0]?.at;
     const last = decided[decided.length - 1]?.at;
+    const chainsIntact = trail.chains.every((c) => c.ok);
+    const blockedBy = [
+        ...(blocking > 0 ? [`${blocking} tarea(s) hechas sin la validación que exigen las reglas`] : []),
+        ...(!chainsIntact ? ['el registro de auditoría está manipulado'] : []),
+        ...(progress?.parked ? [`ejecución detenida: ${progress.parked}`] : []),
+    ];
+    const stage = stages[currentIndex];
+    const allDone = firstOpen === -1;
+    const notStarted = !hasRequirements && plan.length === 0;
+    const flowState = allDone && !blockedBy.length ? 'done' : blockedBy.length ? 'blocked' : cards.length ? 'waiting-decision' : notStarted ? 'not-started' : 'in-progress';
+    const NEXT = {
+        constitution: 'open-sdd assist constitution',
+        discovery: `open-sdd assist discover "<idea>" --feature ${feature}`,
+        requirements: `open-sdd brownfield specify ${feature} "<qué debe hacer>" --write`,
+        clarify: `open-sdd brownfield clarify ${feature}`,
+        design: `/sdd-spec-design ${feature}`,
+        tasks: `/sdd-spec-tasks ${feature}`,
+        implement: `open-sdd impl ${feature}`,
+        validate: `open-sdd validation ${feature}`,
+        approve: `open-sdd decide ${feature}`,
+    };
+    const next = !chainsIntact
+        ? `open-sdd audit trail ${feature}`
+        : blocking > 0
+            ? `open-sdd validation ${feature}`
+            : cards.length
+                ? `open-sdd decide ${feature}`
+                : allDone
+                    ? `open-sdd check`
+                    : NEXT[stage.id];
+    const LABEL = {
+        'not-started': 'SIN EMPEZAR',
+        'in-progress': 'EN CURSO',
+        'waiting-decision': 'ESPERA UNA DECISIÓN',
+        blocked: 'BLOQUEADO',
+        done: 'TERMINADO',
+    };
+    const headline = `${LABEL[flowState]} · etapa ${currentIndex + 1}/${stages.length} ${stage.label} · tareas ${done}/${plan.length}${cards.length ? ` · ${cards.length} decisión(es) pendiente(s)` : ''}${blockedBy.length ? ` · bloqueado por: ${blockedBy.join('; ')}` : ''}`;
     return {
         schema: 'open-sdd.flow/1',
         feature,
         generatedAt: new Date().toISOString(),
         current: { stage: stages[currentIndex].id, index: currentIndex + 1, of: stages.length, label: stages[currentIndex].label },
+        status: { state: flowState, headline, blockedBy, next },
         stages,
         run: progress && state
             ? {
@@ -93,7 +137,7 @@ export const buildFlow = async (cwd, feature, sddDir = '.sdd') => {
                 agent: decided.filter((r) => r.actor.kind === 'agent').length,
                 rule: decided.filter((r) => r.actor.kind === 'rule').length,
             },
-            auditChainsIntact: trail.chains.every((c) => c.ok),
+            auditChainsIntact: chainsIntact,
             leadTimeHours: first && last ? Math.round(((Date.parse(last) - Date.parse(first)) / 36e5) * 10) / 10 : null,
         },
     };

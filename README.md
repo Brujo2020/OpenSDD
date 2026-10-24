@@ -469,7 +469,9 @@ It has two origins, and the file records which one applies:
   explicitly not in force. `open-sdd govern constitution --evidence-pack` gives a model or a reviewer
   what it needs to improve it, and
   `open-sdd govern constitution --ratify --by "<name>" --rationale "<why>" --write` puts it in force,
-  recording who ratified it and why. A ratification without a named person and a reason is refused.
+  recording who ratified it and why. A ratification without a named person and a reason is refused, and it
+  must be confirmed by typing `RATIFICAR` on the terminal (an agent session cannot); see
+  [Manual §16.1](docs/MANUAL.md#161-ratifying-the-constitution-mandatory-terminal-confirmation).
 
 `open-sdd govern constitution --matrix` shows how each spec stands against each principle.
 `open-sdd status` reports constitutional alignment next to the rest of the score.

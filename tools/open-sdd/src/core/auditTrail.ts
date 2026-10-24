@@ -1,6 +1,6 @@
 /**
  * Registro de decisiones para auditoría: una fila por paso que respondió a las preguntas de un auditor
- * (por ejemplo de un banco): QUIÉN decidió (persona, agente, regla o sistema), QUÉ, CUÁNDO, POR QUÉ y
+ * (por ejemplo, un comité o un cliente): QUIÉN decidió (persona, agente, regla o sistema), QUÉ, CUÁNDO, POR QUÉ y
  * sobre qué REQUISITOS y PRINCIPIOS de la constitución, con su evidencia.
  *
  * Fuente: los registros `.sdd/engine/<feature>.audit.jsonl` (encadenados por hash) más

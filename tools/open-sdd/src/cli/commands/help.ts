@@ -779,8 +779,8 @@ export const COMMANDS: CommandDoc[] = [
     name: 'flow',
     group: 'daily',
     summary: 'Every stage and step of a feature with its status, the current one, pending decisions and flow metrics (schema open-sdd.flow/1 for dashboards)',
-    usage: 'open-sdd flow <feature> [--json]',
-    indexLines: ['  flow <feature> [--json]                    Stages, current step, decisions and flow metrics (open-sdd.flow/1)'],
+    usage: 'open-sdd flow [feature] [--json]',
+    indexLines: ['  flow [feature] [--json]                    Clear status (state, stage, blockers, next command); all features without one'],
     examples: ['open-sdd flow transfers', 'open-sdd flow transfers --json'],
   },
   {

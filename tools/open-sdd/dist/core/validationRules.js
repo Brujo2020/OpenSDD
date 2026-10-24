@@ -29,7 +29,7 @@ export const VALIDATION_KINDS = [
     'independent-review',
 ];
 /**
- * Reglas de partida, pensadas para un contexto regulado (banca, seguros). No son una norma: cada
+ * Reglas de partida para los riesgos que más se repiten (dinero, datos personales, acceso…). No son una norma: cada
  * organización las sustituye o amplía en `.sdd/settings/validation-rules.json` (mismo id = reemplaza).
  */
 export const DEFAULT_VALIDATION_RULES = [

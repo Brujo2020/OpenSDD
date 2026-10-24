@@ -646,6 +646,40 @@ open-sdd audit <feature> | audit bundle | audit sarif
 Never bypass the commit gate with `--no-verify`; declare a genuine false positive with a reason in
 `.sdd/settings/security-allowlist.json`.
 
+### 16.1 Ratifying the constitution (mandatory terminal confirmation)
+
+**Objective.** Ratifying gives authority to the draft's principles: from then on the gates and reviews cite
+them as project rules, and changing one needs an amendment. That is why it is a person's act, not an
+agent's.
+
+**Scope.** Only the principles in `constitution.draft.md` (all, or the ones in `--ids`). A *descriptive*
+principle (it states something about the code) needs evidence; a *normative* one (a decision of the
+team, e.g. from the guided interview) is ratified by the named person. Nothing else changes.
+
+**How.** `open-sdd assist constitution` guides you to the end, or directly:
+
+```bash
+open-sdd govern constitution --ratify --by "<name>" --rationale "<why>" --write
+```
+
+Before writing, the command prints the objective, the exact list of principles, who (name and git email)
+and where it will be recorded, and asks you to **type `RATIFICAR` on your terminal** (`/dev/tty`, 60 s).
+Without a terminal — an agent session, a CI script, a timeout or a different text — nothing is written,
+the attempt is recorded (`CONSTITUTION_RATIFY_REFUSED`) and the command exits 1. Without `--write` it only
+shows what would happen and asks nothing.
+
+**Where it is recorded.**
+
+| Where | What |
+|---|---|
+| `.sdd/steering/constitution.md` | each principle with its amendment `AMD-RATIFY-<id>`: who, when, why |
+| `.sdd/engine/_governance.audit.jsonl` | `CONSTITUTION_RATIFIED` (or `…_REFUSED`): person, git email, reason, principles; hash-chained |
+| `open-sdd audit trail --actor human` | the readable view; `--principle C-…` for one principle |
+
+Limit: typing on the terminal raises the bar from "an agent typed a name" to "someone at the terminal
+confirmed"; it is not a proof of identity (an agent could open a pseudo-terminal). Identity comes from the
+git email recorded with it.
+
 ---
 
 ## 17. Files and folders
@@ -793,13 +827,24 @@ open-sdd validation <feature>            # per task: required kinds, the rule an
 open-sdd validation <feature> --record   # also writes each decision to the audit log (once per change)
 ```
 
-**Flow** — every stage, the current one, the playbook steps, pending decisions and flow metrics, in a
-stable schema for dashboards:
+**Status and flow** — the clear status first, then every stage, the playbook steps, pending decisions and
+flow metrics, in a stable schema for dashboards:
 
 ```bash
+open-sdd flow                    # every feature, one line each: state · stage n/9 · tasks · blockers · next command
 open-sdd flow <feature>          # constitution → discovery → requirements → clarify → design → tasks → implement → validate → approve
 open-sdd flow <feature> --json   # schema open-sdd.flow/1
 ```
+
+```
+  ▶ EN CURSO · etapa 7/9 Implementación · tareas 1/4
+  siguiente: open-sdd impl cobros
+```
+
+`status.state` is one of `not-started`, `in-progress`, `waiting-decision`, `blocked`, `done`;
+`status.blockedBy` says what blocks it (tasks done without the required validation, a tampered audit log,
+a parked run) and `status.next` is the exact next command. Discovery is optional: without `brief.md` but
+with requirements it shows as `skipped`.
 
 **Audit trail** — one record per decision: who (person with git email, agent, rule or system), why, on
 which requirements and principles, with evidence. Ratifications, HIL decisions, refused attempts (an agent
@@ -807,7 +852,7 @@ trying to approve, a person not in `approvers.json`), reviews, rule-driven valid
 are all recorded. Each log is hash-chained; a tampered line is reported and the command exits 1.
 
 ```bash
-open-sdd audit trail <feature> --requirement REQ-TRF-001   # what was decided about this requirement
+open-sdd audit trail <feature> --requirement REQ-COB-001   # what was decided about this requirement
 open-sdd audit trail <feature> --principle C-BOUNDARIES
 open-sdd audit trail <feature> --actor human               # human | agent | rule | system
 open-sdd audit trail <feature> --decisions --csv > trail.csv
